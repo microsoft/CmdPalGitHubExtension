@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35514.174
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GitHubExtension", "GitHubExtension\GitHubExtension.csproj", "{3CFB67D2-224C-4A58-B501-E55D98B8744B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CA3206AE-B6CE-4CF2-A563-3DF0D4F8F72A}"
+	ProjectSection(SolutionItems) = preProject
+		Common.Dotnet.CsWinRT.props = Common.Dotnet.CsWinRT.props
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3CFB67D2-224C-4A58-B501-E55D98B8744B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CFB67D2-224C-4A58-B501-E55D98B8744B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CFB67D2-224C-4A58-B501-E55D98B8744B}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{3CFB67D2-224C-4A58-B501-E55D98B8744B}.Debug|x64.ActiveCfg = Debug|x64
+		{3CFB67D2-224C-4A58-B501-E55D98B8744B}.Debug|x64.Build.0 = Debug|x64
+		{3CFB67D2-224C-4A58-B501-E55D98B8744B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CFB67D2-224C-4A58-B501-E55D98B8744B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CFB67D2-224C-4A58-B501-E55D98B8744B}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{3CFB67D2-224C-4A58-B501-E55D98B8744B}.Release|x64.ActiveCfg = Release|x64
+		{3CFB67D2-224C-4A58-B501-E55D98B8744B}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
