@@ -32,7 +32,7 @@ internal sealed partial class SearchIssuesPage : ListPage
 
             if (issues.Count > 0)
             {
-                var section = issues.Select(issue => new ListItem(new IssueMarkdownPage(issue))
+                var section = issues.Select(issue => new ListItem(new LinkCommand(issue))
                 {
                     Title = issue.Title,
                     Icon = new(GitHubIcon.IconDictionary["issue"]),
@@ -42,19 +42,12 @@ internal sealed partial class SearchIssuesPage : ListPage
                         Title = issue.Title,
                         Body = issue.Body,
                     },
-                    Tags = new Tag[]
-                    {
-                            new()
-                            {
-                                Text = issue.Number.ToString(CultureInfo.InvariantCulture),
-                            },
-                    },
                     MoreCommands = new CommandContextItem[]
                     {
-                            new(new LinkCommand(issue)),
                             new(new CopyCommand(issue.HtmlUrl, "URL")),
                             new(new CopyCommand(issue.Title, "issue title")),
                             new(new CopyCommand(issue.Number.ToString(CultureInfo.InvariantCulture), "issue number")),
+                            new(new IssueMarkdownPage(issue)),
                     },
                 }).ToArray();
 

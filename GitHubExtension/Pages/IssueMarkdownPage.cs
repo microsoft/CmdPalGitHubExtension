@@ -24,7 +24,7 @@ internal sealed partial class IssueMarkdownPage : MarkdownPage
     public IssueMarkdownPage(Issue issue)
     {
         Icon = new(GitHubIcon.IconDictionary["issue"]);
-        Name = "View";
+        Name = "View issue in Command Palette";
         _issue = issue;
 #pragma warning disable IDE0300 // Simplify collection initialization
         Commands = new CommandContextItem[]
