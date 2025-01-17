@@ -20,10 +20,7 @@ public static class Validation
             (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
     }
 
-    public static bool IsValidGitHubURL(Uri uri)
-    {
-        return IsValidGitHubComURL(uri) || (IsValidGitHubEnterpriseServerURL(uri) && IsReachableGitHubEnterpriseServerURL(uri).Result);
-    }
+    public static bool IsValidGitHubURL(Uri uri) => IsValidGitHubComURL(uri) || (IsValidGitHubEnterpriseServerURL(uri) && IsReachableGitHubEnterpriseServerURL(uri).Result);
 
     public static bool IsValidGitHubComURL(Uri uri)
     {
@@ -76,17 +73,8 @@ public static class Validation
         }
 
         Uri? uri;
-        if (!(Uri.TryCreate(url, UriKind.Absolute, out uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)))
-        {
-            return false;
-        }
-
-        if (uri.Segments.Length < 4 || !uri.Segments[3].Equals("issues", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        return true;
+        return Uri.TryCreate(url, UriKind.Absolute, out uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+&& uri.Segments.Length >= 4 && uri.Segments[3].Equals("issues", StringComparison.OrdinalIgnoreCase);
     }
 
     public static Uri GetUriFromGitHubUrlString(string url)
@@ -110,14 +98,24 @@ public static class Validation
     {
         // Check if URL string provided as just the repository FullName.
         var fullNameSplit = GetNameAndRepoFromFullName(url);
-        if (fullNameSplit is not null)
-        {
-            return fullNameSplit[0];
-        }
-
-        return ParseOwnerFromGitHubURL(GetUriFromGitHubUrlString(url));
+        return fullNameSplit is not null ? fullNameSplit[0] : ParseOwnerFromGitHubURL(GetUriFromGitHubUrlString(url));
     }
 
+    // New method to parse owner from GitHub API URL
+    public static string ParseOwnerFromGitHubApiUrl(string apiUrl)
+    {
+        if (!Uri.TryCreate(apiUrl, UriKind.Absolute, out var uri))
+        {
+            throw new InvalidGitHubUrlException($"{apiUrl} is not a valid URI.");
+        }
+
+        var segments = uri.Segments;
+        return segments.Length < 4 || !segments[1].Equals("repos/", StringComparison.OrdinalIgnoreCase)
+            ? throw new InvalidGitHubUrlException($"{apiUrl} is not a valid GitHub API URL.")
+            : segments[2].TrimEnd('/');
+    }
+
+#pragma warning disable IDE0022 // Use expression body for method
     public static string ParseOwnerFromGitHubURL(Uri url)
     {
         // For some reason Segments is returning trailing '/', even though the documentation
@@ -125,17 +123,13 @@ public static class Validation
         // work even if/when that issue is fixed.
         return url.Segments[1].Replace("/", string.Empty);
     }
+#pragma warning restore IDE0022 // Use expression body for method
 
     public static string ParseRepositoryFromGitHubURL(string url)
     {
         // Check if URL string provided as just the repository FullName.
         var fullNameSplit = GetNameAndRepoFromFullName(url);
-        if (fullNameSplit is not null)
-        {
-            return fullNameSplit[1];
-        }
-
-        return ParseRepositoryFromGitHubURL(GetUriFromGitHubUrlString(url));
+        return fullNameSplit is not null ? fullNameSplit[1] : ParseRepositoryFromGitHubURL(GetUriFromGitHubUrlString(url));
     }
 
     public static string ParseRepositoryFromGitHubURL(Uri url)
@@ -155,14 +149,7 @@ public static class Validation
         var uri = new Uri(url);
 
         // Query includes the ?q= prefix, which we need to remove and return the raw query string.
-        if (uri.Query.StartsWith(@"?q=", StringComparison.OrdinalIgnoreCase))
-        {
-            return uri.Query[3..];
-        }
-        else
-        {
-            return string.Empty;
-        }
+        return uri.Query.StartsWith(@"?q=", StringComparison.OrdinalIgnoreCase) ? uri.Query[3..] : string.Empty;
     }
 
     /// <summary>
@@ -191,38 +178,24 @@ public static class Validation
     {
         // Check if URL string provided as just the repository FullName.
         var fullNameSplit = GetNameAndRepoFromFullName(url);
-        if (fullNameSplit is not null)
-        {
-            return url;
-        }
-
-        return ParseFullNameFromGitHubURL(GetUriFromGitHubUrlString(url));
+        return fullNameSplit is not null ? url : ParseFullNameFromGitHubURL(GetUriFromGitHubUrlString(url));
     }
 
-    public static string ParseFullNameFromGitHubURL(Uri url)
-    {
+    public static string ParseFullNameFromGitHubURL(Uri url) =>
+
         // Need to account for the presence or absence of a trailing '/' in the segments, and
         // ensure there is exactly one slash separator in the full name.
-        return $"{url.Segments[1].Replace("/", string.Empty)}/{url.Segments[2].Replace("/", string.Empty)}";
-    }
+        $"{url.Segments[1].Replace("/", string.Empty)}/{url.Segments[2].Replace("/", string.Empty)}";
 
     // Adds a protocol to a string to allow for protocol-less Uris.
-    private static string AddProtocolToString(string s)
-    {
-        return "https://" + s;
-    }
+    private static string AddProtocolToString(string s) => "https://" + s;
 
     private static string[]? GetNameAndRepoFromFullName(string s)
     {
         var n = s.Split(['/']);
 
         // This should be exactly two results with no empty strings.
-        if (n.Length != 2 || string.IsNullOrEmpty(n[0]) || string.IsNullOrEmpty(n[1]))
-        {
-            return null;
-        }
-
-        return n;
+        return n.Length != 2 || string.IsNullOrEmpty(n[0]) || string.IsNullOrEmpty(n[1]) ? null : n;
     }
 
     public static async Task<bool> IsReachableGitHubEnterpriseServerURL(Uri server)

@@ -3,8 +3,8 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Globalization;
+using GitHubExtension.Client;
 using GitHubExtension.Commands;
-using GitHubExtension.Data;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Microsoft.CmdPal.Extensions;
@@ -36,6 +36,7 @@ internal sealed partial class SearchIssuesPage : ListPage
                 {
                     Title = issue.Title,
                     Icon = new(GitHubIcon.IconDictionary["issue"]),
+                    Subtitle = $"{GetOwner(issue.Repository.Url)}/{issue.Repository}/#{issue.Number}",
                     Details = new Details()
                     {
                         Title = issue.Title,
@@ -103,6 +104,8 @@ internal sealed partial class SearchIssuesPage : ListPage
             ];
         }
     }
+
+    public string GetOwner(string repositoryUrl) => Validation.ParseOwnerFromGitHubApiUrl(repositoryUrl);
 
     private static async Task<List<Issue>> GetGitHubIssuesAsync(string query)
     {
