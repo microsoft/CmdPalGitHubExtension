@@ -115,15 +115,34 @@ internal sealed partial class SearchIssuesPage : ListPage
             return allIssues;
         }
 
-        var request = new SearchIssuesRequest(query)
+        var requestOptions = new RequestOptions
         {
-            Is =
-            [
-                    IssueIsQualifier.Issue,
-            ],
+            UsePublicClientAsFallback = true,
         };
 
-        var searchResults = await client.Search.SearchIssues(request);
+        if (!string.IsNullOrEmpty(query))
+        {
+            // TODO: if a query was provided, use that query for parameters.
+        }
+        else
+        {
+            // Default query parameters.
+            // We are only interested in getting the first 10 issues. Repositories can have
+            // hundreds and thousands of issues open, and the widget can only display a small
+            // number of them. We also don't need all of the issues possible, just the most
+            // recent which are likely of interest to the developer to watch for new issues.
+            requestOptions.SearchIssuesRequest = new SearchIssuesRequest
+            {
+                State = ItemState.Open,
+                Type = IssueTypeQualifier.Issue,
+                SortField = IssueSearchSort.Created,
+                Order = SortDirection.Descending,
+                PerPage = 10,
+                Page = 1,
+            };
+        }
+
+        var searchResults = await client.Search.SearchIssues(requestOptions.SearchIssuesRequest);
 
         return new List<Issue>(searchResults.Items);
     }
