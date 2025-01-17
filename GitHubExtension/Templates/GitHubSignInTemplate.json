@@ -9,7 +9,7 @@
       "items": [
         {
           "type": "TextBlock",
-          "text": "%Widget_Template_Button/SignIn%",
+          "text": "%SignIn_Title%",
           "wrap": true,
           "horizontalAlignment": "center",
           "height": "stretch",
@@ -17,12 +17,37 @@
           "weight": "bolder"
         },
         {
-          "type": "ActionSet",
-          "actions": [
+          "type": "Image",
+          "url": "data:image/png;base64,%GitHubLogo%",
+          "horizontalAlignment": "center",
+          "size": "large"
+        },
+        {
+          "type": "ColumnSet",
+          "columns": [
             {
-              "type": "Action.Submit",
-              "title": "%Widget_Template_Button/SignIn%",
-              "tooltip": "%Widget_Template_Tooltip/SignIn%"
+              "type": "Column",
+              "width": "stretch"
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "ActionSet",
+                  "actions": [
+                    {
+                      "type": "Action.Submit",
+                      "title": "%Widget_Template_Button/SignIn%",
+                      "tooltip": "%Widget_Template_Tooltip/SignIn%"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch"
             }
           ]
         }

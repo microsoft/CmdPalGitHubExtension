@@ -6,7 +6,7 @@ using Octokit;
 
 namespace GitHubExtension.DeveloperId;
 
-public class DeveloperId
+public class DeveloperId : IDeveloperId
 {
     public string LoginId { get; private set; }
 

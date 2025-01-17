@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Forms;
-using GitHubExtension.Helpers;
 using Microsoft.CmdPal.Extensions;
 using Microsoft.CmdPal.Extensions.Helpers;
 using Windows.Foundation;

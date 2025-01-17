@@ -1,5 +1,6 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// Copyright (c) Microsoft Corporation
+// The Microsoft Corporation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System.ComponentModel;
 using System.Runtime.InteropServices;
@@ -10,13 +11,13 @@ using static GitHubExtension.DeveloperId.CredentialManager;
 
 namespace GitHubExtension.DeveloperId;
 
-public class CredentialVault : ICredentialVault
+public class CredentialVault(string applicationName = "") : ICredentialVault
 {
     private static readonly Lazy<ILogger> _logger = new(() => Serilog.Log.ForContext("SourceContext", nameof(CredentialVault)));
 
     private static readonly ILogger _log = _logger.Value;
 
-    private readonly string _credentialResourceName;
+    private readonly string _credentialResourceName = string.IsNullOrEmpty(applicationName) ? CredentialVaultConfiguration.CredResourceName : applicationName;
 
     private static class CredentialVaultConfiguration
     {
@@ -25,11 +26,6 @@ public class CredentialVault : ICredentialVault
 
     // Win32 Error codes
     public const int Win32ErrorNotFound = 1168;
-
-    public CredentialVault(string applicationName = "")
-    {
-        _credentialResourceName = string.IsNullOrEmpty(applicationName) ? CredentialVaultConfiguration.CredResourceName : applicationName;
-    }
 
     private string AddCredentialResourceNamePrefix(string loginId) => _credentialResourceName + ": " + loginId;
 
@@ -91,12 +87,7 @@ public class CredentialVault : ICredentialVault
                 _log.Error($"Retrieving credentials from Credential Manager has failed for {loginId} with {error}");
 
                 // NotFound is expected and can be ignored.
-                if (error == Win32ErrorNotFound)
-                {
-                    return null;
-                }
-
-                throw new Win32Exception(error);
+                return error == Win32ErrorNotFound ? null : throw new Win32Exception(error);
             }
 
             CREDENTIAL credentialObject;
@@ -152,6 +143,7 @@ public class CredentialVault : ICredentialVault
         }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0301:Simplify collection initialization", Justification = "Leaving return type makes code clearer")]
     public IEnumerable<string> GetAllCredentials()
     {
         var ptrToCredential = IntPtr.Zero;
@@ -161,7 +153,7 @@ public class CredentialVault : ICredentialVault
             IntPtr[] allCredentials;
             uint count;
 
-            if (CredEnumerate(_credentialResourceName + "*", 0, out count, out ptrToCredential) != false)
+            if (CredEnumerate(_credentialResourceName + "*", 0, out count, out ptrToCredential))
             {
                 allCredentials = new IntPtr[count];
                 Marshal.Copy(ptrToCredential, allCredentials, 0, (int)count);
@@ -171,14 +163,7 @@ public class CredentialVault : ICredentialVault
                 var error = Marshal.GetLastWin32Error();
 
                 // NotFound is expected and can be ignored.
-                if (error == Win32ErrorNotFound)
-                {
-                    return Enumerable.Empty<string>();
-                }
-                else
-                {
-                    throw new InvalidOperationException();
-                }
+                return error == Win32ErrorNotFound ? Enumerable.Empty<string>() : throw new InvalidOperationException();
             }
 
             if (count is 0)

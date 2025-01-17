@@ -525,4 +525,7 @@
     <value>Widget Title</value>
     <comment>Shown in Widget, placeholder for title</comment>
   </data>
+  <data name="SignIn_Title" xml:space="preserve">
+    <value>Sign in to your Github account</value>
+  </data>
 </root>

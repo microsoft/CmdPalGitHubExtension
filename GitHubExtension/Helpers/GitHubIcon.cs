@@ -19,5 +19,16 @@ public static class GitHubIcon
             };
     }
 
+    public static string GetBase64Icon(string iconKey)
+    {
+        if (IconDictionary.TryGetValue(iconKey, out var iconPath))
+        {
+            var bytes = File.ReadAllBytes(iconPath);
+            return Convert.ToBase64String(bytes);
+        }
+
+        return string.Empty;
+    }
+
     public static Dictionary<string, string> IconDictionary { get; private set; }
 }

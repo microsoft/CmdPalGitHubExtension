@@ -2,11 +2,10 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using Octokit;
-using Serilog;
 using System.Net;
 using System.Security;
-using System.Threading.Channels;
+using Octokit;
+using Serilog;
 using Windows.Foundation;
 
 namespace GitHubExtension.DeveloperId;
@@ -67,7 +66,7 @@ public class DeveloperIdProvider
         }
     }
 
-    public IAsyncOperation<IDeveloperId?> LoginNewDeveloperIdAsync()
+    public IAsyncOperation<IDeveloperId> LoginNewDeveloperIdAsync()
     {
         return Task.Run(() =>
         {

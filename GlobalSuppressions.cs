@@ -8,10 +8,9 @@
 // a specific target and scoped to a namespace, type, member, etc.
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1009:ClosingParenthesisMustBeSpacedCorrectly", Justification = "All current violations are due to Tuple shorthand and so valid.")]
-
 [assembly: SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1101:PrefixLocalCallsWithThis", Justification = "We follow the C# Core Coding Style which avoids using `this` unless absolutely necessary.")]
 
+[assembly: SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1200:UsingDirectivesMustBePlacedWithinNamespace", Justification = "We follow the C# Core Coding Style which puts using statements outside the namespace.")]
 [assembly: SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1201:ElementsMustAppearInTheCorrectOrder", Justification = "It is not a priority and has high impact in code changes.")]
 [assembly: SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1202:ElementsMustBeOrderedByAccess", Justification = "It is not a priority and has high impact in code changes.")]
 [assembly: SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1203:ConstantsMustAppearBeforeFields", Justification = "It is not a priority and has high impact in code changes.")]
@@ -33,7 +32,6 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Static methods may improve performance but decrease maintainability")]
 [assembly: SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix", Justification = "Renaming everything would be a lot of work. It does not do any harm if an EventHandler delegate ends with the suffix EventHandler. Besides this, the Rule causes some false positives.")]
 [assembly: SuppressMessage("Performance", "CA1838:Avoid 'StringBuilder' parameters for P/Invokes", Justification = "We are not concerned about the performance impact of marshaling a StringBuilder")]
-[assembly: SuppressMessage("Performance", "CA1852:Seal internal types", Justification = "The assembly is getting a ComVisible set to false already.", Scope = "namespaceanddescendants", Target = "MouseWithoutBorders")]
 
 // Threading suppressions
 [assembly: SuppressMessage("Microsoft.VisualStudio.Threading.Analyzers", "VSTHRD100:Avoid async void methods", Justification = "Event handlers needs async void", Scope = "member", Target = "~M:Microsoft.Templates.UI.Controls.Notification.OnClose")]
@@ -48,17 +46,23 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Microsoft.Templates.Core.Locations.JunctionNativeMethods.ThrowLastWin32Error(System.String)", Scope = "member", Target = "Microsoft.Templates.Core.Locations.JunctionNativeMethods.#InternalGetTarget(Microsoft.Win32.SafeHandles.SafeFileHandle)", Justification = "Only used for local generation")]
 [assembly: SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Microsoft.Templates.Core.Locations.JunctionNativeMethods.ThrowLastWin32Error(System.String)", Scope = "member", Target = "Microsoft.Templates.Core.Locations.JunctionNativeMethods.#OpenReparsePoint(System.String,Microsoft.Templates.Core.Locations.JunctionNativeMethods+EFileAccess)", Justification = "Only used for local generation")]
 [assembly: SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "System.Windows.Documents.InlineCollection.Add(System.String)", Scope = "member", Target = "Microsoft.Templates.UI.Extensions.TextBlockExtensions.#OnSequentialFlowStepChanged(System.Windows.DependencyObject,System.Windows.DependencyPropertyChangedEventArgs)", Justification = "No text here")]
-[assembly: SuppressMessage("Globalization", "CA1309:Use ordinal string comparison", Justification = "The user's search term should be compared with culture based rules.", Scope = "type", Target = "~T:Microsoft.PowerToys.Run.Plugin.TimeDate.Components.SearchController")]
 
 // Uninstantiated TestFixture classes
 [assembly: SuppressMessage("Microsoft.Performance", "CA1812: Avoid uninstantiated internal classes", Scope = "module", Justification = "CA1812 will be thrown for every file in the test project. This is mentioned here: dotnet/roslyn-analyzers#1830")]
 
 // Code quality
 [assembly: SuppressMessage("CodeQuality", "IDE0076:Invalid global 'SuppressMessageAttribute'", Justification = "Affect predefined suppressions.")]
-
-// Dotnet port
-[assembly: SuppressMessage("Design", "CA1069:Enums values should not be duplicated", Justification = "<Dotnet port with style preservation>", Scope = "namespaceanddescendants", Target = "MouseWithoutBorders")]
-[assembly: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1401:Fields should be private", Justification = "<Dotnet port with style preservation>", Scope = "namespaceanddescendants", Target = "MouseWithoutBorders")]
-[assembly: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "<Dotnet port with style preservation>", Scope = "namespaceanddescendants", Target = "MouseWithoutBorders")]
-[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1310:Field names should not contain underscore", Justification = "<Dotnet port with style preservation>", Scope = "namespaceanddescendants", Target = "MouseWithoutBorders")]
-[assembly: SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "<Dotnet port with style preservation>", Scope = "namespaceanddescendants", Target = "MouseWithoutBorders")]
+[assembly: SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "We follow the C# Core Coding Style which uses underscores as prefixes rather than using `this.`", Scope = "type", Target = "~T:GitHubExtension.DeveloperId.DeveloperIdsResultDummy._IDeveloperIdsResultFactory")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "We follow the C# Core Coding Style which uses underscores as prefixes rather than using `this.`", Scope = "type", Target = "~T:GitHubExtension.DeveloperId.DeveloperIdsResultDummy._IDeveloperIdsResultFactory")]
+[assembly: SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Hadn't occurred in source code", Scope = "type", Target = "~T:DeveloperIdsResultDummy._IDeveloperIdsResultFactory")]
+[assembly: SuppressMessage("Style", "IDE0028:Simplify collection initialization", Justification = "Not in previous code", Scope = "member", Target = "~M:GitHubExtension.GitHubSearchManager.SearchForGitHubIssuesOrPRs(Octokit.SearchIssuesRequest,System.String,GitHubExtension.DataManager.SearchCategory,Octokit.GitHubClient,GitHubExtension.RequestOptions)~System.Threading.Tasks.Task")]
+[assembly: SuppressMessage("Style", "IDE0290:Use primary constructor", Justification = "Not in previous code", Scope = "member", Target = "~M:GitHubExtension.DataManager.DataManagerUpdateEventArgs.#ctor(GitHubExtension.DataManager.DataManagerUpdateKind,System.String,System.String[])")]
+[assembly: SuppressMessage("Style", "IDE0032:Use auto property", Justification = "Not in previous code", Scope = "member", Target = "~F:GitHubExtension.DataManager.DataManagerUpdateEventArgs._description")]
+[assembly: SuppressMessage("Style", "IDE0032:Use auto property", Justification = "Not in previous code", Scope = "member", Target = "~F:GitHubExtension.DataManager.DataManagerUpdateEventArgs._kind")]
+[assembly: SuppressMessage("Style", "IDE0032:Use auto property", Justification = "Not in previous code", Scope = "member", Target = "~F:GitHubExtension.DataManager.DataManagerUpdateEventArgs._context")]
+[assembly: SuppressMessage("Style", "IDE0130:Namespace does not match folder structure", Justification = "Not in previous code", Scope = "namespace", Target = "~N:GitHubExtension")]
+[assembly: SuppressMessage("Style", "IDE0301:Simplify collection initialization", Justification = "Not in previous code", Scope = "member", Target = "~P:GitHubExtension.DataStoreOperationParameters.DeveloperIds")]
+[assembly: SuppressMessage("Style", "IDE0130:Namespace does not match folder structure", Justification = "Not in previous code", Scope = "namespace", Target = "~N:GitHubExtension.DataModel")]
+[assembly: SuppressMessage("Style", "IDE0025:Use expression body for property", Justification = "Prevents code from being easily understood", Scope = "member", Target = "~P:GitHubExtension.DataModel.User.PullRequests")]
+[assembly: SuppressMessage("Style", "IDE0301:Simplify collection initialization", Justification = "Prevents code from being easily understood", Scope = "member", Target = "~P:GitHubExtension.DataModel.User.PullRequests")]
+[assembly: SuppressMessage("Style", "IDE0301:Simplify collection initialization", Justification = "Prevents code from being easily understood", Scope = "member", Target = "~M:GitHubExtension.DataModel.User.GetDeveloperUsers(GitHubExtension.DataModel.DataStore)~System.Collections.Generic.IEnumerable{GitHubExtension.DataModel.User}")]

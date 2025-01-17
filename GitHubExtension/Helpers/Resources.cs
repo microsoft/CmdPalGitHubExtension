@@ -109,6 +109,7 @@ public static class Resources
             "Widget_Template_Tooltip/OpenRelease",
             "Widget_Template/WidgetTitleLabel",
             "Widget_Template/WidgetTitlePlaceholder",
+            "SignIn_Title",
         };
     }
 }
