@@ -101,20 +101,6 @@ public static class Validation
         return fullNameSplit is not null ? fullNameSplit[0] : ParseOwnerFromGitHubURL(GetUriFromGitHubUrlString(url));
     }
 
-    // New method to parse owner from GitHub API URL
-    public static string ParseOwnerFromGitHubApiUrl(string apiUrl)
-    {
-        if (!Uri.TryCreate(apiUrl, UriKind.Absolute, out var uri))
-        {
-            throw new InvalidGitHubUrlException($"{apiUrl} is not a valid URI.");
-        }
-
-        var segments = uri.Segments;
-        return segments.Length < 4 || !segments[1].Equals("repos/", StringComparison.OrdinalIgnoreCase)
-            ? throw new InvalidGitHubUrlException($"{apiUrl} is not a valid GitHub API URL.")
-            : segments[2].TrimEnd('/');
-    }
-
 #pragma warning disable IDE0022 // Use expression body for method
     public static string ParseOwnerFromGitHubURL(Uri url)
     {

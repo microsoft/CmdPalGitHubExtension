@@ -36,7 +36,7 @@ internal sealed partial class SearchIssuesPage : ListPage
                 {
                     Title = issue.Title,
                     Icon = new(GitHubIcon.IconDictionary["issue"]),
-                    Subtitle = $"{GetOwner(issue.Repository.Url)}/{issue.Repository}/#{issue.Number}",
+                    Subtitle = $"{GetOwner(issue.Repository.HtmlUrl)}/{issue.Repository}/#{issue.Number}",
                     Details = new Details()
                     {
                         Title = issue.Title,
@@ -105,7 +105,7 @@ internal sealed partial class SearchIssuesPage : ListPage
         }
     }
 
-    public string GetOwner(string repositoryUrl) => Validation.ParseOwnerFromGitHubApiUrl(repositoryUrl);
+    public string GetOwner(string repositoryUrl) => Validation.ParseOwnerFromGitHubURL(repositoryUrl);
 
     private static async Task<List<Issue>> GetGitHubIssuesAsync(string query)
     {
