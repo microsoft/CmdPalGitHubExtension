@@ -98,13 +98,13 @@ internal sealed class OAuthRequest : IDisposable
         if (!string.IsNullOrEmpty(queryStringCollection.Get("error")))
         {
             _log.Error($"OAuth authorization error: {queryStringCollection.Get("error")}");
-            throw new UriFormatException();
+            throw new UriFormatException($"OAuth authorization error: {queryStringCollection.Get("error")}");
         }
 
         if (string.IsNullOrEmpty(queryStringCollection.Get("code")))
         {
             _log.Error($"Malformed authorization response: {queryString}");
-            throw new UriFormatException();
+            throw new UriFormatException($"Malformed authorization response: {queryString}");
         }
 
         // Gets the Authorization code
@@ -120,7 +120,7 @@ internal sealed class OAuthRequest : IDisposable
         catch (Exception ex)
         {
             _log.Error($"Authorization code exchange failed: {ex}");
-            throw;
+            throw new InvalidOperationException(ex.Message);
         }
 
         _log.Information($"Authorization code exchange completed");
