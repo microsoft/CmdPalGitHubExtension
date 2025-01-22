@@ -4,6 +4,7 @@
 
 using System.Text.Json.Nodes;
 using GitHubExtension.DeveloperId;
+using GitHubExtension.Helpers;
 using Microsoft.CmdPal.Extensions;
 using Microsoft.CmdPal.Extensions.Helpers;
 using Octokit;
@@ -85,24 +86,41 @@ internal sealed partial class AddOrganizationForm : Form
 
     private async Task<IReadOnlyList<Repository>> GetUserRepositoriesInOrganization(string userName, string organizationName)
     {
-        // Currently only gets public repos from organization
-        var repositories = await _githubClient.Repository.GetAllForOrg(organizationName);
         var userRepositories = new List<Repository>();
+        var page = 1;
+        const int pageSize = 100; // Adjust the page size as needed
 
-        foreach (var repo in repositories)
+        while (true)
         {
-            try
+            var repositories = await _githubClient.Repository.GetAllForOrg(organizationName, new ApiOptions
             {
-                var isCollaborator = await _githubClient.Repository.Collaborator.IsCollaborator(repo.Id, userName);
-                if (isCollaborator)
+                PageCount = 1,
+                PageSize = pageSize,
+                StartPage = page,
+            });
+
+            if (repositories.Count == 0)
+            {
+                break;
+            }
+
+            foreach (var repo in repositories)
+            {
+                try
                 {
-                    userRepositories.Add(repo);
+                    var isCollaborator = await _githubClient.Repository.Collaborator.IsCollaborator(repo.Id, userName);
+                    if (isCollaborator)
+                    {
+                        userRepositories.Add(repo);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Information($"Repository {repo.Name} not added: {ex.Message}");
                 }
             }
-            catch (Exception ex)
-            {
-                Log.Information($"Repository {repo.Name} not added: {ex.Message}");
-            }
+
+            page++;
         }
 
         if (userRepositories.Count == 0)
@@ -122,44 +140,48 @@ internal sealed partial class AddOrganizationForm : Form
 
     public override string TemplateJson()
     {
-        return @"
-        {
+        var gh_base64 = GitHubIcon.GetBase64Icon("logo");
+        var template = $@"
+        {{
             ""type"": ""AdaptiveCard"",
             ""version"": ""1.3"",
             ""body"": [
-                {
+                {{
                     ""type"": ""Image"",
-                    ""url"": ""https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"",
+                    ""url"": ""data:image/png;base64,%GitHubLogo%"",
+                    ""size"": ""large""
                     ""horizontalAlignment"": ""center""
-                },
-                {
+                }},
+                {{
                     ""type"": ""Container"",
                     ""items"": [
-                        {
+                        {{
                             ""type"": ""TextBlock"",
                             ""text"": ""Organization URL"",
                             ""weight"": ""bolder"",
                             ""size"": ""medium""
-                        },
-                        {
+                        }},
+                        {{
                             ""type"": ""Input.Text"",
                             ""id"": ""organizationUrl"",
                             ""placeholder"": ""Enter organization URL""
-                        }
+                        }}
                     ],
                     ""horizontalAlignment"": ""left""
-                }
+                }}
             ],
             ""actions"": [
-                {
+                {{
                     ""type"": ""Action.Submit"",
                     ""title"": ""Submit"",
-                    ""data"": {
+                    ""data"": {{
                         ""organizationUrl"": ""{{organizationUrl.value}}""
-                    }
-                }
+                    }}
+                }}
             ]
-        }";
+        }}";
+        template = template.Replace("%GitHubLogo%", gh_base64);
+        return template;
     }
 
     private sealed class Payload
