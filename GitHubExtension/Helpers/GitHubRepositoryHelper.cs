@@ -22,16 +22,9 @@ public class GitHubRepositoryHelper
         // Get the authenticated user
         var user = await _client.User.Current();
 
-        // Get repositories the user owns
-        var ownedRepos = await _client.Repository.GetAllForCurrent();
-        repositories.AddRange(ownedRepos);
-
-        // Get repositories the user has contributed to
-        var contributedRepos = await _client.Repository.GetAllForCurrent(new RepositoryRequest
-        {
-            Affiliation = RepositoryAffiliation.Collaborator,
-        });
-        repositories.AddRange(contributedRepos);
+        // Get repositories the user owns and/or contributes to
+        var repos = await _client.Repository.GetAllForCurrent();
+        repositories.AddRange(repos);
 
         // Remove duplicates
         repositories = repositories.GroupBy(repo => repo.Id).Select(group => group.First()).ToList();

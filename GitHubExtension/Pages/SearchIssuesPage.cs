@@ -8,6 +8,7 @@ using GitHubExtension.Commands;
 using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
+using GitHubExtension.Pages;
 using Microsoft.CmdPal.Extensions;
 using Microsoft.CmdPal.Extensions.Helpers;
 using Octokit;
@@ -59,7 +60,13 @@ internal sealed partial class SearchIssuesPage : ListPage
                     },
                 }).ToArray();
 
-                return section;
+                var additionalItem = new ListItem(new AddOrganizationPage())
+                {
+                    Title = "Add organization repos to search",
+                    Icon = new(GitHubIcon.IconDictionary["logo"]),
+                };
+
+                return section.Concat(new[] { additionalItem }).ToArray();
             }
             else
             {
@@ -161,7 +168,7 @@ internal sealed partial class SearchIssuesPage : ListPage
         var dataModelIssues = new List<DataModel.DataObjects.Issue>();
         foreach (var octokitIssue in octokitIssueList)
         {
-            DataModel.DataObjects.Issue issue = DataModel.DataObjects.Issue.CreateFromOctokitIssue(octokitIssue);
+            var issue = DataModel.DataObjects.Issue.CreateFromOctokitIssue(octokitIssue);
             dataModelIssues.Add(issue);
         }
 
