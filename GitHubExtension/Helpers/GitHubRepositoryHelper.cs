@@ -23,7 +23,7 @@ public class GitHubRepositoryHelper
         var user = await _client.User.Current();
 
         // Get repositories the user owns
-        var ownedRepos = await _client.Repository.GetAllForUser(user.Login);
+        var ownedRepos = await _client.Repository.GetAllForCurrent();
         repositories.AddRange(ownedRepos);
 
         // Get repositories the user has contributed to
