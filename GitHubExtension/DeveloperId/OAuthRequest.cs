@@ -56,7 +56,7 @@ internal sealed class OAuthRequest : IDisposable
 
         var request = new OauthLoginRequest(OauthConfiguration.GetClientId())
         {
-            Scopes = { "read:user", "notifications", "repo", "read:org" },
+            Scopes = { "read:user", "notifications", "repo", "read:org", "write:org" },
             State = State,
             RedirectUri = new Uri(OauthConfiguration.RedirectUri),
         };
