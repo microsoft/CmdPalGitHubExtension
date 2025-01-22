@@ -4,9 +4,9 @@
 
 using System.Globalization;
 using GitHubExtension.Commands;
+using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.Helpers;
 using Microsoft.CmdPal.Extensions.Helpers;
-using Octokit;
 
 namespace GitHubExtension;
 
@@ -41,7 +41,6 @@ internal sealed partial class IssueMarkdownPage : MarkdownPage
     {
         var template = $$"""
         # {{_issue.Title}}
-        ## Respository: {{_issue.Repository}}
         {{_issue.Body}}
         """;
         return [template];

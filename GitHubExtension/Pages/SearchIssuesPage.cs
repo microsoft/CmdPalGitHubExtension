@@ -5,11 +5,14 @@
 using System.Globalization;
 using GitHubExtension.Client;
 using GitHubExtension.Commands;
+using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Microsoft.CmdPal.Extensions;
 using Microsoft.CmdPal.Extensions.Helpers;
 using Octokit;
+using Octokit.Internal;
+using Serilog;
 
 namespace GitHubExtension;
 
@@ -30,13 +33,18 @@ internal sealed partial class SearchIssuesPage : ListPage
         {
             var issues = await GetGitHubIssuesAsync(query);
 
+            foreach (var issue in issues)
+            {
+                Log.Information($"{issue.Title}, {GetRepo(issue.HtmlUrl)}, {issue.Body}, {issue.Number}");
+            }
+
             if (issues.Count > 0)
             {
                 var section = issues.Select(issue => new ListItem(new LinkCommand(issue))
                 {
                     Title = issue.Title,
                     Icon = new(GitHubIcon.IconDictionary["issue"]),
-                    Subtitle = $"{GetOwner(issue.Repository.HtmlUrl)}/{GetRepo(issue.Repository.HtmlUrl)}/#{issue.Number}",
+                    Subtitle = $"{GetOwner(issue.HtmlUrl)}/{GetRepo(issue.HtmlUrl)}/#{issue.Number}",
                     Details = new Details()
                     {
                         Title = issue.Title,
@@ -98,53 +106,44 @@ internal sealed partial class SearchIssuesPage : ListPage
         }
     }
 
-    public string GetOwner(string repositoryUrl) => Validation.ParseOwnerFromGitHubURL(repositoryUrl);
+    public static string GetOwner(string repositoryUrl) => Validation.ParseOwnerFromGitHubURL(repositoryUrl);
 
-    public string GetRepo(string repositoryUrl) => Validation.ParseRepositoryFromGitHubURL(repositoryUrl);
+    public static string GetRepo(string repositoryUrl) => Validation.ParseRepositoryFromGitHubURL(repositoryUrl);
 
-    private static async Task<List<Issue>> GetGitHubIssuesAsync(string query)
+    private static async Task<List<DataModel.DataObjects.Issue>> GetGitHubIssuesAsync(string query)
     {
         var devIdProvider = DeveloperIdProvider.GetInstance();
         var devIds = devIdProvider.GetLoggedInDeveloperIdsInternal();
 
         var client = devIds.Any() ? devIds.First().GitHubClient : GitHubClientProvider.Instance.GetClient();
 
-        var requestOptions = new RequestOptions
-        {
-            UsePublicClientAsFallback = true,
-        };
+        var repoHelper = new GitHubRepositoryHelper(client);
 
-        if (!string.IsNullOrEmpty(query))
-        {
-            // TODO: if a query was provided, use that query for parameters.
-        }
-        else
-        {
-            // Default query parameters.
-            // We are only interested in getting the first 10 issues. Repositories can have
-            // hundreds and thousands of issues open, and the widget can only display a small
-            // number of them. We also don't need all of the issues possible, just the most
-            // recent which are likely of interest to the developer to watch for new issues.
-            requestOptions.SearchIssuesRequest = new SearchIssuesRequest
-            {
-                State = ItemState.Open,
-                Type = IssueTypeQualifier.Issue,
-                SortField = IssueSearchSort.Created,
-                Order = SortDirection.Descending,
-                PerPage = 10,
-                Page = 1,
-            };
-        }
+        var repoCollection = await repoHelper.GetUserRepositoryCollection();
 
+        var requestOptions = new RequestOptions();
+        SetOptions(requestOptions, query);
+        requestOptions.SearchIssuesRequest.Repos = repoCollection;
         var searchResults = await client.Search.SearchIssues(requestOptions.SearchIssuesRequest);
 
-        // TODO: When this value returns, there isn't all the information needed for the list items,
-        // so it returns null.
-        var items = searchResults.Items.Take(10).ToList();
-        return new List<Issue>(items);
+        var issues = ConvertToDataObjectsIssue(searchResults.Items);
+
+        return issues;
     }
 
-    private static async Task<List<Issue>> GetAllIssuesAsync(GitHubClient client)
+    private static RequestOptions SetOptions(RequestOptions options, string repoString)
+    {
+        options.SearchIssuesRequest = new SearchIssuesRequest
+        {
+            State = ItemState.Open,
+            Type = IssueTypeQualifier.Issue,
+            SortField = IssueSearchSort.Created,
+            Order = SortDirection.Descending,
+        };
+        return options;
+    }
+
+    private static async Task<List<DataModel.DataObjects.Issue>> GetAllIssuesAsync(GitHubClient client)
     {
         var issue_request = new IssueRequest()
         {
@@ -152,8 +151,20 @@ internal sealed partial class SearchIssuesPage : ListPage
         };
 
         var api_issues = await client.Issue.GetAllForCurrent(issue_request);
-        var issues = new List<Issue>(api_issues);
+        var newList = ConvertToDataObjectsIssue(api_issues);
 
-        return issues;
+        return newList;
+    }
+
+    private static List<DataModel.DataObjects.Issue> ConvertToDataObjectsIssue(IReadOnlyList<Octokit.Issue> octokitIssueList)
+    {
+        var dataModelIssues = new List<DataModel.DataObjects.Issue>();
+        foreach (var octokitIssue in octokitIssueList)
+        {
+            DataModel.DataObjects.Issue issue = DataModel.DataObjects.Issue.CreateFromOctokitIssue(octokitIssue);
+            dataModelIssues.Add(issue);
+        }
+
+        return dataModelIssues;
     }
 }

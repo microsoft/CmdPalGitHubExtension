@@ -3,8 +3,8 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Diagnostics;
+using GitHubExtension.DataModel.DataObjects;
 using Microsoft.CmdPal.Extensions.Helpers;
-using Octokit;
 
 namespace GitHubExtension.Commands;
 
