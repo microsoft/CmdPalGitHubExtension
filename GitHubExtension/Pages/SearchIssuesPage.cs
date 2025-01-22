@@ -109,12 +109,6 @@ internal sealed partial class SearchIssuesPage : ListPage
 
         var client = devIds.Any() ? devIds.First().GitHubClient : GitHubClientProvider.Instance.GetClient();
 
-        if (string.IsNullOrEmpty(query))
-        {
-            var allIssues = await GetAllIssuesAsync(client);
-            return allIssues;
-        }
-
         var requestOptions = new RequestOptions
         {
             UsePublicClientAsFallback = true,
@@ -144,7 +138,10 @@ internal sealed partial class SearchIssuesPage : ListPage
 
         var searchResults = await client.Search.SearchIssues(requestOptions.SearchIssuesRequest);
 
-        return new List<Issue>(searchResults.Items);
+        // TODO: When this value returns, there isn't all the information needed for the list items,
+        // so it returns null.
+        var items = searchResults.Items.Take(10).ToList();
+        return new List<Issue>(items);
     }
 
     private static async Task<List<Issue>> GetAllIssuesAsync(GitHubClient client)
