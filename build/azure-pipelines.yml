@@ -47,6 +47,12 @@ steps:
       configuration: 'release'
       msbuildArguments: '/t:Restore'
 
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: './BuildOutput'
+      Contents: '**'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)'
