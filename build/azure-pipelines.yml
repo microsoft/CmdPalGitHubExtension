@@ -45,4 +45,4 @@ steps:
       msbuildArchitecture: 'x64'
       platform: 'x64'
       configuration: 'release'
-      restoreNugetPackages: true
+      msbuildArguments: '/t:Restore'
