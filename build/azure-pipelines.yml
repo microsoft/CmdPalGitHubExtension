@@ -59,8 +59,9 @@ steps:
       outputPath: './BuildOutput/AppxBundle'
       solution: '**/GitHubExtension.sln'
       clean: false
-      generateBundle: true
+      generateBundle: false
       buildConfiguration: 'release'
+      buildPlatform: 'x64'
       updateAppVersion: false
       appPackageDistributionMode: 'StoreAndSideload'
       msbuildLocationMethod: 'version'
