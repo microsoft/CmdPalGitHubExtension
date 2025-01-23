@@ -38,6 +38,11 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
                 Title = "Search GitHub Issues",
                 Icon = new(GitHubIcon.IconDictionary["issue"]),
             },
+            new CommandItem(new SearchPullRequestsPage())
+            {
+                Title = "Search GitHub Pull Requests",
+                Icon = new(GitHubIcon.IconDictionary["pullRequest"]),
+            },
             new CommandItem(_signOutCommand)
             {
                 Title = "GitHub Extension",
