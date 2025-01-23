@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Text.Json;
 using Octokit;
 
 namespace GitHubExtension;
@@ -43,5 +44,41 @@ public class GitHubRepositoryHelper
         }
 
         return repositoryCollection;
+    }
+
+    public async Task<Repository> GetSavedRepositoryAsync()
+    {
+        var json = File.ReadAllText("repositoryInfo.json");
+        var repoInfo = JsonSerializer.Deserialize<RepositoryInfo>(json);
+
+        if (repoInfo == null)
+        {
+            throw new InvalidOperationException("No repository information found.");
+        }
+
+        var repository = await _client.Repository.Get(repoInfo.Owner, repoInfo.Name);
+        return repository;
+    }
+
+    public async Task<List<Issue>> GetRepositoryIssuesAsync()
+    {
+        var repository = await GetSavedRepositoryAsync();
+        var issues = await _client.Issue.GetAllForRepository(repository.Owner.Login, repository.Name);
+        return issues.ToList();
+    }
+
+    private class RepositoryInfo
+    {
+        private string? url = string.Empty;
+
+        public string? Name { get; set; }
+
+        public string Url
+        {
+            get => url ?? string.Empty;
+            set => url = value;
+        }
+
+        public string Owner => Url.Split('/')[3]; // Assuming the URL is in the format https://github.com/owner/repo
     }
 }

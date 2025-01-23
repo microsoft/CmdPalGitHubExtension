@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
@@ -60,6 +61,9 @@ internal sealed partial class AddRepoForm : Form
 
             var userRepositories = GetUserRepositories(userName, repositoryName).Result;
 
+            // Save the repository information
+            SaveRepositoryInformation(repositoryName, repositoryUrl);
+
             // Process the userRepositories as needed
             RepositoryAdded?.Invoke(this, null);
             return CommandResult.KeepOpen();
@@ -71,11 +75,20 @@ internal sealed partial class AddRepoForm : Form
         }
     }
 
+    private void SaveRepositoryInformation(string repositoryName, string repositoryUrl)
+    {
+        var repoInfo = new { Name = repositoryName, Url = repositoryUrl };
+        var json = JsonSerializer.Serialize(repoInfo);
+        File.WriteAllText("repositoryInfo.json", json);
+    }
+
     private async Task<bool> IsUserMemberOfRepository(string userName, string repositoryName)
     {
         try
         {
-            var membership = await _githubClient.Repository.Collaborator.IsCollaborator(repositoryName, userName);
+            // Get the repository by name to retrieve its ID
+            var repository = await _githubClient.Repository.Get(userName, repositoryName);
+            var membership = await _githubClient.Repository.Collaborator.IsCollaborator(repository.Id, userName);
             return membership;
         }
         catch (NotFoundException)
