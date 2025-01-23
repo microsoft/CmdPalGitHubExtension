@@ -47,6 +47,13 @@ steps:
       configuration: 'release'
       msbuildArguments: '/t:Restore'
 
+  - task: MSBuild@1
+    inputs:
+      solution: '$(solution)'
+      msbuildArchitecture: 'x64'
+      platform: 'x64'
+      configuration: 'release'
+      
   - task: CopyFiles@2
     inputs:
       SourceFolder: './BuildOutput'
