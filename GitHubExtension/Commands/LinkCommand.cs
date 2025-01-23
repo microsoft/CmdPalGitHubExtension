@@ -11,10 +11,12 @@ namespace GitHubExtension.Commands;
 internal sealed partial class LinkCommand : InvokableCommand
 {
     private readonly Issue _issue;
+    private readonly PullRequest _pullRequest;
 
     internal LinkCommand()
     {
         _issue = new Issue();
+        _pullRequest = new PullRequest();
         Name = "Open link";
         Icon = new("\uE8A7");
     }
@@ -22,6 +24,15 @@ internal sealed partial class LinkCommand : InvokableCommand
     internal LinkCommand(Issue issue)
     {
         _issue = issue;
+        _pullRequest = new();
+        Name = "Open link";
+        Icon = new("\uE8A7");
+    }
+
+    internal LinkCommand(PullRequest pullRequest)
+    {
+        _issue = new();
+        _pullRequest = pullRequest;
         Name = "Open link";
         Icon = new("\uE8A7");
     }

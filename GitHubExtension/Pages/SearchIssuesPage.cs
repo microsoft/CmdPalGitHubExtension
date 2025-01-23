@@ -150,19 +150,6 @@ internal sealed partial class SearchIssuesPage : ListPage
         return options;
     }
 
-    private static async Task<List<DataModel.DataObjects.Issue>> GetAllIssuesAsync(GitHubClient client)
-    {
-        var issue_request = new IssueRequest()
-        {
-            Filter = IssueFilter.All,
-        };
-
-        var api_issues = await client.Issue.GetAllForCurrent(issue_request);
-        var newList = ConvertToDataObjectsIssue(api_issues);
-
-        return newList;
-    }
-
     private static List<DataModel.DataObjects.Issue> ConvertToDataObjectsIssue(IReadOnlyList<Octokit.Issue> octokitIssueList)
     {
         var dataModelIssues = new List<DataModel.DataObjects.Issue>();

@@ -67,7 +67,7 @@ public class GitHubRepositoryHelper
         return issues.ToList();
     }
 
-    private class RepositoryInfo
+    private sealed class RepositoryInfo
     {
         private string? url = string.Empty;
 
