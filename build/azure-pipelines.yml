@@ -46,3 +46,9 @@ steps:
       platform: 'x64'
       configuration: 'release'
       msbuildArguments: '/t:Restore'
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'drop'
+      publishLocation: 'Container'
