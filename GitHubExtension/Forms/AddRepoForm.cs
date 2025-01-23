@@ -4,6 +4,7 @@
 
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using GitHubExtension.Client;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Microsoft.CmdPal.Extensions;
@@ -50,16 +51,17 @@ internal sealed partial class AddRepoForm : Form
                 return CommandResult.GoHome();
             }
 
-            var repositoryName = ExtractRepositoryName(repositoryUrl);
+            var repositoryName = Validation.ParseRepositoryFromGitHubURL(repositoryUrl);
+            var ownerName = Validation.ParseOwnerFromGitHubURL(repositoryUrl);
             var userName = _githubClient.User.Current().Result.Login;
 
-            var isMember = IsUserMemberOfRepository(userName, repositoryName).Result;
+            var isMember = IsUserMemberOfRepository(ownerName, repositoryName, userName).Result;
             if (!isMember)
             {
                 throw new UnauthorizedAccessException("User is not a member of the repository");
             }
 
-            var userRepositories = GetUserRepositories(userName, repositoryName).Result;
+            var userRepositories = GetUserRepositories(ownerName, repositoryName).Result;
 
             // Save the repository information
             SaveRepositoryInformation(repositoryName, repositoryUrl);
@@ -82,12 +84,12 @@ internal sealed partial class AddRepoForm : Form
         File.WriteAllText("repositoryInfo.json", json);
     }
 
-    private async Task<bool> IsUserMemberOfRepository(string userName, string repositoryName)
+    private async Task<bool> IsUserMemberOfRepository(string ownerName, string repositoryName, string userName)
     {
         try
         {
             // Get the repository by name to retrieve its ID
-            var repository = await _githubClient.Repository.Get(userName, repositoryName);
+            var repository = await _githubClient.Repository.Get(ownerName, repositoryName);
             var membership = await _githubClient.Repository.Collaborator.IsCollaborator(repository.Id, userName);
             return membership;
         }
@@ -97,7 +99,7 @@ internal sealed partial class AddRepoForm : Form
         }
     }
 
-    private async Task<IReadOnlyList<Repository>> GetUserRepositories(string userName, string repositoryName)
+    private async Task<IReadOnlyList<Repository>> GetUserRepositories(string ownerName, string repositoryName)
     {
         var userRepositories = new List<Repository>();
         var page = 1;
@@ -105,7 +107,7 @@ internal sealed partial class AddRepoForm : Form
 
         while (true)
         {
-            var repositories = await _githubClient.Repository.GetAllForUser(userName, new ApiOptions
+            var repositories = await _githubClient.Repository.GetAllForUser(ownerName, new ApiOptions
             {
                 PageCount = 1,
                 PageSize = pageSize,
@@ -121,7 +123,7 @@ internal sealed partial class AddRepoForm : Form
             {
                 try
                 {
-                    var isCollaborator = await _githubClient.Repository.Collaborator.IsCollaborator(repo.Id, userName);
+                    var isCollaborator = await _githubClient.Repository.Collaborator.IsCollaborator(repo.Id, ownerName);
                     if (isCollaborator)
                     {
                         userRepositories.Add(repo);
@@ -142,13 +144,6 @@ internal sealed partial class AddRepoForm : Form
         }
 
         return userRepositories;
-    }
-
-    private string ExtractRepositoryName(string repositoryUrl)
-    {
-        var uri = new Uri(repositoryUrl);
-        var segments = uri.Segments;
-        return segments.Length > 1 ? segments[1].TrimEnd('/') : string.Empty;
     }
 
     public override string TemplateJson()

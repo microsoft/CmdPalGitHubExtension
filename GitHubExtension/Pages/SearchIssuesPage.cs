@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Globalization;
+using System.Linq;
 using GitHubExtension.Client;
 using GitHubExtension.Commands;
 using GitHubExtension.DataModel.DataObjects;
@@ -60,13 +61,21 @@ internal sealed partial class SearchIssuesPage : ListPage
                     },
                 }).ToArray();
 
-                var additionalItem = new ListItem(new AddOrganizationPage())
+                var additionalItems = new ListItem[]
                 {
-                    Title = "Add organization repos to search",
-                    Icon = new(GitHubIcon.IconDictionary["logo"]),
+                    new(new AddOrganizationPage())
+                    {
+                        Title = "Add organization repos to search",
+                        Icon = new(GitHubIcon.IconDictionary["logo"]),
+                    },
+                    new(new AddRepoPage())
+                    {
+                        Title = "Add a repo via URL",
+                        Icon = new(GitHubIcon.IconDictionary["logo"]),
+                    },
                 };
 
-                return section.Concat(new[] { additionalItem }).ToArray();
+                return section.Concat(additionalItems).ToArray();
             }
             else
             {
