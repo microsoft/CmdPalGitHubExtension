@@ -37,7 +37,7 @@ steps:
       command: 'restore'
       restoreSolution: '$(solution)'
       feedsToUse: 'config'
-      nugetConfigPath: '../nuget.config'
+      nugetConfigPath: './nuget.config'
   
   - task: MSBuild@1
     inputs:
