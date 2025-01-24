@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using Octokit;
+using Serilog;
 
 namespace GitHubExtension;
 
@@ -17,26 +18,38 @@ public class GitHubRepositoryHelper
 
     public async Task<List<Repository>> GetUserRepositoriesAsync()
     {
-        var repositories = new List<Repository>();
-
-        // Get the authenticated user
-        var user = await _client.User.Current();
-
-        // Get repositories the user owns
-        var ownedRepos = await _client.Repository.GetAllForCurrent();
-        repositories.AddRange(ownedRepos);
-
-        // Get repositories the user has contributed to
-        var contributedRepos = await _client.Repository.GetAllForCurrent(new RepositoryRequest
+        try
         {
-            Affiliation = RepositoryAffiliation.Collaborator,
-        });
-        repositories.AddRange(contributedRepos);
+            var repositories = new List<Repository>();
 
-        // Remove duplicates
-        repositories = repositories.GroupBy(repo => repo.Id).Select(group => group.First()).ToList();
+            var user = await _client.User.Current();
 
-        return repositories;
+            // Define the pagination options
+            var apiOptions = new ApiOptions
+            {
+                PageSize = 100, // Number of repositories per page
+                PageCount = 1,  // Number of pages to fetch at a time
+                StartPage = 1,   // Starting page
+            };
+
+            // Fetch repositories where the user is a collaborator with pagination
+            var collaboratorRepos = await _client.Repository.GetAllForCurrent(
+                new RepositoryRequest
+                {
+                    Affiliation = RepositoryAffiliation.OwnerAndCollaborator,
+                },
+                apiOptions);
+            repositories.AddRange(collaboratorRepos);
+
+            // Remove duplicate repositories by grouping by Id
+            repositories = repositories.GroupBy(repo => repo.Id).Select(group => group.First()).ToList();
+            return repositories;
+        }
+        catch (Exception ex)
+        {
+            Log.Error($"Error getting user repositories: {ex}");
+            return new List<Repository>();
+        }
     }
 
     public async Task<RepositoryCollection> GetUserRepositoryCollection()
