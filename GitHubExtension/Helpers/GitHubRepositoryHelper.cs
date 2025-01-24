@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Text.Json;
+using Microsoft.Extensions.Options;
 using Octokit;
 
 namespace GitHubExtension;
@@ -23,8 +24,21 @@ public class GitHubRepositoryHelper
         // Get the authenticated user
         var user = await _client.User.Current();
 
+        // Define the pagination options
+        var apiOptions = new ApiOptions
+        {
+            PageSize = 100, // Number of repositories per page
+            PageCount = 1,  // Number of pages to fetch at a time
+            StartPage = 1,   // Starting page
+        };
+
         // Get repositories the user owns and/or contributes to
-        var repos = await _client.Repository.GetAllForCurrent();
+        var repos = await _client.Repository.GetAllForCurrent(
+                new RepositoryRequest
+                {
+                    Affiliation = RepositoryAffiliation.OwnerAndCollaborator,
+                },
+                apiOptions);
         repositories.AddRange(repos);
 
         // Remove duplicates
