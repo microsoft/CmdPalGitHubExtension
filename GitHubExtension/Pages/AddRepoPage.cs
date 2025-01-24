@@ -10,11 +10,13 @@ namespace GitHubExtension.Pages;
 
 internal sealed partial class AddRepoPage : FormPage
 {
-    private readonly AddRepoForm _addRepoForm = new();
+    private readonly AddRepoForm _addRepoForm;
 
-    public AddRepoPage()
+    public AddRepoPage(SearchIssuesPage searchIssuesPage)
     {
+        _addRepoForm = new AddRepoForm();
         _addRepoForm.RepositoryAdded += OnRepositoryAdded;
+        _addRepoForm.RepositoryAdded += searchIssuesPage.OnRepositoryAdded; // Subscribe to the event
     }
 
     public override IForm[] Forms() => new IForm[] { _addRepoForm };

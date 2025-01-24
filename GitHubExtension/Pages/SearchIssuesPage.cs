@@ -15,6 +15,7 @@ using Microsoft.CmdPal.Extensions.Helpers;
 using Octokit;
 using Octokit.Internal;
 using Serilog;
+using Windows.Foundation;
 
 namespace GitHubExtension;
 
@@ -63,12 +64,7 @@ internal sealed partial class SearchIssuesPage : ListPage
 
                 var additionalItems = new ListItem[]
                 {
-                    new(new AddOrganizationPage())
-                    {
-                        Title = "Add organization repos to search",
-                        Icon = new(GitHubIcon.IconDictionary["logo"]),
-                    },
-                    new(new AddRepoPage())
+                    new(new AddRepoPage(this)) // Pass the current instance
                     {
                         Title = "Add a repo via URL",
                         Icon = new(GitHubIcon.IconDictionary["logo"]),
@@ -133,9 +129,9 @@ internal sealed partial class SearchIssuesPage : ListPage
 
         var client = devIds.Any() ? devIds.First().GitHubClient : GitHubClientProvider.Instance.GetClient();
 
-        var repoHelper = new GitHubRepositoryHelper(client);
+        var repoHelper = GitHubRepositoryHelper.Instance;
 
-        var repoCollection = await repoHelper.GetUserRepositoryCollection();
+        var repoCollection = repoHelper.GetUserRepositoryCollection().Result;
 
         var requestOptions = new RequestOptions();
         SetOptions(requestOptions, query);
@@ -159,19 +155,6 @@ internal sealed partial class SearchIssuesPage : ListPage
         return options;
     }
 
-    private static async Task<List<DataModel.DataObjects.Issue>> GetAllIssuesAsync(GitHubClient client)
-    {
-        var issue_request = new IssueRequest()
-        {
-            Filter = IssueFilter.All,
-        };
-
-        var api_issues = await client.Issue.GetAllForCurrent(issue_request);
-        var newList = ConvertToDataObjectsIssue(api_issues);
-
-        return newList;
-    }
-
     private static List<DataModel.DataObjects.Issue> ConvertToDataObjectsIssue(IReadOnlyList<Octokit.Issue> octokitIssueList)
     {
         var dataModelIssues = new List<DataModel.DataObjects.Issue>();
@@ -182,5 +165,30 @@ internal sealed partial class SearchIssuesPage : ListPage
         }
 
         return dataModelIssues;
+    }
+
+    // Event handler for RepositoryAdded event
+    public void OnRepositoryAdded(object sender, object? args)
+    {
+        if (args is Exception ex)
+        {
+            Log.Error($"Error in adding repository: {ex.Message}");
+        }
+        else
+        {
+            Log.Information("Repository added successfully!");
+
+            // Refresh the items
+            var items = GetItems();
+
+            // Update the UI with the new items
+            UpdateUIWithItems(items);
+        }
+    }
+
+    private void UpdateUIWithItems(IListItem[] items)
+    {
+        // Implement this method to update the UI with the new items
+        // This is a placeholder and should be replaced with actual UI update logic
     }
 }

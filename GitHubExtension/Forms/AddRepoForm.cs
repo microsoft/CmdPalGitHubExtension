@@ -56,15 +56,16 @@ internal sealed partial class AddRepoForm : Form
             var userName = _githubClient.User.Current().Result.Login;
 
             var isMember = IsUserMemberOfRepository(ownerName, repositoryName, userName).Result;
-            if (!isMember)
+            var isContributor = IsUserContributorOfRepository(ownerName, repositoryName, userName).Result;
+
+            if (!isMember && !isContributor)
             {
                 throw new UnauthorizedAccessException("User is not a member of the repository");
             }
 
-            var userRepositories = GetUserRepositories(ownerName, repositoryName).Result;
-
-            // Save the repository information
-            SaveRepositoryInformation(repositoryName, repositoryUrl);
+            var repoHelper = GitHubRepositoryHelper.Instance;
+            var repositories = repoHelper.GetUserRepositories();
+            repoHelper.AddRepository(ownerName, repositoryName);
 
             // Process the userRepositories as needed
             RepositoryAdded?.Invoke(this, null);
@@ -77,21 +78,19 @@ internal sealed partial class AddRepoForm : Form
         }
     }
 
-    private void SaveRepositoryInformation(string repositoryName, string repositoryUrl)
-    {
-        var repoInfo = new { Name = repositoryName, Url = repositoryUrl };
-        var json = JsonSerializer.Serialize(repoInfo);
-        File.WriteAllText("repositoryInfo.json", json);
-    }
-
     private async Task<bool> IsUserMemberOfRepository(string ownerName, string repositoryName, string userName)
     {
         try
         {
-            // Get the repository by name to retrieve its ID
-            var repository = await _githubClient.Repository.Get(ownerName, repositoryName);
-            var membership = await _githubClient.Repository.Collaborator.IsCollaborator(repository.Id, userName);
-            return membership;
+            var collaborators = await _githubClient.Issue.Assignee.GetAllForRepository(ownerName, repositoryName);
+            if (collaborators.Count == 0)
+            {
+                return false;
+            }
+            else
+            {
+                return collaborators.Any(collaborator => collaborator.Login == userName);
+            }
         }
         catch (NotFoundException)
         {
@@ -99,51 +98,27 @@ internal sealed partial class AddRepoForm : Form
         }
     }
 
-    private async Task<IReadOnlyList<Repository>> GetUserRepositories(string ownerName, string repositoryName)
+    private async Task<bool> IsUserContributorOfRepository(string ownerName, string repositoryName, string userName)
     {
-        var userRepositories = new List<Repository>();
-        var page = 1;
-        const int pageSize = 100; // Adjust the page size as needed
-
-        while (true)
+        try
         {
-            var repositories = await _githubClient.Repository.GetAllForUser(ownerName, new ApiOptions
+            var commits = await _githubClient.Repository.Commit.GetAll(ownerName, repositoryName, new CommitRequest { Author = userName });
+            var issueSearchRequest = new SearchIssuesRequest(repositoryName)
             {
-                PageCount = 1,
-                PageSize = pageSize,
-                StartPage = page,
-            });
+                Author = userName,
+                Type = IssueTypeQualifier.PullRequest,
+                SortField = IssueSearchSort.Created,
+                Order = SortDirection.Descending,
+            };
 
-            if (repositories.Count == 0)
-            {
-                break;
-            }
+            var pullRequests = await _githubClient.Search.SearchIssues(issueSearchRequest);
 
-            foreach (var repo in repositories)
-            {
-                try
-                {
-                    var isCollaborator = await _githubClient.Repository.Collaborator.IsCollaborator(repo.Id, ownerName);
-                    if (isCollaborator)
-                    {
-                        userRepositories.Add(repo);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Information($"Repository {repo.Name} not added: {ex.Message}");
-                }
-            }
-
-            page++;
+            return (commits.Count > 0) || (pullRequests.TotalCount > 0);
         }
-
-        if (userRepositories.Count == 0)
+        catch (NotFoundException)
         {
-            throw new InvalidOperationException("No repositories found for the user. See logs for more information");
+            return false;
         }
-
-        return userRepositories;
     }
 
     public override string TemplateJson()
