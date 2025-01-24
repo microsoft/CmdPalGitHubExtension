@@ -5,13 +5,11 @@
 using System.Globalization;
 using GitHubExtension.Client;
 using GitHubExtension.Commands;
-using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Microsoft.CmdPal.Extensions;
 using Microsoft.CmdPal.Extensions.Helpers;
 using Octokit;
-using Octokit.Internal;
 using Serilog;
 
 namespace GitHubExtension;
@@ -141,19 +139,6 @@ internal sealed partial class SearchIssuesPage : ListPage
             Order = SortDirection.Descending,
         };
         return options;
-    }
-
-    private static async Task<List<DataModel.DataObjects.Issue>> GetAllIssuesAsync(GitHubClient client)
-    {
-        var issue_request = new IssueRequest()
-        {
-            Filter = IssueFilter.All,
-        };
-
-        var api_issues = await client.Issue.GetAllForCurrent(issue_request);
-        var newList = ConvertToDataObjectsIssue(api_issues);
-
-        return newList;
     }
 
     private static List<DataModel.DataObjects.Issue> ConvertToDataObjectsIssue(IReadOnlyList<Octokit.Issue> octokitIssueList)
