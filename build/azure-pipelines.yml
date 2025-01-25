@@ -53,20 +53,21 @@ steps:
       msbuildArchitecture: 'x64'
       platform: 'x64'
       configuration: 'release'
-  
+
   - task: MsixPackaging@1
     inputs:
-      outputPath: './BuildOutput/AppxBundle'
+      outputPath: '$(Build.ArtifactStagingDirectory)\GitHubExtension.msix'
       solution: '**/GitHubExtension.sln'
       clean: false
       generateBundle: false
       buildConfiguration: 'release'
       buildPlatform: 'x64'
       updateAppVersion: false
-      appPackageDistributionMode: 'StoreAndSideload'
+      appPackageDistributionMode: 'SideloadOnly'
       msbuildLocationMethod: 'version'
       msbuildVersion: 'latest'
       msbuildArchitecture: 'x64'
+     
   
   - task: CopyFiles@2
     inputs:
