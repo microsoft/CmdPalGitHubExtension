@@ -53,15 +53,8 @@ internal sealed partial class AddRepoForm : Form
 
             var repositoryName = Validation.ParseRepositoryFromGitHubURL(repositoryUrl);
             var ownerName = Validation.ParseOwnerFromGitHubURL(repositoryUrl);
-            var userName = _githubClient.User.Current().Result.Login;
 
-            var isMember = IsUserMemberOfRepository(ownerName, repositoryName, userName).Result;
-            var isContributor = IsUserContributorOfRepository(ownerName, repositoryName, userName).Result;
-
-            if (!isMember && !isContributor)
-            {
-                throw new UnauthorizedAccessException("User is not a member of the repository");
-            }
+            ExtensionHost.LogMessage(new LogMessage() { Message = $"IsMemberOrContributor {IsMemberOrContributor(ownerName, repositoryName)}..." });
 
             var repoHelper = GitHubRepositoryHelper.Instance;
             var repositories = repoHelper.GetUserRepositories();
@@ -76,6 +69,16 @@ internal sealed partial class AddRepoForm : Form
             RepositoryAdded?.Invoke(this, ex);
             return CommandResult.KeepOpen();
         }
+    }
+
+    private bool IsMemberOrContributor(string ownerName, string repositoryName)
+    {
+        var userName = _githubClient.User.Current().Result.Login;
+
+        var isMember = IsUserMemberOfRepository(ownerName, repositoryName, userName).Result;
+        var isContributor = IsUserContributorOfRepository(ownerName, repositoryName, userName).Result;
+
+        return isMember || isContributor;
     }
 
     private async Task<bool> IsUserMemberOfRepository(string ownerName, string repositoryName, string userName)
