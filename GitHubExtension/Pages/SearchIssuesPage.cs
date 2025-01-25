@@ -122,7 +122,7 @@ internal sealed partial class SearchIssuesPage : ListPage
 
         var repoHelper = GitHubRepositoryHelper.Instance;
 
-        var repoCollection = repoHelper.GetUserRepositoryCollection().Result;
+        var repoCollection = repoHelper.GetUserRepositoryCollection();
 
         var requestOptions = new RequestOptions();
         SetOptions(requestOptions, query);
@@ -168,7 +168,7 @@ internal sealed partial class SearchIssuesPage : ListPage
         {
             Log.Information("Repository added successfully!");
 
-            RaiseItemsChanged(0);
+            RaiseItemsChanged(10);
         }
     }
 }

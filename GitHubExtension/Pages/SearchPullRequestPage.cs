@@ -113,7 +113,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
 
         var client = devIds.Any() ? devIds.First().GitHubClient : GitHubClientProvider.Instance.GetClient();
 
-        var repoHelper = new GitHubRepositoryHelper(client);
+        var repoHelper = GitHubRepositoryHelper.Instance;
 
         var repos = repoHelper.GetUserRepositoriesAsync().GetAwaiter().GetResult();
 

@@ -64,10 +64,10 @@ public class GitHubRepositoryHelper
         }
     }
 
-    public async Task<RepositoryCollection> GetUserRepositoryCollection()
+    public RepositoryCollection GetUserRepositoryCollection()
     {
         var repositoryCollection = new RepositoryCollection();
-        var repositories = await GetUserRepositoriesAsync();
+        var repositories = GetUserRepositories();
 
         foreach (var repo in repositories)
         {
