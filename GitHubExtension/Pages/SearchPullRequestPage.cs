@@ -53,6 +53,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                     },
                     MoreCommands = new CommandContextItem[]
                     {
+                            new(new CopyCommand($"git checkout {pullRequest.SourceBranch}", "checkout command")),
                             new(new CopyCommand(pullRequest.SourceBranch, "source branch")),
                             new(new CopyCommand(pullRequest.HtmlUrl, "URL")),
                             new(new CopyCommand(pullRequest.Title, "pull request title")),

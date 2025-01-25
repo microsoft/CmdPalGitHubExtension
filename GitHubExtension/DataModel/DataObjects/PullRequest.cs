@@ -63,8 +63,8 @@ public class PullRequest
             Body = octokitPullRequest.Body ?? string.Empty,
             State = octokitPullRequest.State.StringValue.ToString(),
             HtmlUrl = octokitPullRequest.HtmlUrl ?? string.Empty,
-            SourceBranch = octokitPullRequest.Head.ToString() ?? string.Empty,
-            TargetBranch = octokitPullRequest.Base.ToString() ?? string.Empty,
+            SourceBranch = octokitPullRequest.Head.Ref ?? string.Empty,
+            TargetBranch = octokitPullRequest.Base.Ref ?? string.Empty,
         };
     }
 }
