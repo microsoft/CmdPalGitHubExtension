@@ -39,7 +39,7 @@ internal sealed partial class SearchIssuesPage : ListPage
 
             if (issues.Count > 0)
             {
-                var section = issues.Select(issue => new ListItem(new LinkCommand(issue))
+                return issues.Select(issue => new ListItem(new LinkCommand(issue))
                 {
                     Title = issue.Title,
                     Icon = new(GitHubIcon.IconDictionary["issue"]),
@@ -52,14 +52,6 @@ internal sealed partial class SearchIssuesPage : ListPage
                             new(new IssueMarkdownPage(issue)),
                     },
                 }).ToArray();
-
-                var additionalItem = new ListItem(new AddOrganizationPage())
-                {
-                    Title = "Add organization repos to search",
-                    Icon = new(GitHubIcon.IconDictionary["logo"]),
-                };
-
-                return section.Concat(new[] { additionalItem }).ToArray();
             }
             else
             {
