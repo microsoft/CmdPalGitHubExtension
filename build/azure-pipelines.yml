@@ -47,17 +47,10 @@ steps:
       configuration: 'release'
       msbuildArguments: '/t:Restore'
 
-  - task: MSBuild@1
-    inputs:
-      solution: '$(solution)'
-      msbuildArchitecture: 'x64'
-      platform: 'x64'
-      configuration: 'release'
-
   - task: MsixPackaging@1
     inputs:
       outputPath: '$(Build.ArtifactStagingDirectory)\GitHubExtension.msix'
-      solution: '**/GitHubExtension.sln'
+      solution: '$(solution)'
       clean: false
       generateBundle: false
       buildConfiguration: 'release'
