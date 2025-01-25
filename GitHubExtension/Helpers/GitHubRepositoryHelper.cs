@@ -39,15 +39,13 @@ public class GitHubRepositoryHelper
 
             var user = await _client.User.Current();
 
-            // Define the pagination options
             var apiOptions = new ApiOptions
             {
-                PageSize = 100, // Number of repositories per page
-                PageCount = 1,  // Number of pages to fetch at a time
-                StartPage = 1,   // Starting page
+                PageSize = 100,
+                PageCount = 1,
+                StartPage = 1,
             };
 
-            // Fetch repositories where the user is owner or collaborator
             var personalRepos = await _client.Repository.GetAllForCurrent(
                 new RepositoryRequest
                 {
@@ -56,7 +54,6 @@ public class GitHubRepositoryHelper
                 apiOptions);
             repositories.AddRange(personalRepos);
 
-            // Remove duplicate repositories by grouping by Id
             repositories = repositories.GroupBy(repo => repo.Id).Select(group => group.First()).ToList();
             return repositories;
         }
@@ -83,16 +80,13 @@ public class GitHubRepositoryHelper
     public async Task<List<Repository>> GetUserAndOrganizationRepositoryCollection()
     {
         var organizationRepositoryCollection = new List<Repository>();
-
-        // Define the pagination options
         var apiOptions = new ApiOptions
         {
-            PageSize = 100, // Number of repositories per page
-            PageCount = 1,  // Number of pages to fetch at a time
-            StartPage = 1,   // Starting page
+            PageSize = 100,
+            PageCount = 1,
+            StartPage = 1,
         };
 
-        // Fetch repositories where the user is owner or collaborator
         var organizationRepos = await _client.Repository.GetAllForCurrent(
             new RepositoryRequest
             {
@@ -137,7 +131,6 @@ public class GitHubRepositoryHelper
     {
         var repository = GetGitHubRepository(owner, repo).Result;
 
-        // check for duplicates
         if (_repositories.Any(repo => repo.Id == repository.Id))
         {
             return _repositories;
@@ -162,7 +155,7 @@ public class GitHubRepositoryHelper
             set => url = value;
         }
 
-        public string Owner => Url.Split('/')[3]; // Assuming the URL is in the format https://github.com/owner/repo
+        public string Owner => Url.Split('/')[3];
     }
 
     public async Task<Repository> GetGitHubRepository(string owner, string repo)

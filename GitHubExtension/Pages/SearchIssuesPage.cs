@@ -3,19 +3,15 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Globalization;
-using System.Linq;
 using GitHubExtension.Client;
 using GitHubExtension.Commands;
-using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using GitHubExtension.Pages;
 using Microsoft.CmdPal.Extensions;
 using Microsoft.CmdPal.Extensions.Helpers;
 using Octokit;
-using Octokit.Internal;
 using Serilog;
-using Windows.Foundation;
 
 namespace GitHubExtension;
 
@@ -48,11 +44,6 @@ internal sealed partial class SearchIssuesPage : ListPage
                     Title = issue.Title,
                     Icon = new(GitHubIcon.IconDictionary["issue"]),
                     Subtitle = $"{GetOwner(issue.HtmlUrl)}/{GetRepo(issue.HtmlUrl)}/#{issue.Number}",
-                    Details = new Details()
-                    {
-                        Title = issue.Title,
-                        Body = issue.Body,
-                    },
                     MoreCommands = new CommandContextItem[]
                     {
                             new(new CopyCommand(issue.HtmlUrl, "URL")),
@@ -167,7 +158,6 @@ internal sealed partial class SearchIssuesPage : ListPage
         return dataModelIssues;
     }
 
-    // Event handler for RepositoryAdded event
     public void OnRepositoryAdded(object sender, object? args)
     {
         if (args is Exception ex)
@@ -178,17 +168,7 @@ internal sealed partial class SearchIssuesPage : ListPage
         {
             Log.Information("Repository added successfully!");
 
-            // Refresh the items
-            var items = GetItems();
-
-            // Update the UI with the new items
-            UpdateUIWithItems(items);
+            RaiseItemsChanged(0);
         }
-    }
-
-    private void UpdateUIWithItems(IListItem[] items)
-    {
-        // Implement this method to update the UI with the new items
-        // This is a placeholder and should be replaced with actual UI update logic
     }
 }
