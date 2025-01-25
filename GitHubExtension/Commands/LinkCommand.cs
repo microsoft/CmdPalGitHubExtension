@@ -10,36 +10,25 @@ namespace GitHubExtension.Commands;
 
 internal sealed partial class LinkCommand : InvokableCommand
 {
-    private readonly Issue _issue;
-    private readonly PullRequest _pullRequest;
-
-    internal LinkCommand()
-    {
-        _issue = new Issue();
-        _pullRequest = new PullRequest();
-        Name = "Open link";
-        Icon = new("\uE8A7");
-    }
+    private readonly string _htmlUrl;
 
     internal LinkCommand(Issue issue)
     {
-        _issue = issue;
-        _pullRequest = new();
+        _htmlUrl = issue.HtmlUrl;
         Name = "Open link";
         Icon = new("\uE8A7");
     }
 
     internal LinkCommand(PullRequest pullRequest)
     {
-        _issue = new();
-        _pullRequest = pullRequest;
+        _htmlUrl = pullRequest.HtmlUrl;
         Name = "Open link";
         Icon = new("\uE8A7");
     }
 
     public override CommandResult Invoke()
     {
-        Process.Start(new ProcessStartInfo(_issue.HtmlUrl) { UseShellExecute = true });
+        Process.Start(new ProcessStartInfo(_htmlUrl) { UseShellExecute = true });
         return CommandResult.KeepOpen();
     }
 }
