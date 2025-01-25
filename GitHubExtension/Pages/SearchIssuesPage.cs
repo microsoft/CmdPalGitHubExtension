@@ -43,11 +43,6 @@ internal sealed partial class SearchIssuesPage : ListPage
                     Title = issue.Title,
                     Icon = new(GitHubIcon.IconDictionary["issue"]),
                     Subtitle = $"{GetOwner(issue.HtmlUrl)}/{GetRepo(issue.HtmlUrl)}/#{issue.Number}",
-                    Details = new Details()
-                    {
-                        Title = issue.Title,
-                        Body = issue.Body,
-                    },
                     MoreCommands = new CommandContextItem[]
                     {
                             new(new CopyCommand(issue.HtmlUrl, "URL")),
