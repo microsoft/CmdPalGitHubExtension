@@ -13,15 +13,11 @@ public class PullRequest
     private static readonly Lazy<ILogger> _logger = new(() => Serilog.Log.ForContext("SourceContext", $"DataModel/{nameof(PullRequest)}"));
     private static readonly ILogger _log = _logger.Value;
 
-    public long Id { get; set; }
+    public long Id { get; set; } = -1;
 
-    public long InternalId { get; set; }
+    public long Number { get; set; } = -1;
 
-    public long Number { get; set; }
-
-    public long RepositoryId { get; set; }
-
-    public long AuthorId { get; set; }
+    public long AuthorId { get; set; } = -1;
 
     public string Title { get; set; } = string.Empty;
 
@@ -30,10 +26,6 @@ public class PullRequest
     public string State { get; set; } = string.Empty;
 
     public string HtmlUrl { get; set; } = string.Empty;
-
-    public string LabelIds { get; set; } = string.Empty;
-
-    public string AssigneeIds { get; set; } = string.Empty;
 
     public override string ToString()
     {
@@ -48,14 +40,11 @@ public class PullRequest
         {
             Id = octokitIssue.Id,
             Number = octokitIssue.Number,
-            RepositoryId = octokitIssue.Repository.Id,
             AuthorId = octokitIssue.User.Id,
-            Title = octokitIssue.Title,
-            Body = octokitIssue.Body,
-            State = octokitIssue.State.StringValue,
-            HtmlUrl = octokitIssue.HtmlUrl,
-            LabelIds = string.Join(",", octokitIssue.Labels.Select(label => label.Id)),
-            AssigneeIds = string.Join(",", octokitIssue.Assignees.Select(assignee => assignee.Id)),
+            Title = octokitIssue.Title ?? string.Empty,
+            Body = octokitIssue.Body ?? string.Empty,
+            State = octokitIssue.State.StringValue.ToString(),
+            HtmlUrl = octokitIssue.HtmlUrl ?? string.Empty,
         };
     }
 }

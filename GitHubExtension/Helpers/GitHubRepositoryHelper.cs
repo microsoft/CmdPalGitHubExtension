@@ -20,14 +20,23 @@ public class GitHubRepositoryHelper
     {
         var repositories = new List<Repository>();
 
-        // Get the authenticated user
         var user = await _client.User.Current();
 
-        // Get repositories the user owns and/or contributes to
-        var repos = await _client.Repository.GetAllForCurrent();
+        var apiOptions = new ApiOptions
+        {
+            PageSize = 100,
+            PageCount = 1,
+            StartPage = 1,
+        };
+
+        var repos = await _client.Repository.GetAllForCurrent(
+            new RepositoryRequest
+            {
+                Affiliation = RepositoryAffiliation.OwnerAndCollaborator,
+            },
+            apiOptions);
         repositories.AddRange(repos);
 
-        // Remove duplicates
         repositories = repositories.GroupBy(repo => repo.Id).Select(group => group.First()).ToList();
 
         return repositories;
@@ -44,27 +53,6 @@ public class GitHubRepositoryHelper
         }
 
         return repositoryCollection;
-    }
-
-    public async Task<Repository> GetSavedRepositoryAsync()
-    {
-        var json = File.ReadAllText("repositoryInfo.json");
-        var repoInfo = JsonSerializer.Deserialize<RepositoryInfo>(json);
-
-        if (repoInfo == null)
-        {
-            throw new InvalidOperationException("No repository information found.");
-        }
-
-        var repository = await _client.Repository.Get(repoInfo.Owner, repoInfo.Name);
-        return repository;
-    }
-
-    public async Task<List<Issue>> GetRepositoryIssuesAsync()
-    {
-        var repository = await GetSavedRepositoryAsync();
-        var issues = await _client.Issue.GetAllForRepository(repository.Owner.Login, repository.Name);
-        return issues.ToList();
     }
 
     private sealed class RepositoryInfo
