@@ -53,6 +53,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                     },
                     MoreCommands = new CommandContextItem[]
                     {
+                            new(new CopyCommand(pullRequest.SourceBranch, "source branch")),
                             new(new CopyCommand(pullRequest.HtmlUrl, "URL")),
                             new(new CopyCommand(pullRequest.Title, "pull request title")),
                             new(new CopyCommand(pullRequest.Number.ToString(CultureInfo.InvariantCulture), "pull request number")),
@@ -118,36 +119,33 @@ internal sealed partial class SearchPullRequestsPage : ListPage
 
         var repoHelper = new GitHubRepositoryHelper(client);
 
-        var repoCollection = await repoHelper.GetUserRepositoryCollection();
+        var repos = repoHelper.GetUserRepositoriesAsync().GetAwaiter().GetResult();
 
-        var requestOptions = new RequestOptions();
-        SetOptions(requestOptions, query);
-        requestOptions.SearchIssuesRequest.Repos = repoCollection;
-        var searchResults = await client.Search.SearchIssues(requestOptions.SearchIssuesRequest);
-
-        var pullRequests = ConvertToDataObjectsPullRequest(searchResults.Items);
-
-        return pullRequests;
-    }
-
-    private static RequestOptions SetOptions(RequestOptions options, string repoString)
-    {
-        options.SearchIssuesRequest = new SearchIssuesRequest
+        var defaultPullRequest = new PullRequestRequest
         {
-            State = ItemState.Open,
-            Type = IssueTypeQualifier.PullRequest,
-            SortField = IssueSearchSort.Created,
-            Order = SortDirection.Descending,
+            State = ItemStateFilter.Open,
+            SortProperty = PullRequestSort.Created,
+            SortDirection = SortDirection.Descending,
         };
-        return options;
+
+        var pullRequests = new List<Octokit.PullRequest>();
+        foreach (var repo in repos)
+        {
+            var repoPRs = await client.PullRequest.GetAllForRepository(repo.Owner.Login, repo.Name, defaultPullRequest);
+            pullRequests.AddRange(repoPRs);
+        }
+
+        var pullRequestDataObjects = ConvertToDataObjectsPullRequest(pullRequests);
+
+        return pullRequestDataObjects;
     }
 
-    private static List<DataModel.DataObjects.PullRequest> ConvertToDataObjectsPullRequest(IReadOnlyList<Octokit.Issue> octokitPullRequestList)
+    private static List<DataModel.DataObjects.PullRequest> ConvertToDataObjectsPullRequest(IReadOnlyList<Octokit.PullRequest> octokitPullRequestList)
     {
         var dataModelPullRequests = new List<DataModel.DataObjects.PullRequest>();
         foreach (var octokitPullRequest in octokitPullRequestList)
         {
-            var pullRequest = DataModel.DataObjects.PullRequest.CreateFromOctokitIssue(octokitPullRequest);
+            var pullRequest = DataModel.DataObjects.PullRequest.CreateFromOctokitPullRequest(octokitPullRequest);
             dataModelPullRequests.Add(pullRequest);
         }
 

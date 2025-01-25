@@ -2,8 +2,8 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Text.Json;
 using Octokit;
+using Serilog;
 
 namespace GitHubExtension;
 
@@ -18,28 +18,38 @@ public class GitHubRepositoryHelper
 
     public async Task<List<Repository>> GetUserRepositoriesAsync()
     {
-        var repositories = new List<Repository>();
-
-        var user = await _client.User.Current();
-
-        var apiOptions = new ApiOptions
+        try
         {
-            PageSize = 100,
-            PageCount = 1,
-            StartPage = 1,
-        };
+            var repositories = new List<Repository>();
 
-        var repos = await _client.Repository.GetAllForCurrent(
-            new RepositoryRequest
+            var user = await _client.User.Current();
+
+            // Define the pagination options
+            var apiOptions = new ApiOptions
             {
-                Affiliation = RepositoryAffiliation.OwnerAndCollaborator,
-            },
-            apiOptions);
-        repositories.AddRange(repos);
+                PageSize = 100, // Number of repositories per page
+                PageCount = 1,  // Number of pages to fetch at a time
+                StartPage = 1,   // Starting page
+            };
 
-        repositories = repositories.GroupBy(repo => repo.Id).Select(group => group.First()).ToList();
+            // Fetch repositories where the user is a collaborator with pagination
+            var collaboratorRepos = await _client.Repository.GetAllForCurrent(
+                new RepositoryRequest
+                {
+                    Affiliation = RepositoryAffiliation.OwnerAndCollaborator,
+                },
+                apiOptions);
+            repositories.AddRange(collaboratorRepos);
 
-        return repositories;
+            // Remove duplicate repositories by grouping by Id
+            repositories = repositories.GroupBy(repo => repo.Id).Select(group => group.First()).ToList();
+            return repositories;
+        }
+        catch (Exception ex)
+        {
+            Log.Error($"Error getting user repositories: {ex}");
+            return new List<Repository>();
+        }
     }
 
     public async Task<RepositoryCollection> GetUserRepositoryCollection()
@@ -53,20 +63,5 @@ public class GitHubRepositoryHelper
         }
 
         return repositoryCollection;
-    }
-
-    private sealed class RepositoryInfo
-    {
-        private string? url = string.Empty;
-
-        public string? Name { get; set; }
-
-        public string Url
-        {
-            get => url ?? string.Empty;
-            set => url = value;
-        }
-
-        public string Owner => Url.Split('/')[3]; // Assuming the URL is in the format https://github.com/owner/repo
     }
 }

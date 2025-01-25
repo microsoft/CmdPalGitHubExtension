@@ -2,8 +2,6 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
-using Octokit;
 using Serilog;
 
 namespace GitHubExtension.DataModel.DataObjects;
@@ -27,6 +25,10 @@ public class PullRequest
 
     public string HtmlUrl { get; set; } = string.Empty;
 
+    public string SourceBranch { get; set; } = string.Empty;
+
+    public string TargetBranch { get; set; } = string.Empty;
+
     public override string ToString()
     {
         return $"{Title} ({Number})";
@@ -45,6 +47,24 @@ public class PullRequest
             Body = octokitIssue.Body ?? string.Empty,
             State = octokitIssue.State.StringValue.ToString(),
             HtmlUrl = octokitIssue.HtmlUrl ?? string.Empty,
+            SourceBranch = octokitIssue.PullRequest?.Head.Label ?? string.Empty,
+            TargetBranch = octokitIssue.PullRequest?.Base.Label ?? string.Empty,
+        };
+    }
+
+    public static PullRequest CreateFromOctokitPullRequest(Octokit.PullRequest octokitPullRequest)
+    {
+        return new PullRequest
+        {
+            Id = octokitPullRequest.Id,
+            Number = octokitPullRequest.Number,
+            AuthorId = octokitPullRequest.User.Id,
+            Title = octokitPullRequest.Title ?? string.Empty,
+            Body = octokitPullRequest.Body ?? string.Empty,
+            State = octokitPullRequest.State.StringValue.ToString(),
+            HtmlUrl = octokitPullRequest.HtmlUrl ?? string.Empty,
+            SourceBranch = octokitPullRequest.Head.ToString() ?? string.Empty,
+            TargetBranch = octokitPullRequest.Base.ToString() ?? string.Empty,
         };
     }
 }
