@@ -46,11 +46,6 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                     Title = pullRequest.Title,
                     Icon = new(GitHubIcon.IconDictionary["pullRequest"]),
                     Subtitle = $"{GetOwner(pullRequest.HtmlUrl)}/{GetRepo(pullRequest.HtmlUrl)}/#{pullRequest.Number}",
-                    Details = new Details()
-                    {
-                        Title = pullRequest.Title,
-                        Body = pullRequest.Body,
-                    },
                     MoreCommands = new CommandContextItem[]
                     {
                             new(new CopyCommand($"git checkout {pullRequest.SourceBranch}", "checkout command")),
