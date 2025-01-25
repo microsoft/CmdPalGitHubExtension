@@ -41,7 +41,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
 
             if (pullRequests.Count > 0)
             {
-                var section = pullRequests.Select(pullRequest => new ListItem(new LinkCommand(pullRequest))
+                return pullRequests.Select(pullRequest => new ListItem(new LinkCommand(pullRequest))
                 {
                     Title = pullRequest.Title,
                     Icon = new(GitHubIcon.IconDictionary["pullRequest"]),
@@ -59,14 +59,6 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                             new(new PullRequestMarkdownPage(pullRequest)),
                     },
                 }).ToArray();
-
-                var additionalItem = new ListItem(new AddOrganizationPage())
-                {
-                    Title = "Add organization repos to search",
-                    Icon = new(GitHubIcon.IconDictionary["logo"]),
-                };
-
-                return section.Concat(new[] { additionalItem }).ToArray();
             }
             else
             {
