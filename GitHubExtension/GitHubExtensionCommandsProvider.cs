@@ -31,13 +31,17 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
 
     public override ICommandItem[] TopLevelCommands()
     {
-        if (IsSignedIn())
-        {
-            return [
+        return IsSignedIn()
+            ? [
             new CommandItem(new SearchIssuesPage())
             {
                 Title = "Search GitHub Issues",
                 Icon = new(GitHubIcon.IconDictionary["issue"]),
+            },
+            new CommandItem(new SearchPullRequestsPage())
+            {
+                Title = "Search GitHub Pull Requests",
+                Icon = new(GitHubIcon.IconDictionary["pullRequest"]),
             },
             new CommandItem(_signOutCommand)
             {
@@ -45,18 +49,14 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
                 Subtitle = "Sign out",
                 Icon = new(GitHubIcon.IconDictionary["logo"]),
             },
-            ];
-        }
-        else
-        {
-            return [new CommandItem(_authPage)
+            ]
+            : [new CommandItem(_authPage)
             {
                 Title = "GitHub Extension",
                 Subtitle = "Log in",
                 Icon = new(GitHubIcon.IconDictionary["logo"]),
             },
             ];
-        }
     }
 
     private static bool IsSignedIn()

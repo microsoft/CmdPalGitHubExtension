@@ -163,7 +163,7 @@ public class DeveloperIdProvider
                 // This could happen if the user refreshes the redirected browser window
                 // causing the OAuth response to be received again.
                 _log.Warning($"No saved OAuth requests to match OAuth response");
-                return;
+                throw new InvalidOperationException($"No saved OAuth requests to match OAuth response. Do not refresh the browser when signing in.");
             }
 
             var state = OAuthRequest.RetrieveState(authorizationResponse);
