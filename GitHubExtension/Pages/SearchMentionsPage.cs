@@ -31,7 +31,6 @@ internal sealed partial class SearchMentionsPage : ListPage
                     Title = "Issue markdown title",
                     Body = "### Issue markdown details",
                 },
-                MoreCommands = [new CommandContextItem(new LinkCommand())],
             },
             new ListItem(new PullRequestMarkdownPage())
             {
@@ -43,7 +42,6 @@ internal sealed partial class SearchMentionsPage : ListPage
                     Title = "Pull Request markdown title",
                     Body = "### Pull Request markdown details",
                 },
-                MoreCommands = [new CommandContextItem(new LinkCommand())],
             }
         ];
     }
