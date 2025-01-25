@@ -39,7 +39,7 @@ internal sealed partial class SearchIssuesPage : ListPage
 
             if (issues.Count > 0)
             {
-                return issues.Select(issue => new ListItem(new LinkCommand(issue))
+                var section = issues.Select(issue => new ListItem(new LinkCommand(issue))
                 {
                     Title = issue.Title,
                     Icon = new(GitHubIcon.IconDictionary["issue"]),
@@ -52,6 +52,17 @@ internal sealed partial class SearchIssuesPage : ListPage
                             new(new IssueMarkdownPage(issue)),
                     },
                 }).ToArray();
+
+                var additionalItems = new ListItem[]
+                {
+                    new(new AddRepoPage(this)) // Pass the current instance
+                    {
+                        Title = "Add a repo via URL",
+                        Icon = new(GitHubIcon.IconDictionary["logo"]),
+                    },
+                };
+
+                return section.Concat(additionalItems).ToArray();
             }
             else
             {
@@ -109,9 +120,9 @@ internal sealed partial class SearchIssuesPage : ListPage
 
         var client = devIds.Any() ? devIds.First().GitHubClient : GitHubClientProvider.Instance.GetClient();
 
-        var repoHelper = new GitHubRepositoryHelper(client);
+        var repoHelper = GitHubRepositoryHelper.Instance;
 
-        var repoCollection = await repoHelper.GetUserRepositoryCollection();
+        var repoCollection = repoHelper.GetUserRepositoryCollection();
 
         var requestOptions = new RequestOptions();
         SetOptions(requestOptions, query);
@@ -145,5 +156,19 @@ internal sealed partial class SearchIssuesPage : ListPage
         }
 
         return dataModelIssues;
+    }
+
+    public void OnRepositoryAdded(object sender, object? args)
+    {
+        if (args is Exception ex)
+        {
+            Log.Error($"Error in adding repository: {ex.Message}");
+        }
+        else
+        {
+            Log.Information("Repository added successfully!");
+
+            RaiseItemsChanged(10);
+        }
     }
 }

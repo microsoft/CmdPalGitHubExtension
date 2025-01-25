@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Text;
+using GitHubExtension.Client;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Microsoft.CmdPal.Extensions;
@@ -35,7 +36,6 @@ internal sealed partial class GitHubAuthForm : Form
         {
             Task.Run(HandleSignIn).GetAwaiter().GetResult();
 
-            // TODO: Prevent CmdPal from exiting while user is logging in
             var message = new StatusMessage() { Message = "Sign in succeeded!", State = MessageState.Success };
             ExtensionHost.Host?.ShowStatus(message);
             return CommandResult.KeepOpen();
@@ -56,11 +56,14 @@ internal sealed partial class GitHubAuthForm : Form
 
         await authProvider.LoginNewDeveloperIdAsync();
 
-        var numDevIds = authProvider.GetLoggedInDeveloperIdsInternal().Count();
+        var devIds = authProvider.GetLoggedInDeveloperIdsInternal();
+        var numDevIds = devIds.Count();
 
         if (numDevIds > numPreviousDevIds)
         {
             SignInAction?.Invoke(this, null);
+            var repoHelper = GitHubRepositoryHelper.Instance;
+            repoHelper.UpdateClient(devIds.First().GitHubClient);
         }
     }
 }

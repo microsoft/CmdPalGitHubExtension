@@ -63,6 +63,8 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
     {
         var devIdProvider = DeveloperIdProvider.GetInstance();
         var devIds = devIdProvider.GetLoggedInDeveloperIdsInternal();
+        var repoHelper = GitHubRepositoryHelper.Instance;
+        repoHelper.UpdateClient(devIds.First().GitHubClient);
 
         return devIds.Any();
     }

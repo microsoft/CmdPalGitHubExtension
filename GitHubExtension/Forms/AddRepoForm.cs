@@ -4,6 +4,7 @@
 
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using GitHubExtension.Client;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Microsoft.CmdPal.Extensions;
@@ -50,19 +51,14 @@ internal sealed partial class AddRepoForm : Form
                 return CommandResult.GoHome();
             }
 
-            var repositoryName = ExtractRepositoryName(repositoryUrl);
-            var userName = _githubClient.User.Current().Result.Login;
+            var repositoryName = Validation.ParseRepositoryFromGitHubURL(repositoryUrl);
+            var ownerName = Validation.ParseOwnerFromGitHubURL(repositoryUrl);
 
-            var isMember = IsUserMemberOfRepository(userName, repositoryName).Result;
-            if (!isMember)
-            {
-                throw new UnauthorizedAccessException("User is not a member of the repository");
-            }
+            ExtensionHost.LogMessage(new LogMessage() { Message = $"IsMemberOrContributor {IsMemberOrContributor(ownerName, repositoryName)}..." });
 
-            var userRepositories = GetUserRepositories(userName, repositoryName).Result;
-
-            // Save the repository information
-            SaveRepositoryInformation(repositoryName, repositoryUrl);
+            var repoHelper = GitHubRepositoryHelper.Instance;
+            var repositories = repoHelper.GetUserRepositories();
+            repoHelper.AddRepository(ownerName, repositoryName);
 
             // Process the userRepositories as needed
             RepositoryAdded?.Invoke(this, null);
@@ -75,21 +71,29 @@ internal sealed partial class AddRepoForm : Form
         }
     }
 
-    private void SaveRepositoryInformation(string repositoryName, string repositoryUrl)
+    private bool IsMemberOrContributor(string ownerName, string repositoryName)
     {
-        var repoInfo = new { Name = repositoryName, Url = repositoryUrl };
-        var json = JsonSerializer.Serialize(repoInfo);
-        File.WriteAllText("repositoryInfo.json", json);
+        var userName = _githubClient.User.Current().Result.Login;
+
+        var isMember = IsUserMemberOfRepository(ownerName, repositoryName, userName).Result;
+        var isContributor = IsUserContributorOfRepository(ownerName, repositoryName, userName).Result;
+
+        return isMember || isContributor;
     }
 
-    private async Task<bool> IsUserMemberOfRepository(string userName, string repositoryName)
+    private async Task<bool> IsUserMemberOfRepository(string ownerName, string repositoryName, string userName)
     {
         try
         {
-            // Get the repository by name to retrieve its ID
-            var repository = await _githubClient.Repository.Get(userName, repositoryName);
-            var membership = await _githubClient.Repository.Collaborator.IsCollaborator(repository.Id, userName);
-            return membership;
+            var collaborators = await _githubClient.Issue.Assignee.GetAllForRepository(ownerName, repositoryName);
+            if (collaborators.Count == 0)
+            {
+                return false;
+            }
+            else
+            {
+                return collaborators.Any(collaborator => collaborator.Login == userName);
+            }
         }
         catch (NotFoundException)
         {
@@ -97,58 +101,27 @@ internal sealed partial class AddRepoForm : Form
         }
     }
 
-    private async Task<IReadOnlyList<Repository>> GetUserRepositories(string userName, string repositoryName)
+    private async Task<bool> IsUserContributorOfRepository(string ownerName, string repositoryName, string userName)
     {
-        var userRepositories = new List<Repository>();
-        var page = 1;
-        const int pageSize = 100; // Adjust the page size as needed
-
-        while (true)
+        try
         {
-            var repositories = await _githubClient.Repository.GetAllForUser(userName, new ApiOptions
+            var commits = await _githubClient.Repository.Commit.GetAll(ownerName, repositoryName, new CommitRequest { Author = userName });
+            var issueSearchRequest = new SearchIssuesRequest(repositoryName)
             {
-                PageCount = 1,
-                PageSize = pageSize,
-                StartPage = page,
-            });
+                Author = userName,
+                Type = IssueTypeQualifier.PullRequest,
+                SortField = IssueSearchSort.Created,
+                Order = SortDirection.Descending,
+            };
 
-            if (repositories.Count == 0)
-            {
-                break;
-            }
+            var pullRequests = await _githubClient.Search.SearchIssues(issueSearchRequest);
 
-            foreach (var repo in repositories)
-            {
-                try
-                {
-                    var isCollaborator = await _githubClient.Repository.Collaborator.IsCollaborator(repo.Id, userName);
-                    if (isCollaborator)
-                    {
-                        userRepositories.Add(repo);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Information($"Repository {repo.Name} not added: {ex.Message}");
-                }
-            }
-
-            page++;
+            return (commits.Count > 0) || (pullRequests.TotalCount > 0);
         }
-
-        if (userRepositories.Count == 0)
+        catch (NotFoundException)
         {
-            throw new InvalidOperationException("No repositories found for the user. See logs for more information");
+            return false;
         }
-
-        return userRepositories;
-    }
-
-    private string ExtractRepositoryName(string repositoryUrl)
-    {
-        var uri = new Uri(repositoryUrl);
-        var segments = uri.Segments;
-        return segments.Length > 1 ? segments[1].TrimEnd('/') : string.Empty;
     }
 
     public override string TemplateJson()
