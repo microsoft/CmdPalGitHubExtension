@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "GitHubExtension (Package)": {
+      "commandName": "MsixPackage",
+      "nativeDebugging": true
+    },
+    "GitHubExtension (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
