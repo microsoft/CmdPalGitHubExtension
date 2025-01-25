@@ -5,14 +5,12 @@
 using System.Globalization;
 using GitHubExtension.Client;
 using GitHubExtension.Commands;
-using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using GitHubExtension.Pages;
 using Microsoft.CmdPal.Extensions;
 using Microsoft.CmdPal.Extensions.Helpers;
 using Octokit;
-using Octokit.Internal;
 using Serilog;
 
 namespace GitHubExtension;
@@ -46,11 +44,6 @@ internal sealed partial class SearchIssuesPage : ListPage
                     Title = issue.Title,
                     Icon = new(GitHubIcon.IconDictionary["issue"]),
                     Subtitle = $"{GetOwner(issue.HtmlUrl)}/{GetRepo(issue.HtmlUrl)}/#{issue.Number}",
-                    Details = new Details()
-                    {
-                        Title = issue.Title,
-                        Body = issue.Body,
-                    },
                     MoreCommands = new CommandContextItem[]
                     {
                             new(new CopyCommand(issue.HtmlUrl, "URL")),
