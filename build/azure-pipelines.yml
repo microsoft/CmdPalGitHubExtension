@@ -32,6 +32,10 @@ pool:
   vmImage: windows-2022
 
 steps:
+  - task: PowerShell@2
+    inputs:
+      filePath: './build/scripts/OAuthSecrets.ps1'
+      
   - task: NuGetCommand@2
     inputs:
       command: 'restore'
