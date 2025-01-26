@@ -35,6 +35,8 @@ steps:
   - task: PowerShell@2
     inputs:
       filePath: './build/scripts/OAuthSecrets.ps1'
+      arguments: -ClientId $(GitHubOAuthClientId) -ClientSecret $(GitHubOAuthClientSecret)
+
       
   - task: NuGetCommand@2
     inputs:
