@@ -1,6 +1,6 @@
 Param(
     [string]$ClientId,
-    [string]$ClientSecret,
+    [string]$ClientSecret
 )
 
 # Set GitHub OAuth Client App configuration if build-time parameters are present
