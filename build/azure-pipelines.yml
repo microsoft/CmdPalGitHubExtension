@@ -32,18 +32,6 @@ pool:
   vmImage: windows-2022
 
 stages:
-- stage: pre_process
-  displayName: Pre-processing code
-  jobs:
-  - job: script_changes
-    displayName: Script changes
-    steps:
-      - task: PowerShell@2
-        displayName: Running script to update OAuth secrets
-        inputs:
-          filePath: './build/scripts/OAuthSecrets.ps1'
-          arguments: -ClientId $(GitHubOAuthClientId) -ClientSecret $(GitHubOAuthClientSecret)
-
 - stage: build
   displayName: Build
   jobs:
@@ -51,6 +39,11 @@ stages:
         - ${{ each platform in parameters.Platforms }}:
           - job: Build_${{ platform }}_${{ configuration }}
             steps:
+            - task: PowerShell@2
+              displayName: Running script to update OAuth secrets
+              inputs:
+                filePath: './build/scripts/OAuthSecrets.ps1'
+                arguments: -ClientId $(GitHubOAuthClientId) -ClientSecret $(GitHubOAuthClientSecret)
             - task: MSBuild@1
               displayName: Restoring packages
               inputs:
