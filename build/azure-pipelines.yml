@@ -31,51 +31,68 @@ resources:
 pool:
   vmImage: windows-2022
 
-steps:
-  - task: PowerShell@2
-    inputs:
-      filePath: './build/scripts/OAuthSecrets.ps1'
-      arguments: -ClientId $(GitHubOAuthClientId) -ClientSecret $(GitHubOAuthClientSecret)
+stages:
+- stage: pre_process
+  displayName: Pre-processing code
+  jobs:
+  - job: script_changes
+    displayName: Script changes
+    steps:
+      - task: PowerShell@2
+        inputs:
+          filePath: './build/scripts/OAuthSecrets.ps1'
+          arguments: -ClientId $(GitHubOAuthClientId) -ClientSecret $(GitHubOAuthClientSecret)
 
-      
-  - task: NuGetCommand@2
-    inputs:
-      command: 'restore'
-      restoreSolution: '$(solution)'
-      feedsToUse: 'config'
-      nugetConfigPath: './nuget.config'
-  
-  - task: MSBuild@1
-    inputs:
-      solution: '$(solution)'
-      msbuildArchitecture: 'x64'
-      platform: 'x64'
-      configuration: 'release'
-      msbuildArguments: '/t:Restore'
+  - job: restore
+    steps:
+    - task: NuGetCommand@2
+      inputs:
+        command: 'restore'
+        restoreSolution: '$(solution)'
+        feedsToUse: 'config'
+        nugetConfigPath: './nuget.config'
 
-  - task: MsixPackaging@1
-    inputs:
-      outputPath: '$(Build.ArtifactStagingDirectory)\GitHubExtension.msix'
-      solution: '$(solution)'
-      clean: false
-      generateBundle: false
-      buildConfiguration: 'release'
-      buildPlatform: 'x64'
-      updateAppVersion: false
-      appPackageDistributionMode: 'SideloadOnly'
-      msbuildLocationMethod: 'version'
-      msbuildVersion: 'latest'
-      msbuildArchitecture: 'x64'
+- stage: build
+  displayName: Build
+  jobs:
+  - ${{ each configuration in parameters.Configurations }}:
+        - ${{ each platform in parameters.Platforms }}:
+          - job: Build_${{ platform }}_${{ configuration }}
+            steps:
+            - task: MSBuild@1
+              inputs:
+                solution: '$(solution)'
+                msbuildArchitecture: '${{ platform }}'
+                platform: '${{ platform }}'
+                configuration: '${{ configuration }}'
+                msbuildArguments: '/t:Restore'
+
+            - task: MsixPackaging@1
+              inputs:
+                outputPath: '$(Build.ArtifactStagingDirectory)\GitHubExtension.msix'
+                solution: '$(solution)'
+                clean: false
+                generateBundle: false
+                buildConfiguration: '${{ configuration }}'
+                buildPlatform: '${{ platform }}'
+                updateAppVersion: false
+                appPackageDistributionMode: 'SideloadOnly'
+                msbuildLocationMethod: 'version'
+                msbuildVersion: 'latest'
+                msbuildArchitecture: '${{ platform }}'
      
-  
-  - task: CopyFiles@2
-    inputs:
-      SourceFolder: './BuildOutput'
-      Contents: '**'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+- stage: copy_files
+  jobs:
+  - job: copy_files
+    steps:
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: './BuildOutput'
+        Contents: '**'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: 'drop'
-      publishLocation: 'Container'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
