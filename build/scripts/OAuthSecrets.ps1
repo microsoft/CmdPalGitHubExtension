@@ -3,6 +3,8 @@ Param(
     [string]$ClientSecret
 )
 
+$env:Build_RootDirectory = (Get-Item $PSScriptRoot).parent.parent.FullName
+
 # Set GitHub OAuth Client App configuration if build-time parameters are present
 $OAuthConfigFilePath = (Join-Path $env:Build_RootDirectory "GitHubExtension\Configuration\OAuthConfiguration.cs")
 if (![string]::IsNullOrWhitespace($ClientId)) {
