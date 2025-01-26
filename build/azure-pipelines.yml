@@ -39,18 +39,10 @@ stages:
     displayName: Script changes
     steps:
       - task: PowerShell@2
+        displayName: Running script to update OAuth secrets
         inputs:
           filePath: './build/scripts/OAuthSecrets.ps1'
           arguments: -ClientId $(GitHubOAuthClientId) -ClientSecret $(GitHubOAuthClientSecret)
-
-  - job: restore
-    steps:
-    - task: NuGetCommand@2
-      inputs:
-        command: 'restore'
-        restoreSolution: '$(solution)'
-        feedsToUse: 'config'
-        nugetConfigPath: './nuget.config'
 
 - stage: build
   displayName: Build
@@ -60,6 +52,7 @@ stages:
           - job: Build_${{ platform }}_${{ configuration }}
             steps:
             - task: MSBuild@1
+              displayName: Restoring packages
               inputs:
                 solution: '$(solution)'
                 msbuildArchitecture: '${{ platform }}'
@@ -68,8 +61,9 @@ stages:
                 msbuildArguments: '/t:Restore'
 
             - task: MsixPackaging@1
+              displayName: Building MSIX
               inputs:
-                outputPath: '$(Build.ArtifactStagingDirectory)\GitHubExtension.msix'
+                outputPath: '$(Build.ArtifactStagingDirectory)\GitHubExtension${{ configuration }}_${{ platform }}.msix'
                 solution: '$(solution)'
                 clean: false
                 generateBundle: false
@@ -80,19 +74,17 @@ stages:
                 msbuildLocationMethod: 'version'
                 msbuildVersion: 'latest'
                 msbuildArchitecture: '${{ platform }}'
-     
-- stage: copy_files
-  jobs:
-  - job: copy_files
-    steps:
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: './BuildOutput'
-        Contents: '**'
-        TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-    - task: PublishBuildArtifacts@1
-      inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        ArtifactName: 'drop'
-        publishLocation: 'Container'
+            - task: CopyFiles@2
+              displayName: Copying files to Artifact Staging directory
+              inputs:
+                SourceFolder: './BuildOutput'
+                Contents: '**'
+                TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+            - task: PublishBuildArtifacts@1
+              displayName: Publishing artifacts
+              inputs:
+                PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+                ArtifactName: 'drop'
+                publishLocation: 'Container'
