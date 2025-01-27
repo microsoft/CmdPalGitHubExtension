@@ -2,7 +2,7 @@
   "profiles": {
     "GitHubExtension (Package)": {
       "commandName": "MsixPackage",
-      "nativeDebugging": true
+      "doNotLaunchApp": true
     },
     "GitHubExtension (Unpackaged)": {
       "commandName": "Project"
