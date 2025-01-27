@@ -43,6 +43,11 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
                 Title = "Search GitHub Pull Requests",
                 Icon = new(GitHubIcon.IconDictionary["pullRequest"]),
             },
+            new CommandItem(new AddRepoPage())
+            {
+                Title = "Add a repo via URL",
+                Icon = new(GitHubIcon.IconDictionary["logo"]),
+            },
             new CommandItem(_signOutCommand)
             {
                 Title = "GitHub Extension",

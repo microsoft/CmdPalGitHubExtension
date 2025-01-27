@@ -2,7 +2,6 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Text.Json;
 using System.Text.Json.Nodes;
 using GitHubExtension.Client;
 using GitHubExtension.DeveloperId;
@@ -10,7 +9,6 @@ using GitHubExtension.Helpers;
 using Microsoft.CmdPal.Extensions;
 using Microsoft.CmdPal.Extensions.Helpers;
 using Octokit;
-using Serilog;
 using Windows.Foundation;
 
 namespace GitHubExtension.Forms;
@@ -43,8 +41,6 @@ internal sealed partial class AddRepoForm : Form
                 return CommandResult.GoHome();
             }
 
-            Console.WriteLine($"Repository URL: {payload}"); // Debugging statement
-
             var repositoryUrl = formInput["repositoryUrl"]?.ToString();
             if (string.IsNullOrEmpty(repositoryUrl))
             {
@@ -60,7 +56,6 @@ internal sealed partial class AddRepoForm : Form
             var repositories = repoHelper.GetUserRepositories();
             repoHelper.AddRepository(ownerName, repositoryName);
 
-            // Process the userRepositories as needed
             RepositoryAdded?.Invoke(this, null);
             return CommandResult.KeepOpen();
         }

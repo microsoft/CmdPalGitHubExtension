@@ -115,7 +115,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
 
         var repoHelper = GitHubRepositoryHelper.Instance;
 
-        var repos = repoHelper.GetUserRepositoriesAsync().GetAwaiter().GetResult();
+        var repos = repoHelper.GetUserRepositories();
 
         var defaultPullRequest = new PullRequestRequest
         {
