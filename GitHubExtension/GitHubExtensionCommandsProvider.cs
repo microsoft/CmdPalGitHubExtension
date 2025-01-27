@@ -4,6 +4,7 @@
 
 using GitHubExtension.Commands;
 using GitHubExtension.DeveloperId;
+using GitHubExtension.Forms;
 using GitHubExtension.Helpers;
 using GitHubExtension.Pages;
 using Microsoft.CmdPal.Extensions;
@@ -18,9 +19,9 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
         DisplayName = "GitHub Extension";
 
         _authPage = new GitHubAuthPage();
-        _authPage.SignInAction += UpdateTopLevelCommands;
+        _authPage.SignInAction += OnSignInAction;
         _signOutCommand = new SignOutCommand();
-        _signOutCommand.SignOutAction += UpdateTopLevelCommands;
+        _signOutCommand.SignOutAction += OnSignOutAction;
     }
 
     private void UpdateTopLevelCommands(object sender, object? args) => RaiseItemsChanged(0);
@@ -68,9 +69,22 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
     {
         var devIdProvider = DeveloperIdProvider.GetInstance();
         var devIds = devIdProvider.GetLoggedInDeveloperIdsInternal();
-        var repoHelper = GitHubRepositoryHelper.Instance;
-        repoHelper.UpdateClient(devIds.First().GitHubClient);
-
         return devIds.Any();
+    }
+
+    public void OnSignInAction(object sender, object? e)
+    {
+        if (sender is GitHubAuthForm)
+        {
+            var devIds = DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal();
+            GitHubRepositoryHelper.Instance.UpdateClient(devIds.First().GitHubClient);
+            UpdateTopLevelCommands(sender, e);
+        }
+    }
+
+    public void OnSignOutAction(object sender, object? e)
+    {
+        GitHubRepositoryHelper.Instance.ClearRepositories();
+        UpdateTopLevelCommands(sender, e);
     }
 }

@@ -162,4 +162,9 @@ public class GitHubRepositoryHelper
     {
         return await _client.Repository.Get(owner, repo);
     }
+
+    public void ClearRepositories()
+    {
+        _repositories.Clear();
+    }
 }
