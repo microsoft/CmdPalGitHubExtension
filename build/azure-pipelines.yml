@@ -72,7 +72,7 @@ stages:
               parameters:
                 displayName: Submit *.msix to ESRP for code signing
                 inputs:
-                  FolderPath: 'BuildOutput\${{ configuration }}'
+                  FolderPath: 'BuildOutput'
                   Pattern: '*.msix'
                   UseMinimatch: true
                   signConfigType: inlineSignParams
