@@ -56,7 +56,7 @@ stages:
             - task: MsixPackaging@1
               displayName: Building MSIX
               inputs:
-                outputPath: '$(Build.ArtifactStagingDirectory)\GitHubExtension_${{ configuration }}_${{ platform }}.msix'
+                outputPath: 'BuildOutput\GitHubExtension_${{ configuration }}_${{ platform }}.msix'
                 solution: '$(solution)'
                 clean: false
                 generateBundle: false
