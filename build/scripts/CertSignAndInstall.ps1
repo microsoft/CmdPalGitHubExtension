@@ -13,6 +13,7 @@ function Invoke-SignPackage([string]$Path) {
     $cert = Get-ChildItem 'Cert:\CurrentUser\My' | Where-Object {$_.FriendlyName -match $certName} | Select-Object -First 1
 
     if ($cert) {
+        Write-Host "Found cert $($cert.Thumbprint)"
         $expiration = $cert.NotAfter
         $now = Get-Date
         if ( $expiration -lt $now)
@@ -39,6 +40,6 @@ function Invoke-SignPackage([string]$Path) {
 }
 
 function Remove-GitHubExtensionCertificates() {
-    Get-ChildItem 'Cert:\CurrentUser\My' | Where-Object {$_.FriendlyName -match 'Microsoft.GitHubExtension'} | Remove-Item
-    Get-ChildItem 'Cert:\LocalMachine\TrustedPeople' | Where-Object {$_.FriendlyName -match 'Microsoft.GitHubExtension'} | Remove-Item
+    Get-ChildItem 'Cert:\CurrentUser\My' | Where-Object {$_.FriendlyName -match 'Microsoft.CmdPal.GitHubExtension'} | Remove-Item
+    Get-ChildItem 'Cert:\LocalMachine\TrustedPeople' | Where-Object {$_.FriendlyName -match 'Microsoft.CmdPal.GitHubExtension'} | Remove-Item
 }

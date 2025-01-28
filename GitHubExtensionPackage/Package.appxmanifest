@@ -8,12 +8,12 @@
 
   <Identity
     Name="79c983fe-8227-4490-9c80-2c8db97f9cf8"
-    Publisher="CN=felipeda"
+    Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
     Version="1.0.0.0" />
 
   <Properties>
     <DisplayName>GitHubExtensionPackage</DisplayName>
-    <PublisherDisplayName>felipeda</PublisherDisplayName>
+    <PublisherDisplayName>Microsoft Corporation</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
 
