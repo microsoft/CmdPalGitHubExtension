@@ -67,6 +67,46 @@ stages:
                 msbuildLocationMethod: 'version'
                 msbuildVersion: 'latest'
                 msbuildArchitecture: '${{ platform }}'
+            
+            - template: ./templates/EsrpSigning-Steps.yml@self
+              parameters:
+                displayName: Submit *.msix to ESRP for code signing
+                inputs:
+                  FolderPath: '$(appxPackageDir)\${{ configuration }}'
+                  Pattern: '*.msix'
+                  UseMinimatch: true
+                  signConfigType: inlineSignParams
+                  inlineOperation: |
+                    [
+                      {
+                        "keycode": "CP-230012",
+                        "operationSetCode": "SigntoolSign",
+                        "parameters": [
+                          {
+                            "parameterName": "OpusName",
+                            "parameterValue": "Microsoft"
+                          },
+                          {
+                            "parameterName": "OpusInfo",
+                            "parameterValue": "http://www.microsoft.com"
+                          },
+                          {
+                            "parameterName": "PageHash",
+                            "parameterValue": "/NPH"
+                          },
+                          {
+                            "parameterName": "FileDigest",
+                            "parameterValue": "/fd sha256"
+                          },
+                          {
+                            "parameterName": "TimeStamp",
+                            "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+                          }
+                        ],
+                        "toolName": "signtool.exe",
+                        "toolVersion": "6.2.9304.0"
+                      }
+                    ]
 
             - task: CopyFiles@2
               displayName: Copying files to Artifact Staging directory
