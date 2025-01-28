@@ -2,6 +2,7 @@
   "profiles": {
     "GitHubExtension (Package)": {
       "commandName": "MsixPackage",
+      "commandLineArgs": "-RegisterProcessAsComServer",
       "doNotLaunchApp": true
     },
     "GitHubExtension (Unpackaged)": {
