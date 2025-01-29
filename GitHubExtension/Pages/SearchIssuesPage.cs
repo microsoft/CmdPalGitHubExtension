@@ -113,26 +113,13 @@ internal sealed partial class SearchIssuesPage : ListPage
 
         var repoCollection = repoHelper.GetUserRepositoryCollection();
 
-        var requestOptions = new RequestOptions();
-        SetOptions(requestOptions, query);
+        var requestOptions = RequestOptions.RequestOptionsDefault();
         requestOptions.SearchIssuesRequest.Repos = repoCollection;
         var searchResults = await client.Search.SearchIssues(requestOptions.SearchIssuesRequest);
 
         var issues = ConvertToDataObjectsIssue(searchResults.Items);
 
         return issues;
-    }
-
-    private static RequestOptions SetOptions(RequestOptions options, string repoString)
-    {
-        options.SearchIssuesRequest = new SearchIssuesRequest
-        {
-            State = ItemState.Open,
-            Type = IssueTypeQualifier.Issue,
-            SortField = IssueSearchSort.Created,
-            Order = SortDirection.Descending,
-        };
-        return options;
     }
 
     private static List<DataModel.DataObjects.Issue> ConvertToDataObjectsIssue(IReadOnlyList<Octokit.Issue> octokitIssueList)
