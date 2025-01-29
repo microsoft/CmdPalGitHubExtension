@@ -37,7 +37,6 @@ internal sealed partial class SearchReleasesPage : ListPage
                     Title = "Release markdown title",
                     Body = "### Release markdown details",
                 },
-                MoreCommands = [new CommandContextItem(new LinkCommand())],
             },
             new ListItem(new ReleaseMarkdownPage())
             {
@@ -49,7 +48,6 @@ internal sealed partial class SearchReleasesPage : ListPage
                     Title = "Release markdown title",
                     Body = "### Release markdown details",
                 },
-                MoreCommands = [new CommandContextItem(new LinkCommand())],
             }
         ];
     }

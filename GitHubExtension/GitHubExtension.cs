@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Runtime.InteropServices;
-using GitHubExtension.Data;
+using GitHubExtension.Client;
 using Microsoft.CmdPal.Extensions;
 using Serilog;
 

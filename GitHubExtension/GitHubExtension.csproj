@@ -10,6 +10,14 @@
     <UseWinUI>false</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
     <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\WinUI3Apps\CmdPalExtensions\$(RootNamespace)</OutputPath>
+    <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+    <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
+    <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+    <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+    <GenerateTestArtifacts>True</GenerateTestArtifacts>
+    <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+    <GenerateAppxPackageOnBuild>True</GenerateAppxPackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,7 +32,7 @@
       <PackageReference Include="Dapper.Contrib" Version="2.0.78" />
       <PackageReference Include="LibGit2Sharp" Version="0.30.0" />
       <PackageReference Include="MessageFormat" Version="6.0.2" />
-      <PackageReference Include="Microsoft.CmdPal.Extensions.SDK" Version="0.0.0" />
+      <PackageReference Include="Microsoft.CmdPal.Extensions.SDK" Version="0.0.2" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
       <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.241114003" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -55,6 +63,9 @@
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.78" />
     <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="2.0.322" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Data\" />
   </ItemGroup>
 
   <!--

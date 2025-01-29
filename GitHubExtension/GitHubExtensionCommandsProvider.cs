@@ -4,6 +4,7 @@
 
 using GitHubExtension.Commands;
 using GitHubExtension.DeveloperId;
+using GitHubExtension.Forms;
 using GitHubExtension.Helpers;
 using GitHubExtension.Pages;
 using Microsoft.CmdPal.Extensions;
@@ -18,9 +19,9 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
         DisplayName = "GitHub Extension";
 
         _authPage = new GitHubAuthPage();
-        _authPage.SignInAction += UpdateTopLevelCommands;
+        _authPage.SignInAction += OnSignInAction;
         _signOutCommand = new SignOutCommand();
-        _signOutCommand.SignOutAction += UpdateTopLevelCommands;
+        _signOutCommand.SignOutAction += OnSignOutAction;
     }
 
     private void UpdateTopLevelCommands(object sender, object? args) => RaiseItemsChanged(0);
@@ -31,13 +32,22 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
 
     public override ICommandItem[] TopLevelCommands()
     {
-        if (IsSignedIn())
-        {
-            return [
+        return IsSignedIn()
+            ? [
             new CommandItem(new SearchIssuesPage())
             {
                 Title = "Search GitHub Issues",
                 Icon = new(GitHubIcon.IconDictionary["issue"]),
+            },
+            new CommandItem(new SearchPullRequestsPage())
+            {
+                Title = "Search GitHub Pull Requests",
+                Icon = new(GitHubIcon.IconDictionary["pullRequest"]),
+            },
+            new CommandItem(new AddRepoPage())
+            {
+                Title = "Add a repo via URL",
+                Icon = new(GitHubIcon.IconDictionary["logo"]),
             },
             new CommandItem(_signOutCommand)
             {
@@ -45,25 +55,36 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
                 Subtitle = "Sign out",
                 Icon = new(GitHubIcon.IconDictionary["logo"]),
             },
-            ];
-        }
-        else
-        {
-            return [new CommandItem(_authPage)
+            ]
+            : [new CommandItem(_authPage)
             {
                 Title = "GitHub Extension",
                 Subtitle = "Log in",
                 Icon = new(GitHubIcon.IconDictionary["logo"]),
             },
             ];
-        }
     }
 
     private static bool IsSignedIn()
     {
         var devIdProvider = DeveloperIdProvider.GetInstance();
         var devIds = devIdProvider.GetLoggedInDeveloperIdsInternal();
-
         return devIds.Any();
+    }
+
+    public void OnSignInAction(object sender, object? e)
+    {
+        if (sender is GitHubAuthForm)
+        {
+            var devIds = DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal();
+            GitHubRepositoryHelper.Instance.UpdateClient(devIds.First().GitHubClient);
+            UpdateTopLevelCommands(sender, e);
+        }
+    }
+
+    public void OnSignOutAction(object sender, object? e)
+    {
+        GitHubRepositoryHelper.Instance.ClearRepositories();
+        UpdateTopLevelCommands(sender, e);
     }
 }

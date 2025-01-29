@@ -3,32 +3,32 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Diagnostics;
+using GitHubExtension.DataModel.DataObjects;
 using Microsoft.CmdPal.Extensions.Helpers;
-using Octokit;
 
 namespace GitHubExtension.Commands;
 
 internal sealed partial class LinkCommand : InvokableCommand
 {
-    private readonly Issue _issue;
+    private readonly string _htmlUrl;
 
-    internal LinkCommand()
+    internal LinkCommand(Issue issue)
     {
-        _issue = new Issue();
+        _htmlUrl = issue.HtmlUrl;
         Name = "Open link";
         Icon = new("\uE8A7");
     }
 
-    internal LinkCommand(Issue issue)
+    internal LinkCommand(PullRequest pullRequest)
     {
-        _issue = issue;
+        _htmlUrl = pullRequest.HtmlUrl;
         Name = "Open link";
         Icon = new("\uE8A7");
     }
 
     public override CommandResult Invoke()
     {
-        Process.Start(new ProcessStartInfo(_issue.HtmlUrl) { UseShellExecute = true });
+        Process.Start(new ProcessStartInfo(_htmlUrl) { UseShellExecute = true });
         return CommandResult.KeepOpen();
     }
 }

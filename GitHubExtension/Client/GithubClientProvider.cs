@@ -50,12 +50,7 @@ public class GitHubClientProvider
     public GitHubClient GetClient(string url)
     {
         var devIdInternal = DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal().Where(i => i.Url.Equals(url, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-        if (devIdInternal == null)
-        {
-            return _publicRepoClient;
-        }
-
-        return devIdInternal.GitHubClient;
+        return devIdInternal == null ? _publicRepoClient : devIdInternal.GitHubClient;
     }
 
     public GitHubClient GetClient() => _publicRepoClient;
