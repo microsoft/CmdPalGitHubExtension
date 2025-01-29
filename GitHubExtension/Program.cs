@@ -3,7 +3,9 @@
 // See the LICENSE file in the project root for more information.
 
 using Microsoft.CmdPal.Extensions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Windows.AppLifecycle;
+using Microsoft.Windows.Storage;
 using Serilog;
 using Windows.ApplicationModel.Activation;
 
@@ -14,6 +16,15 @@ public class Program
     [MTAThread]
     public static async Task Main(string[] args)
     {
+        // Setup Logging
+        Environment.SetEnvironmentVariable("CMDPAL_LOGS_ROOT", ApplicationData.GetDefault().TemporaryFolder.Path);
+        var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(configuration)
+            .CreateLogger();
+
         Log.Information($"Launched with args: {string.Join(' ', args.ToArray())}");
 
         // Force the app to be single instanced.

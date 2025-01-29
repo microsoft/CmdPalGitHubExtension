@@ -50,6 +50,9 @@
         <Content Include=".\Templates\GitHubSignInTemplate.json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
+        <None Update="appsettings.json">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
   <!--
