@@ -22,7 +22,7 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
         _signOutCommand = new SignOutCommand();
         _signOutCommand.SignOutAction += OnSignInStatusChanged;
 
-        _isSignedIn = IsSignedIn();
+        UpdateSignInStatus(IsSignedIn());
     }
 
     private void UpdateTopLevelCommands(object? sender, object? args) => RaiseItemsChanged(0);
@@ -36,7 +36,7 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
     public override ICommandItem[] TopLevelCommands()
     {
         return _isSignedIn
-            ? [
+        ? [
             new CommandItem(new SearchIssuesPage())
             {
                 Title = "Search GitHub Issues",
@@ -58,14 +58,15 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
                 Subtitle = "Sign out",
                 Icon = new(GitHubIcon.IconDictionary["logo"]),
             },
-            ]
-            : [new CommandItem(_authPage)
+        ]
+        : [
+            new CommandItem(_authPage)
             {
                 Title = "GitHub Extension",
                 Subtitle = "Log in",
                 Icon = new(GitHubIcon.IconDictionary["logo"]),
             },
-            ];
+        ];
     }
 
     private static bool IsSignedIn()
@@ -75,20 +76,25 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
         return devIds.Any();
     }
 
-    private void OnSignInStatusChanged(object? sender, SignInStatusChangedEventArgs e)
+    private void UpdateSignInStatus(bool isSignedIn)
     {
-        if (e.IsSignedIn || IsSignedIn())
+        _isSignedIn = isSignedIn;
+
+        if (_isSignedIn)
         {
             var devIds = DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal();
             GitHubRepositoryHelper.Instance.UpdateClient(devIds.First().GitHubClient);
-            _isSignedIn = true;
         }
         else
         {
             GitHubRepositoryHelper.Instance.ClearRepositories();
-            _isSignedIn = false;
         }
 
-        UpdateTopLevelCommands(sender, e);
+        UpdateTopLevelCommands(null, null);
+    }
+
+    private void OnSignInStatusChanged(object? sender, SignInStatusChangedEventArgs e)
+    {
+        UpdateSignInStatus(e.IsSignedIn);
     }
 }
