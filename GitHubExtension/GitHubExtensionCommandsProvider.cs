@@ -4,7 +4,6 @@
 
 using GitHubExtension.Commands;
 using GitHubExtension.DeveloperId;
-using GitHubExtension.Forms;
 using GitHubExtension.Helpers;
 using GitHubExtension.Pages;
 using Microsoft.CmdPal.Extensions;
@@ -19,20 +18,24 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
         DisplayName = "GitHub Extension";
 
         _authPage = new GitHubAuthPage();
-        _authPage.SignInAction += OnSignInAction;
+        _authPage.SignInAction += OnSignInStatusChanged;
         _signOutCommand = new SignOutCommand();
-        _signOutCommand.SignOutAction += OnSignOutAction;
+        _signOutCommand.SignOutAction += OnSignInStatusChanged;
+
+        _isSignedIn = IsSignedIn();
     }
 
-    private void UpdateTopLevelCommands(object sender, object? args) => RaiseItemsChanged(0);
+    private void UpdateTopLevelCommands(object? sender, object? args) => RaiseItemsChanged(0);
 
     private readonly GitHubAuthPage _authPage;
 
     private readonly SignOutCommand _signOutCommand;
 
+    private bool _isSignedIn;
+
     public override ICommandItem[] TopLevelCommands()
     {
-        return IsSignedIn()
+        return _isSignedIn
             ? [
             new CommandItem(new SearchIssuesPage())
             {
@@ -72,19 +75,20 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
         return devIds.Any();
     }
 
-    public void OnSignInAction(object sender, object? e)
+    private void OnSignInStatusChanged(object? sender, SignInStatusChangedEventArgs e)
     {
-        if (sender is GitHubAuthForm)
+        if (e.IsSignedIn || IsSignedIn())
         {
             var devIds = DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal();
             GitHubRepositoryHelper.Instance.UpdateClient(devIds.First().GitHubClient);
-            UpdateTopLevelCommands(sender, e);
+            _isSignedIn = true;
         }
-    }
+        else
+        {
+            GitHubRepositoryHelper.Instance.ClearRepositories();
+            _isSignedIn = false;
+        }
 
-    public void OnSignOutAction(object sender, object? e)
-    {
-        GitHubRepositoryHelper.Instance.ClearRepositories();
         UpdateTopLevelCommands(sender, e);
     }
 }

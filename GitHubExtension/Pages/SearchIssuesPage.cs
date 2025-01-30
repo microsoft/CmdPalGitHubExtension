@@ -7,10 +7,8 @@ using GitHubExtension.Client;
 using GitHubExtension.Commands;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
-using GitHubExtension.Pages;
 using Microsoft.CmdPal.Extensions;
 using Microsoft.CmdPal.Extensions.Helpers;
-using Octokit;
 using Serilog;
 
 namespace GitHubExtension;

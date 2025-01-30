@@ -13,7 +13,7 @@ namespace GitHubExtension.Forms;
 
 internal sealed partial class GitHubAuthForm : Form
 {
-    internal event TypedEventHandler<object, object?>? SignInAction;
+    internal event TypedEventHandler<object, SignInStatusChangedEventArgs>? SignInAction;
 
     public override string TemplateJson()
     {
@@ -58,11 +58,6 @@ internal sealed partial class GitHubAuthForm : Form
         var devIds = authProvider.GetLoggedInDeveloperIdsInternal();
         var numDevIds = devIds.Count();
 
-        if (numDevIds > numPreviousDevIds)
-        {
-            SignInAction?.Invoke(this, null);
-            var repoHelper = GitHubRepositoryHelper.Instance;
-            repoHelper.UpdateClient(devIds.First().GitHubClient);
-        }
+        SignInAction?.Invoke(this, new SignInStatusChangedEventArgs(numDevIds > numPreviousDevIds));
     }
 }
