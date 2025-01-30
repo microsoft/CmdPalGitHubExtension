@@ -8,7 +8,6 @@ namespace GitHubExtension;
 
 public class RequestOptions
 {
-    // Request options for making queries to GitHub.
     public PullRequestRequest PullRequestRequest { get; set; }
 
     public SearchIssuesRequest SearchIssuesRequest { get; set; }
@@ -26,7 +25,6 @@ public class RequestOptions
 
     public static RequestOptions RequestOptionsDefault()
     {
-        // Default options are a limited fetch of 10 items intended for widget display.
         var defaultOptions = new RequestOptions
         {
             PullRequestRequest = new PullRequestRequest
@@ -39,7 +37,7 @@ public class RequestOptions
             {
                 State = ItemState.Open,
                 Type = IssueTypeQualifier.Issue,
-                SortField = IssueSearchSort.Created,
+                SortField = IssueSearchSort.Updated,
                 Order = SortDirection.Descending,
             },
             ApiOptions = new ApiOptions

@@ -5,14 +5,10 @@
 using System.Globalization;
 using GitHubExtension.Client;
 using GitHubExtension.Commands;
-using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
-using GitHubExtension.Pages;
 using Microsoft.CmdPal.Extensions;
 using Microsoft.CmdPal.Extensions.Helpers;
-using Octokit;
-using Octokit.Internal;
 using Serilog;
 
 namespace GitHubExtension;
@@ -117,17 +113,12 @@ internal sealed partial class SearchPullRequestsPage : ListPage
 
         var repos = repoHelper.GetUserRepositories();
 
-        var defaultPullRequest = new PullRequestRequest
-        {
-            State = ItemStateFilter.Open,
-            SortProperty = PullRequestSort.Created,
-            SortDirection = SortDirection.Descending,
-        };
+        var requestOptions = new RequestOptions();
 
         var pullRequests = new List<Octokit.PullRequest>();
         foreach (var repo in repos)
         {
-            var repoPRs = await client.PullRequest.GetAllForRepository(repo.Owner.Login, repo.Name, defaultPullRequest);
+            var repoPRs = await client.PullRequest.GetAllForRepository(repo.Owner.Login, repo.Name, requestOptions.PullRequestRequest);
             pullRequests.AddRange(repoPRs);
         }
 

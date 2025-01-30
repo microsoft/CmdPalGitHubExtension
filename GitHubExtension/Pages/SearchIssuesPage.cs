@@ -7,10 +7,8 @@ using GitHubExtension.Client;
 using GitHubExtension.Commands;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
-using GitHubExtension.Pages;
 using Microsoft.CmdPal.Extensions;
 using Microsoft.CmdPal.Extensions.Helpers;
-using Octokit;
 using Serilog;
 
 namespace GitHubExtension;
@@ -60,7 +58,7 @@ internal sealed partial class SearchIssuesPage : ListPage
                     {
                             new(new NoOpCommand())
                             {
-                                Title = "No issues found",
+                                Title = "No issues found. See logs for more details.",
                                 Icon = new(GitHubIcon.IconDictionary["issue"]),
                             },
                     }
@@ -113,26 +111,19 @@ internal sealed partial class SearchIssuesPage : ListPage
 
         var repoCollection = repoHelper.GetUserRepositoryCollection();
 
-        var requestOptions = new RequestOptions();
-        SetOptions(requestOptions, query);
+        if (repoCollection.Count == 0)
+        {
+            Log.Information("No repositories found");
+            return new List<DataModel.DataObjects.Issue>();
+        }
+
+        var requestOptions = RequestOptions.RequestOptionsDefault();
         requestOptions.SearchIssuesRequest.Repos = repoCollection;
         var searchResults = await client.Search.SearchIssues(requestOptions.SearchIssuesRequest);
 
         var issues = ConvertToDataObjectsIssue(searchResults.Items);
 
         return issues;
-    }
-
-    private static RequestOptions SetOptions(RequestOptions options, string repoString)
-    {
-        options.SearchIssuesRequest = new SearchIssuesRequest
-        {
-            State = ItemState.Open,
-            Type = IssueTypeQualifier.Issue,
-            SortField = IssueSearchSort.Created,
-            Order = SortDirection.Descending,
-        };
-        return options;
     }
 
     private static List<DataModel.DataObjects.Issue> ConvertToDataObjectsIssue(IReadOnlyList<Octokit.Issue> octokitIssueList)

@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Forms;
+using GitHubExtension.Helpers;
 using Microsoft.CmdPal.Extensions;
 using Microsoft.CmdPal.Extensions.Helpers;
 using Windows.Foundation;
@@ -15,7 +16,7 @@ internal sealed partial class GitHubAuthPage : FormPage
 
     public override IForm[] Forms() => [_authForm];
 
-    internal event TypedEventHandler<object, object?>? SignInAction
+    internal event TypedEventHandler<object, SignInStatusChangedEventArgs>? SignInAction
     {
         add => _authForm.SignInAction += value;
         remove => _authForm.SignInAction -= value;
