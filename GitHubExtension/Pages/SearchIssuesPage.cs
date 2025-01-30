@@ -60,7 +60,7 @@ internal sealed partial class SearchIssuesPage : ListPage
                     {
                             new(new NoOpCommand())
                             {
-                                Title = "No issues found",
+                                Title = "No issues found. See logs for more details.",
                                 Icon = new(GitHubIcon.IconDictionary["issue"]),
                             },
                     }
@@ -112,6 +112,12 @@ internal sealed partial class SearchIssuesPage : ListPage
         var repoHelper = GitHubRepositoryHelper.Instance;
 
         var repoCollection = repoHelper.GetUserRepositoryCollection();
+
+        if (repoCollection.Count == 0)
+        {
+            Log.Information("No repositories found");
+            return new List<DataModel.DataObjects.Issue>();
+        }
 
         var requestOptions = RequestOptions.RequestOptionsDefault();
         requestOptions.SearchIssuesRequest.Repos = repoCollection;
