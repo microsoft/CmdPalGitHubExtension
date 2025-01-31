@@ -6,6 +6,7 @@ using System.Text.Json.Nodes;
 using GitHubExtension.Client;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
+using GitHubExtension.Pages;
 using Microsoft.CmdPal.Extensions;
 using Microsoft.CmdPal.Extensions.Helpers;
 using Octokit;
@@ -17,9 +18,15 @@ internal sealed partial class AddRepoForm : Form
 {
     internal event TypedEventHandler<object, object?>? RepositoryAdded;
 
+    internal event TypedEventHandler<object, bool>? OnSubmit;
+
     private readonly GitHubClient _githubClient;
 
-    public AddRepoForm()
+    private readonly AddRepoPage _addRepoPage;
+
+    private bool _isLoading;
+
+    public AddRepoForm(AddRepoPage page)
     {
         var developerIdProvider = DeveloperIdProvider.GetInstance();
         var developerId = developerIdProvider.GetLoggedInDeveloperIdsInternal().FirstOrDefault();
@@ -29,40 +36,63 @@ internal sealed partial class AddRepoForm : Form
         }
 
         _githubClient = developerId.GitHubClient;
+        _addRepoPage = page;
+        this.OnSubmit += OnSubmitInForm;
+        _isLoading = false;
     }
 
     public override ICommandResult SubmitForm(string payload)
+    {
+        _isLoading = !_isLoading;
+        OnSubmit?.Invoke(this, _isLoading);
+        return CommandResult.KeepOpen();
+    }
+
+    private void HandleSubmit(string payload)
+    {
+        var repoInfo = ProcessSubmission(payload);
+
+        if (repoInfo.Length == 1)
+        {
+            RepositoryAdded?.Invoke(this, new InvalidOperationException(repoInfo[0]));
+        }
+
+        var ownerName = repoInfo[0];
+        var repositoryName = repoInfo[1];
+
+        ExtensionHost.LogMessage(new LogMessage() { Message = $"IsMemberOrContributor {IsMemberOrContributor(ownerName, repositoryName)}..." });
+
+        var repoHelper = GitHubRepositoryHelper.Instance;
+        var repositories = repoHelper.GetUserRepositories();
+        repoHelper.AddRepository(ownerName, repositoryName);
+
+        RepositoryAdded?.Invoke(this, null);
+    }
+
+    private string[] ProcessSubmission(string payload)
     {
         try
         {
             var formInput = JsonNode.Parse(payload);
             if (formInput == null)
             {
-                return CommandResult.GoHome();
+                throw new InvalidOperationException("No input found");
             }
 
             var repositoryUrl = formInput["repositoryUrl"]?.ToString();
             if (string.IsNullOrEmpty(repositoryUrl))
             {
-                return CommandResult.GoHome();
+                throw new InvalidOperationException("No repository URL found");
             }
 
             var repositoryName = Validation.ParseRepositoryFromGitHubURL(repositoryUrl);
             var ownerName = Validation.ParseOwnerFromGitHubURL(repositoryUrl);
-
-            ExtensionHost.LogMessage(new LogMessage() { Message = $"IsMemberOrContributor {IsMemberOrContributor(ownerName, repositoryName)}..." });
-
-            var repoHelper = GitHubRepositoryHelper.Instance;
-            var repositories = repoHelper.GetUserRepositories();
-            repoHelper.AddRepository(ownerName, repositoryName);
-
-            RepositoryAdded?.Invoke(this, null);
-            return CommandResult.KeepOpen();
+            return new[] { ownerName, repositoryName };
         }
         catch (Exception ex)
         {
             RepositoryAdded?.Invoke(this, ex);
-            return CommandResult.KeepOpen();
+            return new[] { ex.Message };
         }
     }
 
@@ -168,5 +198,10 @@ internal sealed partial class AddRepoForm : Form
     private sealed class Payload
     {
         public string RepositoryUrl { get; set; } = string.Empty;
+    }
+
+    private void OnSubmitInForm(object sender, bool isLoading)
+    {
+        _addRepoPage.IsLoading = isLoading;
     }
 }
