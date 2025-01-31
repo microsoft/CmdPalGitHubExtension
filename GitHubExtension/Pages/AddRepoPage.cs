@@ -16,7 +16,6 @@ internal sealed partial class AddRepoPage : FormPage
     {
         _addRepoForm = new AddRepoForm(this);
         _addRepoForm.RepositoryAdded += OnRepositoryAdded;
-        _addRepoForm.OnSubmit += OnLoadingChanged;
     }
 
     public override IForm[] Forms() => new IForm[] { _addRepoForm };

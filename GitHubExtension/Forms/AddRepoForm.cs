@@ -18,13 +18,9 @@ internal sealed partial class AddRepoForm : Form
 {
     internal event TypedEventHandler<object, object?>? RepositoryAdded;
 
-    internal event TypedEventHandler<object, bool>? OnSubmit;
-
     private readonly GitHubClient _githubClient;
 
     private readonly AddRepoPage _addRepoPage;
-
-    private bool _isLoading;
 
     public AddRepoForm(AddRepoPage page)
     {
@@ -37,24 +33,33 @@ internal sealed partial class AddRepoForm : Form
 
         _githubClient = developerId.GitHubClient;
         _addRepoPage = page;
-        this.OnSubmit += OnSubmitInForm;
-        _isLoading = false;
     }
 
     public override ICommandResult SubmitForm(string payload)
     {
-        _isLoading = !_isLoading;
-        OnSubmit?.Invoke(this, _isLoading);
-        return CommandResult.KeepOpen();
+        try
+        {
+            _addRepoPage.IsLoading = true;
+
+            Task.Run(async () => await HandleSubmit(payload));
+
+            return CommandResult.KeepOpen();
+        }
+        catch (Exception ex)
+        {
+            ExtensionHost.LogMessage(new LogMessage() { Message = $"Error in SubmitForm: {ex.Message}" });
+            return CommandResult.GoHome();
+        }
     }
 
-    private void HandleSubmit(string payload)
+    private async Task HandleSubmit(string payload)
     {
-        var repoInfo = ProcessSubmission(payload);
+        var repoInfo = await ProcessSubmission(payload);
 
         if (repoInfo.Length == 1)
         {
             RepositoryAdded?.Invoke(this, new InvalidOperationException(repoInfo[0]));
+            return;
         }
 
         var ownerName = repoInfo[0];
@@ -69,7 +74,9 @@ internal sealed partial class AddRepoForm : Form
         RepositoryAdded?.Invoke(this, null);
     }
 
-    private string[] ProcessSubmission(string payload)
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+    private async Task<string[]> ProcessSubmission(string payload)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     {
         try
         {
@@ -198,10 +205,5 @@ internal sealed partial class AddRepoForm : Form
     private sealed class Payload
     {
         public string RepositoryUrl { get; set; } = string.Empty;
-    }
-
-    private void OnSubmitInForm(object sender, bool isLoading)
-    {
-        _addRepoPage.IsLoading = isLoading;
     }
 }
