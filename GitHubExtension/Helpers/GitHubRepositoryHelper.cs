@@ -163,6 +163,59 @@ public class GitHubRepositoryHelper
         return await _client.Repository.Get(owner, repo);
     }
 
+    public bool IsMemberOrContributor(string ownerName, string repositoryName)
+    {
+        var userName = _client.User.Current().Result.Login;
+
+        var isMember = IsUserMemberOfRepository(ownerName, repositoryName, userName).Result;
+        var isContributor = IsUserContributorOfRepository(ownerName, repositoryName, userName).Result;
+
+        return isMember || isContributor;
+    }
+
+    private async Task<bool> IsUserMemberOfRepository(string ownerName, string repositoryName, string userName)
+    {
+        try
+        {
+            var collaborators = await _client.Issue.Assignee.GetAllForRepository(ownerName, repositoryName);
+            if (collaborators.Count == 0)
+            {
+                return false;
+            }
+            else
+            {
+                return collaborators.Any(collaborator => collaborator.Login == userName);
+            }
+        }
+        catch (NotFoundException)
+        {
+            return false;
+        }
+    }
+
+    private async Task<bool> IsUserContributorOfRepository(string ownerName, string repositoryName, string userName)
+    {
+        try
+        {
+            var commits = await _client.Repository.Commit.GetAll(ownerName, repositoryName, new CommitRequest { Author = userName });
+            var issueSearchRequest = new SearchIssuesRequest(repositoryName)
+            {
+                Author = userName,
+                Type = IssueTypeQualifier.PullRequest,
+                SortField = IssueSearchSort.Created,
+                Order = SortDirection.Descending,
+            };
+
+            var pullRequests = await _client.Search.SearchIssues(issueSearchRequest);
+
+            return (commits.Count > 0) || (pullRequests.TotalCount > 0);
+        }
+        catch (NotFoundException)
+        {
+            return false;
+        }
+    }
+
     public void ClearRepositories()
     {
         _repositories.Clear();

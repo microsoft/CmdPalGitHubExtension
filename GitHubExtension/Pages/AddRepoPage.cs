@@ -14,8 +14,9 @@ internal sealed partial class AddRepoPage : FormPage
 
     public AddRepoPage()
     {
-        _addRepoForm = new AddRepoForm(this);
+        _addRepoForm = new();
         _addRepoForm.RepositoryAdded += OnRepositoryAdded;
+        _addRepoForm.LoadingStateChanged += OnLoadingChanged;
     }
 
     public override IForm[] Forms() => new IForm[] { _addRepoForm };
@@ -37,13 +38,6 @@ internal sealed partial class AddRepoPage : FormPage
 
     private void OnLoadingChanged(object sender, bool isLoading)
     {
-        if (isLoading)
-        {
-            IsLoading = true;
-        }
-        else
-        {
-            IsLoading = false;
-        }
+        IsLoading = isLoading;
     }
 }
