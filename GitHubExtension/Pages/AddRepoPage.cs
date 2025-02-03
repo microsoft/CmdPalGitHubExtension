@@ -24,7 +24,11 @@ internal sealed partial class AddRepoPage : FormPage
         _addRepoStatusMessage = new StatusMessage();
     }
 
-    public override IForm[] Forms() => new IForm[] { _addRepoForm };
+    public override IForm[] Forms()
+    {
+        ExtensionHost.HideStatus(_addRepoStatusMessage);
+        return new IForm[] { _addRepoForm };
+    }
 
     private void OnRepositoryAdded(object sender, object? args)
     {
