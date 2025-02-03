@@ -3,8 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Forms;
+using GitHubExtension.Helpers;
 using Microsoft.CmdPal.Extensions;
 using Microsoft.CmdPal.Extensions.Helpers;
+using Windows.Foundation;
 
 namespace GitHubExtension.Pages;
 
@@ -12,48 +14,45 @@ internal sealed partial class TestPage : FormPage
 {
     private readonly TestForm _testForm;
 
+    public override IForm[] Forms()
+    {
+        ExtensionHost.HideStatus(_testFormStatusMessage);
+        return new IForm[] { _testForm };
+    }
+
 #pragma warning disable IDE0044 // Add readonly modifier
-    private StatusMessage _testStatusMessage;
+    private StatusMessage _testFormStatusMessage = new();
 #pragma warning restore IDE0044 // Add readonly modifier
+
+    internal event TypedEventHandler<object, SignInStatusChangedEventArgs>? SignInAction
+    {
+        add => _testForm.SignInAction += value;
+        remove => _testForm.SignInAction -= value;
+    }
 
     public TestPage()
     {
         _testForm = new();
-        _testForm.RepositoryAdded += OnRepositoryAdded;
+        _testForm.SignInAction += OnSignInCompleted;
         _testForm.LoadingStateChanged += OnLoadingChanged;
-        _testStatusMessage = new StatusMessage();
     }
 
-    public override IForm[] Forms()
+    private void OnSignInCompleted(object sender, SignInStatusChangedEventArgs args)
     {
-        ExtensionHost.HideStatus(_testStatusMessage);
-        return new IForm[] { _testForm };
-    }
-
-    // Learning: Since this is a top-level command and this method is called in the page's constructor,
-    // this message would appear on the first page the user opens, regardless of which page is navigated to.
-    private void OnPageOpened()
-    {
-        _testStatusMessage.Message = "Page opened successfully!";
-        _testStatusMessage.State = MessageState.Info;
-        ExtensionHost.ShowStatus(_testStatusMessage);
-    }
-
-    private void OnRepositoryAdded(object sender, object? args)
-    {
-        IsLoading = false;
-        if (args is Exception ex)
+        if (args.Error != null)
         {
-            _testStatusMessage.Message = $"Error in adding repository: {ex.Message}";
-            _testStatusMessage.State = MessageState.Error;
+            IsLoading = false;
+            _testFormStatusMessage.Message = $"Error in sign-in: {args.Error.Message}";
+            _testFormStatusMessage.State = MessageState.Error;
+            ExtensionHost.Host?.ShowStatus(_testFormStatusMessage);
         }
-        else
+        else if (args.IsSignedIn)
         {
-            _testStatusMessage.Message = "Repository added successfully!";
-            _testStatusMessage.State = MessageState.Success;
+            IsLoading = false;
+            _testFormStatusMessage.Message = "Sign in succeeded!";
+            _testFormStatusMessage.State = MessageState.Success;
+            ExtensionHost.ShowStatus(_testFormStatusMessage);
         }
-
-        ExtensionHost.ShowStatus(_testStatusMessage);
     }
 
     private void OnLoadingChanged(object sender, bool isLoading)
