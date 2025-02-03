@@ -14,9 +14,15 @@ internal sealed partial class GitHubAuthPage : FormPage
 {
     private readonly GitHubAuthForm _authForm;
 
-    public override IForm[] Forms() => new IForm[] { _authForm };
+    public override IForm[] Forms()
+    {
+        ExtensionHost.HideStatus(_authFormStatusMessage);
+        return new IForm[] { _authForm };
+    }
 
+#pragma warning disable IDE0044 // Add readonly modifier
     private StatusMessage _authFormStatusMessage = new();
+#pragma warning restore IDE0044 // Add readonly modifier
 
     internal event TypedEventHandler<object, SignInStatusChangedEventArgs>? SignInAction
     {
