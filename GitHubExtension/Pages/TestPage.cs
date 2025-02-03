@@ -22,9 +22,6 @@ internal sealed partial class TestPage : FormPage
         _testForm.RepositoryAdded += OnRepositoryAdded;
         _testForm.LoadingStateChanged += OnLoadingChanged;
         _testStatusMessage = new StatusMessage();
-
-        // Call OnPageOpened when the page is first loaded
-        OnPageOpened();
     }
 
     public override IForm[] Forms()
@@ -33,9 +30,10 @@ internal sealed partial class TestPage : FormPage
         return new IForm[] { _testForm };
     }
 
+    // Learning: Since this is a top-level command and this method is called in the page's constructor,
+    // this message would appear on the first page the user opens, regardless of which page is navigated to.
     private void OnPageOpened()
     {
-        // Your custom logic for when the page is opened
         _testStatusMessage.Message = "Page opened successfully!";
         _testStatusMessage.State = MessageState.Info;
         ExtensionHost.ShowStatus(_testStatusMessage);
