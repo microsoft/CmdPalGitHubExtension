@@ -11,7 +11,7 @@ namespace GitHubExtension.Commands;
 
 internal sealed partial class SignOutCommand : InvokableCommand
 {
-    internal event TypedEventHandler<object, SignInStatusChangedEventArgs>? SignOutAction;
+    public static event EventHandler<SignInStatusChangedEventArgs>? SignOutAction;
 
     internal SignOutCommand()
     {

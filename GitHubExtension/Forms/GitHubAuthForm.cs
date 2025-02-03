@@ -5,6 +5,7 @@
 using System.Text;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
+using Microsoft.CmdPal.Extensions;
 using Microsoft.CmdPal.Extensions.Helpers;
 using Windows.Foundation;
 
@@ -12,9 +13,9 @@ namespace GitHubExtension.Forms;
 
 internal sealed partial class GitHubAuthForm : Form
 {
-    internal event TypedEventHandler<object, SignInStatusChangedEventArgs>? SignInAction;
+    public static event EventHandler<SignInStatusChangedEventArgs>? SignInAction;
 
-    internal event TypedEventHandler<object, bool>? LoadingStateChanged;
+    public static event TypedEventHandler<object, bool>? LoadingStateChanged;
 
     public override string TemplateJson()
     {
@@ -52,7 +53,7 @@ internal sealed partial class GitHubAuthForm : Form
             var devIds = authProvider.GetLoggedInDeveloperIdsInternal();
             var numDevIds = devIds.Count();
 
-            SignInAction?.Invoke(this, new SignInStatusChangedEventArgs(numDevIds > numPreviousDevIds));
+            SignInAction?.Invoke(this, new SignInStatusChangedEventArgs(numDevIds > numPreviousDevIds, null));
         }
         catch (Exception ex)
         {

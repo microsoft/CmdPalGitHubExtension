@@ -12,39 +12,31 @@ namespace GitHubExtension.Pages;
 
 internal sealed partial class GitHubAuthPage : FormPage
 {
-    private readonly GitHubAuthForm _authForm;
-
     public override IForm[] Forms()
     {
         ExtensionHost.HideStatus(_authFormStatusMessage);
-        return new IForm[] { _authForm };
+        IsLoading = false;
+        return new IForm[] { new GitHubAuthForm() };
     }
 
 #pragma warning disable IDE0044 // Add readonly modifier
     private StatusMessage _authFormStatusMessage = new();
-#pragma warning restore IDE0044 // Add readonly modifier
-
-    internal event TypedEventHandler<object, SignInStatusChangedEventArgs>? SignInAction
-    {
-        add => _authForm.SignInAction += value;
-        remove => _authForm.SignInAction -= value;
-    }
+#pragma warning disable IDE0044 // Add readonly modifier
 
     public GitHubAuthPage()
     {
-        _authForm = new();
-        _authForm.SignInAction += OnSignInCompleted;
-        _authForm.LoadingStateChanged += OnLoadingChanged;
+        GitHubAuthForm.SignInAction += OnSignInCompleted;
+        GitHubAuthForm.LoadingStateChanged += OnLoadingChanged;
     }
 
-    private void OnSignInCompleted(object sender, SignInStatusChangedEventArgs args)
+    private void OnSignInCompleted(object? sender, SignInStatusChangedEventArgs args)
     {
         if (args.Error != null)
         {
             IsLoading = false;
             _authFormStatusMessage.Message = $"Error in sign-in: {args.Error.Message}";
             _authFormStatusMessage.State = MessageState.Error;
-            ExtensionHost.Host?.ShowStatus(_authFormStatusMessage);
+            ExtensionHost.ShowStatus(_authFormStatusMessage);
         }
         else if (args.IsSignedIn)
         {

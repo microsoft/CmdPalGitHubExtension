@@ -4,6 +4,7 @@
 
 using GitHubExtension.Commands;
 using GitHubExtension.DeveloperId;
+using GitHubExtension.Forms;
 using GitHubExtension.Helpers;
 using GitHubExtension.Pages;
 using Microsoft.CmdPal.Extensions;
@@ -17,19 +18,13 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
     {
         DisplayName = "GitHub Extension";
 
-        _authPage = new GitHubAuthPage();
-        _authPage.SignInAction += OnSignInStatusChanged;
-        _signOutCommand = new SignOutCommand();
-        _signOutCommand.SignOutAction += OnSignInStatusChanged;
+        GitHubAuthForm.SignInAction += OnSignInStatusChanged;
+        SignOutCommand.SignOutAction += OnSignInStatusChanged;
 
         UpdateSignInStatus(IsSignedIn());
     }
 
-    private void UpdateTopLevelCommands(object? sender, object? args) => RaiseItemsChanged(0);
-
-    private readonly GitHubAuthPage _authPage;
-
-    private readonly SignOutCommand _signOutCommand;
+    private void UpdateTopLevelCommands(object? sender, int items) => RaiseItemsChanged(items);
 
     private bool _isSignedIn;
 
@@ -52,7 +47,7 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
                 Title = "Add a repo via URL",
                 Icon = new(GitHubIcon.IconDictionary["logo"]),
             },
-            new CommandItem(_signOutCommand)
+            new CommandItem(new SignOutCommand())
             {
                 Title = "GitHub Extension",
                 Subtitle = "Sign out",
@@ -65,7 +60,7 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
             }
         ]
         : [
-            new CommandItem(_authPage)
+            new CommandItem(new GitHubAuthPage())
             {
                 Title = "GitHub Extension",
                 Subtitle = "Log in",
@@ -86,9 +81,10 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
         return devIds.Any();
     }
 
-    private void UpdateSignInStatus(bool isSignedIn)
+    public void UpdateSignInStatus(bool isSignedIn)
     {
         _isSignedIn = isSignedIn;
+        var numCommands = _isSignedIn ? 5 : 2;
 
         if (_isSignedIn)
         {
@@ -100,7 +96,7 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
             GitHubRepositoryHelper.Instance.ClearRepositories();
         }
 
-        UpdateTopLevelCommands(null, null);
+        UpdateTopLevelCommands(null, numCommands);
     }
 
     private void OnSignInStatusChanged(object? sender, SignInStatusChangedEventArgs e)
