@@ -58,6 +58,11 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
                 Subtitle = "Sign out",
                 Icon = new(GitHubIcon.IconDictionary["logo"]),
             },
+            new CommandItem(new TestPage())
+            {
+                Title = "Test Page",
+                Icon = new(GitHubIcon.IconDictionary["logo"]),
+            }
         ]
         : [
             new CommandItem(_authPage)
@@ -66,6 +71,11 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
                 Subtitle = "Log in",
                 Icon = new(GitHubIcon.IconDictionary["logo"]),
             },
+            new CommandItem(new TestPage())
+            {
+                Title = "Test Page",
+                Icon = new(GitHubIcon.IconDictionary["logo"]),
+            }
         ];
     }
 
