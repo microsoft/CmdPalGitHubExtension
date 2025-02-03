@@ -16,6 +16,8 @@ internal sealed partial class GitHubAuthPage : FormPage
 
     public override IForm[] Forms() => new IForm[] { _authForm };
 
+    private StatusMessage _authFormStatusMessage = new();
+
     internal event TypedEventHandler<object, SignInStatusChangedEventArgs>? SignInAction
     {
         add => _authForm.SignInAction += value;
@@ -34,14 +36,16 @@ internal sealed partial class GitHubAuthPage : FormPage
         if (args.Error != null)
         {
             IsLoading = false;
-            var message = new StatusMessage() { Message = $"Error in sign-in: {args.Error.Message}", State = MessageState.Error };
-            ExtensionHost.Host?.ShowStatus(message);
+            _authFormStatusMessage.Message = $"Error in sign-in: {args.Error.Message}";
+            _authFormStatusMessage.State = MessageState.Error;
+            ExtensionHost.Host?.ShowStatus(_authFormStatusMessage);
         }
         else if (args.IsSignedIn)
         {
             IsLoading = false;
-            var message = new StatusMessage() { Message = "Sign in succeeded!", State = MessageState.Success };
-            ExtensionHost.Host?.ShowStatus(message);
+            _authFormStatusMessage.Message = "Sign in succeeded!";
+            _authFormStatusMessage.State = MessageState.Success;
+            ExtensionHost.ShowStatus(_authFormStatusMessage);
         }
     }
 
