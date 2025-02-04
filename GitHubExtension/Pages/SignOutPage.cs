@@ -24,7 +24,6 @@ internal sealed partial class SignOutPage : FormPage
     public SignOutPage()
     {
         SignOutForm.SignOutAction += OnSignOutCompleted;
-        SignOutForm.LoadingStateChanged += OnLoadingChanged;
     }
 
     private void OnSignOutCompleted(object? sender, SignInStatusChangedEventArgs args)
@@ -43,10 +42,5 @@ internal sealed partial class SignOutPage : FormPage
             _signOutFormStatusMessage.State = MessageState.Success;
             ExtensionHost.ShowStatus(_signOutFormStatusMessage);
         }
-    }
-
-    private void OnLoadingChanged(object sender, bool isLoading)
-    {
-        IsLoading = isLoading;
     }
 }

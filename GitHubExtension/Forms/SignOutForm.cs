@@ -14,8 +14,6 @@ internal sealed partial class SignOutForm : Form
 {
     public static event EventHandler<SignInStatusChangedEventArgs>? SignOutAction;
 
-    public static event TypedEventHandler<object, bool>? LoadingStateChanged;
-
     public override string TemplateJson()
     {
         var template = $$"""
@@ -86,16 +84,12 @@ internal sealed partial class SignOutForm : Form
 
     public override CommandResult SubmitForm(string payload)
     {
-        LoadingStateChanged?.Invoke(this, true);
+        HandleSignOut();
 
-        Task.Run(async () => await HandleSignOut());
-
-        return CommandResult.KeepOpen();
+        return CommandResult.GoHome();
     }
 
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-    private async Task HandleSignOut()
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+    private void HandleSignOut()
     {
         try
         {
