@@ -86,30 +86,35 @@ internal sealed partial class SignOutForm : Form
 
     public override CommandResult SubmitForm(string payload)
     {
+        LoadingStateChanged?.Invoke(this, true);
+
+        Task.Run(async () => await HandleSignOut());
+
+        return CommandResult.KeepOpen();
+    }
+
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+    private async Task HandleSignOut()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+    {
         try
         {
-            LoadingStateChanged?.Invoke(this, true);
-            SignOutAction?.Invoke(this, new SignInStatusChangedEventArgs(!HandleSignOut(), null));
+            var authProvider = DeveloperIdProvider.GetInstance();
+            var devIds = authProvider.GetLoggedInDeveloperIdsInternal();
 
-            return CommandResult.KeepOpen();
+            foreach (var devId in devIds)
+            {
+                authProvider.LogoutDeveloperId(devId);
+            }
+
+            var signOutSucceeded = !authProvider.GetLoggedInDeveloperIdsInternal().Any();
+
+            SignOutAction?.Invoke(this, new SignInStatusChangedEventArgs(!signOutSucceeded, null));
         }
         catch (Exception ex)
         {
-            ExtensionHost.LogMessage(new LogMessage() { Message = $"Error in SubmitForm: {ex.Message}" });
-            return CommandResult.GoHome();
+            // if sign out fails, the user is still signed in (true)
+            SignOutAction?.Invoke(this, new SignInStatusChangedEventArgs(true, ex));
         }
-    }
-
-    private bool HandleSignOut()
-    {
-        var authProvider = DeveloperIdProvider.GetInstance();
-        var devIds = authProvider.GetLoggedInDeveloperIdsInternal();
-
-        foreach (var devId in devIds)
-        {
-            authProvider.LogoutDeveloperId(devId);
-        }
-
-        return !authProvider.GetLoggedInDeveloperIdsInternal().Any();
     }
 }
