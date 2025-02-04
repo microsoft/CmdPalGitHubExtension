@@ -20,6 +20,7 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
 
         GitHubAuthForm.SignInAction += OnSignInStatusChanged;
         SignOutCommand.SignOutAction += OnSignInStatusChanged;
+        TestForm.SignInAction += OnSignInStatusChanged;
 
         UpdateSignInStatus(IsSignedIn());
     }

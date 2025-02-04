@@ -4,6 +4,7 @@
 
 using System.Text;
 using GitHubExtension.Helpers;
+using Microsoft.CmdPal.Extensions;
 using Microsoft.CmdPal.Extensions.Helpers;
 using Windows.Foundation;
 
@@ -11,9 +12,9 @@ namespace GitHubExtension.Forms;
 
 internal sealed partial class TestForm : Form
 {
-    internal event TypedEventHandler<object, SignInStatusChangedEventArgs>? SignInAction;
+    public static event EventHandler<SignInStatusChangedEventArgs>? SignInAction;
 
-    internal event TypedEventHandler<object, bool>? LoadingStateChanged;
+    public static event TypedEventHandler<object, bool>? LoadingStateChanged;
 
     public override string TemplateJson()
     {
@@ -29,11 +30,13 @@ internal sealed partial class TestForm : Form
 
     public override string StateJson() => "{}";
 
-    public override CommandResult SubmitForm(string payload)
+    public override ICommandResult SubmitForm(string payload)
     {
         LoadingStateChanged?.Invoke(this, true);
 
         Task.Run(async () => await HandleSignIn());
+
+        ExtensionHost.ShowStatus(new StatusMessage() { Message = "Signing in...", State = MessageState.Info });
 
         return CommandResult.KeepOpen();
     }
@@ -42,7 +45,8 @@ internal sealed partial class TestForm : Form
     {
         try
         {
-            await Task.Delay(2000);
+            await Task.Delay(4000);
+
             SignInAction?.Invoke(this, new SignInStatusChangedEventArgs(true, null));
         }
         catch (Exception ex)

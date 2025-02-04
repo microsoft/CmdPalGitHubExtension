@@ -12,51 +12,48 @@ namespace GitHubExtension.Pages;
 
 internal sealed partial class TestPage : FormPage
 {
-    private readonly TestForm _testForm;
-
     public override IForm[] Forms()
     {
-        ExtensionHost.HideStatus(_testFormStatusMessage);
-        return new IForm[] { _testForm };
+        ExtensionHost.HideStatus(_testMessage);
+        IsLoading = false;
+        return new IForm[] { new TestForm() };
     }
 
 #pragma warning disable IDE0044 // Add readonly modifier
-    private StatusMessage _testFormStatusMessage = new();
-#pragma warning restore IDE0044 // Add readonly modifier
-
-    internal event TypedEventHandler<object, SignInStatusChangedEventArgs>? SignInAction
-    {
-        add => _testForm.SignInAction += value;
-        remove => _testForm.SignInAction -= value;
-    }
+    private StatusMessage _testMessage = new();
+#pragma warning disable IDE0044 // Add readonly modifier
 
     public TestPage()
     {
-        _testForm = new();
-        _testForm.SignInAction += OnSignInCompleted;
-        _testForm.LoadingStateChanged += OnLoadingChanged;
+        TestForm.SignInAction += OnSignInCompleted;
+        TestForm.LoadingStateChanged += OnLoadingChanged;
     }
 
-    private void OnSignInCompleted(object sender, SignInStatusChangedEventArgs args)
+    private void OnSignInCompleted(object? sender, SignInStatusChangedEventArgs args)
     {
         if (args.Error != null)
         {
             IsLoading = false;
-            _testFormStatusMessage.Message = $"Error in sign-in: {args.Error.Message}";
-            _testFormStatusMessage.State = MessageState.Error;
-            ExtensionHost.Host?.ShowStatus(_testFormStatusMessage);
+            _testMessage.Message = $"Error in sign-in: {args.Error.Message}";
+            _testMessage.State = MessageState.Error;
+            ExtensionHost.ShowStatus(_testMessage);
         }
         else if (args.IsSignedIn)
         {
             IsLoading = false;
-            _testFormStatusMessage.Message = "Sign in succeeded!";
-            _testFormStatusMessage.State = MessageState.Success;
-            ExtensionHost.ShowStatus(_testFormStatusMessage);
+            _testMessage.Message = "Sign in succeeded!";
+            _testMessage.State = MessageState.Success;
+            ExtensionHost.ShowStatus(_testMessage);
         }
     }
 
     private void OnLoadingChanged(object sender, bool isLoading)
     {
         IsLoading = isLoading;
+    }
+
+    public StatusMessage GetTestMessage()
+    {
+        return _testMessage;
     }
 }
