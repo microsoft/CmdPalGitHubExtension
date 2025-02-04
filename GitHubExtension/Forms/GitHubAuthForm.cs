@@ -5,7 +5,6 @@
 using System.Text;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
-using Microsoft.CmdPal.Extensions;
 using Microsoft.CmdPal.Extensions.Helpers;
 using Windows.Foundation;
 

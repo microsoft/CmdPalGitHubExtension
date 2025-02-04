@@ -20,6 +20,7 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
 
         GitHubAuthForm.SignInAction += OnSignInStatusChanged;
         SignOutCommand.SignOutAction += OnSignInStatusChanged;
+        SignOutForm.SignOutAction += OnSignInStatusChanged;
         TestForm.SignInAction += OnSignInStatusChanged;
 
         UpdateSignInStatus(IsSignedIn());
@@ -48,7 +49,7 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
                 Title = "Add a repo via URL",
                 Icon = new(GitHubIcon.IconDictionary["logo"]),
             },
-            new CommandItem(new SignOutCommand())
+            new CommandItem(new SignOutPage())
             {
                 Title = "GitHub Extension",
                 Subtitle = "Sign out",
