@@ -33,7 +33,7 @@ public sealed partial class GitHubExtension : IExtension
         switch (providerType)
         {
             case ProviderType.Commands:
-                return new GitHubExtensionActionsProvider();
+                return new GitHubExtensionCommandsProvider();
             default:
                 return null;
         }

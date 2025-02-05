@@ -12,9 +12,9 @@ using Microsoft.CmdPal.Extensions.Helpers;
 
 namespace GitHubExtension;
 
-public partial class GitHubExtensionActionsProvider : CommandProvider
+public partial class GitHubExtensionCommandsProvider : CommandProvider
 {
-    public GitHubExtensionActionsProvider()
+    public GitHubExtensionCommandsProvider()
     {
         DisplayName = "GitHub Extension";
 
