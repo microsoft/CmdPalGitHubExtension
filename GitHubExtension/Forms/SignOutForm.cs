@@ -6,8 +6,8 @@ using System.Text;
 using System.Text.Json.Nodes;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
-using Microsoft.CmdPal.Extensions;
-using Microsoft.CmdPal.Extensions.Helpers;
+using Microsoft.CommandPalette.Extensions;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.Foundation;
 
 internal sealed partial class SignOutForm : Form

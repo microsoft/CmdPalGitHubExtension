@@ -10,8 +10,8 @@ using System.Text;
 using System.Threading.Tasks;
 using GitHubExtension.Commands;
 using GitHubExtension.Helpers;
-using Microsoft.CmdPal.Extensions;
-using Microsoft.CmdPal.Extensions.Helpers;
+using Microsoft.CommandPalette.Extensions;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension;
 
@@ -19,7 +19,7 @@ internal sealed partial class SearchReleasesPage : ListPage
 {
     public SearchReleasesPage()
     {
-        Icon = new(GitHubIcon.IconDictionary["release"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary["release"]);
         Name = "Search GitHub Releases";
         this.ShowDetails = true;
     }
@@ -31,7 +31,7 @@ internal sealed partial class SearchReleasesPage : ListPage
             {
                 Title = "Release title here",
                 Subtitle = "ReleaseNumber",
-                Icon = new(GitHubIcon.IconDictionary["release"]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary["release"]),
                 Details = new Details()
                 {
                     Title = "Release markdown title",
@@ -42,7 +42,7 @@ internal sealed partial class SearchReleasesPage : ListPage
             {
                 Title = "Release title here",
                 Subtitle = "ReleaseNumber",
-                Icon = new(GitHubIcon.IconDictionary["release"]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary["release"]),
                 Details = new Details()
                 {
                     Title = "Release markdown title",

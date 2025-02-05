@@ -4,8 +4,8 @@
 
 using GitHubExtension.Forms;
 using GitHubExtension.Helpers;
-using Microsoft.CmdPal.Extensions;
-using Microsoft.CmdPal.Extensions.Helpers;
+using Microsoft.CommandPalette.Extensions;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Pages;
 
@@ -18,6 +18,6 @@ internal sealed partial class GitHubPatPage : FormPage
     public GitHubPatPage()
     {
         Name = "Edit PAT (personal access token)";
-        Icon = new(GitHubIcon.IconDictionary["logo"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]);
     }
 }

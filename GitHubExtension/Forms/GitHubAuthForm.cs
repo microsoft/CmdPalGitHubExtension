@@ -5,7 +5,7 @@
 using System.Text;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
-using Microsoft.CmdPal.Extensions.Helpers;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.Foundation;
 
 namespace GitHubExtension.Forms;

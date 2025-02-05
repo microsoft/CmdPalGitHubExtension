@@ -5,8 +5,8 @@
 using System.Text.Json.Nodes;
 using GitHubExtension.Client;
 using GitHubExtension.Helpers;
-using Microsoft.CmdPal.Extensions;
-using Microsoft.CmdPal.Extensions.Helpers;
+using Microsoft.CommandPalette.Extensions;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.Foundation;
 
 namespace GitHubExtension.Forms;

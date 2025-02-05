@@ -7,8 +7,8 @@ using GitHubExtension.DeveloperId;
 using GitHubExtension.Forms;
 using GitHubExtension.Helpers;
 using GitHubExtension.Pages;
-using Microsoft.CmdPal.Extensions;
-using Microsoft.CmdPal.Extensions.Helpers;
+using Microsoft.CommandPalette.Extensions;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension;
 
@@ -37,28 +37,28 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             new CommandItem(new SearchIssuesPage())
             {
                 Title = "Search GitHub Issues",
-                Icon = new(GitHubIcon.IconDictionary["issue"]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
             },
             new CommandItem(new SearchPullRequestsPage())
             {
                 Title = "Search GitHub Pull Requests",
-                Icon = new(GitHubIcon.IconDictionary["pullRequest"]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]),
             },
             new CommandItem(new AddRepoPage())
             {
                 Title = "Add a repo via URL",
-                Icon = new(GitHubIcon.IconDictionary["logo"]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
             },
             new CommandItem(new SignOutPage())
             {
                 Title = "GitHub Extension",
                 Subtitle = "Sign out",
-                Icon = new(GitHubIcon.IconDictionary["logo"]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
             },
             new CommandItem(new TestPage())
             {
                 Title = "Test Page",
-                Icon = new(GitHubIcon.IconDictionary["logo"]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
             }
         ]
         : [
@@ -66,12 +66,12 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             {
                 Title = "GitHub Extension",
                 Subtitle = "Log in",
-                Icon = new(GitHubIcon.IconDictionary["logo"]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
             },
             new CommandItem(new TestPage())
             {
                 Title = "Test Page",
-                Icon = new(GitHubIcon.IconDictionary["logo"]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
             }
         ];
     }

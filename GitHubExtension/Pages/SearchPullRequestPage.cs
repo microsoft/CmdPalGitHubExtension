@@ -7,8 +7,8 @@ using GitHubExtension.Client;
 using GitHubExtension.Commands;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
-using Microsoft.CmdPal.Extensions;
-using Microsoft.CmdPal.Extensions.Helpers;
+using Microsoft.CommandPalette.Extensions;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 using Serilog;
 
 namespace GitHubExtension;
@@ -17,7 +17,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
 {
     public SearchPullRequestsPage()
     {
-        Icon = new(GitHubIcon.IconDictionary["pullRequest"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]);
         Name = "Search GitHub Pull Requests";
         this.ShowDetails = true;
     }
@@ -40,7 +40,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                 return pullRequests.Select(pullRequest => new ListItem(new LinkCommand(pullRequest))
                 {
                     Title = pullRequest.Title,
-                    Icon = new(GitHubIcon.IconDictionary["pullRequest"]),
+                    Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]),
                     Subtitle = $"{GetOwner(pullRequest.HtmlUrl)}/{GetRepo(pullRequest.HtmlUrl)}/#{pullRequest.Number}",
                     MoreCommands = new CommandContextItem[]
                     {
@@ -61,7 +61,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                             new(new NoOpCommand())
                             {
                                 Title = "No pull requests found",
-                                Icon = new(GitHubIcon.IconDictionary["pullRequest"]),
+                                Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]),
                             },
                     }
                     :
@@ -69,7 +69,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                             new ListItem(new NoOpCommand())
                             {
                                 Title = "Error fetching pull requests",
-                                Icon = new(GitHubIcon.IconDictionary["pullRequest"]),
+                                Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]),
                             },
                     ];
             }

@@ -4,7 +4,7 @@
 
 using System.Runtime.InteropServices;
 using GitHubExtension.Client;
-using Microsoft.CmdPal.Extensions;
+using Microsoft.CommandPalette.Extensions;
 using Serilog;
 
 namespace GitHubExtension;

@@ -4,7 +4,7 @@
 
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
-using Microsoft.CmdPal.Extensions.Helpers;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.Foundation;
 
 namespace GitHubExtension.Commands;
@@ -16,7 +16,7 @@ internal sealed partial class SignOutCommand : InvokableCommand
     internal SignOutCommand()
     {
         Name = "Sign Out";
-        Icon = new("\uE8A7");
+        Icon = new IconInfo("\uE8A7");
     }
 
     public override CommandResult Invoke()
