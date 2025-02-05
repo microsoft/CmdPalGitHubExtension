@@ -24,8 +24,8 @@ public sealed partial class GitHubExtension : IExtension
     public GitHubExtension(ManualResetEvent extensionDisposedEvent)
 #pragma warning restore IDE0290 // Use primary constructor
     {
-        this._extensionDisposedEvent = extensionDisposedEvent;
         this.GitHubClientProvider = new GitHubClientProvider();
+        this._extensionDisposedEvent = extensionDisposedEvent;
     }
 
     public object? GetProvider(ProviderType providerType)

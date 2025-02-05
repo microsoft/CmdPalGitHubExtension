@@ -44,7 +44,14 @@ public class Program
 
         if (args.Length > 0 && args[0] == "-RegisterProcessAsComServer")
         {
-            HandleCOMServerActivation();
+            try
+            {
+                HandleCOMServerActivation();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to register process as COM server.");
+            }
         }
         else
         {
@@ -90,11 +97,23 @@ public class Program
         // We are instantiating an extension instance once above, and returning it every time the callback in RegisterExtension below is called.
         // This makes sure that only one instance of GitHubExtension is alive, which is returned every time the host asks for the IExtension object.
         // If you want to instantiate a new instance each time the host asks, create the new instance inside the delegate.
-        server.RegisterExtension(() => extensionInstance);
+        try
+        {
+            server.RegisterExtension(() => extensionInstance);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Failed to register extension.");
+        }
 
-        // This will make the main thread wait until the event is signalled by the extension class.
-        // Since we have single instance of the extension object, we exit as soon as it is disposed.
-        extensionDisposedEvent.WaitOne();
+        // Define a timeout period (e.g., 30 minutes)
+        TimeSpan timeout = TimeSpan.FromSeconds(10);
+
+        // This will make the main thread wait until the event is signaled by the extension class or the timeout occurs.
+        if (!extensionDisposedEvent.WaitOne(timeout))
+        {
+            Log.Warning("Timeout occurred while waiting for the extension to be disposed.");
+        }
     }
 
     private static void HandleProtocolActivation(Uri oauthRedirectUri) => DeveloperId.DeveloperIdProvider.GetInstance().HandleOauthRedirection(oauthRedirectUri);
