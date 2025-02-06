@@ -9,6 +9,7 @@ using GitHubExtension.Helpers;
 using GitHubExtension.Pages;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using Microsoft.UI.Xaml;
 
 namespace GitHubExtension;
 
@@ -53,6 +54,11 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
                 Title = "GitHub Extension",
                 Subtitle = "Sign out",
                 Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
+            },
+            new CommandItem(new SaveQueryPage())
+            {
+                Title = "Save a query",
+                Icon = new IconInfo(string.Empty),
             }
         ]
         : [
