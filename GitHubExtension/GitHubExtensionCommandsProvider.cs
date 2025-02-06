@@ -59,6 +59,11 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             {
                 Title = "Save a query",
                 Icon = new IconInfo(string.Empty),
+            },
+            new CommandItem(new SavedQueriesPage())
+            {
+                Title = "Saved Queries",
+                Icon = new IconInfo(string.Empty),
             }
         ]
         : [
