@@ -36,26 +36,34 @@ internal sealed partial class AddRepoForm : Form
 
     private async Task HandleSubmit(string payload)
     {
-        var repoInfo = await ProcessSubmission(payload);
-
-        if (repoInfo.Length == 1)
+        try
         {
-            RepositoryAdded?.Invoke(this, new InvalidOperationException(repoInfo[0]));
+            var repoInfo = await ProcessSubmission(payload);
+
+            if (repoInfo.Length == 1)
+            {
+                RepositoryAdded?.Invoke(this, new InvalidOperationException(repoInfo[0]));
+                LoadingStateChanged?.Invoke(this, false);
+                return;
+            }
+
+            var ownerName = repoInfo[0];
+            var repositoryName = repoInfo[1];
+            var repoHelper = GitHubRepositoryHelper.Instance;
+
+            ExtensionHost.LogMessage(new LogMessage() { Message = $"IsMemberOrContributor {repoHelper.IsMemberOrContributor(ownerName, repositoryName)}..." });
+
+            var repositories = repoHelper.GetUserRepositories();
+            repoHelper.AddRepository(ownerName, repositoryName);
+
+            RepositoryAdded?.Invoke(this, null);
             LoadingStateChanged?.Invoke(this, false);
-            return;
         }
-
-        var ownerName = repoInfo[0];
-        var repositoryName = repoInfo[1];
-        var repoHelper = GitHubRepositoryHelper.Instance;
-
-        ExtensionHost.LogMessage(new LogMessage() { Message = $"IsMemberOrContributor {repoHelper.IsMemberOrContributor(ownerName, repositoryName)}..." });
-
-        var repositories = repoHelper.GetUserRepositories();
-        repoHelper.AddRepository(ownerName, repositoryName);
-
-        RepositoryAdded?.Invoke(this, null);
-        LoadingStateChanged?.Invoke(this, false);
+        catch (Exception ex)
+        {
+            RepositoryAdded?.Invoke(this, ex);
+            LoadingStateChanged?.Invoke(this, false);
+        }
     }
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously

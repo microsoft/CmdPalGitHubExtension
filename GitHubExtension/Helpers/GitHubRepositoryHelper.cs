@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Client;
+using Microsoft.CmdPal.Extensions.Helpers;
 using Octokit;
 using Serilog;
 
@@ -187,9 +188,10 @@ public class GitHubRepositoryHelper
                 return collaborators.Any(collaborator => collaborator.Login == userName);
             }
         }
-        catch (NotFoundException)
+        catch (Exception ex)
         {
-            return false;
+            ExtensionHost.LogMessage(new LogMessage() { Message = $"Error in IsUserMemberOfRepository: {ex.Message}" });
+            throw;
         }
     }
 
@@ -210,9 +212,10 @@ public class GitHubRepositoryHelper
 
             return (commits.Count > 0) || (pullRequests.TotalCount > 0);
         }
-        catch (NotFoundException)
+        catch (Exception ex)
         {
-            return false;
+            ExtensionHost.LogMessage(new LogMessage() { Message = $"Error in IsUserContributorOfRepository: {ex.Message}" });
+            throw;
         }
     }
 
