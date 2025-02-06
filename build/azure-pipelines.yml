@@ -7,7 +7,6 @@ parameters:
   - name: Platforms
     type: object
     default:
-    - x86
     - x64
     - arm64
   - name: Configurations

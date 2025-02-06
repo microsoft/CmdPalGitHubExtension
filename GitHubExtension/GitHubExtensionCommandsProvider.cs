@@ -7,62 +7,62 @@ using GitHubExtension.DeveloperId;
 using GitHubExtension.Forms;
 using GitHubExtension.Helpers;
 using GitHubExtension.Pages;
-using Microsoft.CmdPal.Extensions;
-using Microsoft.CmdPal.Extensions.Helpers;
+using Microsoft.CommandPalette.Extensions;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension;
 
-public partial class GitHubExtensionActionsProvider : CommandProvider
+public partial class GitHubExtensionCommandsProvider : CommandProvider
 {
-    public GitHubExtensionActionsProvider()
+    public GitHubExtensionCommandsProvider()
     {
         DisplayName = "GitHub Extension";
 
-        _authPage = new GitHubAuthPage();
-        _authPage.SignInAction += OnSignInAction;
-        _signOutCommand = new SignOutCommand();
-        _signOutCommand.SignOutAction += OnSignOutAction;
+        GitHubAuthForm.SignInAction += OnSignInStatusChanged;
+        SignOutCommand.SignOutAction += OnSignInStatusChanged;
+        SignOutForm.SignOutAction += OnSignInStatusChanged;
+
+        UpdateSignInStatus(IsSignedIn());
     }
 
-    private void UpdateTopLevelCommands(object sender, object? args) => RaiseItemsChanged(0);
+    private void UpdateTopLevelCommands(object? sender, int items) => RaiseItemsChanged(items);
 
-    private readonly GitHubAuthPage _authPage;
-
-    private readonly SignOutCommand _signOutCommand;
+    private bool _isSignedIn;
 
     public override ICommandItem[] TopLevelCommands()
     {
-        return IsSignedIn()
-            ? [
+        return _isSignedIn
+        ? [
             new CommandItem(new SearchIssuesPage())
             {
                 Title = "Search GitHub Issues",
-                Icon = new(GitHubIcon.IconDictionary["issue"]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
             },
             new CommandItem(new SearchPullRequestsPage())
             {
                 Title = "Search GitHub Pull Requests",
-                Icon = new(GitHubIcon.IconDictionary["pullRequest"]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]),
             },
             new CommandItem(new AddRepoPage())
             {
                 Title = "Add a repo via URL",
-                Icon = new(GitHubIcon.IconDictionary["logo"]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
             },
-            new CommandItem(_signOutCommand)
+            new CommandItem(new SignOutPage())
             {
                 Title = "GitHub Extension",
                 Subtitle = "Sign out",
-                Icon = new(GitHubIcon.IconDictionary["logo"]),
-            },
-            ]
-            : [new CommandItem(_authPage)
+                Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
+            }
+        ]
+        : [
+            new CommandItem(new GitHubAuthPage())
             {
                 Title = "GitHub Extension",
                 Subtitle = "Log in",
-                Icon = new(GitHubIcon.IconDictionary["logo"]),
-            },
-            ];
+                Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
+            }
+        ];
     }
 
     private static bool IsSignedIn()
@@ -72,19 +72,26 @@ public partial class GitHubExtensionActionsProvider : CommandProvider
         return devIds.Any();
     }
 
-    public void OnSignInAction(object sender, object? e)
+    public void UpdateSignInStatus(bool isSignedIn)
     {
-        if (sender is GitHubAuthForm)
+        _isSignedIn = isSignedIn;
+        var numCommands = _isSignedIn ? 5 : 2;
+
+        if (_isSignedIn)
         {
             var devIds = DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal();
             GitHubRepositoryHelper.Instance.UpdateClient(devIds.First().GitHubClient);
-            UpdateTopLevelCommands(sender, e);
         }
+        else
+        {
+            GitHubRepositoryHelper.Instance.ClearRepositories();
+        }
+
+        UpdateTopLevelCommands(null, numCommands);
     }
 
-    public void OnSignOutAction(object sender, object? e)
+    private void OnSignInStatusChanged(object? sender, SignInStatusChangedEventArgs e)
     {
-        GitHubRepositoryHelper.Instance.ClearRepositories();
-        UpdateTopLevelCommands(sender, e);
+        UpdateSignInStatus(e.IsSignedIn);
     }
 }

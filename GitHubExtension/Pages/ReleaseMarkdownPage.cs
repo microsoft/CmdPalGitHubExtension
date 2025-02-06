@@ -13,8 +13,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using GitHubExtension.Helpers;
-using Microsoft.CmdPal.Extensions;
-using Microsoft.CmdPal.Extensions.Helpers;
+using Microsoft.CommandPalette.Extensions;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 using Microsoft.UI.Windowing;
 
 namespace GitHubExtension;
@@ -25,7 +25,7 @@ internal sealed partial class ReleaseMarkdownPage : MarkdownPage
 
     public ReleaseMarkdownPage()
     {
-        Icon = new(GitHubIcon.IconDictionary["issue"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
         Name = "View";
     }
 

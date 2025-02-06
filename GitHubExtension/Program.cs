@@ -2,8 +2,10 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using Microsoft.CmdPal.Extensions;
+using Microsoft.CommandPalette.Extensions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Windows.AppLifecycle;
+using Microsoft.Windows.Storage;
 using Serilog;
 using Windows.ApplicationModel.Activation;
 
@@ -14,6 +16,15 @@ public class Program
     [MTAThread]
     public static async Task Main(string[] args)
     {
+        // Setup Logging
+        Environment.SetEnvironmentVariable("CMDPAL_LOGS_ROOT", ApplicationData.GetDefault().TemporaryFolder.Path);
+        var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(configuration)
+            .CreateLogger();
+
         Log.Information($"Launched with args: {string.Join(' ', args.ToArray())}");
 
         // Force the app to be single instanced.
@@ -33,7 +44,14 @@ public class Program
 
         if (args.Length > 0 && args[0] == "-RegisterProcessAsComServer")
         {
-            HandleCOMServerActivation();
+            try
+            {
+                HandleCOMServerActivation();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Failed to register process as COM server.");
+            }
         }
         else
         {
@@ -82,7 +100,7 @@ public class Program
         server.RegisterExtension(() => extensionInstance);
 
         // This will make the main thread wait until the event is signalled by the extension class.
-        // Since we have single instance of the extension object, we exit as sooon as it is disposed.
+        // Since we have single instance of the extension object, we exit as soon as it is disposed.
         extensionDisposedEvent.WaitOne();
     }
 

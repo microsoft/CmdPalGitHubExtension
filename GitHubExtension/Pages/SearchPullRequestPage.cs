@@ -5,14 +5,10 @@
 using System.Globalization;
 using GitHubExtension.Client;
 using GitHubExtension.Commands;
-using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
-using GitHubExtension.Pages;
-using Microsoft.CmdPal.Extensions;
-using Microsoft.CmdPal.Extensions.Helpers;
-using Octokit;
-using Octokit.Internal;
+using Microsoft.CommandPalette.Extensions;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 using Serilog;
 
 namespace GitHubExtension;
@@ -21,7 +17,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
 {
     public SearchPullRequestsPage()
     {
-        Icon = new(GitHubIcon.IconDictionary["pullRequest"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]);
         Name = "Search GitHub Pull Requests";
         this.ShowDetails = true;
     }
@@ -44,7 +40,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                 return pullRequests.Select(pullRequest => new ListItem(new LinkCommand(pullRequest))
                 {
                     Title = pullRequest.Title,
-                    Icon = new(GitHubIcon.IconDictionary["pullRequest"]),
+                    Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]),
                     Subtitle = $"{GetOwner(pullRequest.HtmlUrl)}/{GetRepo(pullRequest.HtmlUrl)}/#{pullRequest.Number}",
                     MoreCommands = new CommandContextItem[]
                     {
@@ -65,7 +61,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                             new(new NoOpCommand())
                             {
                                 Title = "No pull requests found",
-                                Icon = new(GitHubIcon.IconDictionary["pullRequest"]),
+                                Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]),
                             },
                     }
                     :
@@ -73,7 +69,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                             new ListItem(new NoOpCommand())
                             {
                                 Title = "Error fetching pull requests",
-                                Icon = new(GitHubIcon.IconDictionary["pullRequest"]),
+                                Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]),
                             },
                     ];
             }
@@ -117,17 +113,12 @@ internal sealed partial class SearchPullRequestsPage : ListPage
 
         var repos = repoHelper.GetUserRepositories();
 
-        var defaultPullRequest = new PullRequestRequest
-        {
-            State = ItemStateFilter.Open,
-            SortProperty = PullRequestSort.Created,
-            SortDirection = SortDirection.Descending,
-        };
+        var requestOptions = new RequestOptions();
 
         var pullRequests = new List<Octokit.PullRequest>();
         foreach (var repo in repos)
         {
-            var repoPRs = await client.PullRequest.GetAllForRepository(repo.Owner.Login, repo.Name, defaultPullRequest);
+            var repoPRs = await client.PullRequest.GetAllForRepository(repo.Owner.Login, repo.Name, requestOptions.PullRequestRequest);
             pullRequests.AddRange(repoPRs);
         }
 

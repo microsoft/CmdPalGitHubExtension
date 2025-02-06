@@ -6,7 +6,7 @@ using System.Globalization;
 using GitHubExtension.Commands;
 using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.Helpers;
-using Microsoft.CmdPal.Extensions.Helpers;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension;
 
@@ -16,14 +16,14 @@ internal sealed partial class PullRequestMarkdownPage : MarkdownPage
 
     public PullRequestMarkdownPage()
     {
-        Icon = new(GitHubIcon.IconDictionary["pullRequest"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]);
         Name = "View";
         _pullRequest = new PullRequest();
     }
 
     public PullRequestMarkdownPage(PullRequest pullRequest)
     {
-        Icon = new(GitHubIcon.IconDictionary["pullRequest"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]);
         Name = "View pull request in Command Palette";
         _pullRequest = pullRequest;
 #pragma warning disable IDE0300 // Simplify collection initialization

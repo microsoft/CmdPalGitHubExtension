@@ -5,15 +5,16 @@
 using System.Text;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
-using Microsoft.CmdPal.Extensions;
-using Microsoft.CmdPal.Extensions.Helpers;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.Foundation;
 
 namespace GitHubExtension.Forms;
 
 internal sealed partial class GitHubAuthForm : Form
 {
-    internal event TypedEventHandler<object, object?>? SignInAction;
+    public static event EventHandler<SignInStatusChangedEventArgs>? SignInAction;
+
+    public static event TypedEventHandler<object, bool>? LoadingStateChanged;
 
     public override string TemplateJson()
     {
@@ -31,38 +32,31 @@ internal sealed partial class GitHubAuthForm : Form
 
     public override CommandResult SubmitForm(string payload)
     {
-        try
-        {
-            Task.Run(HandleSignIn).GetAwaiter().GetResult();
+        LoadingStateChanged?.Invoke(this, true);
 
-            var message = new StatusMessage() { Message = "Sign in succeeded!", State = MessageState.Success };
-            ExtensionHost.Host?.ShowStatus(message);
-            return CommandResult.KeepOpen();
-        }
-        catch (Exception ex)
-        {
-            var message = new StatusMessage() { Message = $"Error in sign-in: {ex}", State = MessageState.Error };
-            ExtensionHost.Host?.ShowStatus(message);
-            return CommandResult.KeepOpen();
-        }
+        Task.Run(async () => await HandleSignIn());
+
+        return CommandResult.KeepOpen();
     }
 
     private async Task HandleSignIn()
     {
-        var authProvider = DeveloperIdProvider.GetInstance();
-
-        var numPreviousDevIds = authProvider.GetLoggedInDeveloperIdsInternal().Count();
-
-        await authProvider.LoginNewDeveloperIdAsync();
-
-        var devIds = authProvider.GetLoggedInDeveloperIdsInternal();
-        var numDevIds = devIds.Count();
-
-        if (numDevIds > numPreviousDevIds)
+        try
         {
-            SignInAction?.Invoke(this, null);
-            var repoHelper = GitHubRepositoryHelper.Instance;
-            repoHelper.UpdateClient(devIds.First().GitHubClient);
+            var authProvider = DeveloperIdProvider.GetInstance();
+
+            var numPreviousDevIds = authProvider.GetLoggedInDeveloperIdsInternal().Count();
+
+            await authProvider.LoginNewDeveloperIdAsync();
+
+            var devIds = authProvider.GetLoggedInDeveloperIdsInternal();
+            var numDevIds = devIds.Count();
+
+            SignInAction?.Invoke(this, new SignInStatusChangedEventArgs(numDevIds > numPreviousDevIds, null));
+        }
+        catch (Exception ex)
+        {
+            SignInAction?.Invoke(this, new SignInStatusChangedEventArgs(false, ex));
         }
     }
 }

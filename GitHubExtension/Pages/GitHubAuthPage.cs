@@ -3,21 +3,52 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Forms;
-using Microsoft.CmdPal.Extensions;
-using Microsoft.CmdPal.Extensions.Helpers;
+using GitHubExtension.Helpers;
+using Microsoft.CommandPalette.Extensions;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.Foundation;
 
 namespace GitHubExtension.Pages;
 
 internal sealed partial class GitHubAuthPage : FormPage
 {
-    private readonly GitHubAuthForm _authForm = new();
-
-    public override IForm[] Forms() => [_authForm];
-
-    internal event TypedEventHandler<object, object?>? SignInAction
+    public override IForm[] Forms()
     {
-        add => _authForm.SignInAction += value;
-        remove => _authForm.SignInAction -= value;
+        ExtensionHost.HideStatus(_authFormStatusMessage);
+        IsLoading = false;
+        return new IForm[] { new GitHubAuthForm() };
+    }
+
+#pragma warning disable IDE0044 // Add readonly modifier
+    private StatusMessage _authFormStatusMessage = new();
+#pragma warning disable IDE0044 // Add readonly modifier
+
+    public GitHubAuthPage()
+    {
+        GitHubAuthForm.SignInAction += OnSignInCompleted;
+        GitHubAuthForm.LoadingStateChanged += OnLoadingChanged;
+    }
+
+    private void OnSignInCompleted(object? sender, SignInStatusChangedEventArgs args)
+    {
+        if (args.Error != null)
+        {
+            IsLoading = false;
+            _authFormStatusMessage.Message = $"Error in sign-in: {args.Error.Message}";
+            _authFormStatusMessage.State = MessageState.Error;
+            ExtensionHost.ShowStatus(_authFormStatusMessage);
+        }
+        else if (args.IsSignedIn)
+        {
+            IsLoading = false;
+            _authFormStatusMessage.Message = "Sign in succeeded!";
+            _authFormStatusMessage.State = MessageState.Success;
+            ExtensionHost.ShowStatus(_authFormStatusMessage);
+        }
+    }
+
+    private void OnLoadingChanged(object sender, bool isLoading)
+    {
+        IsLoading = isLoading;
     }
 }

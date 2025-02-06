@@ -4,7 +4,7 @@
 
 using System.Text.Json.Nodes;
 using GitHubExtension.Helpers;
-using Microsoft.CmdPal.Extensions.Helpers;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Forms;
 

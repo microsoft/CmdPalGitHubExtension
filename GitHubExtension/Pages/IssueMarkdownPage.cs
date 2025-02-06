@@ -6,7 +6,7 @@ using System.Globalization;
 using GitHubExtension.Commands;
 using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.Helpers;
-using Microsoft.CmdPal.Extensions.Helpers;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension;
 
@@ -16,14 +16,14 @@ internal sealed partial class IssueMarkdownPage : MarkdownPage
 
     public IssueMarkdownPage()
     {
-        Icon = new(GitHubIcon.IconDictionary["issue"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
         Name = "View";
         _issue = new Issue();
     }
 
     public IssueMarkdownPage(Issue issue)
     {
-        Icon = new(GitHubIcon.IconDictionary["issue"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
         Name = "View issue in Command Palette";
         _issue = issue;
 #pragma warning disable IDE0300 // Simplify collection initialization

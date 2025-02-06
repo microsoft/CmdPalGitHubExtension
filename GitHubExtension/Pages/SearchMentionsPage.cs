@@ -4,8 +4,8 @@
 
 using GitHubExtension.Commands;
 using GitHubExtension.Helpers;
-using Microsoft.CmdPal.Extensions;
-using Microsoft.CmdPal.Extensions.Helpers;
+using Microsoft.CommandPalette.Extensions;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension;
 
@@ -13,7 +13,7 @@ internal sealed partial class SearchMentionsPage : ListPage
 {
     public SearchMentionsPage()
     {
-        Icon = new(GitHubIcon.IconDictionary["issue"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
         Name = "Search GitHub Issues";
         this.ShowDetails = true;
     }
@@ -25,7 +25,7 @@ internal sealed partial class SearchMentionsPage : ListPage
             {
                 Title = "Issue title here",
                 Subtitle = "IssueNumber",
-                Icon = new(GitHubIcon.IconDictionary["issue"]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
                 Details = new Details()
                 {
                     Title = "Issue markdown title",
@@ -36,7 +36,7 @@ internal sealed partial class SearchMentionsPage : ListPage
             {
                 Title = "Pull Request title here",
                 Subtitle = "Pull RequestNumber",
-                Icon = new(GitHubIcon.IconDictionary["pullRequest"]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]),
                 Details = new Details()
                 {
                     Title = "Pull Request markdown title",

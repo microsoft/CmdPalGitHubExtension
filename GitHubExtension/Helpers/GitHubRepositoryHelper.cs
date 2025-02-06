@@ -3,6 +3,8 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Client;
+using Microsoft.CommandPalette.Extensions;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 using Octokit;
 using Serilog;
 
@@ -160,7 +162,70 @@ public class GitHubRepositoryHelper
 
     public async Task<Repository> GetGitHubRepository(string owner, string repo)
     {
-        return await _client.Repository.Get(owner, repo);
+        try
+        {
+            return await _client.Repository.Get(owner, repo);
+        }
+        catch (ForbiddenException oFE)
+        {
+            ExtensionHost.LogMessage(new LogMessage() { Message = oFE.Message, State = MessageState.Error });
+            throw;
+        }
+    }
+
+    public bool IsMemberOrContributor(string ownerName, string repositoryName)
+    {
+        var userName = _client.User.Current().Result.Login;
+
+        var isMember = IsUserMemberOfRepository(ownerName, repositoryName, userName).Result;
+        var isContributor = IsUserContributorOfRepository(ownerName, repositoryName, userName).Result;
+
+        return isMember || isContributor;
+    }
+
+    private async Task<bool> IsUserMemberOfRepository(string ownerName, string repositoryName, string userName)
+    {
+        try
+        {
+            var collaborators = await _client.Issue.Assignee.GetAllForRepository(ownerName, repositoryName);
+            if (collaborators.Count == 0)
+            {
+                return false;
+            }
+            else
+            {
+                return collaborators.Any(collaborator => collaborator.Login == userName);
+            }
+        }
+        catch (Exception ex)
+        {
+            ExtensionHost.LogMessage(new LogMessage() { Message = $"Error in IsUserMemberOfRepository: {ex.Message}" });
+            throw;
+        }
+    }
+
+    private async Task<bool> IsUserContributorOfRepository(string ownerName, string repositoryName, string userName)
+    {
+        try
+        {
+            var commits = await _client.Repository.Commit.GetAll(ownerName, repositoryName, new CommitRequest { Author = userName });
+            var issueSearchRequest = new SearchIssuesRequest(repositoryName)
+            {
+                Author = userName,
+                Type = IssueTypeQualifier.PullRequest,
+                SortField = IssueSearchSort.Created,
+                Order = SortDirection.Descending,
+            };
+
+            var pullRequests = await _client.Search.SearchIssues(issueSearchRequest);
+
+            return (commits.Count > 0) || (pullRequests.TotalCount > 0);
+        }
+        catch (Exception ex)
+        {
+            ExtensionHost.LogMessage(new LogMessage() { Message = $"Error in IsUserContributorOfRepository: {ex.Message}" });
+            throw;
+        }
     }
 
     public void ClearRepositories()

@@ -3,19 +3,20 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.DeveloperId;
-using Microsoft.CmdPal.Extensions.Helpers;
+using GitHubExtension.Helpers;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.Foundation;
 
 namespace GitHubExtension.Commands;
 
 internal sealed partial class SignOutCommand : InvokableCommand
 {
-    internal event TypedEventHandler<object, object?>? SignOutAction;
+    public static event EventHandler<SignInStatusChangedEventArgs>? SignOutAction;
 
     internal SignOutCommand()
     {
         Name = "Sign Out";
-        Icon = new("\uE8A7");
+        Icon = new IconInfo("\uE8A7");
     }
 
     public override CommandResult Invoke()
@@ -28,7 +29,7 @@ internal sealed partial class SignOutCommand : InvokableCommand
             authProvider.LogoutDeveloperId(devId);
         }
 
-        SignOutAction?.Invoke(this, null);
+        SignOutAction?.Invoke(this, new SignInStatusChangedEventArgs(false));
         return CommandResult.GoHome();
     }
 }

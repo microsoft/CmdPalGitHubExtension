@@ -7,10 +7,8 @@ using GitHubExtension.Client;
 using GitHubExtension.Commands;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
-using GitHubExtension.Pages;
-using Microsoft.CmdPal.Extensions;
-using Microsoft.CmdPal.Extensions.Helpers;
-using Octokit;
+using Microsoft.CommandPalette.Extensions;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 using Serilog;
 
 namespace GitHubExtension;
@@ -19,7 +17,7 @@ internal sealed partial class SearchIssuesPage : ListPage
 {
     public SearchIssuesPage()
     {
-        Icon = new(GitHubIcon.IconDictionary["issue"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
         Name = "Search GitHub Issues";
         this.ShowDetails = true;
     }
@@ -42,7 +40,7 @@ internal sealed partial class SearchIssuesPage : ListPage
                 return issues.Select(issue => new ListItem(new LinkCommand(issue))
                 {
                     Title = issue.Title,
-                    Icon = new(GitHubIcon.IconDictionary["issue"]),
+                    Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
                     Subtitle = $"{GetOwner(issue.HtmlUrl)}/{GetRepo(issue.HtmlUrl)}/#{issue.Number}",
                     MoreCommands = new CommandContextItem[]
                     {
@@ -60,8 +58,8 @@ internal sealed partial class SearchIssuesPage : ListPage
                     {
                             new(new NoOpCommand())
                             {
-                                Title = "No issues found",
-                                Icon = new(GitHubIcon.IconDictionary["issue"]),
+                                Title = "No issues found. See logs for more details.",
+                                Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
                             },
                     }
                     :
@@ -69,7 +67,7 @@ internal sealed partial class SearchIssuesPage : ListPage
                             new ListItem(new NoOpCommand())
                             {
                                 Title = "Error fetching issues",
-                                Icon = new(GitHubIcon.IconDictionary["issue"]),
+                                Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
                             },
                     ];
             }
@@ -113,26 +111,19 @@ internal sealed partial class SearchIssuesPage : ListPage
 
         var repoCollection = repoHelper.GetUserRepositoryCollection();
 
-        var requestOptions = new RequestOptions();
-        SetOptions(requestOptions, query);
+        if (repoCollection.Count == 0)
+        {
+            Log.Information("No repositories found");
+            return new List<DataModel.DataObjects.Issue>();
+        }
+
+        var requestOptions = RequestOptions.RequestOptionsDefault();
         requestOptions.SearchIssuesRequest.Repos = repoCollection;
         var searchResults = await client.Search.SearchIssues(requestOptions.SearchIssuesRequest);
 
         var issues = ConvertToDataObjectsIssue(searchResults.Items);
 
         return issues;
-    }
-
-    private static RequestOptions SetOptions(RequestOptions options, string repoString)
-    {
-        options.SearchIssuesRequest = new SearchIssuesRequest
-        {
-            State = ItemState.Open,
-            Type = IssueTypeQualifier.Issue,
-            SortField = IssueSearchSort.Created,
-            Order = SortDirection.Descending,
-        };
-        return options;
     }
 
     private static List<DataModel.DataObjects.Issue> ConvertToDataObjectsIssue(IReadOnlyList<Octokit.Issue> octokitIssueList)
