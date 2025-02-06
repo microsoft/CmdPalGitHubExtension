@@ -55,11 +55,6 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
                 Subtitle = "Sign out",
                 Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
             },
-            new CommandItem(new SaveQueryPage())
-            {
-                Title = "Save a query",
-                Icon = new IconInfo(string.Empty),
-            },
             new CommandItem(new SavedQueriesPage())
             {
                 Title = "Saved Queries",

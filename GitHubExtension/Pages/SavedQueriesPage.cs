@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Helpers;
+using GitHubExtension.Pages;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
@@ -20,9 +21,14 @@ internal sealed partial class SavedQueriesPage : ListPage
     {
         return new ListItem[]
         {
-            new(new NoOpCommand())
+            new(new QueryPage())
             {
-                Title = "No queries found. Save queries from the main page.",
+                Title = "Sample Query: Search GitHub Issues",
+                Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
+            },
+            new(new SaveQueryPage())
+            {
+                Title = "Add a query",
                 Icon = new IconInfo(string.Empty),
             },
         };
