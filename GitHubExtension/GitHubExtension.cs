@@ -28,14 +28,16 @@ public sealed partial class GitHubExtension : IExtension
         this._extensionDisposedEvent = extensionDisposedEvent;
     }
 
-    public object? GetProvider(ProviderType providerType)
+    public object GetProvider(ProviderType providerType)
     {
         switch (providerType)
         {
             case ProviderType.Commands:
                 return new GitHubExtensionCommandsProvider();
             default:
+#pragma warning disable CS8603 // Possible null reference return.
                 return null;
+#pragma warning restore CS8603 // Possible null reference return.
         }
     }
 
