@@ -4,7 +4,7 @@
 
 using System.Runtime.InteropServices;
 using GitHubExtension.Client;
-using Microsoft.CmdPal.Extensions;
+using Microsoft.CommandPalette.Extensions;
 using Serilog;
 
 namespace GitHubExtension;
@@ -24,18 +24,20 @@ public sealed partial class GitHubExtension : IExtension
     public GitHubExtension(ManualResetEvent extensionDisposedEvent)
 #pragma warning restore IDE0290 // Use primary constructor
     {
-        this._extensionDisposedEvent = extensionDisposedEvent;
         this.GitHubClientProvider = new GitHubClientProvider();
+        this._extensionDisposedEvent = extensionDisposedEvent;
     }
 
-    public object? GetProvider(ProviderType providerType)
+    public object GetProvider(ProviderType providerType)
     {
         switch (providerType)
         {
             case ProviderType.Commands:
-                return new GitHubExtensionActionsProvider();
+                return new GitHubExtensionCommandsProvider();
             default:
+#pragma warning disable CS8603 // Possible null reference return.
                 return null;
+#pragma warning restore CS8603 // Possible null reference return.
         }
     }
 

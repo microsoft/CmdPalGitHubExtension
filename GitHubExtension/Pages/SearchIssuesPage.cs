@@ -7,8 +7,8 @@ using GitHubExtension.Client;
 using GitHubExtension.Commands;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
-using Microsoft.CmdPal.Extensions;
-using Microsoft.CmdPal.Extensions.Helpers;
+using Microsoft.CommandPalette.Extensions;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 using Serilog;
 
 namespace GitHubExtension;
@@ -17,7 +17,7 @@ internal sealed partial class SearchIssuesPage : ListPage
 {
     public SearchIssuesPage()
     {
-        Icon = new(GitHubIcon.IconDictionary["issue"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
         Name = "Search GitHub Issues";
         this.ShowDetails = true;
     }
@@ -40,7 +40,7 @@ internal sealed partial class SearchIssuesPage : ListPage
                 return issues.Select(issue => new ListItem(new LinkCommand(issue))
                 {
                     Title = issue.Title,
-                    Icon = new(GitHubIcon.IconDictionary["issue"]),
+                    Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
                     Subtitle = $"{GetOwner(issue.HtmlUrl)}/{GetRepo(issue.HtmlUrl)}/#{issue.Number}",
                     MoreCommands = new CommandContextItem[]
                     {
@@ -59,7 +59,7 @@ internal sealed partial class SearchIssuesPage : ListPage
                             new(new NoOpCommand())
                             {
                                 Title = "No issues found. See logs for more details.",
-                                Icon = new(GitHubIcon.IconDictionary["issue"]),
+                                Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
                             },
                     }
                     :
@@ -67,7 +67,7 @@ internal sealed partial class SearchIssuesPage : ListPage
                             new ListItem(new NoOpCommand())
                             {
                                 Title = "Error fetching issues",
-                                Icon = new(GitHubIcon.IconDictionary["issue"]),
+                                Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
                             },
                     ];
             }

@@ -44,13 +44,13 @@
       <Extensions>
         <com:Extension Category="windows.comServer">
           <com:ComServer>
-            <com:ExeServer Executable="GitHubExtension.exe" Arguments="-RegisterProcessAsComServer" DisplayName="ClementineExtensionApp">
+            <com:ExeServer Executable="GitHubExtension.exe" Arguments="-RegisterProcessAsComServer" DisplayName="GitHub Extension for Command Palette">
               <com:Class Id="a3d8cde8-9dd1-4f2f-85f0-77ea15f3ee8f" DisplayName="GitHub Extension for Command Palette" />
             </com:ExeServer>
           </com:ComServer>
         </com:Extension>
         <uap3:Extension Category="windows.appExtension">
-          <uap3:AppExtension Name="com.microsoft.windows.commandpalette"
+          <uap3:AppExtension Name="com.microsoft.commandpalette"
             Id="PG-SP-ID"
             PublicFolder="Public"
             DisplayName="GitHub extension for cmdpal"

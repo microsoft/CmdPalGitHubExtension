@@ -5,8 +5,8 @@
 using GitHubExtension.Client;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
-using Microsoft.CmdPal.Extensions;
-using Microsoft.CmdPal.Extensions.Helpers;
+using Microsoft.CommandPalette.Extensions;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 using Octokit;
 
 namespace GitHubExtension;
@@ -17,7 +17,7 @@ internal sealed partial class SearchRepositoriesPage : ListPage
 
     public SearchRepositoriesPage()
     {
-        Icon = new(GitHubIcon.IconDictionary["issue"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
         Name = "Search GitHub Repositories";
         this.ShowDetails = true;
 
@@ -46,7 +46,7 @@ internal sealed partial class SearchRepositoriesPage : ListPage
             {
                 Title = repo.FullName,
                 Subtitle = repo.Description,
-                Icon = new(GitHubIcon.IconDictionary["issue"]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
             }).ToArray();
             return section;
         }

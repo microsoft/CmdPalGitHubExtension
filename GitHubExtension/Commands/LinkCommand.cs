@@ -4,7 +4,7 @@
 
 using System.Diagnostics;
 using GitHubExtension.DataModel.DataObjects;
-using Microsoft.CmdPal.Extensions.Helpers;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Commands;
 
@@ -16,14 +16,14 @@ internal sealed partial class LinkCommand : InvokableCommand
     {
         _htmlUrl = issue.HtmlUrl;
         Name = "Open link";
-        Icon = new("\uE8A7");
+        Icon = new IconInfo("\uE8A7");
     }
 
     internal LinkCommand(PullRequest pullRequest)
     {
         _htmlUrl = pullRequest.HtmlUrl;
         Name = "Open link";
-        Icon = new("\uE8A7");
+        Icon = new IconInfo("\uE8A7");
     }
 
     public override CommandResult Invoke()

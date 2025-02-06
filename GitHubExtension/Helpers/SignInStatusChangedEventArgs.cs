@@ -8,8 +8,11 @@ public class SignInStatusChangedEventArgs : EventArgs
 {
     public bool IsSignedIn { get; }
 
-    public SignInStatusChangedEventArgs(bool isSignedIn)
+    public Exception? Error { get; }
+
+    public SignInStatusChangedEventArgs(bool isSignedIn, Exception? error = null)
     {
         IsSignedIn = isSignedIn;
+        Error = error;
     }
 }

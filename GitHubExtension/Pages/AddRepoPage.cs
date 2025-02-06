@@ -3,8 +3,8 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Forms;
-using Microsoft.CmdPal.Extensions;
-using Microsoft.CmdPal.Extensions.Helpers;
+using Microsoft.CommandPalette.Extensions;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Pages;
 
@@ -12,25 +12,44 @@ internal sealed partial class AddRepoPage : FormPage
 {
     private readonly AddRepoForm _addRepoForm;
 
+#pragma warning disable IDE0044 // Add readonly modifier
+    private StatusMessage _addRepoStatusMessage;
+#pragma warning restore IDE0044 // Add readonly modifier
+
     public AddRepoPage()
     {
-        _addRepoForm = new AddRepoForm();
+        _addRepoForm = new();
         _addRepoForm.RepositoryAdded += OnRepositoryAdded;
+        _addRepoForm.LoadingStateChanged += OnLoadingChanged;
+        _addRepoStatusMessage = new StatusMessage();
     }
 
-    public override IForm[] Forms() => new IForm[] { _addRepoForm };
+    public override IForm[] Forms()
+    {
+        ExtensionHost.HideStatus(_addRepoStatusMessage);
+        return new IForm[] { _addRepoForm };
+    }
 
     private void OnRepositoryAdded(object sender, object? args)
     {
+        IsLoading = false;
         if (args is Exception ex)
         {
-            var message = new StatusMessage() { Message = $"Error in adding repository: {ex.Message}", State = MessageState.Error };
-            ExtensionHost.Host?.ShowStatus(message);
+            _addRepoStatusMessage.Message = $"Error in adding repository: {ex.Message}";
+            _addRepoStatusMessage.State = MessageState.Error;
         }
         else
         {
-            var message = new StatusMessage() { Message = "Repository added successfully!", State = MessageState.Success };
-            ExtensionHost.Host?.ShowStatus(message);
+            _addRepoStatusMessage.Message = "Repository added successfully!";
+            _addRepoStatusMessage.State = MessageState.Success;
         }
+
+        var toast = new ToastStatusMessage(_addRepoStatusMessage);
+        toast.Show();
+    }
+
+    private void OnLoadingChanged(object sender, bool isLoading)
+    {
+        IsLoading = isLoading;
     }
 }

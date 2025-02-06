@@ -4,11 +4,9 @@
 
 using System.Text.Json.Nodes;
 using GitHubExtension.Client;
-using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
-using Microsoft.CmdPal.Extensions;
-using Microsoft.CmdPal.Extensions.Helpers;
-using Octokit;
+using Microsoft.CommandPalette.Extensions;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.Foundation;
 
 namespace GitHubExtension.Forms;
@@ -17,105 +15,82 @@ internal sealed partial class AddRepoForm : Form
 {
     internal event TypedEventHandler<object, object?>? RepositoryAdded;
 
-    private readonly GitHubClient _githubClient;
-
-    public AddRepoForm()
-    {
-        var developerIdProvider = DeveloperIdProvider.GetInstance();
-        var developerId = developerIdProvider.GetLoggedInDeveloperIdsInternal().FirstOrDefault();
-        if (developerId == null)
-        {
-            throw new InvalidOperationException("No logged-in developer ID found.");
-        }
-
-        _githubClient = developerId.GitHubClient;
-    }
+    internal event TypedEventHandler<object, bool>? LoadingStateChanged;
 
     public override ICommandResult SubmitForm(string payload)
+    {
+        try
+        {
+            LoadingStateChanged?.Invoke(this, true);
+
+            Task.Run(async () => await HandleSubmit(payload));
+
+            return CommandResult.KeepOpen();
+        }
+        catch (Exception ex)
+        {
+            ExtensionHost.LogMessage(new LogMessage() { Message = $"Error in SubmitForm: {ex.Message}" });
+            return CommandResult.GoHome();
+        }
+    }
+
+    private async Task HandleSubmit(string payload)
+    {
+        try
+        {
+            var repoInfo = await ProcessSubmission(payload);
+
+            if (repoInfo.Length == 1)
+            {
+                RepositoryAdded?.Invoke(this, new InvalidOperationException(repoInfo[0]));
+                LoadingStateChanged?.Invoke(this, false);
+                return;
+            }
+
+            var ownerName = repoInfo[0];
+            var repositoryName = repoInfo[1];
+            var repoHelper = GitHubRepositoryHelper.Instance;
+
+            ExtensionHost.LogMessage(new LogMessage() { Message = $"IsMemberOrContributor {repoHelper.IsMemberOrContributor(ownerName, repositoryName)}..." });
+            var repositories = repoHelper.GetUserRepositories();
+            repoHelper.AddRepository(ownerName, repositoryName);
+
+            RepositoryAdded?.Invoke(this, null);
+            LoadingStateChanged?.Invoke(this, false);
+        }
+        catch (Exception ex)
+        {
+            RepositoryAdded?.Invoke(this, ex);
+            LoadingStateChanged?.Invoke(this, false);
+        }
+    }
+
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+    private async Task<string[]> ProcessSubmission(string payload)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     {
         try
         {
             var formInput = JsonNode.Parse(payload);
             if (formInput == null)
             {
-                return CommandResult.GoHome();
+                throw new InvalidOperationException("No input found");
             }
 
             var repositoryUrl = formInput["repositoryUrl"]?.ToString();
             if (string.IsNullOrEmpty(repositoryUrl))
             {
-                return CommandResult.GoHome();
+                throw new InvalidOperationException("No repository URL found");
             }
 
             var repositoryName = Validation.ParseRepositoryFromGitHubURL(repositoryUrl);
             var ownerName = Validation.ParseOwnerFromGitHubURL(repositoryUrl);
-
-            ExtensionHost.LogMessage(new LogMessage() { Message = $"IsMemberOrContributor {IsMemberOrContributor(ownerName, repositoryName)}..." });
-
-            var repoHelper = GitHubRepositoryHelper.Instance;
-            var repositories = repoHelper.GetUserRepositories();
-            repoHelper.AddRepository(ownerName, repositoryName);
-
-            RepositoryAdded?.Invoke(this, null);
-            return CommandResult.KeepOpen();
+            return new[] { ownerName, repositoryName };
         }
         catch (Exception ex)
         {
             RepositoryAdded?.Invoke(this, ex);
-            return CommandResult.KeepOpen();
-        }
-    }
-
-    private bool IsMemberOrContributor(string ownerName, string repositoryName)
-    {
-        var userName = _githubClient.User.Current().Result.Login;
-
-        var isMember = IsUserMemberOfRepository(ownerName, repositoryName, userName).Result;
-        var isContributor = IsUserContributorOfRepository(ownerName, repositoryName, userName).Result;
-
-        return isMember || isContributor;
-    }
-
-    private async Task<bool> IsUserMemberOfRepository(string ownerName, string repositoryName, string userName)
-    {
-        try
-        {
-            var collaborators = await _githubClient.Issue.Assignee.GetAllForRepository(ownerName, repositoryName);
-            if (collaborators.Count == 0)
-            {
-                return false;
-            }
-            else
-            {
-                return collaborators.Any(collaborator => collaborator.Login == userName);
-            }
-        }
-        catch (NotFoundException)
-        {
-            return false;
-        }
-    }
-
-    private async Task<bool> IsUserContributorOfRepository(string ownerName, string repositoryName, string userName)
-    {
-        try
-        {
-            var commits = await _githubClient.Repository.Commit.GetAll(ownerName, repositoryName, new CommitRequest { Author = userName });
-            var issueSearchRequest = new SearchIssuesRequest(repositoryName)
-            {
-                Author = userName,
-                Type = IssueTypeQualifier.PullRequest,
-                SortField = IssueSearchSort.Created,
-                Order = SortDirection.Descending,
-            };
-
-            var pullRequests = await _githubClient.Search.SearchIssues(issueSearchRequest);
-
-            return (commits.Count > 0) || (pullRequests.TotalCount > 0);
-        }
-        catch (NotFoundException)
-        {
-            return false;
+            return new[] { ex.Message };
         }
     }
 
