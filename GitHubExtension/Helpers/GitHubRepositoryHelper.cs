@@ -161,7 +161,15 @@ public class GitHubRepositoryHelper
 
     public async Task<Repository> GetGitHubRepository(string owner, string repo)
     {
-        return await _client.Repository.Get(owner, repo);
+        try
+        {
+            return await _client.Repository.Get(owner, repo);
+        }
+        catch (ForbiddenException oFE)
+        {
+            ExtensionHost.LogMessage(new LogMessage() { Message = oFE.Message, State = Microsoft.CmdPal.Extensions.MessageState.Error });
+            throw;
+        }
     }
 
     public bool IsMemberOrContributor(string ownerName, string repositoryName)
