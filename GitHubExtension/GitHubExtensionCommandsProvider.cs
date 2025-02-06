@@ -21,7 +21,6 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         GitHubAuthForm.SignInAction += OnSignInStatusChanged;
         SignOutCommand.SignOutAction += OnSignInStatusChanged;
         SignOutForm.SignOutAction += OnSignInStatusChanged;
-        TestForm.SignInAction += OnSignInStatusChanged;
 
         UpdateSignInStatus(IsSignedIn());
     }
@@ -54,11 +53,6 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
                 Title = "GitHub Extension",
                 Subtitle = "Sign out",
                 Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
-            },
-            new CommandItem(new TestPage())
-            {
-                Title = "Test Page",
-                Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
             }
         ]
         : [
@@ -66,11 +60,6 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             {
                 Title = "GitHub Extension",
                 Subtitle = "Log in",
-                Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
-            },
-            new CommandItem(new TestPage())
-            {
-                Title = "Test Page",
                 Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
             }
         ];

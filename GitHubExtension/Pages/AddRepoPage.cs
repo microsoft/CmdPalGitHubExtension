@@ -44,7 +44,8 @@ internal sealed partial class AddRepoPage : FormPage
             _addRepoStatusMessage.State = MessageState.Success;
         }
 
-        ExtensionHost.ShowStatus(_addRepoStatusMessage);
+        var toast = new ToastStatusMessage(_addRepoStatusMessage);
+        toast.Show();
     }
 
     private void OnLoadingChanged(object sender, bool isLoading)
