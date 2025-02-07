@@ -5,6 +5,7 @@
 using System.Globalization;
 using GitHubExtension.Client;
 using GitHubExtension.Commands;
+using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
@@ -15,11 +16,23 @@ namespace GitHubExtension;
 
 internal sealed partial class QueryPage : ListPage
 {
+    public Query PageQuery { get; set; }
+
     public QueryPage()
     {
         Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
         Name = "Search GitHub Issues";
         this.ShowDetails = true;
+        PageQuery = new Query();
+    }
+
+    public QueryPage(Query query)
+    {
+        Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
+        Name = query.Name;
+
+        // TODO: put the query fields in the details
+        PageQuery = query;
     }
 
     public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();

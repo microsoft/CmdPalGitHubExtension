@@ -8,6 +8,8 @@ namespace GitHubExtension.DataModel.DataObjects;
 
 public class Query
 {
+    public string Name { get; set; } = string.Empty;
+
     private string Owner { get; set; } = string.Empty;
 
     private string Repository { get; set; } = string.Empty;
@@ -41,8 +43,9 @@ public class Query
     {
     }
 
-    public Query(string owner, string repository, string dateCreated, string language, string state, string reason, string numberOfComments, string labels, string author, string mentionedUsers, string assignees, string updatedDate)
+    public Query(string name, string owner, string repository, string dateCreated, string language, string state, string reason, string numberOfComments, string labels, string author, string mentionedUsers, string assignees, string updatedDate)
     {
+        Name = name;
         Owner = owner;
         Repository = repository;
         DateCreated = dateCreated;
@@ -59,6 +62,6 @@ public class Query
 
     public override string ToString()
     {
-        return $"Owner: {Owner}, Repository: {Repository}, DateCreated: {DateCreated}, Language: {Language}, State: {State}, Reason: {Reason}, NumberOfComments: {NumberOfComments}, Labels: {Labels}, Author: {Author}, MentionedUsers: {MentionedUsers}, Assignees: {Assignees}, UpdatedDate: {UpdatedDate}";
+        return $"Name: {Name}, Owner: {Owner}, Repository: {Repository}, DateCreated: {DateCreated}, Language: {Language}, State: {State}, Reason: {Reason}, NumberOfComments: {NumberOfComments}, Labels: {Labels}, Author: {Author}, MentionedUsers: {MentionedUsers}, Assignees: {Assignees}, UpdatedDate: {UpdatedDate}";
     }
 }

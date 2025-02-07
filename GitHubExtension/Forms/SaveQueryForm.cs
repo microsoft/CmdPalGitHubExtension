@@ -14,7 +14,7 @@ namespace GitHubExtension.Forms;
 
 internal sealed partial class SaveQueryForm : Form
 {
-    internal event TypedEventHandler<object, object?>? QuerySaved;
+    public static event TypedEventHandler<object, object?>? QuerySaved;
 
     internal event TypedEventHandler<object, bool>? LoadingStateChanged;
 
@@ -54,7 +54,7 @@ internal sealed partial class SaveQueryForm : Form
     {
         var query = GetQuery(payload);
         await Task.Delay(2000); // force a delay to satisfy compiler
-        ExtensionHost.LogMessage(new LogMessage() { Message = $"Query: {query.ToString()}" });
+        ExtensionHost.LogMessage(new LogMessage() { Message = $"Query: {query}" });
     }
 
     private Query GetQuery(string payload)
@@ -74,7 +74,7 @@ internal sealed partial class SaveQueryForm : Form
                 query = CreateQueryFromJson(payloadJson);
             }
 
-            QuerySaved?.Invoke(this, query.ToString());
+            QuerySaved?.Invoke(this, query);
             return query;
         }
         catch (Exception ex)
@@ -105,6 +105,7 @@ internal sealed partial class SaveQueryForm : Form
 
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
         var query = new Query(
+            jsonNode["name"] != null ? jsonNode["name"].ToString() : string.Empty,
             jsonNode["owner"] != null ? jsonNode["owner"].ToString() : string.Empty,
             jsonNode["repository"] != null ? jsonNode["repository"].ToString() : string.Empty,
             jsonNode["dateCreated"] != null ? jsonNode["dateCreated"].ToString() : string.Empty,

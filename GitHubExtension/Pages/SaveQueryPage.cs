@@ -19,7 +19,7 @@ internal sealed partial class SaveQueryPage : FormPage
     public SaveQueryPage()
     {
         _saveQueryForm = new();
-        _saveQueryForm.QuerySaved += OnQuerySaved;
+        SaveQueryForm.QuerySaved += OnQuerySaved;
         _saveQueryForm.LoadingStateChanged += OnLoadingChanged;
         _saveQueryStatusMessage = new StatusMessage();
     }

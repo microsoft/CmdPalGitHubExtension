@@ -14,9 +14,10 @@
       "id": "SearchTitle"
     },
     {
-      "type": "TextBlock",
-      "text": "Options",
-      "id": "advancedOptions"
+      "type": "Input.Text",
+      "label": "Query name",
+      "id": "name",
+      "placeholder": "My issues"
     },
     {
       "type": "Input.Text",
