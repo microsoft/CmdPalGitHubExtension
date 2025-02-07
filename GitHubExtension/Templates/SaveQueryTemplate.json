@@ -5,86 +5,47 @@
   "body": [
     {
       "type": "TextBlock",
-      "size": "medium",
-      "weight": "bolder",
-      "text": " ${ParticipantInfoForm.title}",
-      "horizontalAlignment": "center",
+      "size": "Medium",
+      "weight": "Bolder",
+      "text": "Search",
+      "horizontalAlignment": "Center",
       "wrap": true,
-      "style": "heading"
-    },
-    {
-      "type": "Input.Text",
-      "label": "Name",
-      "style": "text",
-      "id": "SimpleVal",
-      "isRequired": true,
-      "errorMessage": "Name is required",
-      "placeholder": "Enter your name"
-    },
-    {
-      "type": "Input.Text",
-      "label": "Homepage",
-      "style": "url",
-      "id": "UrlVal",
-      "placeholder": "Enter your homepage url"
-    },
-    {
-      "type": "Input.Text",
-      "label": "Email",
-      "style": "email",
-      "id": "EmailVal",
-      "placeholder": "Enter your email"
-    },
-    {
-      "type": "Input.Text",
-      "label": "Phone",
-      "style": "tel",
-      "id": "TelVal",
-      "placeholder": "Enter your phone number"
-    },
-    {
-      "type": "Input.Text",
-      "label": "Comments",
-      "style": "text",
-      "isMultiline": true,
-      "id": "MultiLineVal",
-      "placeholder": "Enter any comments"
-    },
-    {
-      "type": "Input.Number",
-      "label": "Quantity (Minimum -5, Maximum 5)",
-      "min": -5,
-      "max": 5,
-      "value": 1,
-      "id": "NumVal",
-      "errorMessage": "The quantity must be between -5 and 5"
-    },
-    {
-      "type": "Input.Date",
-      "label": "Due Date",
-      "id": "DateVal",
-      "value": "2017-09-20"
-    },
-    {
-      "type": "Input.Time",
-      "label": "Start time",
-      "id": "TimeVal",
-      "value": "16:59"
+      "style": "heading",
+      "id": "SearchTitle"
     },
     {
       "type": "TextBlock",
-      "size": "medium",
-      "weight": "bolder",
-      "text": "${Survey.title} ",
-      "horizontalAlignment": "center",
-      "wrap": true,
-      "style": "heading"
+      "text": "Options",
+      "id": "advancedOptions"
+    },
+    {
+      "type": "Input.Text",
+      "label": "Owner",
+      "id": "owner",
+      "placeholder": "github, microsoft"
+    },
+    {
+      "type": "Input.Text",
+      "label": "Repository",
+      "id": "repository",
+      "placeholder": "microsoft/terminal"
+    },
+    {
+      "type": "Input.Text",
+      "label": "Date created",
+      "id": "dateCreated",
+      "placeholder": "YYYY-MM-DD"
+    },
+    {
+      "type": "Input.Text",
+      "label": "Language",
+      "id": "language",
+      "placeholder": "C#, Java"
     },
     {
       "type": "Input.ChoiceSet",
-      "id": "CompactSelectVal",
-      "label": "${Survey.questions[0].question}",
-      "style": "compact",
+      "id": "StateSelectVal",
+      "label": "State",
       "value": "1",
       "choices": [
         {
@@ -96,9 +57,8 @@
     },
     {
       "type": "Input.ChoiceSet",
-      "id": "SingleSelectVal",
-      "label": "${Survey.questions[1].question}",
-      "style": "expanded",
+      "id": "ReasonSelectVal",
+      "label": "Reason",
       "value": "1",
       "choices": [
         {
@@ -109,45 +69,40 @@
       ]
     },
     {
-      "type": "Input.ChoiceSet",
-      "id": "MultiSelectVal",
-      "label": "${Survey.questions[2].question}",
-      "isMultiSelect": true,
-      "value": "1,3",
-      "choices": [
-        {
-          "$data": "${Survey.questions[2].items}",
-          "title": "${choice}",
-          "value": "${value}"
-        }
-      ]
+      "type": "Input.Text",
+      "label": "Number of comments",
+      "id": "issueNumComments",
+      "placeholder": "1...50, >400"
     },
     {
-      "type": "TextBlock",
-      "size": "medium",
-      "weight": "bolder",
-      "text": "Input.Toggle",
-      "horizontalAlignment": "center",
-      "wrap": true,
-      "style": "heading"
+      "type": "Input.Text",
+      "label": "Labels",
+      "id": "issueLabels",
+      "placeholder": "bug, help-wanted"
     },
     {
-      "type": "Input.Toggle",
-      "label": "Please accept the terms and conditions:",
-      "title": "${Survey.questions[3].question}",
-      "valueOn": "true",
-      "valueOff": "false",
-      "id": "AcceptsTerms",
-      "isRequired": true,
-      "errorMessage": "Accepting the terms and conditions is required"
+      "type": "Input.Text",
+      "label": "Author",
+      "id": "issueAuthor",
+      "placeholder": "Enter author login here"
     },
     {
-      "type": "Input.Toggle",
-      "label": "How do you feel about red cars?",
-      "title": "${Survey.questions[4].question}",
-      "valueOn": "RedCars",
-      "valueOff": "NotRedCars",
-      "id": "ColorPreference"
+      "type": "Input.Text",
+      "label": "Mentioned users",
+      "id": "issueMentionedUsers",
+      "placeholder": "Enter mentioned users here"
+    },
+    {
+      "type": "Input.Text",
+      "label": "Assignees",
+      "id": "issueAssignees",
+      "placeholder": "microsoft"
+    },
+    {
+      "type": "Input.Text",
+      "label": "Updated before date",
+      "id": "updatedBeforeDate",
+      "placeholder": "YYYY-MM-DD"
     }
   ],
   "actions": [
@@ -156,27 +111,6 @@
       "title": "Submit",
       "data": {
         "id": "1234567890"
-      }
-    },
-    {
-      "type": "Action.ShowCard",
-      "title": "Show Card",
-      "card": {
-        "type": "AdaptiveCard",
-        "body": [
-          {
-            "type": "Input.Text",
-            "label": "Enter comment",
-            "style": "text",
-            "id": "CommentVal"
-          }
-        ],
-        "actions": [
-          {
-            "type": "Action.Submit",
-            "title": "OK"
-          }
-        ]
       }
     }
   ]
