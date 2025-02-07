@@ -100,7 +100,7 @@ internal sealed partial class SearchIssuesPage : ListPage
 
     public static string GetRepo(string repositoryUrl) => Validation.ParseRepositoryFromGitHubURL(repositoryUrl);
 
-    private static async Task<List<DataModel.DataObjects.Issue>> GetGitHubIssuesAsync(string query)
+    private static async Task<List<DataModel.Issue>> GetGitHubIssuesAsync(string query)
     {
         var devIdProvider = DeveloperIdProvider.GetInstance();
         var devIds = devIdProvider.GetLoggedInDeveloperIdsInternal();
@@ -114,7 +114,7 @@ internal sealed partial class SearchIssuesPage : ListPage
         if (repoCollection.Count == 0)
         {
             Log.Information("No repositories found");
-            return new List<DataModel.DataObjects.Issue>();
+            return new List<DataModel.Issue>();
         }
 
         var requestOptions = RequestOptions.RequestOptionsDefault();
@@ -126,12 +126,12 @@ internal sealed partial class SearchIssuesPage : ListPage
         return issues;
     }
 
-    private static List<DataModel.DataObjects.Issue> ConvertToDataObjectsIssue(IReadOnlyList<Octokit.Issue> octokitIssueList)
+    private static List<DataModel.Issue> ConvertToDataObjectsIssue(IReadOnlyList<Octokit.Issue> octokitIssueList)
     {
-        var dataModelIssues = new List<DataModel.DataObjects.Issue>();
+        var dataModelIssues = new List<DataModel.Issue>();
         foreach (var octokitIssue in octokitIssueList)
         {
-            var issue = DataModel.DataObjects.Issue.CreateFromOctokitIssue(octokitIssue);
+            var issue = DataModel.Issue.CreateFromOctokitIssue(octokitIssue);
             dataModelIssues.Add(issue);
         }
 

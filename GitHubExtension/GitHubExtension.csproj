@@ -33,6 +33,7 @@
       <PackageReference Include="LibGit2Sharp" Version="0.30.0" />
       <PackageReference Include="MessageFormat" Version="6.0.2" />
       <PackageReference Include="Microsoft.CommandPalette.Extensions" Version="0.0.0" />
+      <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.1" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
       <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.241114003" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

@@ -102,7 +102,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
 
     public static string GetRepo(string repositoryUrl) => Validation.ParseRepositoryFromGitHubURL(repositoryUrl);
 
-    private static async Task<List<DataModel.DataObjects.PullRequest>> GetGitHubPullRequestsAsync(string query)
+    private static async Task<List<DataModel.PullRequest>> GetGitHubPullRequestsAsync(string query)
     {
         var devIdProvider = DeveloperIdProvider.GetInstance();
         var devIds = devIdProvider.GetLoggedInDeveloperIdsInternal();
@@ -127,12 +127,12 @@ internal sealed partial class SearchPullRequestsPage : ListPage
         return pullRequestDataObjects;
     }
 
-    private static List<DataModel.DataObjects.PullRequest> ConvertToDataObjectsPullRequest(IReadOnlyList<Octokit.PullRequest> octokitPullRequestList)
+    private static List<DataModel.PullRequest> ConvertToDataObjectsPullRequest(IReadOnlyList<Octokit.PullRequest> octokitPullRequestList)
     {
-        var dataModelPullRequests = new List<DataModel.DataObjects.PullRequest>();
+        var dataModelPullRequests = new List<DataModel.PullRequest>();
         foreach (var octokitPullRequest in octokitPullRequestList)
         {
-            var pullRequest = DataModel.DataObjects.PullRequest.CreateFromOctokitPullRequest(octokitPullRequest);
+            var pullRequest = DataModel.PullRequest.CreateFromOctokitPullRequest(octokitPullRequest);
             dataModelPullRequests.Add(pullRequest);
         }
 
