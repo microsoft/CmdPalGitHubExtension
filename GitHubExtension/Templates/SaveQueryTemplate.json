@@ -31,7 +31,7 @@
       "placeholder": "microsoft/terminal"
     },
     {
-      "type": "Input.Text",
+      "type": "Input.Date",
       "label": "Date created",
       "id": "dateCreated",
       "placeholder": "YYYY-MM-DD"
@@ -99,7 +99,7 @@
       "placeholder": "microsoft"
     },
     {
-      "type": "Input.Text",
+      "type": "Input.Date",
       "label": "Updated before date",
       "id": "updatedDate",
       "placeholder": "YYYY-MM-DD"
