@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Text.Json.Nodes;
+using GitHubExtension.Client;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -61,7 +62,7 @@ internal sealed partial class SaveQueryForm : Form
                 }
             }
 
-            QuerySaved?.Invoke(this, null);
+            QuerySaved?.Invoke(this, queryUrl);
             return queryUrl;
         }
         catch (Exception ex)
