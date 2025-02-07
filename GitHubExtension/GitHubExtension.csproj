@@ -47,7 +47,7 @@
   </ItemGroup>
 
     <ItemGroup>
-        <Content Include=".\Templates\GitHubSignInTemplate.json">
+        <Content Include="Templates\*">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
         <None Update="appsettings.json">
@@ -79,4 +79,5 @@
   <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
   </PropertyGroup>
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 </Project>

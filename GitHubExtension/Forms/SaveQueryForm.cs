@@ -2,8 +2,8 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Text;
 using System.Text.Json.Nodes;
-using GitHubExtension.Client;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -32,6 +32,21 @@ internal sealed partial class SaveQueryForm : Form
             ExtensionHost.LogMessage(new LogMessage() { Message = $"Error in SubmitForm: {ex.Message}" });
             return CommandResult.GoHome();
         }
+    }
+
+    public string GetTemplateJsonFromFile()
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, GitHubHelper.GetTemplatePath("SaveQuery"));
+        var template = File.ReadAllText(path, Encoding.Default) ?? throw new FileNotFoundException(path);
+
+        return template;
+    }
+
+    public string GetDataJsonFromFile()
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, GitHubHelper.GetTemplatePath("SaveQueryData"));
+        var data = File.ReadAllText(path, Encoding.Default) ?? throw new FileNotFoundException(path);
+        return data;
     }
 
     private async Task HandleSubmit(string payload)
@@ -74,7 +89,17 @@ internal sealed partial class SaveQueryForm : Form
         return string.Empty;
     }
 
+    public override string DataJson()
+    {
+        return GetDataJsonFromFile();
+    }
+
     public override string TemplateJson()
+    {
+        return GetTemplateJsonFromFile();
+    }
+
+    public string GetTemplateJsonFromString()
     {
         var gh_base64 = GitHubIcon.GetBase64Icon("logo");
         var template = $@"
