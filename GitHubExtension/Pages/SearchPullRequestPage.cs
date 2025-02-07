@@ -5,6 +5,7 @@
 using System.Globalization;
 using GitHubExtension.Client;
 using GitHubExtension.Commands;
+using GitHubExtension.DataManager;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
@@ -22,13 +23,74 @@ internal sealed partial class SearchPullRequestsPage : ListPage
         this.ShowDetails = true;
     }
 
-    public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();
+    private DateTime lastUpdated = DateTime.MinValue;
 
-    private async Task<IListItem[]> DoGetItems(string query)
+    public override IListItem[] GetItems() => DoGetItems(SearchText);
+
+    private void RequestContentData()
+    {
+        if (DateTime.Now - lastUpdated < TimeConstants.Cooldown)
+        {
+            return;
+        }
+
+        var repoHelper = GitHubRepositoryHelper.Instance;
+        var repoCollection = repoHelper.GetUserRepositoryCollection();
+        var requestOptions = RequestOptions.RequestOptionsDefault();
+        var dataManager = GitHubDataManager.CreateInstance();
+
+        /*
+        foreach (var repo in repoCollection)
+        {
+            _ = dataManager?.UpdatePullRequestsForRepositoryAsync(GetOwner(repo), GetRepo(repo), requestOptions);
+        }
+        */
+        _ = dataManager?.UpdatePullRequestsForRepositoryAsync(GetOwner(repoCollection[43]), GetRepo(repoCollection[43]), requestOptions);
+    }
+
+    private List<DataModel.PullRequest> LoadContentData()
+    {
+        var repoHelper = GitHubRepositoryHelper.Instance;
+        var repoCollection = repoHelper.GetUserRepositoryCollection();
+        var data = new List<DataModel.PullRequest>();
+        var dataManager = GitHubDataManager.CreateInstance();
+
+        /*
+        foreach (var repo in repoCollection)
+        {
+            var repository = dataManager!.GetRepository(GetOwner(repo), GetRepo(repo));
+            var pulls = repository?.PullRequests;
+            if (pulls != null)
+            {
+                data.AddRange(pulls);
+            }
+        }
+        */
+
+        var repository = dataManager!.GetRepository(GetOwner(repoCollection[43]), GetRepo(repoCollection[43]));
+        var pulls = repository?.PullRequests;
+        if (pulls != null)
+        {
+            data.AddRange(pulls);
+        }
+
+        return data;
+    }
+
+    public void DataManagerUpdateHandler(object? source, DataManagerUpdateEventArgs e)
+    {
+        if (e.Kind == DataManagerUpdateKind.Repository)
+        {
+            lastUpdated = DateTime.Now;
+            RaiseItemsChanged(0);
+        }
+    }
+
+    private IListItem[] DoGetItems(string query)
     {
         try
         {
-            var pullRequests = await GetGitHubPullRequestsAsync(query);
+            var pullRequests = GetGitHubPullRequestsAsync(query);
 
             foreach (var pullRequest in pullRequests)
             {
@@ -102,40 +164,10 @@ internal sealed partial class SearchPullRequestsPage : ListPage
 
     public static string GetRepo(string repositoryUrl) => Validation.ParseRepositoryFromGitHubURL(repositoryUrl);
 
-    private static async Task<List<DataModel.PullRequest>> GetGitHubPullRequestsAsync(string query)
+    private List<DataModel.PullRequest> GetGitHubPullRequestsAsync(string query)
     {
-        var devIdProvider = DeveloperIdProvider.GetInstance();
-        var devIds = devIdProvider.GetLoggedInDeveloperIdsInternal();
-
-        var client = devIds.Any() ? devIds.First().GitHubClient : GitHubClientProvider.Instance.GetClient();
-
-        var repoHelper = GitHubRepositoryHelper.Instance;
-
-        var repos = repoHelper.GetUserRepositories();
-
-        var requestOptions = new RequestOptions();
-
-        var pullRequests = new List<Octokit.PullRequest>();
-        foreach (var repo in repos)
-        {
-            var repoPRs = await client.PullRequest.GetAllForRepository(repo.Owner.Login, repo.Name, requestOptions.PullRequestRequest);
-            pullRequests.AddRange(repoPRs);
-        }
-
-        var pullRequestDataObjects = ConvertToDataObjectsPullRequest(pullRequests);
-
-        return pullRequestDataObjects;
-    }
-
-    private static List<DataModel.PullRequest> ConvertToDataObjectsPullRequest(IReadOnlyList<Octokit.PullRequest> octokitPullRequestList)
-    {
-        var dataModelPullRequests = new List<DataModel.PullRequest>();
-        foreach (var octokitPullRequest in octokitPullRequestList)
-        {
-            var pullRequest = DataModel.PullRequest.CreateFromOctokitPullRequest(octokitPullRequest);
-            dataModelPullRequests.Add(pullRequest);
-        }
-
-        return dataModelPullRequests;
+        var res = LoadContentData();
+        RequestContentData();
+        return res;
     }
 }

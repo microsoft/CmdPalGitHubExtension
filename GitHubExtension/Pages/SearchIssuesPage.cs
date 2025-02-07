@@ -5,7 +5,8 @@
 using System.Globalization;
 using GitHubExtension.Client;
 using GitHubExtension.Commands;
-using GitHubExtension.DeveloperId;
+using GitHubExtension.DataManager;
+using GitHubExtension.DataModel;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -22,13 +23,73 @@ internal sealed partial class SearchIssuesPage : ListPage
         this.ShowDetails = true;
     }
 
-    public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();
+    private DateTime lastUpdated = DateTime.MinValue;
 
-    private async Task<IListItem[]> DoGetItems(string query)
+    public override IListItem[] GetItems() => DoGetItems(SearchText);
+
+    private void RequestContentData()
+    {
+        if (DateTime.Now - lastUpdated < TimeConstants.Cooldown)
+        {
+            return;
+        }
+
+        var repoHelper = GitHubRepositoryHelper.Instance;
+        var repoCollection = repoHelper.GetUserRepositoryCollection();
+        var requestOptions = RequestOptions.RequestOptionsDefault();
+        var dataManager = GitHubDataManager.CreateInstance();
+
+        /*
+        foreach (var repo in repoCollection)
+        {
+            _ = dataManager?.UpdateIssuesForRepositoryAsync(GetOwner(repo), GetRepo(repo), requestOptions);
+        }
+        */
+        _ = dataManager?.UpdateIssuesForRepositoryAsync(GetOwner(repoCollection[43]), GetRepo(repoCollection[43]), requestOptions);
+    }
+
+    private List<Issue> LoadContentData()
+    {
+        var repoHelper = GitHubRepositoryHelper.Instance;
+        var repoCollection = repoHelper.GetUserRepositoryCollection();
+        var data = new List<Issue>();
+        var dataManager = GitHubDataManager.CreateInstance();
+
+        /*
+        foreach (var repo in repoCollection)
+        {
+            var repository = dataManager!.GetRepository(GetOwner(repo), GetRepo(repo));
+            var issues = repository?.Issues;
+            if (issues != null)
+            {
+                data.AddRange(issues);
+            }
+        }
+        */
+        var repository = dataManager!.GetRepository(GetOwner(repoCollection[43]), GetRepo(repoCollection[43]));
+        var issues = repository?.Issues;
+        if (issues != null)
+        {
+            data.AddRange(issues);
+        }
+
+        return data;
+    }
+
+    public void DataManagerUpdateHandler(object? source, DataManagerUpdateEventArgs e)
+    {
+        if (e.Kind == DataManagerUpdateKind.Repository)
+        {
+            lastUpdated = DateTime.Now;
+            RaiseItemsChanged(0);
+        }
+    }
+
+    private IListItem[] DoGetItems(string query)
     {
         try
         {
-            var issues = await GetGitHubIssuesAsync(query);
+            var issues = GetGitHubIssuesAsync(query);
 
             foreach (var issue in issues)
             {
@@ -100,42 +161,11 @@ internal sealed partial class SearchIssuesPage : ListPage
 
     public static string GetRepo(string repositoryUrl) => Validation.ParseRepositoryFromGitHubURL(repositoryUrl);
 
-    private static async Task<List<DataModel.Issue>> GetGitHubIssuesAsync(string query)
+    private List<Issue> GetGitHubIssuesAsync(string query)
     {
-        var devIdProvider = DeveloperIdProvider.GetInstance();
-        var devIds = devIdProvider.GetLoggedInDeveloperIdsInternal();
-
-        var client = devIds.Any() ? devIds.First().GitHubClient : GitHubClientProvider.Instance.GetClient();
-
-        var repoHelper = GitHubRepositoryHelper.Instance;
-
-        var repoCollection = repoHelper.GetUserRepositoryCollection();
-
-        if (repoCollection.Count == 0)
-        {
-            Log.Information("No repositories found");
-            return new List<DataModel.Issue>();
-        }
-
-        var requestOptions = RequestOptions.RequestOptionsDefault();
-        requestOptions.SearchIssuesRequest.Repos = repoCollection;
-        var searchResults = await client.Search.SearchIssues(requestOptions.SearchIssuesRequest);
-
-        var issues = ConvertToDataObjectsIssue(searchResults.Items);
-
-        return issues;
-    }
-
-    private static List<DataModel.Issue> ConvertToDataObjectsIssue(IReadOnlyList<Octokit.Issue> octokitIssueList)
-    {
-        var dataModelIssues = new List<DataModel.Issue>();
-        foreach (var octokitIssue in octokitIssueList)
-        {
-            var issue = DataModel.Issue.CreateFromOctokitIssue(octokitIssue);
-            dataModelIssues.Add(issue);
-        }
-
-        return dataModelIssues;
+        var res = LoadContentData();
+        RequestContentData();
+        return res;
     }
 
     public void OnRepositoryAdded(object sender, object? args)

@@ -114,6 +114,7 @@ public class GitHubDataStoreSchema : IDataStoreSchema
         "State TEXT NOT NULL COLLATE NOCASE," +
         "Title TEXT NOT NULL COLLATE NOCASE," +
         "Body TEXT NOT NULL COLLATE NOCASE," +
+        "SourceBranch TEXT NOT NULL COLLATE NOCASE," +
         "AuthorId INTEGER NOT NULL," +
         "TimeCreated INTEGER NOT NULL," +
         "TimeUpdated INTEGER NOT NULL," +
