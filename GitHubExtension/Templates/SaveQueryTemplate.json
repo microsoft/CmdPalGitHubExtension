@@ -44,9 +44,9 @@
     },
     {
       "type": "Input.ChoiceSet",
-      "id": "StateSelectVal",
+      "id": "state",
       "label": "State",
-      "value": "1",
+      "value": "open/closed",
       "choices": [
         {
           "$data": "${Survey.questions[0].items}",
@@ -57,9 +57,9 @@
     },
     {
       "type": "Input.ChoiceSet",
-      "id": "ReasonSelectVal",
+      "id": "reason",
       "label": "Reason",
-      "value": "1",
+      "value": "any reason",
       "choices": [
         {
           "$data": "${Survey.questions[1].items}",
@@ -71,37 +71,37 @@
     {
       "type": "Input.Text",
       "label": "Number of comments",
-      "id": "issueNumComments",
+      "id": "numberOfComments",
       "placeholder": "1...50, >400"
     },
     {
       "type": "Input.Text",
       "label": "Labels",
-      "id": "issueLabels",
+      "id": "labels",
       "placeholder": "bug, help-wanted"
     },
     {
       "type": "Input.Text",
       "label": "Author",
-      "id": "issueAuthor",
+      "id": "author",
       "placeholder": "Enter author login here"
     },
     {
       "type": "Input.Text",
       "label": "Mentioned users",
-      "id": "issueMentionedUsers",
+      "id": "mentionedUsers",
       "placeholder": "Enter mentioned users here"
     },
     {
       "type": "Input.Text",
       "label": "Assignees",
-      "id": "issueAssignees",
+      "id": "assignees",
       "placeholder": "microsoft"
     },
     {
       "type": "Input.Text",
       "label": "Updated before date",
-      "id": "updatedBeforeDate",
+      "id": "updatedDate",
       "placeholder": "YYYY-MM-DD"
     }
   ],

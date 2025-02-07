@@ -10,15 +10,15 @@
         "items": [
           {
             "choice": "open/closed",
-            "value": "1"
+            "value": "open/closed"
           },
           {
             "choice": "open",
-            "value": "2"
+            "value": "open"
           },
           {
             "choice": "closed",
-            "value": "3"
+            "value": "closed"
           }
         ]
       },
@@ -27,19 +27,19 @@
         "items": [
           {
             "choice": "any reason",
-            "value": "1"
+            "value": "any reason"
           },
           {
             "choice": "completed",
-            "value": "2"
+            "value": "completed"
           },
           {
             "choice": "not planned",
-            "value": "3"
+            "value": "not planned"
           },
           {
             "choice": "reopened",
-            "value": "3"
+            "value": "reopened"
           }
         ]
       }
