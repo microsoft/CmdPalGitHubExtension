@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Text.Json.Nodes;
+using Octokit;
 
 namespace GitHubExtension.DataModel.DataObjects;
 
@@ -10,40 +11,40 @@ public class Query
 {
     public string Name { get; set; } = string.Empty;
 
-    private string Owner { get; set; } = string.Empty;
+    public string Owner { get; set; } = string.Empty;
 
-    private string Repository { get; set; } = string.Empty;
+    public string Repository { get; set; } = string.Empty;
 
-    private string DateCreated { get; set; } = string.Empty;
+    public string DateCreated { get; set; } = string.Empty;
 
-    private string Language { get; set; } = string.Empty;
+    public string Language { get; set; } = string.Empty;
 
-    private string State { get; set; } = string.Empty;
+    public string State { get; set; } = string.Empty;
 
-    private string Reason { get; set; } = string.Empty;
+    public string Reason { get; set; } = string.Empty;
 
-    private string NumberOfComments { get; set; } = string.Empty;
+    public string NumberOfComments { get; set; } = string.Empty;
 
-    private string Labels { get; set; } = string.Empty;
+    public string Labels { get; set; } = string.Empty;
 
-    private string Author { get; set; } = string.Empty;
+    public string Author { get; set; } = string.Empty;
 
-    private string MentionedUsers { get; set; } = string.Empty;
+    public string MentionedUsers { get; set; } = string.Empty;
 
-    private string Assignees { get; set; } = string.Empty;
+    public string Assignee { get; set; } = string.Empty;
 
-    private string UpdatedDate { get; set; } = string.Empty;
+    public string UpdatedDate { get; set; } = string.Empty;
 
     public long AuthorId { get; set; } = -1;
 
     // id we'd use to identify the saved query
-    private int Id { get; set; } = -1;
+    public int Id { get; set; } = -1;
 
     public Query()
     {
     }
 
-    public Query(string name, string owner, string repository, string dateCreated, string language, string state, string reason, string numberOfComments, string labels, string author, string mentionedUsers, string assignees, string updatedDate)
+    public Query(string name, string owner, string repository, string dateCreated, string language, string state, string reason, string numberOfComments, string labels, string author, string mentionedUsers, string assignee, string updatedDate)
     {
         Name = name;
         Owner = owner;
@@ -56,12 +57,12 @@ public class Query
         Labels = labels;
         Author = author;
         MentionedUsers = mentionedUsers;
-        Assignees = assignees;
+        Assignee = assignee;
         UpdatedDate = updatedDate;
     }
 
     public override string ToString()
     {
-        return $"Name: {Name}, Owner: {Owner}, Repository: {Repository}, DateCreated: {DateCreated}, Language: {Language}, State: {State}, Reason: {Reason}, NumberOfComments: {NumberOfComments}, Labels: {Labels}, Author: {Author}, MentionedUsers: {MentionedUsers}, Assignees: {Assignees}, UpdatedDate: {UpdatedDate}";
+        return $"Name: {Name}, Owner: {Owner}, Repository: {Repository}, DateCreated: {DateCreated}, Language: {Language}, State: {State}, Reason: {Reason}, NumberOfComments: {NumberOfComments}, Labels: {Labels}, Author: {Author}, MentionedUsers: {MentionedUsers}, Assignee: {Assignee}, UpdatedDate: {UpdatedDate}";
     }
 }
