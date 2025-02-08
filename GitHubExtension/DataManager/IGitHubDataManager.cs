@@ -37,4 +37,8 @@ public interface IGitHubDataManager : IDisposable
     Repository? GetRepository(string owner, string name);
 
     Repository? GetRepository(string fullName);
+
+    Task UpdateIssuesForRepositoriesAsync(Octokit.RepositoryCollection repoCollection, RequestOptions requestOptions);
+
+    Task UpdatePullRequestsForRepositoriesAsync(Octokit.RepositoryCollection repoCollection, RequestOptions requestOptions);
 }

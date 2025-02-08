@@ -144,6 +144,15 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         await UpdatePullRequestsForRepositoryAsync(nameSplit[0], nameSplit[1], options);
     }
 
+    public async Task UpdatePullRequestsForRepositoriesAsync(Octokit.RepositoryCollection repoCollection, RequestOptions requestOptions)
+    {
+        ValidateDataStore();
+        foreach (var repo in repoCollection)
+        {
+            await UpdatePullRequestsForRepositoryAsync(repo, requestOptions);
+        }
+    }
+
     public async Task UpdateIssuesForRepositoryAsync(string owner, string name, RequestOptions? options = null)
     {
         ValidateDataStore();
@@ -171,6 +180,15 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         ValidateDataStore();
         var nameSplit = GetOwnerAndRepositoryNameFromFullName(fullName);
         await UpdateIssuesForRepositoryAsync(nameSplit[0], nameSplit[1], options);
+    }
+
+    public async Task UpdateIssuesForRepositoriesAsync(Octokit.RepositoryCollection repoCollection, RequestOptions requestOptions)
+    {
+        ValidateDataStore();
+        foreach (var repo in repoCollection)
+        {
+            await UpdateIssuesForRepositoryAsync(repo, requestOptions);
+        }
     }
 
     public async Task UpdatePullRequestsForLoggedInDeveloperIdsAsync()

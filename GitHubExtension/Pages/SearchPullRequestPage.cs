@@ -31,7 +31,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
     {
         if (DateTime.Now - lastUpdated < TimeConstants.Cooldown)
         {
-            return;
+            // Do nothing
         }
 
         var repoHelper = GitHubRepositoryHelper.Instance;
@@ -39,13 +39,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
         var requestOptions = RequestOptions.RequestOptionsDefault();
         var dataManager = GitHubDataManager.CreateInstance();
 
-        /*
-        foreach (var repo in repoCollection)
-        {
-            _ = dataManager?.UpdatePullRequestsForRepositoryAsync(GetOwner(repo), GetRepo(repo), requestOptions);
-        }
-        */
-        _ = dataManager?.UpdatePullRequestsForRepositoryAsync(GetOwner(repoCollection[43]), GetRepo(repoCollection[43]), requestOptions);
+        _ = dataManager?.UpdatePullRequestsForRepositoriesAsync(repoCollection, requestOptions);
     }
 
     private List<DataModel.PullRequest> LoadContentData()
@@ -55,7 +49,6 @@ internal sealed partial class SearchPullRequestsPage : ListPage
         var data = new List<DataModel.PullRequest>();
         var dataManager = GitHubDataManager.CreateInstance();
 
-        /*
         foreach (var repo in repoCollection)
         {
             var repository = dataManager!.GetRepository(GetOwner(repo), GetRepo(repo));
@@ -64,14 +57,6 @@ internal sealed partial class SearchPullRequestsPage : ListPage
             {
                 data.AddRange(pulls);
             }
-        }
-        */
-
-        var repository = dataManager!.GetRepository(GetOwner(repoCollection[43]), GetRepo(repoCollection[43]));
-        var pulls = repository?.PullRequests;
-        if (pulls != null)
-        {
-            data.AddRange(pulls);
         }
 
         return data;

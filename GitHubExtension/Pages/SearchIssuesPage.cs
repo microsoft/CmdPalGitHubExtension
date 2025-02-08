@@ -31,7 +31,7 @@ internal sealed partial class SearchIssuesPage : ListPage
     {
         if (DateTime.Now - lastUpdated < TimeConstants.Cooldown)
         {
-            return;
+            // Do nothing
         }
 
         var repoHelper = GitHubRepositoryHelper.Instance;
@@ -39,13 +39,7 @@ internal sealed partial class SearchIssuesPage : ListPage
         var requestOptions = RequestOptions.RequestOptionsDefault();
         var dataManager = GitHubDataManager.CreateInstance();
 
-        /*
-        foreach (var repo in repoCollection)
-        {
-            _ = dataManager?.UpdateIssuesForRepositoryAsync(GetOwner(repo), GetRepo(repo), requestOptions);
-        }
-        */
-        _ = dataManager?.UpdateIssuesForRepositoryAsync(GetOwner(repoCollection[43]), GetRepo(repoCollection[43]), requestOptions);
+        _ = dataManager?.UpdateIssuesForRepositoriesAsync(repoCollection, requestOptions);
     }
 
     private List<Issue> LoadContentData()
@@ -55,7 +49,6 @@ internal sealed partial class SearchIssuesPage : ListPage
         var data = new List<Issue>();
         var dataManager = GitHubDataManager.CreateInstance();
 
-        /*
         foreach (var repo in repoCollection)
         {
             var repository = dataManager!.GetRepository(GetOwner(repo), GetRepo(repo));
@@ -64,13 +57,6 @@ internal sealed partial class SearchIssuesPage : ListPage
             {
                 data.AddRange(issues);
             }
-        }
-        */
-        var repository = dataManager!.GetRepository(GetOwner(repoCollection[43]), GetRepo(repoCollection[43]));
-        var issues = repository?.Issues;
-        if (issues != null)
-        {
-            data.AddRange(issues);
         }
 
         return data;

@@ -76,6 +76,20 @@ public class GitHubRepositoryHelper
             repositoryCollection.Add($"{repo.Owner.Login}/{repo.Name}");
         }
 
+        var dataManager = GitHubDataManager.CreateInstance();
+        var dataRepos = dataManager?.GetRepositories();
+
+        if (dataRepos != null)
+        {
+            foreach (var repo in dataRepos)
+            {
+                if (!repositoryCollection.Contains($"{repo.Owner.Login}/{repo.Name}"))
+                {
+                    repositoryCollection.Add($"{repo.Owner.Login}/{repo.Name}");
+                }
+            }
+        }
+
         return repositoryCollection;
     }
 
