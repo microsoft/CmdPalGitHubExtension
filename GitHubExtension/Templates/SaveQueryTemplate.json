@@ -20,6 +20,19 @@
       "placeholder": "My issues"
     },
     {
+      "type": "Input.ChoiceSet",
+      "id": "type",
+      "label": "Type",
+      "value": "${choice}",
+      "choices": [
+        {
+          "$data": "${Search.filters[2].items}",
+          "title": "${choice}",
+          "value": "${value}"
+        }
+      ]
+    },
+    {
       "type": "Input.Text",
       "label": "Owner",
       "id": "owner",
@@ -50,7 +63,7 @@
       "value": "open/closed",
       "choices": [
         {
-          "$data": "${Survey.questions[0].items}",
+          "$data": "${Search.filters[0].items}",
           "title": "${choice}",
           "value": "${value}"
         }
@@ -63,7 +76,7 @@
       "value": "any reason",
       "choices": [
         {
-          "$data": "${Survey.questions[1].items}",
+          "$data": "${Search.filters[1].items}",
           "title": "${choice}",
           "value": "${value}"
         }

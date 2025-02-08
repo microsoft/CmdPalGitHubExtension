@@ -1,10 +1,7 @@
 ﻿{
-  "ParticipantInfoForm": {
-    "title": "Input.Text elements"
-  },
-  "Survey": {
+  "Search": {
     "title": "Input ChoiceSet",
-    "questions": [
+    "filters": [
       {
         "field": "${state}",
         "items": [
@@ -40,6 +37,19 @@
           {
             "choice": "reopened",
             "value": "reopened"
+          }
+        ]
+      },
+      {
+        "field": "${type}",
+        "items": [
+          {
+            "choice": "Issue",
+            "value": "Issue"
+          },
+          {
+            "choice": "Pull Request",
+            "value": "Pull Request"
           }
         ]
       }

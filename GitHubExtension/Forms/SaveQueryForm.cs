@@ -106,6 +106,7 @@ internal sealed partial class SaveQueryForm : Form
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
         var query = new Query(
             jsonNode["name"] != null ? jsonNode["name"].ToString() : string.Empty,
+            jsonNode["type"] != null ? jsonNode["type"].ToString() : string.Empty,
             jsonNode["owner"] != null ? jsonNode["owner"].ToString() : string.Empty,
             jsonNode["repository"] != null ? jsonNode["repository"].ToString() : string.Empty,
             jsonNode["dateCreated"] != null ? jsonNode["dateCreated"].ToString() : string.Empty,

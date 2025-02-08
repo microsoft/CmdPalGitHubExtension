@@ -48,12 +48,14 @@ internal sealed partial class QueryPage : ListPage
                 Log.Information($"{issue.Title}, {GetRepo(issue.HtmlUrl)}, {issue.Body}, {issue.Number}");
             }
 
+            var iconString = PageQuery.Type.Equals("issue", StringComparison.OrdinalIgnoreCase) ? "issue" : "pullRequest";
+
             if (issues.Count > 0)
             {
                 return issues.Select(issue => new ListItem(new LinkCommand(issue))
                 {
                     Title = issue.Title,
-                    Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
+                    Icon = new IconInfo(GitHubIcon.IconDictionary[iconString]),
                     Subtitle = $"{GetOwner(issue.HtmlUrl)}/{GetRepo(issue.HtmlUrl)}/#{issue.Number}",
                     MoreCommands = new CommandContextItem[]
                     {
@@ -136,6 +138,18 @@ internal sealed partial class QueryPage : ListPage
 
             options.SearchIssuesRequest.Assignee = string.IsNullOrEmpty(PageQuery.Assignee) ? null : PageQuery.Assignee;
             options.SearchIssuesRequest.Author = string.IsNullOrEmpty(PageQuery.Author) ? null : PageQuery.Author;
+
+            if (!string.IsNullOrEmpty(PageQuery.Type))
+            {
+                if (string.Equals(PageQuery.Type, "pull request", StringComparison.OrdinalIgnoreCase))
+                {
+                    options.SearchIssuesRequest.Type = IssueTypeQualifier.PullRequest;
+                }
+                else
+                {
+                    options.SearchIssuesRequest.Type = IssueTypeQualifier.Issue;
+                }
+            }
 
             // TODO: Support multiple labels
             if (!string.IsNullOrEmpty(PageQuery.Labels))
