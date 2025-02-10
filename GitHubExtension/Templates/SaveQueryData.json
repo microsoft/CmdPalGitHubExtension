@@ -1,0 +1,59 @@
+﻿{
+  "Search": {
+    "title": "Input ChoiceSet",
+    "filters": [
+      {
+        "field": "${state}",
+        "items": [
+          {
+            "choice": "open/closed",
+            "value": "open/closed"
+          },
+          {
+            "choice": "open",
+            "value": "open"
+          },
+          {
+            "choice": "closed",
+            "value": "closed"
+          }
+        ]
+      },
+      {
+        "field": "${reason}",
+        "items": [
+          {
+            "choice": "any reason",
+            "value": "any reason"
+          },
+          {
+            "choice": "completed",
+            "value": "completed"
+          },
+          {
+            "choice": "not planned",
+            "value": "not planned"
+          },
+          {
+            "choice": "reopened",
+            "value": "reopened"
+          }
+        ]
+      },
+      {
+        "field": "${type}",
+        "items": [
+          {
+            "choice": "Issue",
+            "value": "Issue"
+          },
+          {
+            "choice": "Pull Request",
+            "value": "Pull Request"
+          }
+        ]
+      }
+    ]
+  }
+}
+  
