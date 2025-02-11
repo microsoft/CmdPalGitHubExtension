@@ -24,7 +24,7 @@ internal sealed partial class SaveQueryForm : Form
         {
             LoadingStateChanged?.Invoke(this, true);
 
-            Task.Run(async () => await HandleSubmit(payload));
+            Task.Run(() => HandleSubmit(payload));
 
             return CommandResult.KeepOpen();
         }
@@ -50,10 +50,9 @@ internal sealed partial class SaveQueryForm : Form
         return data;
     }
 
-    private async Task HandleSubmit(string payload)
+    private void HandleSubmit(string payload)
     {
         var query = GetQuery(payload);
-        await Task.Delay(2000); // force a delay to satisfy compiler
         ExtensionHost.LogMessage(new LogMessage() { Message = $"Query: {query}" });
     }
 
