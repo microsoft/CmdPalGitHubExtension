@@ -57,7 +57,12 @@ internal sealed partial class SavedQueriesPage : ListPage
                 },
                 new(new SaveQueryPage())
                 {
-                    Title = "Add a query",
+                    Title = "Add a query (full form)",
+                    Icon = new IconInfo(string.Empty),
+                },
+                new(new SaveQueryStringPage())
+                {
+                    Title = "Add a query by string",
                     Icon = new IconInfo(string.Empty),
                 },
             };
