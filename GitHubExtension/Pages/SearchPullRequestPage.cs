@@ -178,7 +178,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
 
     private async Task<List<DataModel.PullRequest>> GetGitHubPullRequestsAsync(string query)
     {
-        Log.Information($"Starting reqeust for data.");
+        Log.Information($"Starting request for data.");
 
         // RequestContentData();
         return await LoadContentData();
