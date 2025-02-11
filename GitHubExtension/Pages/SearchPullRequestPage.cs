@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.ComponentModel;
 using System.Globalization;
 using GitHubExtension.Client;
 using GitHubExtension.Commands;
@@ -21,45 +22,70 @@ internal sealed partial class SearchPullRequestsPage : ListPage
         Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]);
         Name = "Search GitHub Pull Requests";
         this.ShowDetails = true;
+        GitHubDataManager.OnUpdate += DataManagerUpdateHandler;
+        PropChanged += PropChangedHandler;
+    }
+
+    ~SearchPullRequestsPage()
+    {
+        GitHubDataManager.OnUpdate -= DataManagerUpdateHandler;
+        PropChanged -= PropChangedHandler;
     }
 
     private DateTime lastUpdated = DateTime.MinValue;
 
-    public override IListItem[] GetItems() => DoGetItems(SearchText);
-
-    private void RequestContentData()
+    public void PropChangedHandler(object? sender, IPropChangedEventArgs e)
     {
-        if (DateTime.Now - lastUpdated < TimeConstants.Cooldown)
-        {
-            // Do nothing
-        }
-
-        var repoHelper = GitHubRepositoryHelper.Instance;
-        var repoCollection = repoHelper.GetUserRepositoryCollection();
-        var requestOptions = RequestOptions.RequestOptionsDefault();
-        var dataManager = GitHubDataManager.CreateInstance();
-
-        _ = dataManager?.UpdatePullRequestsForRepositoriesAsync(repoCollection, requestOptions);
+        Log.Information($"Property changed: {e.PropertyName}");
     }
 
-    private List<DataModel.PullRequest> LoadContentData()
+    public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();
+
+    private async void RequestContentData()
     {
-        var repoHelper = GitHubRepositoryHelper.Instance;
-        var repoCollection = repoHelper.GetUserRepositoryCollection();
-        var data = new List<DataModel.PullRequest>();
-        var dataManager = GitHubDataManager.CreateInstance();
-
-        foreach (var repo in repoCollection)
+        await Task.Run(() =>
         {
-            var repository = dataManager!.GetRepository(GetOwner(repo), GetRepo(repo));
-            var pulls = repository?.PullRequests;
-            if (pulls != null)
+            if (DateTime.Now - lastUpdated < TimeConstants.Cooldown)
             {
-                data.AddRange(pulls);
+                // Do nothing
+                Log.Information("Cooldown, not updating data.");
+                return;
             }
-        }
 
-        return data;
+            var repoHelper = GitHubRepositoryHelper.Instance;
+            var repoCollection = repoHelper.GetUserRepositoryCollection();
+            var requestOptions = RequestOptions.RequestOptionsDefault();
+            var dataManager = GitHubDataManager.CreateInstance();
+
+            _ = dataManager?.UpdatePullRequestsForRepositoriesAsync(repoCollection, requestOptions);
+            Log.Information("Data updated.");
+            lastUpdated = DateTime.Now;
+        });
+    }
+
+    private async Task<List<DataModel.PullRequest>> LoadContentData()
+    {
+        return await Task.Run(() =>
+        {
+            Log.Information($"Starting loading data.");
+            var repoHelper = GitHubRepositoryHelper.Instance;
+            var repoCollection = repoHelper.GetUserRepositoryCollection();
+            var data = new List<DataModel.PullRequest>();
+            var dataManager = GitHubDataManager.CreateInstance();
+
+            foreach (var repo in repoCollection)
+            {
+                var repository = dataManager!.GetRepository(GetOwner(repo), GetRepo(repo));
+                var pulls = repository?.PullRequests;
+                if (pulls != null)
+                {
+                    data.AddRange(pulls);
+                }
+            }
+
+            Log.Information($"Finishing loading data.");
+            return data;
+        });
     }
 
     public void DataManagerUpdateHandler(object? source, DataManagerUpdateEventArgs e)
@@ -71,20 +97,18 @@ internal sealed partial class SearchPullRequestsPage : ListPage
         }
     }
 
-    private IListItem[] DoGetItems(string query)
+    private async Task<IListItem[]> DoGetItems(string query)
     {
         try
         {
-            var pullRequests = GetGitHubPullRequestsAsync(query);
+            Log.Information($"Pull Page GetItems command called.");
 
-            foreach (var pullRequest in pullRequests)
-            {
-                Log.Information($"{pullRequest.Title}, {GetRepo(pullRequest.HtmlUrl)}, {pullRequest.Body}, {pullRequest.Number}");
-            }
+            var pullRequests = await GetGitHubPullRequestsAsync(query);
+            Log.Information($"Got {pullRequests.Count} pull requests data.");
 
             if (pullRequests.Count > 0)
             {
-                return pullRequests.Select(pullRequest => new ListItem(new LinkCommand(pullRequest))
+                var res = pullRequests.Select(pullRequest => new ListItem(new LinkCommand(pullRequest))
                 {
                     Title = pullRequest.Title,
                     Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]),
@@ -99,6 +123,9 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                             new(new PullRequestMarkdownPage(pullRequest)),
                     },
                 }).ToArray();
+
+                Log.Information($"Finished initializing pull objects.");
+                return res;
             }
             else
             {
@@ -149,10 +176,11 @@ internal sealed partial class SearchPullRequestsPage : ListPage
 
     public static string GetRepo(string repositoryUrl) => Validation.ParseRepositoryFromGitHubURL(repositoryUrl);
 
-    private List<DataModel.PullRequest> GetGitHubPullRequestsAsync(string query)
+    private async Task<List<DataModel.PullRequest>> GetGitHubPullRequestsAsync(string query)
     {
-        var res = LoadContentData();
-        RequestContentData();
-        return res;
+        Log.Information($"Starting reqeust for data.");
+
+        // RequestContentData();
+        return await LoadContentData();
     }
 }

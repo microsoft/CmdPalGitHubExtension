@@ -5,6 +5,7 @@
 using Dapper;
 using Dapper.Contrib.Extensions;
 using GitHubExtension.Helpers;
+using Octokit;
 using Serilog;
 
 namespace GitHubExtension.DataModel;

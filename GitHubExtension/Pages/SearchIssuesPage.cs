@@ -25,41 +25,47 @@ internal sealed partial class SearchIssuesPage : ListPage
 
     private DateTime lastUpdated = DateTime.MinValue;
 
-    public override IListItem[] GetItems() => DoGetItems(SearchText);
+    public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();
 
-    private void RequestContentData()
+    private async void RequestContentData()
     {
-        if (DateTime.Now - lastUpdated < TimeConstants.Cooldown)
+        await Task.Run(() =>
         {
-            // Do nothing
-        }
+            if (DateTime.Now - lastUpdated < TimeConstants.Cooldown)
+            {
+                // Do nothing
+            }
 
-        var repoHelper = GitHubRepositoryHelper.Instance;
-        var repoCollection = repoHelper.GetUserRepositoryCollection();
-        var requestOptions = RequestOptions.RequestOptionsDefault();
-        var dataManager = GitHubDataManager.CreateInstance();
+            var repoHelper = GitHubRepositoryHelper.Instance;
+            var repoCollection = repoHelper.GetUserRepositoryCollection();
+            var requestOptions = RequestOptions.RequestOptionsDefault();
+            var dataManager = GitHubDataManager.CreateInstance();
 
-        _ = dataManager?.UpdateIssuesForRepositoriesAsync(repoCollection, requestOptions);
+            _ = dataManager?.UpdateIssuesForRepositoriesAsync(repoCollection, requestOptions);
+        });
     }
 
-    private List<Issue> LoadContentData()
+    private async Task<List<Issue>> LoadContentData()
     {
-        var repoHelper = GitHubRepositoryHelper.Instance;
-        var repoCollection = repoHelper.GetUserRepositoryCollection();
-        var data = new List<Issue>();
-        var dataManager = GitHubDataManager.CreateInstance();
-
-        foreach (var repo in repoCollection)
+        return await Task.Run(() =>
         {
-            var repository = dataManager!.GetRepository(GetOwner(repo), GetRepo(repo));
-            var issues = repository?.Issues;
-            if (issues != null)
-            {
-                data.AddRange(issues);
-            }
-        }
+            var repoHelper = GitHubRepositoryHelper.Instance;
+            var repoCollection = repoHelper.GetUserRepositoryCollection();
+            var data = new List<Issue>();
+            var dataManager = GitHubDataManager.CreateInstance();
 
-        return data;
+            foreach (var repo in repoCollection)
+            {
+                var repository = dataManager!.GetRepository(GetOwner(repo), GetRepo(repo));
+                var issues = repository?.Issues;
+                if (issues != null)
+                {
+                    data.AddRange(issues);
+                }
+            }
+
+            return data;
+        });
     }
 
     public void DataManagerUpdateHandler(object? source, DataManagerUpdateEventArgs e)
@@ -71,20 +77,17 @@ internal sealed partial class SearchIssuesPage : ListPage
         }
     }
 
-    private IListItem[] DoGetItems(string query)
+    private async Task<IListItem[]> DoGetItems(string query)
     {
         try
         {
-            var issues = GetGitHubIssuesAsync(query);
-
-            foreach (var issue in issues)
-            {
-                Log.Information($"{issue.Title}, {GetRepo(issue.HtmlUrl)}, {issue.Body}, {issue.Number}");
-            }
+            Log.Information($"Issues Page GetItems command called.");
+            var issues = await GetGitHubIssuesAsync(query);
+            Log.Information($"Got {issues.Count} issues data.");
 
             if (issues.Count > 0)
             {
-                return issues.Select(issue => new ListItem(new LinkCommand(issue))
+                var res = issues.Select(issue => new ListItem(new LinkCommand(issue))
                 {
                     Title = issue.Title,
                     Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
@@ -97,6 +100,9 @@ internal sealed partial class SearchIssuesPage : ListPage
                             new(new IssueMarkdownPage(issue)),
                     },
                 }).ToArray();
+
+                Log.Information($"Finished initializing issues objects.");
+                return res;
             }
             else
             {
@@ -147,11 +153,10 @@ internal sealed partial class SearchIssuesPage : ListPage
 
     public static string GetRepo(string repositoryUrl) => Validation.ParseRepositoryFromGitHubURL(repositoryUrl);
 
-    private List<Issue> GetGitHubIssuesAsync(string query)
+    private async Task<List<Issue>> GetGitHubIssuesAsync(string query)
     {
-        var res = LoadContentData();
-        RequestContentData();
-        return res;
+        // RequestContentData();
+        return await LoadContentData();
     }
 
     public void OnRepositoryAdded(object sender, object? args)
