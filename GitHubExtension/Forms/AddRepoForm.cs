@@ -52,7 +52,6 @@ internal sealed partial class AddRepoForm : Form
             var repoHelper = GitHubRepositoryHelper.Instance;
 
             ExtensionHost.LogMessage(new LogMessage() { Message = $"IsMemberOrContributor {repoHelper.IsMemberOrContributor(ownerName, repositoryName)}..." });
-            var repositories = repoHelper.GetUserRepositories();
             repoHelper.AddRepository(ownerName, repositoryName);
 
             RepositoryAdded?.Invoke(this, null);
