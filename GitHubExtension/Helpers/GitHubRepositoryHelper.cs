@@ -81,13 +81,13 @@ public class GitHubRepositoryHelper
         return await dataManager!.GetAllRepositoriesAsync();
     }
 
-    public async void AddRepository(string owner, string repo)
+    public async Task AddRepository(string owner, string repo)
     {
         PersistentDataManager? dataManager = PersistentDataManager.CreateInstance();
 
         // Should I do the validation here?
         // Or inside the data manager class?
-        await Task.Run(() => dataManager!.AddRepositoryAsync(owner, repo));
+        await dataManager!.AddRepositoryAsync(owner, repo);
     }
 
     public bool IsMemberOrContributor(string ownerName, string repositoryName)

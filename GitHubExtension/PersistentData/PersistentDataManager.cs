@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.DataModel;
+using GitHubExtension.DeveloperId;
 using Serilog;
 using Windows.Storage;
 
@@ -104,30 +105,35 @@ public class PersistentDataManager : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private void ValidateRepository(string owner, string name)
+    private async Task ValidateRepository(string owner, string name)
     {
         ValidateRepositoryOwnerAndName(owner, name);
+        Octokit.GitHubClient? client = DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal().First().GitHubClient;
+        _ = await client.Repository.Get(owner, name);
     }
 
     // Management code goes here
-    public async void AddRepositoryAsync(string owner, string name, Octokit.GitHubClient? client = null)
+    public async Task AddRepositoryAsync(string owner, string name, Octokit.GitHubClient? client = null)
     {
-        await Task.Run(() =>
-        {
-            ValidadeDataStore();
-            ValidateRepository(owner, name);
+        await ValidateRepository(owner, name);
+        ValidadeDataStore();
+        Log.Information($"Adding repository {owner}/{name}.");
 
-            Log.Information($"Adding repository {owner}/{name}.");
-            Repository.Add(DataStore, owner, name);
-        });
+        if (Repository.Get(DataStore, owner, name) != null)
+        {
+            throw new InvalidOperationException($"Repository {owner}/{name} already exists.");
+        }
+
+        Repository.Add(DataStore, owner, name);
     }
 
     public async void RemoveRepositoryAsync(string owner, string name)
     {
         await Task.Run(() =>
         {
+            // No need to validate repository here as it was already
+            // validated when added.
             ValidadeDataStore();
-            ValidateRepository(owner, name);
             Log.Information($"Removing repository {owner}/{name}.");
             Repository.Remove(DataStore, owner, name);
         });
