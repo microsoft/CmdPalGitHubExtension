@@ -16,18 +16,35 @@ internal sealed partial class SaveSearchForm : Form
 {
     public static event TypedEventHandler<object, object?>? SearchSaved;
 
-    internal event TypedEventHandler<object, bool>? LoadingStateChanged;
+    public static event TypedEventHandler<object, bool>? LoadingStateChanged;
 
     private readonly SearchInput _searchInput;
 
     public SaveSearchForm()
+    : this(SearchInput.SearchString)
     {
-        _searchInput = SearchInput.SearchString; // default
     }
 
     public SaveSearchForm(SearchInput input)
     {
         _searchInput = input;
+    }
+
+    public override string DataJson()
+    {
+        var dataName = _searchInput == SearchInput.SearchString ? "SaveSearchData" : "SaveSearchSurveyData";
+        var path = Path.Combine(AppContext.BaseDirectory, GitHubHelper.GetTemplatePath(dataName));
+        var data = File.ReadAllText(path, Encoding.Default) ?? throw new FileNotFoundException(path);
+        return data;
+    }
+
+    public override string TemplateJson()
+    {
+        var templateName = _searchInput == SearchInput.SearchString ? "SaveSearch" : "SaveSearchSurvey";
+        var path = Path.Combine(AppContext.BaseDirectory, GitHubHelper.GetTemplatePath(templateName));
+        var template = File.ReadAllText(path, Encoding.Default) ?? throw new FileNotFoundException(path);
+
+        return template;
     }
 
     public override ICommandResult SubmitForm(string payload)
@@ -47,23 +64,6 @@ internal sealed partial class SaveSearchForm : Form
         }
     }
 
-    public string GetTemplateJsonFromFile()
-    {
-        var templateName = _searchInput == SearchInput.SearchString ? "SaveSearch" : "SaveSearchSurvey";
-        var path = Path.Combine(AppContext.BaseDirectory, GitHubHelper.GetTemplatePath(templateName));
-        var template = File.ReadAllText(path, Encoding.Default) ?? throw new FileNotFoundException(path);
-
-        return template;
-    }
-
-    public string GetDataJsonFromFile()
-    {
-        var dataName = _searchInput == SearchInput.SearchString ? "SaveSearchData" : "SaveSearchSurveyData";
-        var path = Path.Combine(AppContext.BaseDirectory, GitHubHelper.GetTemplatePath(dataName));
-        var data = File.ReadAllText(path, Encoding.Default) ?? throw new FileNotFoundException(path);
-        return data;
-    }
-
     private void HandleSubmit(string payload)
     {
         var search = GetSearch(payload);
@@ -72,32 +72,16 @@ internal sealed partial class SaveSearchForm : Form
 
     private Search GetSearch(string payload)
     {
-        var search = new Search();
-        var searchStr = string.Empty;
         try
         {
-            var payloadJson = JsonNode.Parse(payload);
+            var payloadJson = JsonNode.Parse(payload) ?? throw new InvalidOperationException("No search found");
 
-            if (payloadJson == null)
+            var search = _searchInput switch
             {
-                throw new InvalidOperationException("No search found");
-            }
-
-            if (payloadJson != null && _searchInput == SearchInput.SearchString)
-            {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-                searchStr = payloadJson["EnteredSearch"].ToString() ?? string.Empty;
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-
-                var repoHelper = GitHubRepositoryHelper.Instance;
-                repoHelper.ValidateSearch(searchStr).Wait();
-
-                search = new Search(searchStr);
-            }
-            else if (payloadJson != null && _searchInput == SearchInput.Survey)
-            {
-                search = CreateSearchFromJson(payloadJson);
-            }
+                SearchInput.SearchString => CreateSearchFromJson(payloadJson),
+                SearchInput.Survey => CreateSearchFromSurveyJson(payloadJson),
+                _ => throw new NotImplementedException(),
+            };
 
             SearchSaved?.Invoke(this, search);
             return search;
@@ -107,43 +91,39 @@ internal sealed partial class SaveSearchForm : Form
             SearchSaved?.Invoke(this, ex);
         }
 
-        return search;
+        return new Search();
     }
 
     public static Search CreateSearchFromJson(JsonNode jsonNode)
     {
-        if (jsonNode == null)
-        {
-            throw new InvalidOperationException("No search found");
-        }
+        var searchStr = jsonNode["EnteredSearch"]?.ToString() ?? string.Empty;
 
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-        var search = new Search(
-            jsonNode["name"] != null ? jsonNode["name"].ToString() : string.Empty,
-            jsonNode["type"] != null ? jsonNode["type"].ToString() : string.Empty,
-            jsonNode["owner"] != null ? jsonNode["owner"].ToString() : string.Empty,
-            jsonNode["repository"] != null ? jsonNode["repository"].ToString() : string.Empty,
-            jsonNode["dateCreated"] != null ? jsonNode["dateCreated"].ToString() : string.Empty,
-            jsonNode["language"] != null ? jsonNode["language"].ToString() : string.Empty,
-            jsonNode["state"] != null ? jsonNode["state"].ToString() : string.Empty,
-            jsonNode["reason"] != null ? jsonNode["reason"].ToString() : string.Empty,
-            jsonNode["numberOfComments"] != null ? jsonNode["numberOfComments"].ToString() : string.Empty,
-            jsonNode["labels"] != null ? jsonNode["labels"].ToString() : string.Empty,
-            jsonNode["author"] != null ? jsonNode["author"].ToString() : string.Empty,
-            jsonNode["mentionedUsers"] != null ? jsonNode["mentionedUsers"].ToString() : string.Empty,
-            jsonNode["assignees"] != null ? jsonNode["assignees"].ToString() : string.Empty,
-            jsonNode["updatedDate"] != null ? jsonNode["updatedDate"].ToString() : string.Empty);
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
+        var repoHelper = GitHubRepositoryHelper.Instance;
+        repoHelper.ValidateSearch(searchStr).Wait();
+
+        var search = new Search(searchStr);
+
         return search;
     }
 
-    public override string DataJson()
+    public static Search CreateSearchFromSurveyJson(JsonNode jsonNode)
     {
-        return GetDataJsonFromFile();
-    }
+        var search = new Search(
+            jsonNode["name"]?.ToString() ?? string.Empty,
+            jsonNode["type"]?.ToString() ?? string.Empty,
+            jsonNode["owner"]?.ToString() ?? string.Empty,
+            jsonNode["repository"]?.ToString() ?? string.Empty,
+            jsonNode["dateCreated"]?.ToString() ?? string.Empty,
+            jsonNode["language"]?.ToString() ?? string.Empty,
+            jsonNode["state"]?.ToString() ?? string.Empty,
+            jsonNode["reason"]?.ToString() ?? string.Empty,
+            jsonNode["numberOfComments"]?.ToString() ?? string.Empty,
+            jsonNode["labels"]?.ToString() ?? string.Empty,
+            jsonNode["author"]?.ToString() ?? string.Empty,
+            jsonNode["mentionedUsers"]?.ToString() ?? string.Empty,
+            jsonNode["assignees"]?.ToString() ?? string.Empty,
+            jsonNode["updatedDate"]?.ToString() ?? string.Empty);
 
-    public override string TemplateJson()
-    {
-        return GetTemplateJsonFromFile();
+        return search;
     }
 }

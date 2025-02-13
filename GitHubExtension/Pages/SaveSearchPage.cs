@@ -11,30 +11,20 @@ namespace GitHubExtension.Pages;
 
 internal sealed partial class SaveSearchPage : FormPage
 {
-    private readonly SaveSearchForm _saveSearchForm;
+    private readonly StatusMessage _saveSearchStatusMessage;
 
     private readonly SearchInput _searchInput;
 
-#pragma warning disable IDE0044 // Add readonly modifier
-    private StatusMessage _saveSearchStatusMessage;
-#pragma warning restore IDE0044 // Add readonly modifier
-
     public SaveSearchPage()
+        : this(SearchInput.SearchString)
     {
-        _saveSearchForm = new();
-        SaveSearchForm.SearchSaved += OnSearchSaved;
-        _saveSearchForm.LoadingStateChanged += OnLoadingChanged;
-        _saveSearchStatusMessage = new StatusMessage();
-        ExtensionHost.HideStatus(_saveSearchStatusMessage);
-        _searchInput = SearchInput.SearchString; // default
     }
 
     public SaveSearchPage(SearchInput input)
     {
         _searchInput = input;
-        _saveSearchForm = new(input);
         SaveSearchForm.SearchSaved += OnSearchSaved;
-        _saveSearchForm.LoadingStateChanged += OnLoadingChanged;
+        SaveSearchForm.LoadingStateChanged += OnLoadingChanged;
         _saveSearchStatusMessage = new StatusMessage();
         ExtensionHost.HideStatus(_saveSearchStatusMessage);
     }
@@ -42,7 +32,7 @@ internal sealed partial class SaveSearchPage : FormPage
     public override IForm[] Forms()
     {
         ExtensionHost.HideStatus(_saveSearchStatusMessage);
-        return new IForm[] { _saveSearchForm };
+        return [new SaveSearchForm(_searchInput)];
     }
 
     private void OnSearchSaved(object sender, object? args)
@@ -51,25 +41,31 @@ internal sealed partial class SaveSearchPage : FormPage
         if (args is Exception ex)
         {
             ExtensionHost.LogMessage(new LogMessage() { Message = $"Error in saving search: {ex.Message}, {ex.StackTrace}" });
-
-            _saveSearchStatusMessage.Message = ex.InnerException is Octokit.ApiException oApiEx ? $"Error in saving search: {oApiEx.Message}" : $"Error in saving search: {ex.Message}";
-            _saveSearchStatusMessage.State = MessageState.Error;
+            SetStatusMessage(ex.InnerException is Octokit.ApiException oApiEx ? $"Error in saving search: {oApiEx.Message}" : $"Error in saving search: {ex.Message}", MessageState.Error);
             ExtensionHost.ShowStatus(_saveSearchStatusMessage);
         }
         else if (args is string message)
         {
-            _saveSearchStatusMessage.Message = message;
-            _saveSearchStatusMessage.State = MessageState.Info;
-            var toast = new ToastStatusMessage(_saveSearchStatusMessage);
-            toast.Show();
+            SetStatusMessage(message, MessageState.Info);
+            ToastStatusMessage();
         }
         else
         {
-            _saveSearchStatusMessage.Message = "Search saved successfully!";
-            _saveSearchStatusMessage.State = MessageState.Success;
-            var toast = new ToastStatusMessage(_saveSearchStatusMessage);
-            toast.Show();
+            SetStatusMessage("Search saved successfully!", MessageState.Success);
+            ToastStatusMessage();
         }
+    }
+
+    private void SetStatusMessage(string message, MessageState state)
+    {
+        _saveSearchStatusMessage.Message = message;
+        _saveSearchStatusMessage.State = state;
+    }
+
+    private void ToastStatusMessage()
+    {
+        var toast = new ToastStatusMessage(_saveSearchStatusMessage);
+        toast.Show();
     }
 
     private void OnLoadingChanged(object sender, bool isLoading)
