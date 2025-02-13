@@ -45,11 +45,11 @@
         "items": [
           {
             "choice": "Issue",
-            "value": "Issue"
+            "value": "issue"
           },
           {
             "choice": "Pull Request",
-            "value": "Pull Request"
+            "value": "pr"
           }
         ]
       }

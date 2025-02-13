@@ -17,22 +17,18 @@ namespace GitHubExtension;
 
 internal sealed partial class SearchPage : ListPage
 {
-    public Search PageSearch { get; set; } = new Search();
+    public Search CurrentSearch { get; set; } = new Search();
 
     public SearchPage()
+    : this(new Search())
     {
-        Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
-        Name = "Search GitHub Issues";
-        this.ShowDetails = true;
     }
 
     public SearchPage(Search search)
     {
-        Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary[search.Type]);
         Name = search.Name;
-
-        // TODO: put the search fields in the details
-        PageSearch = search;
+        CurrentSearch = search;
     }
 
     public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();
@@ -41,74 +37,62 @@ internal sealed partial class SearchPage : ListPage
     {
         try
         {
-            var issues = await RunSearchAsync(query);
+            var items = await RunSearchAsync(query);
 
-            foreach (var issue in issues)
+            var iconString = CurrentSearch.Type;
+
+            if (items.Count > 0)
             {
-                Log.Information($"{issue.Title}, {GetRepo(issue.HtmlUrl)}, {issue.Body}, {issue.Number}");
-            }
-
-            var iconString = PageSearch.Type.Equals("issue", StringComparison.OrdinalIgnoreCase) ? "issue" : "pullRequest";
-
-            if (issues.Count > 0)
-            {
-                return issues.Select(issue => new ListItem(new LinkCommand(issue))
+                return items.Select(item => new ListItem(new LinkCommand(item))
                 {
-                    Title = issue.Title,
+                    Title = item.Title,
                     Icon = new IconInfo(GitHubIcon.IconDictionary[iconString]),
-                    Subtitle = $"{GetOwner(issue.HtmlUrl)}/{GetRepo(issue.HtmlUrl)}/#{issue.Number}",
+                    Subtitle = $"{GetOwner(item.HtmlUrl)}/{GetRepo(item.HtmlUrl)}/#{item.Number}",
                     MoreCommands = new CommandContextItem[]
                     {
-                            new(new CopyCommand(issue.HtmlUrl, "URL")),
-                            new(new CopyCommand(issue.Title, "issue title")),
-                            new(new CopyCommand(issue.Number.ToString(CultureInfo.InvariantCulture), "issue number")),
-                            new(new IssueMarkdownPage(issue)),
+                            new(new CopyCommand(item.HtmlUrl, "URL")),
+                            new(new CopyCommand(item.Title, "item title")),
+                            new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), "item number")),
+                            new(new IssueMarkdownPage(item)),
                     },
                 }).ToArray();
             }
             else
             {
-                return issues.Count == 0
+                return items.Count == 0
                     ? new ListItem[]
                     {
                             new(new NoOpCommand())
                             {
-                                Title = "No issues found. See logs for more details.",
-                                Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
+                                Title = "No items found. See logs for more details.",
+                                Icon = new IconInfo(GitHubIcon.IconDictionary[iconString]),
                             },
                     }
                     :
                     [
                             new ListItem(new NoOpCommand())
                             {
-                                Title = "Error fetching issues",
+                                Title = "Error fetching items",
                                 Details = new Details()
                                 {
-                                    Body = "No issues found",
+                                    Body = "No items found",
                                 },
-                                Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
+                                Icon = new IconInfo(GitHubIcon.IconDictionary[iconString]),
                             },
                     ];
             }
         }
         catch (Exception ex)
         {
-            var stackTrace = "stackTrace";
-
-            if (ex.StackTrace != null)
-            {
-                stackTrace = ex.StackTrace;
-            }
-
             return
             [
                     new ListItem(new NoOpCommand())
                     {
-                        Title = "Error fetching issues",
+                        Title = "Error fetching items",
                         Details = new Details()
                         {
                             Title = ex.Message,
-                            Body = stackTrace,
+                            Body = string.IsNullOrEmpty(ex.StackTrace) ? "There is no stack trace for the error." : ex.StackTrace,
                         },
                     },
             ];
@@ -128,7 +112,7 @@ internal sealed partial class SearchPage : ListPage
 
             var client = devIds.Any() ? devIds.First().GitHubClient : GitHubClientProvider.Instance.GetClient();
 
-            var results = await client.Search.SearchIssues(new SearchIssuesRequest(PageSearch.SearchString));
+            var results = await client.Search.SearchIssues(new SearchIssuesRequest(CurrentSearch.SearchString));
             var issues = ConvertToDataObjectsIssue(results.Items);
 
             return issues;
@@ -145,8 +129,8 @@ internal sealed partial class SearchPage : ListPage
         var dataModelIssues = new List<DataModel.DataObjects.Issue>();
         foreach (var octokitIssue in octokitIssueList)
         {
-            var issue = DataModel.DataObjects.Issue.CreateFromOctokitIssue(octokitIssue);
-            dataModelIssues.Add(issue);
+            var item = DataModel.DataObjects.Issue.CreateFromOctokitIssue(octokitIssue);
+            dataModelIssues.Add(item);
         }
 
         return dataModelIssues;

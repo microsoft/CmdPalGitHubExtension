@@ -13,11 +13,13 @@ public static class GitHubIcon
                 { "logo_dark", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "GitHubLogo_Dark.png") },
                 { "logo_light", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "GitHubLogo_Light.png") },
                 { "issue", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "issues.png") },
-                { "pullRequest", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "pulls.png") },
+                { "pr", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "pulls.png") },
                 { "release", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "releases.png") },
                 { "logo", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "gh_logo.jpg") },
             };
     }
+
+    public static Dictionary<string, string> IconDictionary { get; private set; }
 
     public static string GetBase64Icon(string iconKey)
     {
@@ -29,6 +31,4 @@ public static class GitHubIcon
 
         return string.Empty;
     }
-
-    public static Dictionary<string, string> IconDictionary { get; private set; }
 }

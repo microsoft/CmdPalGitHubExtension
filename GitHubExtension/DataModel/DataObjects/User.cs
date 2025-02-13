@@ -14,9 +14,9 @@ public class User
 
     public string HtmlUrl { get; set; } = string.Empty;
 
-    public override string ToString() => Login;
-
     public string Type { get; set; } = string.Empty;
+
+    public override string ToString() => Login;
 
     public static User CreateFromOctokitUser(Octokit.User user)
     {

@@ -41,7 +41,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             new CommandItem(new SearchPullRequestsPage())
             {
                 Title = "Search GitHub Pull Requests",
-                Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]),
             },
             new CommandItem(new AddRepoPage())
             {
