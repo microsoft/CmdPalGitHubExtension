@@ -35,7 +35,7 @@ internal sealed partial class SaveQueryPage : FormPage
         IsLoading = false;
         if (args is Exception ex)
         {
-            _saveQueryStatusMessage.Message = $"Error in saving query: {ex.Message}";
+            _saveQueryStatusMessage.Message = $"Error in saving query: {ex.Message}, {ex.InnerException}";
             _saveQueryStatusMessage.State = MessageState.Error;
         }
         else if (args is string message)

@@ -232,4 +232,14 @@ public class GitHubRepositoryHelper
     {
         _repositories.Clear();
     }
+
+    public async Task ValidateQuery(string query)
+    {
+        if (string.IsNullOrEmpty(query))
+        {
+            throw new InvalidOperationException("No query found");
+        }
+
+        await _client.Search.SearchIssues(new SearchIssuesRequest(query));
+    }
 }

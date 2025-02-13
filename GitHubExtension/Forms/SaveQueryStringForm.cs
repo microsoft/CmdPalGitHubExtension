@@ -30,7 +30,7 @@ internal sealed partial class SaveQueryStringForm : Form
         }
         catch (Exception ex)
         {
-            ExtensionHost.LogMessage(new LogMessage() { Message = $"Error in SubmitForm: {ex.Message}" });
+            ExtensionHost.LogMessage(new LogMessage() { Message = $"Error in SubmitForm: {ex.Message}, {ex.InnerException}" });
             return CommandResult.GoHome();
         }
     }
@@ -75,6 +75,9 @@ internal sealed partial class SaveQueryStringForm : Form
                 queryStr = payloadJson["EnteredQuery"].ToString() ?? string.Empty;
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
+                var repoHelper = GitHubRepositoryHelper.Instance;
+                repoHelper.ValidateQuery(queryStr).Wait();
+
                 query = new Query(queryStr);
             }
 
@@ -83,7 +86,6 @@ internal sealed partial class SaveQueryStringForm : Form
         }
         catch (Exception ex)
         {
-            ExtensionHost.LogMessage(new LogMessage() { Message = $"Error in GetQueryUrl: {ex.Message}" });
             QuerySaved?.Invoke(this, ex);
         }
 

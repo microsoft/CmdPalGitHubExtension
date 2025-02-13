@@ -22,6 +22,7 @@ internal sealed partial class SaveQueryStringPage : FormPage
         SaveQueryStringForm.QuerySaved += OnQuerySaved;
         _saveQueryForm.LoadingStateChanged += OnLoadingChanged;
         _saveQueryStatusMessage = new StatusMessage();
+        ExtensionHost.HideStatus(_saveQueryStatusMessage);
     }
 
     public override IForm[] Forms()
@@ -35,22 +36,26 @@ internal sealed partial class SaveQueryStringPage : FormPage
         IsLoading = false;
         if (args is Exception ex)
         {
-            _saveQueryStatusMessage.Message = $"Error in saving query: {ex.Message}";
+            ExtensionHost.LogMessage(new LogMessage() { Message = $"Error in saving query: {ex.Message}, {ex.StackTrace}" });
+
+            _saveQueryStatusMessage.Message = ex.InnerException is Octokit.ApiException oApiEx ? $"Error in saving query: {oApiEx.Message}" : $"Error in saving query: {ex.Message}";
             _saveQueryStatusMessage.State = MessageState.Error;
+            ExtensionHost.ShowStatus(_saveQueryStatusMessage);
         }
         else if (args is string message)
         {
             _saveQueryStatusMessage.Message = message;
             _saveQueryStatusMessage.State = MessageState.Info;
+            var toast = new ToastStatusMessage(_saveQueryStatusMessage);
+            toast.Show();
         }
         else
         {
             _saveQueryStatusMessage.Message = "Query saved successfully!";
             _saveQueryStatusMessage.State = MessageState.Success;
+            var toast = new ToastStatusMessage(_saveQueryStatusMessage);
+            toast.Show();
         }
-
-        var toast = new ToastStatusMessage(_saveQueryStatusMessage);
-        toast.Show();
     }
 
     private void OnLoadingChanged(object sender, bool isLoading)
