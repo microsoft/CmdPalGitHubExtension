@@ -17,33 +17,33 @@ namespace GitHubExtension;
 internal sealed partial class SavedQueriesPage : ListPage
 {
 #pragma warning disable IDE0044 // Add readonly modifier
-    private List<QueryPage> _savedQueries;
+    private List<SearchPage> _savedQueries;
 #pragma warning restore IDE0044 // Add readonly modifier
 
     public SavedQueriesPage()
     {
         Icon = new IconInfo(string.Empty);
         Name = "Saved Queries";
-        _savedQueries = new List<QueryPage>();
-        SaveQueryForm.QuerySaved += OnQuerySaved;
+        _savedQueries = new List<SearchPage>();
+        SaveSearchForm.SearchSaved += OnSearchSaved;
     }
 
     public override IListItem[] GetItems()
     {
         if (_savedQueries.Count > 0)
         {
-            var queries = _savedQueries.Select(savedQuery => new ListItem(savedQuery)
+            var queries = _savedQueries.Select(savedSearch => new ListItem(savedSearch)
             {
-                Title = savedQuery.Title,
+                Title = savedSearch.Title,
                 Icon = new IconInfo(string.Empty),
             }).ToList();
 
-            queries.Add(new(new SaveQueryPage())
+            queries.Add(new(new SaveSearchPage())
             {
                 Title = "Add a query",
                 Icon = new IconInfo(string.Empty),
             });
-            queries.Add(new(new SaveQueryPage(QueryInput.Survey))
+            queries.Add(new(new SaveSearchPage(SearchInput.Survey))
             {
                 Title = "Add a query (full form)",
                 Icon = new IconInfo(string.Empty),
@@ -57,15 +57,15 @@ internal sealed partial class SavedQueriesPage : ListPage
             {
                 new(new SearchIssuesPage())
                 {
-                    Title = "Sample Query: Search GitHub Issues",
+                    Title = "Sample Search: Search GitHub Issues",
                     Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
                 },
-                new(new SaveQueryPage(QueryInput.Survey))
+                new(new SaveSearchPage(SearchInput.Survey))
                 {
                     Title = "Add a query (full form)",
                     Icon = new IconInfo(string.Empty),
                 },
-                new(new SaveQueryPage())
+                new(new SaveSearchPage())
                 {
                     Title = "Add a query by string",
                     Icon = new IconInfo(string.Empty),
@@ -74,21 +74,21 @@ internal sealed partial class SavedQueriesPage : ListPage
         }
     }
 
-    private void OnQuerySaved(object sender, object? args)
+    private void OnSearchSaved(object sender, object? args)
     {
         if (args is Exception)
         {
             // do nothing
         }
-        else if (args != null && args is Query)
+        else if (args != null && args is Search)
         {
-            AddQuery((Query)args);
+            AddSearch((Search)args);
         }
     }
 
-    private void AddQuery(Query query)
+    private void AddSearch(Search query)
     {
-        _savedQueries.Add(new QueryPage(query));
+        _savedQueries.Add(new SearchPage(query));
         RaiseItemsChanged(_savedQueries.Count + 1);
     }
 }

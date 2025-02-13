@@ -99,7 +99,7 @@ public static class Resources
             "Widget_Template/PR_description",
             "Widget_Template/PR_info",
             "Widget_Template/Updated",
-            "Widget_Template/Query",
+            "Widget_Template/Search",
             "Widget_Template_Button/Save",
             "Widget_Template_Button/Cancel",
             "Widget_Template_Tooltip/Save",

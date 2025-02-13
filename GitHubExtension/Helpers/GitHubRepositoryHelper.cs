@@ -233,7 +233,7 @@ public class GitHubRepositoryHelper
         _repositories.Clear();
     }
 
-    public async Task ValidateQuery(string query)
+    public async Task ValidateSearch(string query)
     {
         if (string.IsNullOrEmpty(query))
         {

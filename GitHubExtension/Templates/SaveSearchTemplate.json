@@ -14,10 +14,10 @@
     },
     {
       "type": "Input.Text",
-      "id": "EnteredQuery",
-      "label": "Query",
+      "id": "EnteredSearch",
+      "label": "Search",
       "isRequired": true,
-      "errorMessage": "Query is required"
+      "errorMessage": "Search is required"
     }
   ],
   "actions": [
@@ -25,7 +25,7 @@
       "type": "Action.Submit",
       "title": "Save",
       "data": {
-        "id": "SaveQueryAction"
+        "id": "SaveSearchAction"
       }
     }
   ]
