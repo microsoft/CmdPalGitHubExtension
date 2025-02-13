@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Forms;
+using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
@@ -10,7 +11,9 @@ namespace GitHubExtension.Pages;
 
 internal sealed partial class SaveQueryStringPage : FormPage
 {
-    private readonly SaveQueryStringForm _saveQueryForm;
+    private readonly SaveQueryStringForm _saveQueryStringForm;
+
+    private readonly QueryInput _queryInput;
 
 #pragma warning disable IDE0044 // Add readonly modifier
     private StatusMessage _saveQueryStatusMessage;
@@ -18,9 +21,20 @@ internal sealed partial class SaveQueryStringPage : FormPage
 
     public SaveQueryStringPage()
     {
-        _saveQueryForm = new();
+        _saveQueryStringForm = new();
         SaveQueryStringForm.QuerySaved += OnQuerySaved;
-        _saveQueryForm.LoadingStateChanged += OnLoadingChanged;
+        _saveQueryStringForm.LoadingStateChanged += OnLoadingChanged;
+        _saveQueryStatusMessage = new StatusMessage();
+        ExtensionHost.HideStatus(_saveQueryStatusMessage);
+        _queryInput = QueryInput.QueryString; // default
+    }
+
+    public SaveQueryStringPage(QueryInput input)
+    {
+        _queryInput = input;
+        _saveQueryStringForm = new(input);
+        SaveQueryStringForm.QuerySaved += OnQuerySaved;
+        _saveQueryStringForm.LoadingStateChanged += OnLoadingChanged;
         _saveQueryStatusMessage = new StatusMessage();
         ExtensionHost.HideStatus(_saveQueryStatusMessage);
     }
@@ -28,7 +42,7 @@ internal sealed partial class SaveQueryStringPage : FormPage
     public override IForm[] Forms()
     {
         ExtensionHost.HideStatus(_saveQueryStatusMessage);
-        return new IForm[] { _saveQueryForm };
+        return new IForm[] { _saveQueryStringForm };
     }
 
     private void OnQuerySaved(object sender, object? args)

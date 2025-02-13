@@ -25,7 +25,6 @@ internal sealed partial class SavedQueriesPage : ListPage
         Icon = new IconInfo(string.Empty);
         Name = "Saved Queries";
         _savedQueries = new List<QueryPage>();
-        SaveQueryForm.QuerySaved += OnQuerySaved;
         SaveQueryStringForm.QuerySaved += OnQuerySaved;
     }
 
@@ -39,7 +38,7 @@ internal sealed partial class SavedQueriesPage : ListPage
                 Icon = new IconInfo(string.Empty),
             }).ToList();
 
-            queries.Add(new(new SaveQueryPage())
+            queries.Add(new(new SaveQueryStringPage())
             {
                 Title = "Add a query",
                 Icon = new IconInfo(string.Empty),
@@ -61,7 +60,7 @@ internal sealed partial class SavedQueriesPage : ListPage
                     Title = "Sample Query: Search GitHub Issues",
                     Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
                 },
-                new(new SaveQueryPage())
+                new(new SaveQueryStringPage(QueryInput.Survey))
                 {
                     Title = "Add a query (full form)",
                     Icon = new IconInfo(string.Empty),

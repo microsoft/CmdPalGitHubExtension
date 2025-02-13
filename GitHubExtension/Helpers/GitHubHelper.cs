@@ -37,8 +37,8 @@ internal sealed class GitHubHelper
         return page switch
         {
             "SignIn" => "Templates\\GitHubSignInTemplate.json",
-            "SaveQuery" => "Templates\\SaveQueryTemplate.json",
-            "SaveQueryData" => "Templates\\SaveQueryData.json",
+            "SaveQuerySurvey" => "Templates\\SaveQuerySurveyTemplate.json",
+            "SaveQuerySurveyData" => "Templates\\SaveQuerySurveyData.json",
             "SaveQueryString" => "Templates\\SaveQueryStringTemplate.json",
             "SaveQueryStringData" => "Templates\\SaveQueryStringData.json",
             _ => throw new NotImplementedException(),
