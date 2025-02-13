@@ -41,7 +41,16 @@ internal sealed partial class QueryPage : ListPage
     {
         try
         {
-            var issues = await RunQueryAsync(query);
+            var issues = new List<DataModel.DataObjects.Issue>();
+
+            if (!string.IsNullOrEmpty(PageQuery.QueryString))
+            {
+                issues = await RunQueryStringAsync(query);
+            }
+            else
+            {
+                issues = await RunQueryAsync(query);
+            }
 
             foreach (var issue in issues)
             {
@@ -114,6 +123,27 @@ internal sealed partial class QueryPage : ListPage
     public static string GetOwner(string repositoryUrl) => Validation.ParseOwnerFromGitHubURL(repositoryUrl);
 
     public static string GetRepo(string repositoryUrl) => Validation.ParseRepositoryFromGitHubURL(repositoryUrl);
+
+    private async Task<List<DataModel.DataObjects.Issue>> RunQueryStringAsync(string query)
+    {
+        try
+        {
+            var devIdProvider = DeveloperIdProvider.GetInstance();
+            var devIds = devIdProvider.GetLoggedInDeveloperIdsInternal();
+
+            var client = devIds.Any() ? devIds.First().GitHubClient : GitHubClientProvider.Instance.GetClient();
+
+            var results = await client.Search.SearchIssues(new SearchIssuesRequest(PageQuery.QueryString));
+            var issues = ConvertToDataObjectsIssue(results.Items);
+
+            return issues;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Error running query");
+            throw;
+        }
+    }
 
     private async Task<List<DataModel.DataObjects.Issue>> RunQueryAsync(string query)
     {

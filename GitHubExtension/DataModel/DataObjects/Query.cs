@@ -42,8 +42,16 @@ public class Query
     // id we'd use to identify the saved query
     public int Id { get; set; } = -1;
 
+    public string QueryString { get; set; } = string.Empty;
+
     public Query()
     {
+    }
+
+    public Query(string queryString)
+    {
+        QueryString = string.IsNullOrEmpty(queryString) ? string.Empty : queryString;
+        Name = queryString;
     }
 
     public Query(string name, string type, string owner, string repository, string dateCreated, string language, string state, string reason, string numberOfComments, string labels, string author, string mentionedUsers, string assignee, string updatedDate)

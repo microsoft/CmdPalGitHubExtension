@@ -59,6 +59,7 @@ internal sealed partial class SaveQueryStringForm : Form
     private Query GetQuery(string payload)
     {
         var query = new Query();
+        var queryStr = string.Empty;
         try
         {
             var payloadJson = JsonNode.Parse(payload);
@@ -70,7 +71,11 @@ internal sealed partial class SaveQueryStringForm : Form
 
             if (payloadJson != null)
             {
-                query = CreateQueryFromJson(payloadJson);
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                queryStr = payloadJson["EnteredQuery"].ToString() ?? string.Empty;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+
+                query = new Query(queryStr);
             }
 
             QuerySaved?.Invoke(this, query);
@@ -93,32 +98,5 @@ internal sealed partial class SaveQueryStringForm : Form
     public override string TemplateJson()
     {
         return GetTemplateJsonFromFile();
-    }
-
-    public static Query CreateQueryFromJson(JsonNode jsonNode)
-    {
-        if (jsonNode == null)
-        {
-            throw new InvalidOperationException("No query found");
-        }
-
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-        var query = new Query(
-            jsonNode["name"] != null ? jsonNode["name"].ToString() : string.Empty,
-            jsonNode["type"] != null ? jsonNode["type"].ToString() : string.Empty,
-            jsonNode["owner"] != null ? jsonNode["owner"].ToString() : string.Empty,
-            jsonNode["repository"] != null ? jsonNode["repository"].ToString() : string.Empty,
-            jsonNode["dateCreated"] != null ? jsonNode["dateCreated"].ToString() : string.Empty,
-            jsonNode["language"] != null ? jsonNode["language"].ToString() : string.Empty,
-            jsonNode["state"] != null ? jsonNode["state"].ToString() : string.Empty,
-            jsonNode["reason"] != null ? jsonNode["reason"].ToString() : string.Empty,
-            jsonNode["numberOfComments"] != null ? jsonNode["numberOfComments"].ToString() : string.Empty,
-            jsonNode["labels"] != null ? jsonNode["labels"].ToString() : string.Empty,
-            jsonNode["author"] != null ? jsonNode["author"].ToString() : string.Empty,
-            jsonNode["mentionedUsers"] != null ? jsonNode["mentionedUsers"].ToString() : string.Empty,
-            jsonNode["assignees"] != null ? jsonNode["assignees"].ToString() : string.Empty,
-            jsonNode["updatedDate"] != null ? jsonNode["updatedDate"].ToString() : string.Empty);
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-        return query;
     }
 }

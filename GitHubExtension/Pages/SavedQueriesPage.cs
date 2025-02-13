@@ -26,6 +26,7 @@ internal sealed partial class SavedQueriesPage : ListPage
         Name = "Saved Queries";
         _savedQueries = new List<QueryPage>();
         SaveQueryForm.QuerySaved += OnQuerySaved;
+        SaveQueryStringForm.QuerySaved += OnQuerySaved;
     }
 
     public override IListItem[] GetItems()
@@ -41,6 +42,11 @@ internal sealed partial class SavedQueriesPage : ListPage
             queries.Add(new(new SaveQueryPage())
             {
                 Title = "Add a query",
+                Icon = new IconInfo(string.Empty),
+            });
+            queries.Add(new(new SaveQueryStringPage())
+            {
+                Title = "Add a query by string",
                 Icon = new IconInfo(string.Empty),
             });
 
