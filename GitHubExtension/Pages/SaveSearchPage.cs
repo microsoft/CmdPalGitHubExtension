@@ -13,7 +13,7 @@ internal sealed partial class SaveSearchPage : FormPage
 {
     private readonly SaveSearchForm _saveSearchForm;
 
-    private readonly SearchInput _queryInput;
+    private readonly SearchInput _searchInput;
 
 #pragma warning disable IDE0044 // Add readonly modifier
     private StatusMessage _saveSearchStatusMessage;
@@ -26,12 +26,12 @@ internal sealed partial class SaveSearchPage : FormPage
         _saveSearchForm.LoadingStateChanged += OnLoadingChanged;
         _saveSearchStatusMessage = new StatusMessage();
         ExtensionHost.HideStatus(_saveSearchStatusMessage);
-        _queryInput = SearchInput.SearchString; // default
+        _searchInput = SearchInput.SearchString; // default
     }
 
     public SaveSearchPage(SearchInput input)
     {
-        _queryInput = input;
+        _searchInput = input;
         _saveSearchForm = new(input);
         SaveSearchForm.SearchSaved += OnSearchSaved;
         _saveSearchForm.LoadingStateChanged += OnLoadingChanged;
@@ -50,9 +50,9 @@ internal sealed partial class SaveSearchPage : FormPage
         IsLoading = false;
         if (args is Exception ex)
         {
-            ExtensionHost.LogMessage(new LogMessage() { Message = $"Error in saving query: {ex.Message}, {ex.StackTrace}" });
+            ExtensionHost.LogMessage(new LogMessage() { Message = $"Error in saving search: {ex.Message}, {ex.StackTrace}" });
 
-            _saveSearchStatusMessage.Message = ex.InnerException is Octokit.ApiException oApiEx ? $"Error in saving query: {oApiEx.Message}" : $"Error in saving query: {ex.Message}";
+            _saveSearchStatusMessage.Message = ex.InnerException is Octokit.ApiException oApiEx ? $"Error in saving search: {oApiEx.Message}" : $"Error in saving search: {ex.Message}";
             _saveSearchStatusMessage.State = MessageState.Error;
             ExtensionHost.ShowStatus(_saveSearchStatusMessage);
         }

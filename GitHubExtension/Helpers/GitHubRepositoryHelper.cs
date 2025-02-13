@@ -233,13 +233,13 @@ public class GitHubRepositoryHelper
         _repositories.Clear();
     }
 
-    public async Task ValidateSearch(string query)
+    public async Task ValidateSearch(string search)
     {
-        if (string.IsNullOrEmpty(query))
+        if (string.IsNullOrEmpty(search))
         {
             throw new InvalidOperationException("No query found");
         }
 
-        await _client.Search.SearchIssues(new SearchIssuesRequest(query));
+        await _client.Search.SearchIssues(new SearchIssuesRequest(search));
     }
 }

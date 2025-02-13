@@ -26,13 +26,13 @@ internal sealed partial class SearchPage : ListPage
         this.ShowDetails = true;
     }
 
-    public SearchPage(Search query)
+    public SearchPage(Search search)
     {
         Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
-        Name = query.Name;
+        Name = search.Name;
 
-        // TODO: put the query fields in the details
-        PageSearch = query;
+        // TODO: put the search fields in the details
+        PageSearch = search;
     }
 
     public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();

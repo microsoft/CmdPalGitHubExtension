@@ -18,15 +18,15 @@ public class Search
     {
     }
 
-    public Search(string queryString)
+    public Search(string searchString)
     {
-        SearchString = string.IsNullOrEmpty(queryString) ? string.Empty : queryString;
-        Name = queryString;
+        SearchString = string.IsNullOrEmpty(searchString) ? string.Empty : searchString;
+        Name = searchString;
     }
 
     public Search(string name, string type, string owner, string repository, string dateCreated, string language, string state, string reason, string numberOfComments, string labels, string author, string mentionedUsers, string assignee, string updatedDate)
     {
-        // create a query string based on the fields passed in
+        // create a search string based on the fields passed in
         Name = name;
         Type = type;
 
