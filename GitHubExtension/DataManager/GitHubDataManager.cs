@@ -7,6 +7,7 @@ using GitHubExtension.DataManager;
 using GitHubExtension.DataModel;
 using GitHubExtension.Helpers;
 using Serilog;
+using Windows.Foundation;
 using Windows.Storage;
 
 namespace GitHubExtension;
@@ -121,6 +122,17 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         await UpdateAllDataForRepositoryAsync(nameSplit[0], nameSplit[1], options);
     }
 
+    public async Task UpdateAllDataForRepositoriesAsync(Octokit.RepositoryCollection repoCollection, RequestOptions requestOptions)
+    {
+        ValidateDataStore();
+        foreach (var repo in repoCollection)
+        {
+            await UpdateAllDataForRepositoryAsync(repo, requestOptions);
+        }
+
+        SendAllDataUpdateEvent(this);
+    }
+
     public async Task UpdatePullRequestsForRepositoryAsync(string owner, string name, RequestOptions? options = null)
     {
         ValidateDataStore();
@@ -157,6 +169,8 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         {
             await UpdatePullRequestsForRepositoryAsync(repo, requestOptions);
         }
+
+        SendPullRequestsUpdateEvent(this);
     }
 
     public async Task UpdateIssuesForRepositoryAsync(string owner, string name, RequestOptions? options = null)
@@ -195,6 +209,8 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         {
             await UpdateIssuesForRepositoryAsync(repo, requestOptions);
         }
+
+        SendIssuesUpdateEvent(this);
     }
 
     public async Task UpdatePullRequestsForLoggedInDeveloperIdsAsync()
@@ -313,9 +329,12 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
             parameters.DeveloperIds = parameters.DeveloperIds.Concat(new[] { new DeveloperId.DeveloperId() });
         }
 
+        var cancellationToken = parameters.RequestOptions?.CancellationToken.GetValueOrDefault() ?? default;
+
         using var tx = DataStore.Connection!.BeginTransaction();
         try
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var found = false;
 
             // We only need to get the information from one account which has access.
@@ -323,6 +342,8 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
             {
                 try
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     // Try the action for the passed in developer Id.
                     await asyncAction(parameters, DeveloperId.DeveloperIdProvider.GetInstance().GetDeveloperIdInternal(devId));
 
@@ -371,6 +392,13 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
             // Higher layer will catch and log this. Suppress logging an error for this to keep log clean.
             tx.Rollback();
             throw;
+        }
+        catch (Exception ex) when (IsCancelException(ex))
+        {
+            tx.Rollback();
+            _log.Information("Operation cancelled.");
+            SendCancelUpdateEvent(this);
+            return;
         }
         catch (Exception ex)
         {
@@ -559,16 +587,26 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         var user = await client.User.Current();
         _log.Information($"Updating pull requests for: {repository.FullName} and user: {user.Login}");
         var octoPulls = await client.PullRequest.GetAllForRepository(repository.InternalId, options.PullRequestRequest, options.ApiOptions);
+
+        var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
+
         foreach (var pull in octoPulls)
         {
-            var dsPullRequest = PullRequest.GetOrCreateByOctokitPullRequest(DataStore, pull, repository.Id);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            PullRequest.GetOrCreateByOctokitPullRequest(DataStore, pull, repository.Id);
+            _log.Information($"Created pull request #{pull.Id}:{pull.Title}");
+
+            /* Commenting this out for efficiency. This is mostly not needed in our case.
+             * We will let the individual pull request updates handle this.
+            dsPullRequest = PullRequest.GetOrCreateByOctokitPullRequest(DataStore, pull, repository.Id);
 
             try
             {
                 var octoCheckRunResponse = await client.Check.Run.GetAllForReference(repository.InternalId, dsPullRequest.HeadSha);
                 foreach (var run in octoCheckRunResponse.CheckRuns)
                 {
-                    CheckRun.GetOrCreateByOctokitCheckRun(DataStore, run);
+                     CheckRun.GetOrCreateByOctokitCheckRun(DataStore, run);
                 }
 
                 var octoCheckSuiteResponse = await client.Check.Suite.GetAllForReference(repository.InternalId, dsPullRequest.HeadSha);
@@ -599,6 +637,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
             CommitCombinedStatus.GetOrCreate(DataStore, commitCombinedStatus);
 
             CreatePullRequestStatus(dsPullRequest);
+            */
         }
 
         // Remove unobserved pull requests from this repository.
@@ -736,6 +775,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         options.SearchIssuesRequest.Repos = new Octokit.RepositoryCollection { repository.FullName };
 
         var issuesResult = await client.Search.SearchIssues(options.SearchIssuesRequest);
+
         if (issuesResult == null)
         {
             _log.Debug($"No issues found.");
@@ -750,9 +790,13 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
             search = Search.GetOrCreate(DataStore, options.SearchIssuesRequest.Term, repository.Id);
         }
 
+        var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
+
         _log.Debug($"Results contain {issuesResult.Items.Count} issues.");
         foreach (var issue in issuesResult.Items)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var dsIssue = Issue.GetOrCreateByOctokitIssue(DataStore, issue, repository.Id);
             if (search is not null)
             {
@@ -914,5 +958,10 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
         Dispose(true);
         GC.SuppressFinalize(this);
+    }
+
+    private static bool IsCancelException(Exception ex)
+    {
+        return (ex is OperationCanceledException) || (ex is TaskCanceledException);
     }
 }

@@ -87,4 +87,24 @@ public partial class GitHubDataManager
             OnUpdate.Invoke(source, new DataManagerUpdateEventArgs(kind, info, context));
         }
     }
+
+    private static void SendPullRequestsUpdateEvent(object? source)
+    {
+        SendUpdateEvent(source, DataManagerUpdateKind.PullRequests, null, null);
+    }
+
+    private static void SendIssuesUpdateEvent(object? source)
+    {
+        SendUpdateEvent(source, DataManagerUpdateKind.Issues, null, null);
+    }
+
+    private static void SendAllDataUpdateEvent(object? source)
+    {
+        SendUpdateEvent(source, DataManagerUpdateKind.All, null, null);
+    }
+
+    private static void SendCancelUpdateEvent(object? source)
+    {
+        SendUpdateEvent(source, DataManagerUpdateKind.Cancel, null, null);
+    }
 }

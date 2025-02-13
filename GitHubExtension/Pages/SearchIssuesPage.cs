@@ -30,7 +30,7 @@ internal sealed partial class SearchIssuesPage : ListPage
     private async void RequestContentData()
     {
         var cacheManager = CacheManager.GetInstance();
-        await cacheManager.Refresh();
+        await cacheManager.Refresh(RefreshKind.Issues);
     }
 
     private async Task<List<Issue>> LoadContentData()

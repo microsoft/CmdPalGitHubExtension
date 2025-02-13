@@ -2,12 +2,10 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.ComponentModel;
 using System.Globalization;
 using GitHubExtension.Client;
 using GitHubExtension.Commands;
 using GitHubExtension.DataManager;
-using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -17,26 +15,27 @@ namespace GitHubExtension;
 
 internal sealed partial class SearchPullRequestsPage : ListPage
 {
+    private readonly ILogger _logger;
+
     public SearchPullRequestsPage()
     {
         Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]);
         Name = "Search GitHub Pull Requests";
         this.ShowDetails = true;
-        GitHubDataManager.OnUpdate += DataManagerUpdateHandler;
+        CacheManager.GetInstance().OnUpdate += CacheManagerUpdateHandler;
         PropChanged += PropChangedHandler;
+        _logger = Log.ForContext("SourceContext", $"Pages/{nameof(SearchPullRequestsPage)}");
     }
 
     ~SearchPullRequestsPage()
     {
-        GitHubDataManager.OnUpdate -= DataManagerUpdateHandler;
+        CacheManager.GetInstance().OnUpdate -= CacheManagerUpdateHandler;
         PropChanged -= PropChangedHandler;
     }
 
-    private DateTime lastUpdated = DateTime.MinValue;
-
     public void PropChangedHandler(object? sender, IPropChangedEventArgs e)
     {
-        Log.Information($"Property changed: {e.PropertyName}");
+        _logger.Information($"Property changed: {e.PropertyName}");
     }
 
     public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();
@@ -44,14 +43,14 @@ internal sealed partial class SearchPullRequestsPage : ListPage
     private async void RequestContentData()
     {
         var cacheManager = CacheManager.GetInstance();
-        await cacheManager.Refresh();
+        await cacheManager.Refresh(RefreshKind.PullRequests);
     }
 
     private async Task<List<DataModel.PullRequest>> LoadContentData()
     {
         return await Task.Run(() =>
         {
-            Log.Information($"Starting loading data.");
+            _logger.Information($"Starting loading data.");
             var repoHelper = GitHubRepositoryHelper.Instance;
             var repoCollection = repoHelper.GetUserRepositoryCollection();
             var data = new List<DataModel.PullRequest>();
@@ -62,7 +61,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                 try
                 {
                     var repository = dataManager!.GetRepository(GetOwner(repo), GetRepo(repo));
-                    Log.Information($"Got the repository {repo}.");
+                    _logger.Information($"Got the repository {repo}.");
                     var pulls = repository?.PullRequests;
                     if (pulls != null)
                     {
@@ -71,24 +70,23 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                 }
                 catch (Exception ex)
                 {
-                    Log.Error($"Error loading pull requests for repository {repo}: {ex}");
+                    _logger.Error($"Error loading pull requests for repository {repo}: {ex}");
                 }
                 finally
                 {
-                    Log.Information($"Finished loading pulls data for {repo}.");
+                    _logger.Information($"Finished loading pulls data for {repo}.");
                 }
             }
 
-            Log.Information($"Finishing loading data.");
+            _logger.Information($"Finishing loading data.");
             return data;
         });
     }
 
-    public void DataManagerUpdateHandler(object? source, DataManagerUpdateEventArgs e)
+    public void CacheManagerUpdateHandler(object? source, CacheManagerUpdateEventArgs e)
     {
-        if (e.Kind == DataManagerUpdateKind.Repository)
+        if (e.Kind == CacheManagerUpdateKind.Updated)
         {
-            lastUpdated = DateTime.Now;
             RaiseItemsChanged(0);
         }
     }
@@ -97,10 +95,10 @@ internal sealed partial class SearchPullRequestsPage : ListPage
     {
         try
         {
-            Log.Information($"Pull Page GetItems command called.");
+            _logger.Information($"Pull Page GetItems command called.");
 
             var pullRequests = await GetGitHubPullRequestsAsync(query);
-            Log.Information($"Got {pullRequests.Count} pull requests data.");
+            _logger.Information($"Got {pullRequests.Count} pull requests data.");
 
             if (pullRequests.Count > 0)
             {
@@ -120,7 +118,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                     },
                 }).ToArray();
 
-                Log.Information($"Finished initializing pull objects.");
+                _logger.Information($"Finished initializing pull objects.");
                 return res;
             }
             else
@@ -175,7 +173,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
     private async Task<List<DataModel.PullRequest>> GetGitHubPullRequestsAsync(string query)
     {
         var res = await LoadContentData();
-        Log.Information($"Starting request for data.");
+        _logger.Information($"Starting request for data.");
 
         RequestContentData();
         return res;

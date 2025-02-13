@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using GitHubExtension.DeveloperId;
 using Serilog;
 
 namespace GitHubExtension.DataManager;
@@ -18,6 +19,8 @@ public class CacheManager : IDisposable
 
     private static CacheManager? _singletonInstance;
 
+    private readonly ILogger _logger;
+
     private CancellationTokenSource _cancelSource;
 
     private IGitHubDataManager DataManager { get; set; }
@@ -26,12 +29,11 @@ public class CacheManager : IDisposable
 
     public bool UpdateInProgress { get; private set; }
 
+    private RefreshKind _currentRefreshKind;
+
     public bool NeverUpdated => LastUpdated == DateTime.MinValue;
 
     public DateTime LastUpdated { get => GetLastUpdated(); private set => SetLastUpdated(value); }
-
-    // If the next update should clear sync data and force an update
-    private bool _clearNextDataUpdate;
 
     // If a refresh call is pending and has not yet completed
     private bool _pendingRefresh;
@@ -67,6 +69,7 @@ public class CacheManager : IDisposable
         RepositoryHelper = GitHubRepositoryHelper.Instance;
         GitHubDataManager.OnUpdate += HandleDataManagerUpdate;
         _cancelSource = new CancellationTokenSource();
+        _logger = Log.Logger.ForContext("SourceContext", nameof(CacheManager));
     }
 
     public void Start()
@@ -85,29 +88,29 @@ public class CacheManager : IDisposable
         {
             if (UpdateInProgress && !_cancelSource.IsCancellationRequested)
             {
-                Log.Information("Cancelling update.");
+                _logger.Information("Cancelling update.");
                 _cancelSource.Cancel();
             }
         }
     }
 
-    public async Task Refresh()
+    public async Task Refresh(RefreshKind kind)
     {
         CancelUpdateInProgress();
 
         lock (_stateLock)
         {
-            if (_pendingRefresh)
+            if (_pendingRefresh && _currentRefreshKind == kind)
             {
-                Log.Debug("Refresh already pending. Ignoring refresh request.");
+                _logger.Debug("Refresh of this type already pending. Ignoring refresh request.");
                 return;
             }
 
             _pendingRefresh = true;
-            _clearNextDataUpdate = true;
+            _currentRefreshKind = kind;
         }
 
-        await Update(TimeSpan.MinValue);
+        await Update(TimeSpan.MinValue, kind);
     }
 
     private async Task PeriodicUpdate()
@@ -120,56 +123,138 @@ public class CacheManager : IDisposable
 
         try
         {
-            await Update(_updateFrequency);
+            await Update(_updateFrequency, RefreshKind.All);
         }
         catch (Exception e)
         {
-            Log.Error(e, "Update failed unexpectedly");
+            _logger.Error(e, "Update failed unexpectedly");
         }
 
         LastUpdateTime = DateTime.UtcNow;
         return;
     }
 
-    private async Task Update(TimeSpan? olderThan)
+    private async Task Update(TimeSpan? olderThan, RefreshKind kind)
     {
         var options = new RequestOptions();
+
+        _logger.Information($"Starting update of kind {kind}.");
 
         lock (_stateLock)
         {
             if (UpdateInProgress)
             {
-                Log.Information("Update in progress, ignoring request.");
+                _logger.Information("Update in progress, ignoring request.");
                 return;
             }
 
             UpdateInProgress = true;
             _cancelSource = new CancellationTokenSource();
             options.CancellationToken = _cancelSource.Token;
-            options.Refresh = _clearNextDataUpdate;
+
+            // Limiting to 100 for now for performance reasons.
+            options.ApiOptions.PageSize = 100;
+            options.ApiOptions.PageCount = 1;
         }
 
         // do the update for saved queries here
-        Log.Debug("Starting update");
+        _logger.Debug($"Starting update of kind {kind}.");
+        _currentRefreshKind = kind;
+
         var repoCollection = RepositoryHelper.GetUserRepositoryCollection();
-        await DataManager.UpdateIssuesForRepositoriesAsync(repoCollection, options);
-        await DataManager.UpdatePullRequestsForRepositoriesAsync(repoCollection, options);
+        if (kind == RefreshKind.All)
+        {
+            await DataManager.UpdateAllDataForRepositoriesAsync(repoCollection, options);
+        }
+
+        if (kind == RefreshKind.Issues)
+        {
+            await DataManager.UpdateIssuesForRepositoriesAsync(repoCollection, options);
+        }
+
+        if (kind == RefreshKind.PullRequests)
+        {
+            await DataManager.UpdatePullRequestsForRepositoriesAsync(repoCollection, options);
+        }
     }
 
     private void SendUpdateEvent(object? source, CacheManagerUpdateKind kind, Exception? ex = null)
     {
         if (OnUpdate != null)
         {
-            Log.Debug($"Sending update event. Kind: {kind}.");
+            _logger.Debug($"Sending update event. Kind: {kind}.");
             OnUpdate.Invoke(source, new CacheManagerUpdateEventArgs(kind, ex));
         }
     }
 
     private void HandleDataManagerUpdate(object? source, DataManagerUpdateEventArgs e)
     {
-        if (e.Kind == DataManagerUpdateKind.Repository)
+        _logger.Information($"DataManager update: {e.Kind}");
+
+        if (e.Kind == DataManagerUpdateKind.PullRequests)
         {
+            if (_currentRefreshKind == RefreshKind.PullRequests)
+            {
+                lock (_stateLock)
+                {
+                    UpdateInProgress = false;
+                    _pendingRefresh = false;
+                    LastUpdated = DateTime.UtcNow;
+                }
+            }
+
             SendUpdateEvent(this, CacheManagerUpdateKind.Updated);
+        }
+
+        if (e.Kind == DataManagerUpdateKind.Issues)
+        {
+            if (_currentRefreshKind == RefreshKind.Issues)
+            {
+                lock (_stateLock)
+                {
+                    UpdateInProgress = false;
+                    _pendingRefresh = false;
+                    LastUpdated = DateTime.UtcNow;
+                }
+            }
+
+            SendUpdateEvent(this, CacheManagerUpdateKind.Updated);
+        }
+
+        if (e.Kind == DataManagerUpdateKind.All)
+        {
+            if (_currentRefreshKind == RefreshKind.All)
+            {
+                lock (_stateLock)
+                {
+                    UpdateInProgress = false;
+                }
+            }
+
+            if (_pendingRefresh)
+            {
+                _ = Update(TimeSpan.MinValue, _currentRefreshKind);
+            }
+
+            SendUpdateEvent(this, CacheManagerUpdateKind.Updated);
+        }
+
+        if (e.Kind == DataManagerUpdateKind.Cancel)
+        {
+            lock (_stateLock)
+            {
+                UpdateInProgress = false;
+                _pendingRefresh = false;
+            }
+        }
+
+        if (e.Kind == DataManagerUpdateKind.Error)
+        {
+            lock (_stateLock)
+            {
+                UpdateInProgress = false;
+                _pendingRefresh = false;
+            }
         }
     }
 
@@ -189,8 +274,38 @@ public class CacheManager : IDisposable
         DataManager.LastUpdated = time;
     }
 
+    // Disposing area
+    private bool _disposed;
+
+    private void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            _logger.Debug("Disposing of all cacheManager resources.");
+
+            if (disposing)
+            {
+                try
+                {
+                    _logger.Debug("Disposing of all CacheManager resources.");
+                    DataUpdater.Dispose();
+                    DataManager.Dispose();
+                    _cancelSource.Dispose();
+                    GitHubDataManager.OnUpdate -= HandleDataManagerUpdate;
+                }
+                catch (Exception e)
+                {
+                    _logger.Error(e, "Failed disposing");
+                }
+            }
+
+            _disposed = true;
+        }
+    }
+
     public void Dispose()
     {
+        Dispose(true);
         GC.SuppressFinalize(this);
     }
 }
