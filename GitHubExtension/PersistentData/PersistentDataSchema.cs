@@ -19,16 +19,17 @@ public sealed class PersistentDataSchema : IDataStoreSchema
             OwnerLogin TEXT NOT NULL
         )";
 
-    private const string SavedQuery =
-        @"CREATE TABLE IF NOT EXISTS SavedQuery (
+    private const string Search =
+        @"CREATE TABLE IF NOT EXISTS Search (
             Id INTEGER PRIMARY KEY AUTOINCREMENT,
             Name TEXT NOT NULL,
-            Query TEXT NOT NULL
+            SearchString TEXT NOT NULL,
+            Type TEXT NOT NULL
         )";
 
     private static readonly List<string> _schemaSqlsValue = new()
     {
         Repository,
-        SavedQuery,
+        Search,
     };
 }

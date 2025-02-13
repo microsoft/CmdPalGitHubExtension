@@ -782,33 +782,13 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
             return;
         }
 
-        // Associate search term if one was provided.
-        Search? search = null;
-        if (!string.IsNullOrEmpty(options.SearchIssuesRequest.Term))
-        {
-            _log.Debug($"Term = {options.SearchIssuesRequest.Term}");
-            search = Search.GetOrCreate(DataStore, options.SearchIssuesRequest.Term, repository.Id);
-        }
-
         var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
 
         _log.Debug($"Results contain {issuesResult.Items.Count} issues.");
         foreach (var issue in issuesResult.Items)
         {
             cancellationToken.ThrowIfCancellationRequested();
-
-            var dsIssue = Issue.GetOrCreateByOctokitIssue(DataStore, issue, repository.Id);
-            if (search is not null)
-            {
-                SearchIssue.AddIssueToSearch(DataStore, dsIssue, search);
-            }
-        }
-
-        if (search is not null)
-        {
-            // If this is associated with a search and there are existing issues in the search that
-            // were not recently updated (within the last minute), remove them from the search result.
-            SearchIssue.DeleteBefore(DataStore, search, DateTime.Now - TimeSpan.FromMinutes(1));
+            Issue.GetOrCreateByOctokitIssue(DataStore, issue, repository.Id);
         }
 
         // Remove issues from this repository that were not observed recently.

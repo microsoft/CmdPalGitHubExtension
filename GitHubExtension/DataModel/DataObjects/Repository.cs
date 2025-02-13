@@ -141,13 +141,7 @@ public class Repository
         }
         else
         {
-            var search = Search.Get(DataStore, query, Id);
-            if (search is null)
-            {
-                return Enumerable.Empty<Issue>();
-            }
-
-            return Issue.GetForSearch(DataStore, search);
+            return Enumerable.Empty<Issue>();
         }
     }
 

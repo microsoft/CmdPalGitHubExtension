@@ -22,31 +22,34 @@ public class Search
     [Key]
     public long Id { get; set; } = DataStore.NoForeignKey;
 
-    public string Query { get; set; } = string.Empty;
+    public string SearchString { get; set; } = string.Empty;
 
-    public long RepositoryId { get; set; } = DataStore.NoForeignKey;
+    public string Name { get; set; } = string.Empty;
+
+    public string Type { get; set; } = string.Empty;
 
     public long TimeUpdated { get; set; } = DataStore.NoForeignKey;
 
-    public override string ToString() => Query;
+    public override string ToString() => SearchString;
 
     [Write(false)]
     [Computed]
     public DateTime UpdatedAt => TimeUpdated.ToDateTime();
 
-    private static Search Create(string query, long repositoryId)
+    private static Search Create(string name, string searchString, string type)
     {
         return new Search
         {
-            Query = query,
-            RepositoryId = repositoryId,
+            Name = name,
+            SearchString = searchString,
+            Type = type,
             TimeUpdated = DateTime.Now.ToDataStoreInteger(),
         };
     }
 
     private static Search AddOrUpdate(DataStore dataStore, Search search)
     {
-        var existing = Get(dataStore, search.Query, search.RepositoryId);
+        var existing = Get(dataStore, search.Name, search.SearchString, search.Type);
         if (existing is not null)
         {
             // The Search time updated is for identifying stale data for deletion later.
@@ -73,21 +76,22 @@ public class Search
         return dataStore.Connection!.Get<Search>(id);
     }
 
-    public static Search? Get(DataStore dataStore, string query, long repositoryId)
+    public static Search? Get(DataStore dataStore, string name, string searchString, string type)
     {
-        var sql = @"SELECT * FROM Search WHERE Query = @Query AND RepositoryId = @RepositoryId;";
+        var sql = @"SELECT * FROM Search WHERE SearchString = @SearchString AND Name = @Name AND Type = @Type;";
         var param = new
         {
-            Query = query,
-            RepositoryId = repositoryId,
+            SearchString = searchString,
+            Name = name,
+            Type = type,
         };
 
         return dataStore.Connection!.QueryFirstOrDefault<Search>(sql, param, null);
     }
 
-    public static Search GetOrCreate(DataStore dataStore, string query, long repositoryId)
+    public static Search GetOrCreate(DataStore dataStore, string name, string searchString, string type)
     {
-        var newSearch = Create(query, repositoryId);
+        var newSearch = Create(name, searchString, type);
         return AddOrUpdate(dataStore, newSearch);
     }
 

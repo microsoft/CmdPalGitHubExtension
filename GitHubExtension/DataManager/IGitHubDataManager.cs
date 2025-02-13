@@ -43,4 +43,10 @@ public interface IGitHubDataManager : IDisposable
     Task UpdatePullRequestsForRepositoriesAsync(Octokit.RepositoryCollection repoCollection, RequestOptions requestOptions);
 
     Task UpdateAllDataForRepositoriesAsync(Octokit.RepositoryCollection repoCollection, RequestOptions requestOptions);
+
+    /*
+    Task UpdateDataForSearchAsync(long searchId, RequestOptions options);
+
+    Task UpdateDataForSearchesAsync(IEnumerable<long> searchIds, RequestOptions options);
+    */
 }

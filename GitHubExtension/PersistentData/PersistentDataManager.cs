@@ -4,7 +4,9 @@
 
 using GitHubExtension.DataModel;
 using GitHubExtension.DeveloperId;
+using Octokit;
 using Serilog;
+using Windows.Media.Capture;
 using Windows.Storage;
 
 namespace GitHubExtension.PersistentData;
@@ -105,6 +107,7 @@ public class PersistentDataManager : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    // Repository methods
     private async Task ValidateRepository(string owner, string name)
     {
         ValidateRepositoryOwnerAndName(owner, name);
@@ -145,6 +148,54 @@ public class PersistentDataManager : IDisposable
         {
             ValidadeDataStore();
             return Repository.GetAll(DataStore);
+        });
+    }
+
+    // Search methods
+    private async Task ValidadeSearch(string searchString, string searchType)
+    {
+        Octokit.GitHubClient? client = DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal().First().GitHubClient;
+        var issuesOptions = new SearchIssuesRequest(searchString)
+        {
+            State = ItemState.Open,
+            Type = IssueTypeQualifier.Issue,
+            SortField = IssueSearchSort.Updated,
+            Order = SortDirection.Descending,
+        };
+
+        _ = await client.Search.SearchIssues(issuesOptions);
+    }
+
+    public async Task AddSearchAsync(string name, string searchString, string searchType, Octokit.GitHubClient? client = null)
+    {
+        await ValidadeSearch(searchString, searchType);
+        ValidadeDataStore();
+
+        Log.Information($"Adding search: {name} - {searchString} - {searchType}.");
+        if (Search.Get(DataStore, name, searchString, searchType) != null)
+        {
+            throw new InvalidOperationException($"Search {name} - {searchString} - {searchType} already exists.");
+        }
+
+        Search.Add(DataStore, name, searchString, searchType);
+    }
+
+    public async void RemoveSearchAsync(string name, string searchString, string searchType)
+    {
+        await Task.Run(() =>
+        {
+            ValidadeDataStore();
+            Log.Information($"Removing search: {name} - {searchString} - {searchType}.");
+            Search.Remove(DataStore, name, searchString, searchType);
+        });
+    }
+
+    public async Task<IEnumerable<Search>> GetAllSearchesAsync()
+    {
+        return await Task.Run(() =>
+        {
+            ValidadeDataStore();
+            return Search.GetAll(DataStore);
         });
     }
 }
