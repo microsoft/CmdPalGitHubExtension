@@ -43,24 +43,8 @@ internal sealed partial class SearchPullRequestsPage : ListPage
 
     private async void RequestContentData()
     {
-        await Task.Run(() =>
-        {
-            if (DateTime.Now - lastUpdated < TimeConstants.Cooldown)
-            {
-                // Do nothing
-                Log.Information("Cooldown, not updating data.");
-                return;
-            }
-
-            var repoHelper = GitHubRepositoryHelper.Instance;
-            var repoCollection = repoHelper.GetUserRepositoryCollection();
-            var requestOptions = RequestOptions.RequestOptionsDefault();
-            var dataManager = GitHubDataManager.CreateInstance();
-
-            _ = dataManager?.UpdatePullRequestsForRepositoriesAsync(repoCollection, requestOptions);
-            Log.Information("Data updated.");
-            lastUpdated = DateTime.Now;
-        });
+        var cacheManager = CacheManager.GetInstance();
+        await cacheManager.Refresh();
     }
 
     private async Task<List<DataModel.PullRequest>> LoadContentData()
@@ -75,11 +59,23 @@ internal sealed partial class SearchPullRequestsPage : ListPage
 
             foreach (var repo in repoCollection)
             {
-                var repository = dataManager!.GetRepository(GetOwner(repo), GetRepo(repo));
-                var pulls = repository?.PullRequests;
-                if (pulls != null)
+                try
                 {
-                    data.AddRange(pulls);
+                    var repository = dataManager!.GetRepository(GetOwner(repo), GetRepo(repo));
+                    Log.Information($"Got the repository {repo}.");
+                    var pulls = repository?.PullRequests;
+                    if (pulls != null)
+                    {
+                        data.AddRange(pulls);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Error loading pull requests for repository {repo}: {ex}");
+                }
+                finally
+                {
+                    Log.Information($"Finished loading pulls data for {repo}.");
                 }
             }
 
@@ -178,9 +174,10 @@ internal sealed partial class SearchPullRequestsPage : ListPage
 
     private async Task<List<DataModel.PullRequest>> GetGitHubPullRequestsAsync(string query)
     {
+        var res = await LoadContentData();
         Log.Information($"Starting request for data.");
 
-        // RequestContentData();
-        return await LoadContentData();
+        RequestContentData();
+        return res;
     }
 }

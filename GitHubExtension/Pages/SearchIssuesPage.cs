@@ -29,20 +29,8 @@ internal sealed partial class SearchIssuesPage : ListPage
 
     private async void RequestContentData()
     {
-        await Task.Run(() =>
-        {
-            if (DateTime.Now - lastUpdated < TimeConstants.Cooldown)
-            {
-                // Do nothing
-            }
-
-            var repoHelper = GitHubRepositoryHelper.Instance;
-            var repoCollection = repoHelper.GetUserRepositoryCollection();
-            var requestOptions = RequestOptions.RequestOptionsDefault();
-            var dataManager = GitHubDataManager.CreateInstance();
-
-            _ = dataManager?.UpdateIssuesForRepositoriesAsync(repoCollection, requestOptions);
-        });
+        var cacheManager = CacheManager.GetInstance();
+        await cacheManager.Refresh();
     }
 
     private async Task<List<Issue>> LoadContentData()
@@ -56,11 +44,18 @@ internal sealed partial class SearchIssuesPage : ListPage
 
             foreach (var repo in repoCollection)
             {
-                var repository = dataManager!.GetRepository(GetOwner(repo), GetRepo(repo));
-                var issues = repository?.Issues;
-                if (issues != null)
+                try
                 {
-                    data.AddRange(issues);
+                    var repository = dataManager!.GetRepository(GetOwner(repo), GetRepo(repo));
+                    var issues = repository?.Issues;
+                    if (issues != null)
+                    {
+                        data.AddRange(issues);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Error getting issues for repository {repo}: {ex.Message}");
                 }
             }
 
@@ -155,8 +150,10 @@ internal sealed partial class SearchIssuesPage : ListPage
 
     private async Task<List<Issue>> GetGitHubIssuesAsync(string query)
     {
-        // RequestContentData();
-        return await LoadContentData();
+        var res = await LoadContentData();
+
+        RequestContentData();
+        return res;
     }
 
     public void OnRepositoryAdded(object sender, object? args)

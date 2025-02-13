@@ -20,6 +20,7 @@ public class GitHubRepositoryHelper
     private GitHubRepositoryHelper(GitHubClient client)
     {
         _client = client;
+        _ = AddUsersContribuitionRepositoriesToDatabaseAsync();
     }
 
     public static GitHubRepositoryHelper Instance => _instance.Value;
@@ -59,6 +60,23 @@ public class GitHubRepositoryHelper
         {
             Log.Error($"Error getting user repositories: {ex}");
             return new List<Octokit.Repository>();
+        }
+    }
+
+    public async Task AddUsersContribuitionRepositoriesToDatabaseAsync()
+    {
+        var repositories = await GetUserRepositoriesFromOctokitAsync();
+        var dataManager = PersistentDataManager.CreateInstance();
+        foreach (var repo in repositories)
+        {
+            try
+            {
+                await dataManager!.AddRepositoryAsync(repo.Owner.Login, repo.Name);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error adding user's repositories to database: {ex}");
+            }
         }
     }
 

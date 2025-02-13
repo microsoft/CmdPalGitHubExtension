@@ -11,6 +11,9 @@ public enum DataManagerUpdateKind
     Repository,     // Single repository was updated.
     Developer,      // Developer content was updated, a thin slice of the data across multiple repositories.
     Query,          // A custom query was updated, which could be any amount of data in the datastore.
+    Pulls,          // All Pulls updated.
+    Issues,         // All issues updated.
+    Searches,       // Searches updated.
 }
 
 public class DataManagerUpdateEventArgs : EventArgs

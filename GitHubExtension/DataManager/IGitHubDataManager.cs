@@ -10,7 +10,7 @@ public interface IGitHubDataManager : IDisposable
 {
     DataStoreOptions DataStoreOptions { get; }
 
-    DateTime LastUpdated { get; }
+    DateTime LastUpdated { get; set; }
 
     Task UpdateAllDataForRepositoryAsync(string owner, string name, RequestOptions? options = null);
 

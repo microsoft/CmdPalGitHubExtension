@@ -83,6 +83,12 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
 
             return lastUpdated.ToDateTime();
         }
+
+        set
+        {
+            ValidateDataStore();
+            MetaData.AddOrUpdate(DataStore, LastUpdatedKeyName, value.ToDataStoreString());
+        }
     }
 
     public async Task UpdateAllDataForRepositoryAsync(string owner, string name, RequestOptions? options = null)

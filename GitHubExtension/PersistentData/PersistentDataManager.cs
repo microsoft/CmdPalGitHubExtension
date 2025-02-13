@@ -80,7 +80,7 @@ public class PersistentDataManager : IDisposable
             Path.Combine(dataStoreOptions.DataStoreFolderPath, DataStoreFileName),
             dataStoreOptions.DataStoreSchema);
 
-        DataStore.Create();
+        DataStore.Create(false);
     }
 
     private bool _disposed;
