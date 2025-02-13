@@ -41,16 +41,7 @@ internal sealed partial class QueryPage : ListPage
     {
         try
         {
-            var issues = new List<DataModel.DataObjects.Issue>();
-
-            if (!string.IsNullOrEmpty(PageQuery.QueryString))
-            {
-                issues = await RunQueryStringAsync(query);
-            }
-            else
-            {
-                issues = await RunQueryAsync(query);
-            }
+            var issues = await RunQueryAsync(query);
 
             foreach (var issue in issues)
             {
@@ -91,6 +82,10 @@ internal sealed partial class QueryPage : ListPage
                             new ListItem(new NoOpCommand())
                             {
                                 Title = "Error fetching issues",
+                                Details = new Details()
+                                {
+                                    Body = "No issues found",
+                                },
                                 Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
                             },
                     ];
@@ -124,7 +119,7 @@ internal sealed partial class QueryPage : ListPage
 
     public static string GetRepo(string repositoryUrl) => Validation.ParseRepositoryFromGitHubURL(repositoryUrl);
 
-    private async Task<List<DataModel.DataObjects.Issue>> RunQueryStringAsync(string query)
+    private async Task<List<DataModel.DataObjects.Issue>> RunQueryAsync(string query)
     {
         try
         {
@@ -136,73 +131,6 @@ internal sealed partial class QueryPage : ListPage
             var results = await client.Search.SearchIssues(new SearchIssuesRequest(PageQuery.QueryString));
             var issues = ConvertToDataObjectsIssue(results.Items);
 
-            return issues;
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Error running query");
-            throw;
-        }
-    }
-
-    private async Task<List<DataModel.DataObjects.Issue>> RunQueryAsync(string query)
-    {
-        try
-        {
-            var devIdProvider = DeveloperIdProvider.GetInstance();
-            var devIds = devIdProvider.GetLoggedInDeveloperIdsInternal();
-
-            var client = devIds.Any() ? devIds.First().GitHubClient : GitHubClientProvider.Instance.GetClient();
-
-            var options = RequestOptions.RequestOptionsDefault();
-
-            // TODO: Implement type filtering (right now, this code searches both issues and pull requests)
-
-            // set options for search based on the query values - TODO: Implement Owner
-
-            // This assumes the user properly typed the repo as "owner/repo"
-            if (!string.IsNullOrEmpty(PageQuery.Repository))
-            {
-                options.SearchIssuesRequest.Repos = new RepositoryCollection { $"{PageQuery.Repository}" };
-            }
-
-            options.SearchIssuesRequest.Assignee = string.IsNullOrEmpty(PageQuery.Assignee) ? null : PageQuery.Assignee;
-            options.SearchIssuesRequest.Author = string.IsNullOrEmpty(PageQuery.Author) ? null : PageQuery.Author;
-
-            if (!string.IsNullOrEmpty(PageQuery.Type))
-            {
-                if (string.Equals(PageQuery.Type, "pull request", StringComparison.OrdinalIgnoreCase))
-                {
-                    options.SearchIssuesRequest.Type = IssueTypeQualifier.PullRequest;
-                }
-                else
-                {
-                    options.SearchIssuesRequest.Type = IssueTypeQualifier.Issue;
-                }
-            }
-
-            // TODO: Support multiple labels
-            if (!string.IsNullOrEmpty(PageQuery.Labels))
-            {
-                options.SearchIssuesRequest.Labels = new List<string> { PageQuery.Labels };
-            }
-
-            options.SearchIssuesRequest.Mentions = string.IsNullOrEmpty(PageQuery.MentionedUsers) ? null : PageQuery.MentionedUsers;
-
-            if (string.Equals(PageQuery.State, "open/closed", StringComparison.OrdinalIgnoreCase))
-            {
-                // do nothing, Octokit will search for open by default?? TODO: Investigate
-            }
-            else
-            {
-                options.SearchIssuesRequest.State = string.Equals(PageQuery.State, "open", StringComparison.OrdinalIgnoreCase) ? ItemState.Open : ItemState.Closed;
-            }
-
-            // get the search results (and how will we know what we're searching for?)
-            var searchResults = await client.Search.SearchIssues(options.SearchIssuesRequest);
-
-            // convert the search results to a DataObject that can come back
-            var issues = ConvertToDataObjectsIssue(searchResults.Items);
             return issues;
         }
         catch (Exception ex)
