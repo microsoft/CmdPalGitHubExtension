@@ -9,9 +9,9 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Pages;
 
-internal sealed partial class SaveQueryStringPage : FormPage
+internal sealed partial class SaveQueryPage : FormPage
 {
-    private readonly SaveQueryStringForm _saveQueryStringForm;
+    private readonly SaveQueryForm _saveQueryForm;
 
     private readonly QueryInput _queryInput;
 
@@ -19,22 +19,22 @@ internal sealed partial class SaveQueryStringPage : FormPage
     private StatusMessage _saveQueryStatusMessage;
 #pragma warning restore IDE0044 // Add readonly modifier
 
-    public SaveQueryStringPage()
+    public SaveQueryPage()
     {
-        _saveQueryStringForm = new();
-        SaveQueryStringForm.QuerySaved += OnQuerySaved;
-        _saveQueryStringForm.LoadingStateChanged += OnLoadingChanged;
+        _saveQueryForm = new();
+        SaveQueryForm.QuerySaved += OnQuerySaved;
+        _saveQueryForm.LoadingStateChanged += OnLoadingChanged;
         _saveQueryStatusMessage = new StatusMessage();
         ExtensionHost.HideStatus(_saveQueryStatusMessage);
         _queryInput = QueryInput.QueryString; // default
     }
 
-    public SaveQueryStringPage(QueryInput input)
+    public SaveQueryPage(QueryInput input)
     {
         _queryInput = input;
-        _saveQueryStringForm = new(input);
-        SaveQueryStringForm.QuerySaved += OnQuerySaved;
-        _saveQueryStringForm.LoadingStateChanged += OnLoadingChanged;
+        _saveQueryForm = new(input);
+        SaveQueryForm.QuerySaved += OnQuerySaved;
+        _saveQueryForm.LoadingStateChanged += OnLoadingChanged;
         _saveQueryStatusMessage = new StatusMessage();
         ExtensionHost.HideStatus(_saveQueryStatusMessage);
     }
@@ -42,7 +42,7 @@ internal sealed partial class SaveQueryStringPage : FormPage
     public override IForm[] Forms()
     {
         ExtensionHost.HideStatus(_saveQueryStatusMessage);
-        return new IForm[] { _saveQueryStringForm };
+        return new IForm[] { _saveQueryForm };
     }
 
     private void OnQuerySaved(object sender, object? args)

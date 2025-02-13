@@ -12,7 +12,7 @@ using Windows.Foundation;
 
 namespace GitHubExtension.Forms;
 
-internal sealed partial class SaveQueryStringForm : Form
+internal sealed partial class SaveQueryForm : Form
 {
     public static event TypedEventHandler<object, object?>? QuerySaved;
 
@@ -20,12 +20,12 @@ internal sealed partial class SaveQueryStringForm : Form
 
     private readonly QueryInput _queryInput;
 
-    public SaveQueryStringForm()
+    public SaveQueryForm()
     {
         _queryInput = QueryInput.QueryString; // default
     }
 
-    public SaveQueryStringForm(QueryInput input)
+    public SaveQueryForm(QueryInput input)
     {
         _queryInput = input;
     }
@@ -49,7 +49,7 @@ internal sealed partial class SaveQueryStringForm : Form
 
     public string GetTemplateJsonFromFile()
     {
-        var templateName = _queryInput == QueryInput.QueryString ? "SaveQueryString" : "SaveQuerySurvey";
+        var templateName = _queryInput == QueryInput.QueryString ? "SaveQuery" : "SaveQuerySurvey";
         var path = Path.Combine(AppContext.BaseDirectory, GitHubHelper.GetTemplatePath(templateName));
         var template = File.ReadAllText(path, Encoding.Default) ?? throw new FileNotFoundException(path);
 
@@ -58,7 +58,7 @@ internal sealed partial class SaveQueryStringForm : Form
 
     public string GetDataJsonFromFile()
     {
-        var dataName = _queryInput == QueryInput.QueryString ? "SaveQueryStringData" : "SaveQuerySurveyData";
+        var dataName = _queryInput == QueryInput.QueryString ? "SaveQueryData" : "SaveQuerySurveyData";
         var path = Path.Combine(AppContext.BaseDirectory, GitHubHelper.GetTemplatePath(dataName));
         var data = File.ReadAllText(path, Encoding.Default) ?? throw new FileNotFoundException(path);
         return data;

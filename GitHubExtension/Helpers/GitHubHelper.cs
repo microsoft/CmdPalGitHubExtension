@@ -39,8 +39,8 @@ internal sealed class GitHubHelper
             "SignIn" => "Templates\\GitHubSignInTemplate.json",
             "SaveQuerySurvey" => "Templates\\SaveQuerySurveyTemplate.json",
             "SaveQuerySurveyData" => "Templates\\SaveQuerySurveyData.json",
-            "SaveQueryString" => "Templates\\SaveQueryStringTemplate.json",
-            "SaveQueryStringData" => "Templates\\SaveQueryStringData.json",
+            "SaveQuery" => "Templates\\SaveQueryTemplate.json",
+            "SaveQueryData" => "Templates\\SaveQueryData.json",
             _ => throw new NotImplementedException(),
         };
     }
