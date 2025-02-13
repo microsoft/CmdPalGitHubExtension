@@ -32,7 +32,7 @@ internal sealed partial class SavedSearchesPage : ListPage
             var searches = _savedSearches.Select(savedSearch => new ListItem(savedSearch)
             {
                 Title = savedSearch.Title,
-                Icon = new IconInfo(string.Empty),
+                Icon = new IconInfo(GitHubIcon.IconDictionary[savedSearch.CurrentSearch.Type]),
             }).ToList();
 
             searches.Add(new(new SaveSearchPage())
@@ -52,11 +52,6 @@ internal sealed partial class SavedSearchesPage : ListPage
         {
             return new ListItem[]
             {
-                new(new SearchIssuesPage())
-                {
-                    Title = "Sample Search: Search GitHub Issues",
-                    Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
-                },
                 new(new SaveSearchPage(SearchInput.Survey))
                 {
                     Title = "Add a search (full form)",
