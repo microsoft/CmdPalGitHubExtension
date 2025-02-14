@@ -7,10 +7,17 @@
       "type": "TextBlock",
       "size": "Medium",
       "weight": "Bolder",
-      "text": " ${ApplicationInfo.title}",
+      "text": "${ApplicationInfo.title}",
       "horizontalAlignment": "Center",
       "wrap": true,
       "style": "heading"
+    },
+    {
+      "type": "Input.Text",
+      "id": "Name",
+      "label": "Name",
+      "isRequired": true,
+      "errorMessage": "Name is required"
     },
     {
       "type": "Input.Text",

@@ -101,8 +101,9 @@ internal sealed partial class SaveSearchForm : Form
     public static Search CreateSearchFromJson(JsonNode jsonNode)
     {
         var searchStr = jsonNode["EnteredSearch"]?.ToString() ?? string.Empty;
+        var name = jsonNode["Name"]?.ToString() ?? string.Empty;
 
-        var search = new Search(searchStr);
+        var search = new Search(searchStr, name);
 
         return search;
     }

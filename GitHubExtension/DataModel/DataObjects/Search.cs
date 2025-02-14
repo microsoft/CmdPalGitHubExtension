@@ -26,6 +26,13 @@ public class Search
         Type = ParseTypeFromSearchString(searchString);
     }
 
+    public Search(string searchString, string name)
+    {
+        SearchString = string.IsNullOrEmpty(searchString) ? string.Empty : searchString;
+        Name = name;
+        Type = ParseTypeFromSearchString(searchString);
+    }
+
     public Search(string name, string type, string owner, string repository, string dateCreated, string language, string state, string reason, string numberOfComments, string labels, string author, string mentionedUsers, string assignee, string updatedDate)
     {
         // create a search string based on the fields passed in
