@@ -222,9 +222,9 @@ public class GitHubDataStoreSchema : IDataStoreSchema
     @"CREATE TABLE Search (" +
         "Id INTEGER PRIMARY KEY NOT NULL," +
         "Name TEXT NOT NULL COLLATE NOCASE," +
-        "SearchString TEXT NOT NULL COLLATE NOCASE" +
+        "SearchString TEXT NOT NULL COLLATE NOCASE," +
         "TypeId INTEGER NOT NULL," +
-        "TimeUpdated INTEGER NOT NULL," +
+        "TimeUpdated INTEGER NOT NULL" +
     ");";
 
     private const string SearchIssue =

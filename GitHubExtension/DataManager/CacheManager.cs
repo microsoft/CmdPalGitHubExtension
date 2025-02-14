@@ -131,6 +131,7 @@ public class CacheManager : IDisposable
         catch (Exception e)
         {
             _logger.Error(e, "Update failed unexpectedly");
+            UpdateInProgress = false;
         }
 
         LastUpdateTime = DateTime.UtcNow;
