@@ -52,24 +52,25 @@ public class Search
         SearchString = string.IsNullOrEmpty(searchString) ? string.Empty : searchString;
         Name = searchString;
 
-        Type = ParseTypeFromSearchString(searchString);
+        TypeId = (long)ParseSearchTypeFromSearchString(searchString);
     }
 
     public Search(string searchString, string name)
     {
         SearchString = string.IsNullOrEmpty(searchString) ? string.Empty : searchString;
         Name = name;
-        Type = ParseTypeFromSearchString(searchString);
+        TypeId = (long)ParseSearchTypeFromSearchString(searchString);
     }
 
     public Search(string name, string type, string owner, string repository, string dateCreated, string language, string state, string reason, string numberOfComments, string labels, string author, string mentionedUsers, string assignee, string updatedDate)
     {
         // create a search string based on the fields passed in
         Name = name;
-        Type = type;
+
+        TypeId = (long)(SearchType)Enum.Parse(typeof(SearchType), type);
 
         // check if fields are null or empty before adding to string
-        var typeString = string.IsNullOrEmpty(type) ? string.Empty : $"type:{Type} ";
+        var typeString = string.IsNullOrEmpty(type) ? string.Empty : $"type:{TypeId} ";
         var repositoryString = string.IsNullOrEmpty(repository) ? string.Empty : $"repo:{repository} ";
         var languageString = string.IsNullOrEmpty(language) ? string.Empty : $"language:{language} ";
         var stateString = string.IsNullOrEmpty(state) || string.Equals(state, "open/closed", StringComparison.OrdinalIgnoreCase) ? string.Empty : $"state:{state} ";
@@ -83,25 +84,24 @@ public class Search
         SearchString = $"{typeString} {repositoryString}{languageString}{stateString}{reasonString}{numberOfCommentsString}{labelsString}{authorString}{mentionedUsersString}{assigneeString}{updatedDateString}";
     }
 
-    // Type can be set by "is:typeName" or "type:typeName"
-    private string ParseTypeFromSearchString(string searchString)
+    // TypeId can be set by "is:typeName" or "type:typeName"
+    private SearchType ParseSearchTypeFromSearchString(string searchString)
     {
         // parse "type:typeName" if it's in the string
         var type = searchString.Split(' ').FirstOrDefault(x => x.StartsWith("type:", StringComparison.OrdinalIgnoreCase));
         if (type != null)
         {
-            return type.Split(':')[1];
+            return (SearchType)Enum.Parse(typeof(SearchType), type.Split(':')[1]);
         }
 
         // parse "is:typeName" if it's in the string
         type = searchString.Split(' ').FirstOrDefault(x => x.StartsWith("is:", StringComparison.OrdinalIgnoreCase));
         if (type != null)
         {
-            return type.Split(':')[1];
+            return (SearchType)Enum.Parse(typeof(SearchType), type.Split(':')[1]);
         }
 
-        // default to issue
-        return "issue";
+        return SearchType.Unkown;
     }
 
     private static Search Create(DataStore dataStore, string name, string searchString, SearchType type)
@@ -147,7 +147,7 @@ public class Search
 
     public static Search? Get(DataStore dataStore, string name, string searchString, SearchType type)
     {
-        var sql = @"SELECT * FROM Search WHERE SearchString = @SearchString AND Name = @Name AND Type = @Type;";
+        var sql = @"SELECT * FROM Search WHERE SearchString = @SearchString AND Name = @Name AND TypeId = @TypeId;";
         var param = new
         {
             SearchString = searchString,
@@ -209,5 +209,4 @@ public class Search
         var rowsDeleted = command.ExecuteNonQuery();
         _log.Verbose(DataStore.GetDeletedLogMessage(rowsDeleted));
     }
-}
 }
