@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using GitHubExtension.DataManager;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Windows.AppLifecycle;
@@ -98,6 +99,10 @@ public class Program
         // This makes sure that only one instance of GitHubExtension is alive, which is returned every time the host asks for the IExtension object.
         // If you want to instantiate a new instance each time the host asks, create the new instance inside the delegate.
         server.RegisterExtension(() => extensionInstance);
+
+        // Set up cache manager to pre-update data
+        using var cacheManager = CacheManager.GetInstance();
+        cacheManager?.Start();
 
         // This will make the main thread wait until the event is signalled by the extension class.
         // Since we have single instance of the extension object, we exit as soon as it is disposed.

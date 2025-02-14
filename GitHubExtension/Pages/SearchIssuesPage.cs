@@ -5,7 +5,8 @@
 using System.Globalization;
 using GitHubExtension.Client;
 using GitHubExtension.Commands;
-using GitHubExtension.DeveloperId;
+using GitHubExtension.DataManager;
+using GitHubExtension.DataModel;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -15,29 +16,85 @@ namespace GitHubExtension;
 
 internal sealed partial class SearchIssuesPage : ListPage
 {
+    private readonly ILogger _logger;
+
     public SearchIssuesPage()
     {
         Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
         Name = "Search GitHub Issues";
         this.ShowDetails = true;
+        _logger = Log.ForContext("SourceContext", $"Pages/{nameof(SearchIssuesPage)}");
+    }
+
+    ~SearchIssuesPage()
+    {
+        CacheManager.GetInstance().OnUpdate -= CacheManagerUpdateHandler;
     }
 
     public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();
+
+    private async void RequestContentData()
+    {
+        var cacheManager = CacheManager.GetInstance();
+        await cacheManager.Refresh(UpdateType.Issues);
+    }
+
+    private async Task<List<Issue>> LoadContentData()
+    {
+        CacheManager.GetInstance().OnUpdate += CacheManagerUpdateHandler;
+
+        return await Task.Run(() =>
+        {
+            var repoHelper = GitHubRepositoryHelper.Instance;
+            var repoCollection = repoHelper.GetUserRepositoryCollection();
+            var data = new List<Issue>();
+            var dataManager = GitHubDataManager.CreateInstance();
+
+            foreach (var repo in repoCollection)
+            {
+                try
+                {
+                    var repository = dataManager!.GetRepository(GetOwner(repo), GetRepo(repo));
+                    var issues = repository?.Issues;
+                    if (issues != null)
+                    {
+                        data.AddRange(issues);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error($"Error getting issues for repository {repo}: {ex.Message}");
+                }
+                finally
+                {
+                    _logger.Information($"Finished getting issues for repository {repo}.");
+                }
+            }
+
+            return data;
+        });
+    }
+
+    public void CacheManagerUpdateHandler(object? source, CacheManagerUpdateEventArgs e)
+    {
+        if (e.Kind == CacheManagerUpdateKind.Updated)
+        {
+            _logger.Information($"Received cache manager update event.");
+            RaiseItemsChanged(0);
+        }
+    }
 
     private async Task<IListItem[]> DoGetItems(string query)
     {
         try
         {
+            _logger.Information($"Issues Page GetItems command called.");
             var issues = await GetGitHubIssuesAsync(query);
-
-            foreach (var issue in issues)
-            {
-                Log.Information($"{issue.Title}, {GetRepo(issue.HtmlUrl)}, {issue.Body}, {issue.Number}");
-            }
+            _logger.Information($"Got {issues.Count} issues data.");
 
             if (issues.Count > 0)
             {
-                return issues.Select(issue => new ListItem(new LinkCommand(issue))
+                var res = issues.Select(issue => new ListItem(new LinkCommand(issue))
                 {
                     Title = issue.Title,
                     Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
@@ -50,6 +107,9 @@ internal sealed partial class SearchIssuesPage : ListPage
                             new(new IssueMarkdownPage(issue)),
                     },
                 }).ToArray();
+
+                _logger.Information($"Finished initializing issues objects.");
+                return res;
             }
             else
             {
@@ -100,55 +160,11 @@ internal sealed partial class SearchIssuesPage : ListPage
 
     public static string GetRepo(string repositoryUrl) => Validation.ParseRepositoryFromGitHubURL(repositoryUrl);
 
-    private static async Task<List<DataModel.DataObjects.Issue>> GetGitHubIssuesAsync(string query)
+    private async Task<List<Issue>> GetGitHubIssuesAsync(string query)
     {
-        var devIdProvider = DeveloperIdProvider.GetInstance();
-        var devIds = devIdProvider.GetLoggedInDeveloperIdsInternal();
+        var res = await LoadContentData();
 
-        var client = devIds.Any() ? devIds.First().GitHubClient : GitHubClientProvider.Instance.GetClient();
-
-        var repoHelper = GitHubRepositoryHelper.Instance;
-
-        var repoCollection = repoHelper.GetUserRepositoryCollection();
-
-        if (repoCollection.Count == 0)
-        {
-            Log.Information("No repositories found");
-            return new List<DataModel.DataObjects.Issue>();
-        }
-
-        var requestOptions = RequestOptions.RequestOptionsDefault();
-        requestOptions.SearchIssuesRequest.Repos = repoCollection;
-        var searchResults = await client.Search.SearchIssues(requestOptions.SearchIssuesRequest);
-
-        var issues = ConvertToDataObjectsIssue(searchResults.Items);
-
-        return issues;
-    }
-
-    private static List<DataModel.DataObjects.Issue> ConvertToDataObjectsIssue(IReadOnlyList<Octokit.Issue> octokitIssueList)
-    {
-        var dataModelIssues = new List<DataModel.DataObjects.Issue>();
-        foreach (var octokitIssue in octokitIssueList)
-        {
-            var issue = DataModel.DataObjects.Issue.CreateFromOctokitIssue(octokitIssue);
-            dataModelIssues.Add(issue);
-        }
-
-        return dataModelIssues;
-    }
-
-    public void OnRepositoryAdded(object sender, object? args)
-    {
-        if (args is Exception ex)
-        {
-            Log.Error($"Error in adding repository: {ex.Message}");
-        }
-        else
-        {
-            Log.Information("Repository added successfully!");
-
-            RaiseItemsChanged(0);
-        }
+        RequestContentData();
+        return res;
     }
 }

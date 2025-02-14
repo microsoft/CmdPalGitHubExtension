@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Diagnostics;
-using GitHubExtension.DataModel.DataObjects;
+using GitHubExtension.DataModel;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Commands;
