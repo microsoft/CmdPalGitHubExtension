@@ -34,13 +34,20 @@ public class Search
     public override string ToString() => SearchString;
 
     [Write(false)]
+    private DataStore? DataStore
+    {
+        get; set;
+    }
+
+    [Write(false)]
     [Computed]
     public DateTime UpdatedAt => TimeUpdated.ToDateTime();
 
-    private static Search Create(string name, string searchString, SearchType type)
+    private static Search Create(DataStore dataStore, string name, string searchString, SearchType type)
     {
         return new Search
         {
+            DataStore = dataStore,
             Name = name,
             SearchString = searchString,
             TypeId = (long)type,
@@ -92,8 +99,42 @@ public class Search
 
     public static Search GetOrCreate(DataStore dataStore, string name, string searchString, SearchType type)
     {
-        var newSearch = Create(name, searchString, type);
+        var newSearch = Create(dataStore, name, searchString, type);
         return AddOrUpdate(dataStore, newSearch);
+    }
+
+    [Write(false)]
+    [Computed]
+    public IEnumerable<Repository> Repositories
+    {
+        get
+        {
+            if (DataStore is null)
+            {
+                return Enumerable.Empty<Repository>();
+            }
+            else
+            {
+                return Repository.GetAllForSearch(DataStore, this) ?? Enumerable.Empty<Repository>();
+            }
+        }
+    }
+
+    [Write(false)]
+    [Computed]
+    public IEnumerable<Issue> Issues
+    {
+        get
+        {
+            if (DataStore is null)
+            {
+                return Enumerable.Empty<Issue>();
+            }
+            else
+            {
+                return Issue.GetForSearch(DataStore, this) ?? Enumerable.Empty<Issue>();
+            }
+        }
     }
 
     public static void DeleteBefore(DataStore dataStore, DateTime date)

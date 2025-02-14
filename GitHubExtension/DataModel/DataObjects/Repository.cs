@@ -133,18 +133,6 @@ public class Repository
         }
     }
 
-    public IEnumerable<Issue> GetIssuesForQuery(string query)
-    {
-        if (DataStore == null)
-        {
-            return Enumerable.Empty<Issue>();
-        }
-        else
-        {
-            return Enumerable.Empty<Issue>();
-        }
-    }
-
     public override string ToString() => FullName;
 
     // Create repository from OctoKit repo.
@@ -241,6 +229,25 @@ public class Repository
     public static IEnumerable<Repository> GetAll(DataStore dataStore)
     {
         var repositories = dataStore.Connection!.GetAll<Repository>() ?? Enumerable.Empty<Repository>();
+        foreach (var repository in repositories)
+        {
+            repository.DataStore = dataStore;
+        }
+
+        return repositories;
+    }
+
+    public static IEnumerable<Repository> GetAllForSearch(DataStore dataStore, Search search)
+    {
+        var sql = @"SELECT * FROM Repository WHERE Id IN (SELECT Repository FROM SearchRepository WHERE SearchId = @SearchId ORDER BY TimeUpdated ASC);";
+        var param = new
+        {
+            SearchId = search.Id,
+        };
+
+        _log.Verbose(DataStore.GetSqlLogMessage(sql, param));
+
+        var repositories = dataStore.Connection!.Query<Repository>(sql, param, null) ?? Enumerable.Empty<Repository>();
         foreach (var repository in repositories)
         {
             repository.DataStore = dataStore;
