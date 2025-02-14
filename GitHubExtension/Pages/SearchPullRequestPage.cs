@@ -23,19 +23,12 @@ internal sealed partial class SearchPullRequestsPage : ListPage
         Name = "Search GitHub Pull Requests";
         this.ShowDetails = true;
         CacheManager.GetInstance().OnUpdate += CacheManagerUpdateHandler;
-        PropChanged += PropChangedHandler;
         _logger = Log.ForContext("SourceContext", $"Pages/{nameof(SearchPullRequestsPage)}");
     }
 
     ~SearchPullRequestsPage()
     {
         CacheManager.GetInstance().OnUpdate -= CacheManagerUpdateHandler;
-        PropChanged -= PropChangedHandler;
-    }
-
-    public void PropChangedHandler(object? sender, IPropChangedEventArgs e)
-    {
-        _logger.Information($"Property changed: {e.PropertyName}");
     }
 
     public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();
@@ -61,7 +54,6 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                 try
                 {
                     var repository = dataManager!.GetRepository(GetOwner(repo), GetRepo(repo));
-                    _logger.Information($"Got the repository {repo}.");
                     var pulls = repository?.PullRequests;
                     if (pulls != null)
                     {
@@ -87,6 +79,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
     {
         if (e.Kind == CacheManagerUpdateKind.Updated)
         {
+            _logger.Information($"Received cache manager update event.");
             RaiseItemsChanged(0);
         }
     }

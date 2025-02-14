@@ -587,6 +587,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         var user = await client.User.Current();
         _log.Information($"Updating pull requests for: {repository.FullName} and user: {user.Login}");
         var octoPulls = await client.PullRequest.GetAllForRepository(repository.InternalId, options.PullRequestRequest, options.ApiOptions);
+        _log.Information($"Got {octoPulls.Count} pull requests.");
 
         var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
 
@@ -595,7 +596,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
             cancellationToken.ThrowIfCancellationRequested();
 
             PullRequest.GetOrCreateByOctokitPullRequest(DataStore, pull, repository.Id);
-            _log.Information($"Created pull request #{pull.Id}:{pull.Title}");
 
             /* Commenting this out for efficiency. This is mostly not needed in our case.
              * We will let the individual pull request updates handle this.

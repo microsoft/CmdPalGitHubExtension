@@ -16,14 +16,21 @@ namespace GitHubExtension;
 
 internal sealed partial class SearchIssuesPage : ListPage
 {
+    private readonly ILogger _logger;
+
     public SearchIssuesPage()
     {
         Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
         Name = "Search GitHub Issues";
         this.ShowDetails = true;
+        CacheManager.GetInstance().OnUpdate += CacheManagerUpdateHandler;
+        _logger = Log.ForContext("SourceContext", $"Pages/{nameof(SearchIssuesPage)}");
     }
 
-    private DateTime lastUpdated = DateTime.MinValue;
+    ~SearchIssuesPage()
+    {
+        CacheManager.GetInstance().OnUpdate -= CacheManagerUpdateHandler;
+    }
 
     public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();
 
@@ -55,7 +62,11 @@ internal sealed partial class SearchIssuesPage : ListPage
                 }
                 catch (Exception ex)
                 {
-                    Log.Error($"Error getting issues for repository {repo}: {ex.Message}");
+                    _logger.Error($"Error getting issues for repository {repo}: {ex.Message}");
+                }
+                finally
+                {
+                    _logger.Information($"Finished getting issues for repository {repo}.");
                 }
             }
 
@@ -63,11 +74,11 @@ internal sealed partial class SearchIssuesPage : ListPage
         });
     }
 
-    public void DataManagerUpdateHandler(object? source, DataManagerUpdateEventArgs e)
+    public void CacheManagerUpdateHandler(object? source, CacheManagerUpdateEventArgs e)
     {
-        if (e.Kind == DataManagerUpdateKind.Repository)
+        if (e.Kind == CacheManagerUpdateKind.Updated)
         {
-            lastUpdated = DateTime.Now;
+            _logger.Information($"Received cache manager update event.");
             RaiseItemsChanged(0);
         }
     }
@@ -76,9 +87,9 @@ internal sealed partial class SearchIssuesPage : ListPage
     {
         try
         {
-            Log.Information($"Issues Page GetItems command called.");
+            _logger.Information($"Issues Page GetItems command called.");
             var issues = await GetGitHubIssuesAsync(query);
-            Log.Information($"Got {issues.Count} issues data.");
+            _logger.Information($"Got {issues.Count} issues data.");
 
             if (issues.Count > 0)
             {
@@ -96,7 +107,7 @@ internal sealed partial class SearchIssuesPage : ListPage
                     },
                 }).ToArray();
 
-                Log.Information($"Finished initializing issues objects.");
+                _logger.Information($"Finished initializing issues objects.");
                 return res;
             }
             else
@@ -154,19 +165,5 @@ internal sealed partial class SearchIssuesPage : ListPage
 
         RequestContentData();
         return res;
-    }
-
-    public void OnRepositoryAdded(object sender, object? args)
-    {
-        if (args is Exception ex)
-        {
-            Log.Error($"Error in adding repository: {ex.Message}");
-        }
-        else
-        {
-            Log.Information("Repository added successfully!");
-
-            RaiseItemsChanged(0);
-        }
     }
 }

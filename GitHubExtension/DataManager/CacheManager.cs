@@ -15,6 +15,9 @@ public class CacheManager : IDisposable
 
     private static readonly object _instanceLock = new();
 
+    // Lock to be used everytime we want to check or update the state of
+    // the variables: UpdateInProgress, _currentRefreshKind, _pendingRefresh
+    // and LastUpdated.
     private static readonly object _stateLock = new();
 
     private static CacheManager? _singletonInstance;
@@ -144,6 +147,11 @@ public class CacheManager : IDisposable
         {
             if (UpdateInProgress)
             {
+                // If we enter here after a refresh request, it means that
+                // the update is in progress and still has not been canceled.
+                // We ignore it for now, but as the _pendingRefresh is true,
+                // once we get the Cancel update from the DataManager, we will
+                // start a new update for this refresh request.
                 _logger.Information("Update in progress, ignoring request.");
                 return;
             }
@@ -157,7 +165,7 @@ public class CacheManager : IDisposable
             options.ApiOptions.PageCount = 1;
         }
 
-        // do the update for saved queries here
+        // Do the update for saved queries here
         _logger.Debug($"Starting update of kind {kind}.");
         _currentRefreshKind = kind;
 
@@ -244,7 +252,19 @@ public class CacheManager : IDisposable
             lock (_stateLock)
             {
                 UpdateInProgress = false;
-                _pendingRefresh = false;
+            }
+
+            _logger.Debug("Received cancel event from DataManager.");
+            SendUpdateEvent(this, CacheManagerUpdateKind.Cancel);
+
+            if (_pendingRefresh)
+            {
+                // If there is a pending refresh, it is likely because a
+                // refresh request caused this cancellation. And as a race
+                // between the previous update happening and the new update trying
+                // to start and failing because of the update in progress, we will
+                // need to start the new update for that refresh request.
+                _ = Update(TimeSpan.MinValue, _currentRefreshKind);
             }
         }
 
@@ -255,6 +275,8 @@ public class CacheManager : IDisposable
                 UpdateInProgress = false;
                 _pendingRefresh = false;
             }
+
+            SendUpdateEvent(this, CacheManagerUpdateKind.Error);
         }
     }
 
