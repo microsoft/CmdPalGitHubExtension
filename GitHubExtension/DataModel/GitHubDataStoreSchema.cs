@@ -221,11 +221,11 @@ public class GitHubDataStoreSchema : IDataStoreSchema
     private const string Search =
     @"CREATE TABLE Search (" +
         "Id INTEGER PRIMARY KEY NOT NULL," +
-        "RepositoryId INTEGER NOT NULL," +
+        "Name TEXT NOT NULL COLLATE NOCASE," +
+        "SearchString TEXT NOT NULL COLLATE NOCASE" +
+        "TypeId INTEGER NOT NULL," +
         "TimeUpdated INTEGER NOT NULL," +
-        "Query TEXT NOT NULL COLLATE NOCASE" +
-    ");" +
-    "CREATE UNIQUE INDEX IDX_Search_RepositoryIdQuery ON Search (RepositoryId, Query);";
+    ");";
 
     private const string SearchIssue =
     @"CREATE TABLE SearchIssue (" +
@@ -235,6 +235,15 @@ public class GitHubDataStoreSchema : IDataStoreSchema
         "Issue INTEGER NOT NULL" +
     ");" +
     "CREATE UNIQUE INDEX IDX_SearchIssue_SearchIssue ON SearchIssue (Search, Issue);";
+
+    private const string SearchRepository =
+        @"CREATE TABLE SearchRepository (" +
+        "Id INTEGER PRIMARY KEY NOT NULL," +
+        "TimeUpdated INTEGER NOT NULL," +
+        "Search INTEGER NOT NULL," +
+        "Repository INTEGER NOT NULL" +
+    ");" +
+    "CREATE UNIQUE INDEX IDX_SearchRepository_SearchRepository ON SearchRepository (Search, Repository);";
 
     private const string Review =
     @"CREATE TABLE Review (" +
@@ -285,6 +294,7 @@ public class GitHubDataStoreSchema : IDataStoreSchema
         Notification,
         Search,
         SearchIssue,
+        SearchRepository,
         Review,
         Release,
     };

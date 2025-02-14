@@ -24,7 +24,7 @@ public sealed class PersistentDataSchema : IDataStoreSchema
             Id INTEGER PRIMARY KEY AUTOINCREMENT,
             Name TEXT NOT NULL,
             SearchString TEXT NOT NULL,
-            Type TEXT NOT NULL
+            TypeId INTEGER NOT NULL
         )";
 
     private static readonly List<string> _schemaSqlsValue = new()
