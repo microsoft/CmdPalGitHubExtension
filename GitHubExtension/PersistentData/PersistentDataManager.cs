@@ -20,7 +20,7 @@ public class PersistentDataManager : IDisposable
 
     public DataStoreOptions DataStoreOpions { get; set; }
 
-    private void ValidadeDataStore()
+    private void ValidateDataStore()
     {
         if (DataStore == null || !DataStore.IsConnected)
         {
@@ -120,7 +120,7 @@ public class PersistentDataManager : IDisposable
     public async Task AddRepositoryAsync(string owner, string name, Octokit.GitHubClient? client = null)
     {
         await ValidateRepository(owner, name);
-        ValidadeDataStore();
+        ValidateDataStore();
         Log.Information($"Adding repository {owner}/{name}.");
 
         if (Repository.Get(DataStore, owner, name) != null)
@@ -137,7 +137,7 @@ public class PersistentDataManager : IDisposable
         {
             // No need to validate repository here as it was already
             // validated when added.
-            ValidadeDataStore();
+            ValidateDataStore();
             Log.Information($"Removing repository {owner}/{name}.");
             Repository.Remove(DataStore, owner, name);
         });
@@ -147,14 +147,15 @@ public class PersistentDataManager : IDisposable
     {
         return await Task.Run(() =>
         {
-            ValidadeDataStore();
+            ValidateDataStore();
             return Repository.GetAll(DataStore);
         });
     }
 
     // Search methods
-    private async Task ValidadeSearch(string searchString, SearchType searchType)
+    private async Task ValidateSearch(string searchString, SearchType searchType)
     {
+        // TODO: Change this request depending on the search type.
         Octokit.GitHubClient? client = DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal().First().GitHubClient;
         var issuesOptions = new SearchIssuesRequest(searchString)
         {
@@ -169,8 +170,8 @@ public class PersistentDataManager : IDisposable
 
     public async Task AddSearchAsync(string name, string searchString, SearchType searchType, Octokit.GitHubClient? client = null)
     {
-        await ValidadeSearch(searchString, searchType);
-        ValidadeDataStore();
+        await ValidateSearch(searchString, searchType);
+        ValidateDataStore();
 
         Log.Information($"Adding search: {name} - {searchString} - {searchType}.");
         if (Search.Get(DataStore, name, searchString, searchType) != null)
@@ -185,7 +186,7 @@ public class PersistentDataManager : IDisposable
     {
         await Task.Run(() =>
         {
-            ValidadeDataStore();
+            ValidateDataStore();
             Log.Information($"Removing search: {name} - {searchString} - {searchType}.");
             Search.Remove(DataStore, name, searchString, searchType);
         });
@@ -195,7 +196,7 @@ public class PersistentDataManager : IDisposable
     {
         return await Task.Run(() =>
         {
-            ValidadeDataStore();
+            ValidateDataStore();
             return Search.GetAll(DataStore);
         });
     }

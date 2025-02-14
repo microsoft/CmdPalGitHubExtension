@@ -103,9 +103,6 @@ public class GitHubRepositoryHelper
     public async Task AddRepository(string owner, string repo)
     {
         PersistentDataManager? dataManager = PersistentDataManager.CreateInstance();
-
-        // Should I do the validation here?
-        // Or inside the data manager class?
         await dataManager!.AddRepositoryAsync(owner, repo);
     }
 
