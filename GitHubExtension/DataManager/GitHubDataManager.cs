@@ -112,8 +112,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
                 await UpdateIssuesAsync(repository, devId.GitHubClient, parameters.RequestOptions);
                 await UpdatePullRequestsAsync(repository, devId.GitHubClient, parameters.RequestOptions);
             });
-
-        SendRepositoryUpdateEvent(this, GetFullNameFromOwnerAndRepository(owner, name), ["Issues", "PullRequests"]);
     }
 
     public async Task UpdateAllDataForRepositoryAsync(string fullName, RequestOptions? options = null)
@@ -130,8 +128,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         {
             await UpdateAllDataForRepositoryAsync(repo, requestOptions);
         }
-
-        SendAllDataUpdateEvent(this);
     }
 
     public async Task UpdatePullRequestsForRepositoryAsync(string owner, string name, RequestOptions? options = null)
@@ -152,8 +148,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
                 var repository = await UpdateRepositoryAsync(parameters.Owner!, parameters.RepositoryName!, devId.GitHubClient);
                 await UpdatePullRequestsAsync(repository, devId.GitHubClient, parameters.RequestOptions);
             });
-
-        SendRepositoryUpdateEvent(this, GetFullNameFromOwnerAndRepository(owner, name), ["PullRequests"]);
     }
 
     public async Task UpdatePullRequestsForRepositoryAsync(string fullName, RequestOptions? options = null)
@@ -170,8 +164,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         {
             await UpdatePullRequestsForRepositoryAsync(repo, requestOptions);
         }
-
-        SendPullRequestsUpdateEvent(this);
     }
 
     public async Task UpdateIssuesForRepositoryAsync(string owner, string name, RequestOptions? options = null)
@@ -192,8 +184,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
                 var repository = await UpdateRepositoryAsync(parameters.Owner!, parameters.RepositoryName!, devId.GitHubClient);
                 await UpdateIssuesAsync(repository, devId.GitHubClient, parameters.RequestOptions);
             });
-
-        SendRepositoryUpdateEvent(this, GetFullNameFromOwnerAndRepository(owner, name), ["Issues"]);
     }
 
     public async Task UpdateIssuesForRepositoryAsync(string fullName, RequestOptions? options = null)
@@ -210,8 +200,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         {
             await UpdateIssuesForRepositoryAsync(repo, requestOptions);
         }
-
-        SendIssuesUpdateEvent(this);
     }
 
     public async Task UpdatePullRequestsForLoggedInDeveloperIdsAsync()
@@ -222,7 +210,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
             OperationName = "UpdatePullRequestsForLoggedInDeveloperIdsAsync",
         };
         await UpdateDataStoreAsync(parameters, UpdatePullRequestsForLoggedInDeveloperIdsAsync);
-        SendDeveloperUpdateEvent(this);
     }
 
     public async Task UpdateReleasesForRepositoryAsync(string owner, string name, RequestOptions? options = null)
@@ -243,8 +230,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
                 var repository = await UpdateRepositoryAsync(parameters.Owner!, parameters.RepositoryName!, devId.GitHubClient);
                 await UpdateReleasesAsync(repository, devId.GitHubClient, parameters.RequestOptions);
             });
-
-        SendRepositoryUpdateEvent(this, GetFullNameFromOwnerAndRepository(owner, name), ["Releases"]);
     }
 
     public IEnumerable<Repository> GetRepositories()
@@ -332,84 +317,57 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
 
         var cancellationToken = parameters.RequestOptions?.CancellationToken.GetValueOrDefault() ?? default;
 
-        using var tx = DataStore.Connection!.BeginTransaction();
-        try
+        cancellationToken.ThrowIfCancellationRequested();
+        var found = false;
+
+        // We only need to get the information from one account which has access.
+        foreach (var devId in parameters.DeveloperIds)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            var found = false;
-
-            // We only need to get the information from one account which has access.
-            foreach (var devId in parameters.DeveloperIds)
+            try
             {
-                try
+                cancellationToken.ThrowIfCancellationRequested();
+
+                // Try the action for the passed in developer Id.
+                await asyncAction(parameters, DeveloperId.DeveloperIdProvider.GetInstance().GetDeveloperIdInternal(devId));
+
+                // We can stop when the action is executed without exceptions.
+                found = true;
+                break;
+            }
+            catch (Exception ex) when (ex is Octokit.ApiException)
+            {
+                switch (ex)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
+                    case Octokit.NotFoundException:
+                        // A private repository will come back as "not found" by the GitHub API when an unauthorized account cannot even view it.
+                        _log.Debug($"DeveloperId {devId.LoginId} did not find {parameters.Owner}/{parameters.RepositoryName}");
+                        continue;
 
-                    // Try the action for the passed in developer Id.
-                    await asyncAction(parameters, DeveloperId.DeveloperIdProvider.GetInstance().GetDeveloperIdInternal(devId));
+                    case Octokit.RateLimitExceededException:
+                        _log.Debug($"DeveloperId {devId.LoginId} rate limit exceeded.");
+                        throw;
 
-                    // We can stop when the action is executed without exceptions.
-                    found = true;
-                    break;
-                }
-                catch (Exception ex) when (ex is Octokit.ApiException)
-                {
-                    switch (ex)
-                    {
-                        case Octokit.NotFoundException:
-                            // A private repository will come back as "not found" by the GitHub API when an unauthorized account cannot even view it.
-                            _log.Debug($"DeveloperId {devId.LoginId} did not find {parameters.Owner}/{parameters.RepositoryName}");
-                            continue;
+                    case Octokit.ForbiddenException:
+                        // This can happen most commonly with SAML-enabled organizations.
+                        // The user may have access but the org blocked the application.
+                        _log.Debug($"DeveloperId {devId.LoginId} was forbidden access to {parameters.Owner}/{parameters.RepositoryName}");
+                        continue;
 
-                        case Octokit.RateLimitExceededException:
-                            _log.Debug($"DeveloperId {devId.LoginId} rate limit exceeded.");
-                            throw;
-
-                        case Octokit.ForbiddenException:
-                            // This can happen most commonly with SAML-enabled organizations.
-                            // The user may have access but the org blocked the application.
-                            _log.Debug($"DeveloperId {devId.LoginId} was forbidden access to {parameters.Owner}/{parameters.RepositoryName}");
-                            throw;
-
-                        default:
-                            // If it's some other error like abuse detection, abort and do not continue.
-                            _log.Debug($"Unhandled Octokit API error for {devId.LoginId} and {parameters.Owner} / {parameters.RepositoryName}");
-                            throw;
-                    }
+                    default:
+                        // If it's some other error like abuse detection, abort and do not continue.
+                        _log.Debug($"Unhandled Octokit API error for {devId.LoginId} and {parameters.Owner} / {parameters.RepositoryName}");
+                        continue;
                 }
             }
-
-            if (!found)
-            {
-                throw new RepositoryNotFoundException($"The repository {parameters.Owner}/{parameters.RepositoryName} could not be accessed by any available developer accounts.");
-            }
-
-            // Clean datastore and set last updated after updating.
-            PruneObsoleteData();
-            SetLastUpdatedInMetaData();
-        }
-        catch (HttpRequestException)
-        {
-            // Higher layer will catch and log this. Suppress logging an error for this to keep log clean.
-            tx.Rollback();
-            throw;
-        }
-        catch (Exception ex) when (IsCancelException(ex))
-        {
-            tx.Rollback();
-            _log.Information("Operation cancelled.");
-            SendCancelUpdateEvent(this);
-            return;
-        }
-        catch (Exception ex)
-        {
-            // This is for catching any other unexpected error as well as any we throw.
-            _log.Error(ex, $"Failed trying update data for repository: {parameters.Owner}/{parameters.RepositoryName}");
-            tx.Rollback();
-            throw;
         }
 
-        tx.Commit();
+        if (!found)
+        {
+            // We choose to not throw here so we can
+            // get the other repositories.
+            _log.Error($"The repository {parameters.Owner}/{parameters.RepositoryName} could not be accessed by any available developer accounts.");
+        }
+
         _log.Information($"Updated datastore: {parameters}");
     }
 
@@ -854,50 +812,23 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
 
     public async Task UpdateDataForSearchAsync(string name, string searchString, SearchType type, RequestOptions options)
     {
-        using var tx = DataStore.Connection!.BeginTransaction();
-        try
-        {
-            switch (type)
-            {
-                case SearchType.Issues:
-                    await UpdateIssuesForSearchAsync(name, searchString, options);
-                    break;
-                case SearchType.PullRequests:
-                    await UpdatePullRequestsForSearchAsync(name, searchString, options);
-                    break;
-                case SearchType.Repositories:
-                    await UpdateRepositoriesForSearchAsync(name, searchString, options);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
-            }
-        }
-        catch (HttpRequestException)
-        {
-            // Higher layer will catch and log this. Suppress logging an error for this to keep log clean.
-            tx.Rollback();
-            throw;
-        }
-        catch (Exception ex) when (IsCancelException(ex))
-        {
-            tx.Rollback();
-            _log.Information("Operation cancelled.");
-            SendCancelUpdateEvent(this);
-            return;
-        }
-        catch (Exception ex)
-        {
-            _log.Error(ex, $"Failed trying update data for search: {name}");
-            tx.Rollback();
-            throw;
-        }
+        var cancellaTionToken = options?.CancellationToken.GetValueOrDefault() ?? default;
+        cancellaTionToken.ThrowIfCancellationRequested();
 
-        tx.Commit();
-
-        // The name should be enough for the search to be identified.
-        // There is no major issue if searches have the same name,
-        // as the search page will query the data in the database.
-        SendSearchUpdateEvent(this, name);
+        switch (type)
+        {
+            case SearchType.Issues:
+                await UpdateIssuesForSearchAsync(name, searchString, options);
+                break;
+            case SearchType.PullRequests:
+                await UpdatePullRequestsForSearchAsync(name, searchString, options);
+                break;
+            case SearchType.Repositories:
+                await UpdateRepositoriesForSearchAsync(name, searchString, options);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(type), type, null);
+        }
     }
 
     public async Task UpdateDataForSearchesAsync(IEnumerable<PersistentData.Search> searches, RequestOptions options)

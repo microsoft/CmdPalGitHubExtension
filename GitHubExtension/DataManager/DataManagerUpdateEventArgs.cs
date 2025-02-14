@@ -8,16 +8,9 @@ public delegate void DataManagerUpdateEventHandler(object? source, DataManagerUp
 
 public enum DataManagerUpdateKind
 {
-    Repository,     // Single repository was updated.
-    Developer,      // Developer content was updated, a thin slice of the data across multiple repositories.
-    Query,          // A custom query was updated, which could be any amount of data in the datastore.
-    PullRequests,   // All Pull Requests updated.
-    Issues,         // All issues updated.
-    Searches,       // Searches updated.
-    Search,         // A single search was updated.
-    All,            // All data: PRs, Issues and Searches
     Cancel,         // Update was cancelled.
-    Error,         // An error occurred during update.
+    Error,          // An error occurred during update.
+    Success,        // Update was successful.
 }
 
 public class DataManagerUpdateEventArgs : EventArgs
@@ -25,12 +18,16 @@ public class DataManagerUpdateEventArgs : EventArgs
     private readonly string _description;
     private readonly string[] _context;
     private readonly DataManagerUpdateKind _kind;
+    private readonly UpdateType _updateType;
+    private readonly Exception? _exception;
 
-    public DataManagerUpdateEventArgs(DataManagerUpdateKind updateKind, string updateDescription, string[] updateContext)
+    public DataManagerUpdateEventArgs(DataManagerUpdateKind updateKind, UpdateType updateType, string updateDescription, string[] updateContext, Exception? exception = null)
     {
         _kind = updateKind;
         _description = updateDescription;
         _context = updateContext;
+        _updateType = updateType;
+        _exception = exception;
     }
 
     public DataManagerUpdateKind Kind => _kind;
@@ -38,4 +35,8 @@ public class DataManagerUpdateEventArgs : EventArgs
     public string Description => _description;
 
     public string[] Context => _context;
+
+    public UpdateType UpdateType => _updateType;
+
+    public Exception? Exception => _exception;
 }

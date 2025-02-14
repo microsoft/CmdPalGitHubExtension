@@ -48,4 +48,12 @@ public interface IGitHubDataManager : IDisposable
     Task UpdateDataForSearchAsync(string name, string searchString, SearchType type, RequestOptions options);
 
     Task UpdateDataForSearchesAsync(IEnumerable<PersistentData.Search> searches, RequestOptions options);
+
+    Task RequestAllUpdateAsync(Octokit.RepositoryCollection repoCollection, List<PersistentData.Search> searches, RequestOptions options);
+
+    Task RequestIssuesUpdateAsync(Octokit.RepositoryCollection repoCollection, RequestOptions options);
+
+    Task RequestPullRequestsUpdateAsync(Octokit.RepositoryCollection repoCollection, RequestOptions options);
+
+    Task RequestSearchUpdateAsync(string name, string searchString, SearchType type, RequestOptions options);
 }

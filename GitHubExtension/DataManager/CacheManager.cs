@@ -30,18 +30,43 @@ public class CacheManager : IDisposable
 
     private GitHubRepositoryHelper RepositoryHelper { get; set; }
 
+    // Variables to control the state of the CacheManager
+    // If there is a current update in progress
     public bool UpdateInProgress { get; private set; }
-
-    private RefreshKind _currentRefreshKind;
-
-    public bool NeverUpdated => LastUpdated == DateTime.MinValue;
-
-    public DateTime LastUpdated { get => GetLastUpdated(); private set => SetLastUpdated(value); }
 
     // If a refresh call is pending and has not yet completed
     private bool _pendingRefresh;
 
-    public event CacheManagerUpdateEventHandler? OnUpdate;
+    // The type of update that is currently in progress
+    private UpdateType _currentUpdateType;
+
+    public bool NeverUpdated => LastUpdated == DateTime.MinValue;
+
+    // Time of the last update. This is updated by the
+    // Cache Manager whe it receives an update complete event.
+    public DateTime LastUpdated { get => GetLastUpdated(); private set => SetLastUpdated(value); }
+
+    private CacheManagerUpdateEventHandler? _onUpdate;
+
+    public event CacheManagerUpdateEventHandler? OnUpdate
+    {
+        add
+        {
+            lock (_stateLock)
+            {
+                // Ensuring only one page is listeing to the event.
+                _onUpdate = value;
+            }
+        }
+
+        remove
+        {
+            lock (_stateLock)
+            {
+                _onUpdate -= value;
+            }
+        }
+    }
 
     private DataUpdater DataUpdater { get; set; }
 
@@ -97,23 +122,25 @@ public class CacheManager : IDisposable
         }
     }
 
-    public async Task Refresh(RefreshKind kind)
+    // This method is called by the pages to request
+    // an instant update of its data.
+    public async Task Refresh(UpdateType updateType, PersistentData.Search? search = null)
     {
         CancelUpdateInProgress();
 
         lock (_stateLock)
         {
-            if (_pendingRefresh && _currentRefreshKind == kind)
+            if (_pendingRefresh && _currentUpdateType == updateType)
             {
                 _logger.Debug("Refresh of this type already pending. Ignoring refresh request.");
                 return;
             }
 
             _pendingRefresh = true;
-            _currentRefreshKind = kind;
+            _currentUpdateType = updateType;
         }
 
-        await Update(TimeSpan.MinValue, kind);
+        await Update(TimeSpan.MinValue, updateType, search);
     }
 
     private async Task PeriodicUpdate()
@@ -126,11 +153,12 @@ public class CacheManager : IDisposable
 
         try
         {
-            await Update(_updateFrequency, RefreshKind.All);
+            _logger.Debug("Starting periodic update.");
+            await Update(_updateFrequency, UpdateType.All);
         }
         catch (Exception e)
         {
-            _logger.Error(e, "Update failed unexpectedly");
+            _logger.Error(e, "Periodic Update failed unexpectedly");
             UpdateInProgress = false;
         }
 
@@ -138,11 +166,11 @@ public class CacheManager : IDisposable
         return;
     }
 
-    private async Task Update(TimeSpan? olderThan, RefreshKind kind, PersistentData.Search? search = null)
+    private async Task Update(TimeSpan? olderThan, UpdateType updateType, PersistentData.Search? search = null)
     {
         var options = new RequestOptions();
 
-        _logger.Information($"Starting update of kind {kind}.");
+        _logger.Information($"Starting update of type {updateType}.");
 
         lock (_stateLock)
         {
@@ -167,90 +195,51 @@ public class CacheManager : IDisposable
         }
 
         // Do the update for saved queries here
-        _logger.Debug($"Starting update of kind {kind}.");
-        _currentRefreshKind = kind;
+        _logger.Debug($"Starting update of type {updateType}.");
+        _currentUpdateType = updateType;
 
         var repoCollection = RepositoryHelper.GetUserRepositoryCollection();
-        if (kind == RefreshKind.All)
-        {
-            await DataManager.UpdateAllDataForRepositoriesAsync(repoCollection, options);
+        var searches = new List<PersistentData.Search>();
 
-            var searches = new List<PersistentData.Search>();
-            await DataManager.UpdateDataForSearchesAsync(searches, options);
-        }
-
-        if (kind == RefreshKind.Issues)
+        switch (updateType)
         {
-            await DataManager.UpdateIssuesForRepositoriesAsync(repoCollection, options);
-        }
-
-        if (kind == RefreshKind.PullRequests)
-        {
-            await DataManager.UpdatePullRequestsForRepositoriesAsync(repoCollection, options);
-        }
-
-        if (kind == RefreshKind.Search)
-        {
-            await DataManager.UpdateDataForSearchAsync(search!.Name, search!.SearchString, (SearchType)search!.TypeId, options);
+            case UpdateType.All:
+                await DataManager.RequestAllUpdateAsync(repoCollection, searches, options);
+                break;
+            case UpdateType.Issues:
+                await DataManager.RequestIssuesUpdateAsync(repoCollection, options);
+                break;
+            case UpdateType.PullRequests:
+                await DataManager.RequestPullRequestsUpdateAsync(repoCollection, options);
+                break;
+            case UpdateType.Search:
+                await DataManager.RequestSearchUpdateAsync(search!.Name, search!.SearchString, (SearchType)search!.TypeId, options);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(updateType), updateType, null);
         }
     }
 
     private void SendUpdateEvent(object? source, CacheManagerUpdateKind kind, Exception? ex = null)
     {
-        if (OnUpdate != null)
+        if (_onUpdate != null)
         {
             _logger.Debug($"Sending update event. Kind: {kind}.");
-            OnUpdate.Invoke(source, new CacheManagerUpdateEventArgs(kind, ex));
+            _onUpdate.Invoke(source, new CacheManagerUpdateEventArgs(kind, ex));
         }
     }
 
     private void HandleDataManagerUpdate(object? source, DataManagerUpdateEventArgs e)
     {
-        _logger.Information($"DataManager update: {e.Kind}");
+        _logger.Information($"DataManager update: {e.Kind}, {e.UpdateType}");
 
-        if (e.Kind == DataManagerUpdateKind.PullRequests)
+        if (e.Kind == DataManagerUpdateKind.Success)
         {
-            if (_currentRefreshKind == RefreshKind.PullRequests)
+            lock (_stateLock)
             {
-                lock (_stateLock)
-                {
-                    UpdateInProgress = false;
-                    _pendingRefresh = false;
-                    LastUpdated = DateTime.UtcNow;
-                }
-            }
-
-            SendUpdateEvent(this, CacheManagerUpdateKind.Updated);
-        }
-
-        if (e.Kind == DataManagerUpdateKind.Issues)
-        {
-            if (_currentRefreshKind == RefreshKind.Issues)
-            {
-                lock (_stateLock)
-                {
-                    UpdateInProgress = false;
-                    _pendingRefresh = false;
-                    LastUpdated = DateTime.UtcNow;
-                }
-            }
-
-            SendUpdateEvent(this, CacheManagerUpdateKind.Updated);
-        }
-
-        if (e.Kind == DataManagerUpdateKind.All)
-        {
-            if (_currentRefreshKind == RefreshKind.All)
-            {
-                lock (_stateLock)
-                {
-                    UpdateInProgress = false;
-                }
-            }
-
-            if (_pendingRefresh)
-            {
-                _ = Update(TimeSpan.MinValue, _currentRefreshKind);
+                UpdateInProgress = false;
+                _pendingRefresh = false;
+                LastUpdated = DateTime.UtcNow;
             }
 
             SendUpdateEvent(this, CacheManagerUpdateKind.Updated);
@@ -273,10 +262,15 @@ public class CacheManager : IDisposable
                 // between the previous update happening and the new update trying
                 // to start and failing because of the update in progress, we will
                 // need to start the new update for that refresh request.
-                _ = Update(TimeSpan.MinValue, _currentRefreshKind);
+                _ = Update(TimeSpan.MinValue, _currentUpdateType);
             }
         }
 
+        // Is this necessary? I think the error should
+        // be thrown by the Update method.
+        // Maybe this is necessary to communicate to the user
+        // that the update failed in the page?
+        // We still need to think if this is desired.
         if (e.Kind == DataManagerUpdateKind.Error)
         {
             lock (_stateLock)
@@ -285,7 +279,7 @@ public class CacheManager : IDisposable
                 _pendingRefresh = false;
             }
 
-            SendUpdateEvent(this, CacheManagerUpdateKind.Error);
+            SendUpdateEvent(this, CacheManagerUpdateKind.Error, e.Exception);
         }
     }
 

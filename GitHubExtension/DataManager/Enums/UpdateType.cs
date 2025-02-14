@@ -5,8 +5,11 @@
 namespace GitHubExtension.DataManager;
 
 // To be used with Cache Manager to indicate the type of update.
-public enum RefreshKind
+public enum UpdateType
 {
+    Unknown,
+    Repository,
+    Developer,
     PullRequests,
     Issues,
     Search,

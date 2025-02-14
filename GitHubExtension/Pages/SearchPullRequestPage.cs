@@ -22,7 +22,6 @@ internal sealed partial class SearchPullRequestsPage : ListPage
         Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]);
         Name = "Search GitHub Pull Requests";
         this.ShowDetails = true;
-        CacheManager.GetInstance().OnUpdate += CacheManagerUpdateHandler;
         _logger = Log.ForContext("SourceContext", $"Pages/{nameof(SearchPullRequestsPage)}");
     }
 
@@ -36,11 +35,13 @@ internal sealed partial class SearchPullRequestsPage : ListPage
     private async void RequestContentData()
     {
         var cacheManager = CacheManager.GetInstance();
-        await cacheManager.Refresh(RefreshKind.PullRequests);
+        await cacheManager.Refresh(UpdateType.PullRequests);
     }
 
     private async Task<List<DataModel.PullRequest>> LoadContentData()
     {
+        CacheManager.GetInstance().OnUpdate += CacheManagerUpdateHandler;
+
         return await Task.Run(() =>
         {
             _logger.Information($"Starting loading data.");

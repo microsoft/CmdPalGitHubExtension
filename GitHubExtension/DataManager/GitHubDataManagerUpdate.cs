@@ -4,6 +4,7 @@
 
 using GitHubExtension.DataManager;
 using GitHubExtension.DataModel;
+using GitHubExtension.DataModel.Enums;
 
 namespace GitHubExtension;
 
@@ -13,103 +14,167 @@ public partial class GitHubDataManager
     private static readonly TimeSpan _updateInterval = TimeSpan.FromMinutes(5);
     private static DateTime _lastUpdateTime = DateTime.MinValue;
 
-    public static async Task Update()
+    private async Task PerformUpdateAsync(DataStoreOperationParameters parameters, Func<Task> asyncOperation)
     {
-        // Only update per the update interval.
-        // This is intended to be dynamic in the future.
-        if (DateTime.Now - _lastUpdateTime < _updateInterval)
-        {
-            return;
-        }
+        using var tx = DataStore.Connection!.BeginTransaction();
 
         try
         {
-            await UpdateDeveloperPullRequests();
+            await asyncOperation();
+            PruneObsoleteData();
+            SetLastUpdatedInMetaData();
         }
-        catch (HttpRequestException httpEx)
+        catch (HttpRequestException)
         {
-            // HttpRequestExceptions can happen when internet connection is
-            // down or various other network issues unrelated to this update.
-            // This is not an error in the extension or anything we can
-            // address. Log a warning so it is understood why the update did
-            // not occur, but otherwise keep the log clean.
-            _log.Warning($"Http Request Exception: {httpEx.Message}");
+            tx.Rollback();
+            _log.Error($"HttpRequestException during update: {parameters}");
+            throw;
+        }
+        catch (Exception ex) when (IsCancelException(ex))
+        {
+            tx.Rollback();
+            _log.Information($"Update cancelled: {parameters}");
+            SendCancelUpdateEvent(this, parameters.UpdateType);
+            return;
         }
         catch (Exception ex)
         {
-            _log.Error(ex, "Update failed unexpectedly.");
+            tx.Rollback();
+            _log.Error(ex, $"Error during update: {ex.Message}");
+            SendErrorUpdateEvent(this, parameters.UpdateType, ex);
+            return;
         }
 
-        _lastUpdateTime = DateTime.Now;
+        tx.Commit();
+
+        if (parameters.UpdateType == UpdateType.Search)
+        {
+            // Maybe we don't need this. Only the open page can raise
+            // the ItemsChanged event. So if a search is updated in the background,
+            // the open page is the only one that could have requested it.
+            // So having the name might not matter at all.
+            SendSearchSuccessUpdateEvent(this, parameters.SearchName!, parameters.SearchType);
+        }
+        else
+        {
+            SendSuccessUpdateEvent(this, parameters.UpdateType);
+        }
+
+        _log.Information($"Update complete: {parameters}");
     }
 
-    private static async Task UpdateDeveloperPullRequests()
+    public async Task RequestAllUpdateAsync(Octokit.RepositoryCollection repoCollection, List<PersistentData.Search> searches, RequestOptions options)
     {
-        _log.Debug($"Executing UpdateDeveloperPullRequests");
-        using var dataManager = CreateInstance() ?? throw new DataStoreInaccessibleException("GitHubDataManager is null.");
-        await dataManager.UpdatePullRequestsForLoggedInDeveloperIdsAsync();
-
-        // Show any new notifications that were created from the pull request update.
-        var notifications = dataManager.GetNotifications();
-        foreach (var notification in notifications)
+        _log.Information("Updating all data");
+        var parameters = new DataStoreOperationParameters
         {
-            // Show notifications for failed checkruns for Developer users.
-            if (notification.Type == NotificationType.CheckRunFailed && notification.User.IsDeveloper)
-            {
-                notification.ShowToast();
-            }
+            OperationName = nameof(RequestAllUpdateAsync),
+            RequestOptions = options,
+            UpdateType = UpdateType.All,
+        };
 
-            // Show notifications for new reviews.
-            if (notification.Type == NotificationType.NewReview)
+        await PerformUpdateAsync(
+            parameters,
+            async () =>
             {
-                notification.ShowToast();
-            }
-        }
+                await UpdateAllDataForRepositoriesAsync(repoCollection, options);
+                await UpdateDataForSearchesAsync(searches, options);
+            });
+
+        _lastUpdateTime = DateTime.UtcNow;
+    }
+
+    public async Task RequestIssuesUpdateAsync(Octokit.RepositoryCollection repoCollection, RequestOptions options)
+    {
+        _log.Information("Updating issues data");
+
+        var parameters = new DataStoreOperationParameters
+        {
+            OperationName = nameof(RequestIssuesUpdateAsync),
+            RequestOptions = options,
+            UpdateType = UpdateType.Issues,
+        };
+
+        await PerformUpdateAsync(
+            parameters,
+            async () => await UpdateIssuesForRepositoriesAsync(repoCollection, options));
+
+        _lastUpdateTime = DateTime.UtcNow;
+    }
+
+    public async Task RequestPullRequestsUpdateAsync(Octokit.RepositoryCollection repoCollection, RequestOptions options)
+    {
+        _log.Information("Updating pull requests data");
+        var parameters = new DataStoreOperationParameters
+        {
+            OperationName = nameof(RequestPullRequestsUpdateAsync),
+            RequestOptions = options,
+            UpdateType = UpdateType.PullRequests,
+        };
+
+        await PerformUpdateAsync(
+            parameters,
+            async () => await UpdatePullRequestsForRepositoriesAsync(repoCollection, options));
+
+        _lastUpdateTime = DateTime.UtcNow;
+    }
+
+    public async Task RequestSearchUpdateAsync(string name, string searchString, SearchType type, RequestOptions options)
+    {
+        _log.Information("Updating search data");
+        var parameters = new DataStoreOperationParameters
+        {
+            OperationName = nameof(RequestSearchUpdateAsync),
+            RequestOptions = options,
+            UpdateType = UpdateType.Search,
+            SearchName = name,
+            SearchType = type,
+        };
+        await PerformUpdateAsync(
+            parameters,
+            async () => await UpdateDataForSearchAsync(name, searchString, type, options));
+
+        _lastUpdateTime = DateTime.UtcNow;
     }
 
     private static void SendDeveloperUpdateEvent(object? source)
     {
-        SendUpdateEvent(source, DataManagerUpdateKind.Developer, null, null);
+        SendUpdateEvent(source, DataManagerUpdateKind.Success, UpdateType.Developer, null, null);
     }
 
     private static void SendRepositoryUpdateEvent(object? source, string fullName, string[] context)
     {
-        SendUpdateEvent(source, DataManagerUpdateKind.Repository, fullName, context);
+        SendUpdateEvent(source, DataManagerUpdateKind.Success, UpdateType.Repository, fullName, context);
     }
 
-    private static void SendUpdateEvent(object? source, DataManagerUpdateKind kind, string? info = null, string[]? context = null)
+    private static void SendUpdateEvent(object? source, DataManagerUpdateKind kind, UpdateType updateType, string? info = null, string[]? context = null, Exception? ex = null)
     {
         if (OnUpdate != null)
         {
             info ??= string.Empty;
             context ??= Array.Empty<string>();
-            _log.Information($"Sending Update Event: {kind}  Info: {info}  Context: {string.Join(",", context)}");
-            OnUpdate.Invoke(source, new DataManagerUpdateEventArgs(kind, info, context));
+            _log.Information($"Sending Update Event: {kind}  Type: {updateType} Info: {info}  Context: {string.Join(",", context)}");
+            OnUpdate.Invoke(source, new DataManagerUpdateEventArgs(kind, updateType, info, context, ex));
         }
     }
 
-    private static void SendPullRequestsUpdateEvent(object? source)
+    private static void SendSuccessUpdateEvent(object? source, UpdateType updateType)
     {
-        SendUpdateEvent(source, DataManagerUpdateKind.PullRequests, null, null);
+        SendUpdateEvent(source, DataManagerUpdateKind.Success, updateType, null, null);
     }
 
-    private static void SendIssuesUpdateEvent(object? source)
+    private static void SendSearchSuccessUpdateEvent(object? source, string searchName, SearchType searchType)
     {
-        SendUpdateEvent(source, DataManagerUpdateKind.Issues, null, null);
+        SendUpdateEvent(source, DataManagerUpdateKind.Success, UpdateType.Search, $"{searchName}:{searchType}", null);
     }
 
-    private static void SendAllDataUpdateEvent(object? source)
+    private static void SendCancelUpdateEvent(object? source, UpdateType updateType)
     {
-        SendUpdateEvent(source, DataManagerUpdateKind.All, null, null);
+        SendUpdateEvent(source, DataManagerUpdateKind.Cancel, updateType, null, null);
     }
 
-    private static void SendSearchUpdateEvent(object? source, string name)
+    private static void SendErrorUpdateEvent(object? source, UpdateType updateType, Exception ex)
     {
-        SendUpdateEvent(source, DataManagerUpdateKind.Search, name, null);
-    }
-
-    private static void SendCancelUpdateEvent(object? source)
-    {
-        SendUpdateEvent(source, DataManagerUpdateKind.Cancel, null, null);
+        SendUpdateEvent(source, DataManagerUpdateKind.Error, updateType, null, null, ex);
     }
 }

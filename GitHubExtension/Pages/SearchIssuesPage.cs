@@ -23,7 +23,6 @@ internal sealed partial class SearchIssuesPage : ListPage
         Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
         Name = "Search GitHub Issues";
         this.ShowDetails = true;
-        CacheManager.GetInstance().OnUpdate += CacheManagerUpdateHandler;
         _logger = Log.ForContext("SourceContext", $"Pages/{nameof(SearchIssuesPage)}");
     }
 
@@ -37,11 +36,13 @@ internal sealed partial class SearchIssuesPage : ListPage
     private async void RequestContentData()
     {
         var cacheManager = CacheManager.GetInstance();
-        await cacheManager.Refresh(RefreshKind.Issues);
+        await cacheManager.Refresh(UpdateType.Issues);
     }
 
     private async Task<List<Issue>> LoadContentData()
     {
+        CacheManager.GetInstance().OnUpdate += CacheManagerUpdateHandler;
+
         return await Task.Run(() =>
         {
             var repoHelper = GitHubRepositoryHelper.Instance;
