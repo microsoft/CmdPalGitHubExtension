@@ -14,6 +14,10 @@ public class RequestOptions
 
     public ApiOptions ApiOptions { get; set; }
 
+    public CancellationToken? CancellationToken { get; set; }
+
+    public bool Refresh { get; set; }
+
     public bool UsePublicClientAsFallback { get; set; }
 
     public RequestOptions()

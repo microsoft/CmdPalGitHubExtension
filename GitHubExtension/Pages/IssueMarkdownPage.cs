@@ -4,7 +4,7 @@
 
 using System.Globalization;
 using GitHubExtension.Commands;
-using GitHubExtension.DataModel.DataObjects;
+using GitHubExtension.DataModel;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
