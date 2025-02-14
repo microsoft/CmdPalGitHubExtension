@@ -5,6 +5,7 @@
 using GitHubExtension.Client;
 using GitHubExtension.DataManager;
 using GitHubExtension.DataModel;
+using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Helpers;
 using Serilog;
 using Windows.Foundation;
@@ -596,48 +597,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
             cancellationToken.ThrowIfCancellationRequested();
 
             PullRequest.GetOrCreateByOctokitPullRequest(DataStore, pull, repository.Id);
-
-            /* Commenting this out for efficiency. This is mostly not needed in our case.
-             * We will let the individual pull request updates handle this.
-            dsPullRequest = PullRequest.GetOrCreateByOctokitPullRequest(DataStore, pull, repository.Id);
-
-            try
-            {
-                var octoCheckRunResponse = await client.Check.Run.GetAllForReference(repository.InternalId, dsPullRequest.HeadSha);
-                foreach (var run in octoCheckRunResponse.CheckRuns)
-                {
-                     CheckRun.GetOrCreateByOctokitCheckRun(DataStore, run);
-                }
-
-                var octoCheckSuiteResponse = await client.Check.Suite.GetAllForReference(repository.InternalId, dsPullRequest.HeadSha);
-                foreach (var suite in octoCheckSuiteResponse.CheckSuites)
-                {
-                    // Skip Dependabot, as it is not part of a pull request's blocking suites.
-                    if (suite.App.Id == CheckSuiteIdDependabot)
-                    {
-                        continue;
-                    }
-
-                    _log.Verbose($"Suite: {suite.App.Name} - {suite.App.Id} - {suite.App.Owner.Login}  Conclusion: {suite.Conclusion}  Status: {suite.Status}");
-                    CheckSuite.GetOrCreateByOctokitCheckSuite(DataStore, suite);
-                }
-            }
-            catch (Exception e)
-            {
-                // Octokit can sometimes fail unexpectedly or have bugs. Should that occur here, we
-                // will not stop processing all pull requests and instead skip  over getting the PR
-                // checks information for this particular pull request.
-                _log.Error($"Error updating Check Status for Pull Request #{pull.Number}: {e.Message}");
-
-                // Put the full stack trace in debug if this occurs to reduce log spam.
-                _log.Debug(e, $"Error updating Check Status for Pull Request #{pull.Number}.");
-            }
-
-            var commitCombinedStatus = await client.Repository.Status.GetCombined(repository.InternalId, dsPullRequest.HeadSha);
-            CommitCombinedStatus.GetOrCreate(DataStore, commitCombinedStatus);
-
-            CreatePullRequestStatus(dsPullRequest);
-            */
         }
 
         // Remove unobserved pull requests from this repository.
@@ -830,6 +789,125 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         Release.DeleteLastObservedBefore(DataStore, repository.Id, DateTime.UtcNow - _lastObservedDeleteSpan);
     }
 
+    // Search area
+    // Methods to update Search items
+    private async Task UpdateIssuesForSearchAsync(string name, string searchString, RequestOptions? options = null)
+    {
+        _log.Information($"Updating issues for: {name}");
+        options ??= RequestOptions.RequestOptionsDefault();
+        var searchIssuesRequest = new Octokit.SearchIssuesRequest(searchString)
+        {
+            State = Octokit.ItemState.Open,
+            Type = Octokit.IssueTypeQualifier.Issue,
+        };
+        var issuesResult = await GitHubClientProvider.Instance.GetClient().Search.SearchIssues(searchIssuesRequest);
+        if (issuesResult == null)
+        {
+            _log.Debug($"No issues found.");
+            return;
+        }
+
+        var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
+        _log.Debug($"Results contain {issuesResult.Items.Count} issues.");
+
+        var dsSearch = Search.GetOrCreate(DataStore, name, searchString, SearchType.Issues);
+
+        foreach (var issue in issuesResult.Items)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var dsIssue = Issue.GetOrCreateByOctokitIssue(DataStore, issue);
+            SearchIssue.AddIssueToSearch(DataStore, dsIssue, dsSearch);
+        }
+    }
+
+    private async Task UpdatePullRequestsForSearchAsync(string name, string searchString, RequestOptions? options = null)
+    {
+        await Task.CompletedTask;
+        throw new NotImplementedException();
+    }
+
+    private async Task UpdateRepositoriesForSearchAsync(string name, string searchString, RequestOptions? options = null)
+    {
+        _log.Information($"Updating repositories for: {name}");
+        options ??= RequestOptions.RequestOptionsDefault();
+        var searchRepoRequest = new Octokit.SearchRepositoriesRequest(searchString);
+        var reposResult = await GitHubClientProvider.Instance.GetClient().Search.SearchRepo(searchRepoRequest);
+
+        if (reposResult == null)
+        {
+            _log.Debug($"No repositories found.");
+            return;
+        }
+
+        var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
+        _log.Debug($"Results contain {reposResult.Items.Count} repositories.");
+        var dsSearch = Search.GetOrCreate(DataStore, name, searchString, SearchType.Repositories);
+        foreach (var repo in reposResult.Items)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var dsRepository = Repository.GetOrCreateByOctokitRepository(DataStore, repo);
+            SearchRepository.AddRepositoryToSearch(DataStore, dsRepository, dsSearch);
+        }
+    }
+
+    public async Task UpdateDataForSearchAsync(string name, string searchString, SearchType type, RequestOptions options)
+    {
+        using var tx = DataStore.Connection!.BeginTransaction();
+        try
+        {
+            switch (type)
+            {
+                case SearchType.Issues:
+                    await UpdateIssuesForSearchAsync(name, searchString, options);
+                    break;
+                case SearchType.PullRequests:
+                    await UpdatePullRequestsForSearchAsync(name, searchString, options);
+                    break;
+                case SearchType.Repositories:
+                    await UpdateRepositoriesForSearchAsync(name, searchString, options);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
+        }
+        catch (HttpRequestException)
+        {
+            // Higher layer will catch and log this. Suppress logging an error for this to keep log clean.
+            tx.Rollback();
+            throw;
+        }
+        catch (Exception ex) when (IsCancelException(ex))
+        {
+            tx.Rollback();
+            _log.Information("Operation cancelled.");
+            SendCancelUpdateEvent(this);
+            return;
+        }
+        catch (Exception ex)
+        {
+            _log.Error(ex, $"Failed trying update data for search: {name}");
+            tx.Rollback();
+            throw;
+        }
+
+        tx.Commit();
+
+        // The name should be enough for the search to be identified.
+        // There is no major issue if searches have the same name,
+        // as the search page will query the data in the database.
+        SendSearchUpdateEvent(this, name);
+    }
+
+    public async Task UpdateDataForSearchesAsync(IEnumerable<PersistentData.Search> searches, RequestOptions options)
+    {
+        foreach (var search in searches)
+        {
+            await UpdateDataForSearchAsync(search.Name, search.SearchString, (SearchType)search.TypeId, options);
+        }
+    }
+
     // Removes unused data from the datastore.
     private void PruneObsoleteData()
     {
@@ -840,6 +918,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         Notification.DeleteBefore(DataStore, DateTime.Now - _notificationRetentionTime);
         Search.DeleteBefore(DataStore, DateTime.Now - _searchRetentionTime);
         SearchIssue.DeleteUnreferenced(DataStore);
+        SearchRepository.DeleteUnreferenced(DataStore);
         Review.DeleteUnreferenced(DataStore);
         Release.DeleteBefore(DataStore, DateTime.Now - _releaseRetentionTime);
     }

@@ -5,6 +5,7 @@
 using Dapper;
 using Dapper.Contrib.Extensions;
 using GitHubExtension.DataModel;
+using GitHubExtension.DataModel.Enums;
 
 namespace GitHubExtension.PersistentData;
 
@@ -18,31 +19,31 @@ public class Search
 
     public string SearchString { get; set; } = string.Empty;
 
-    public string Type { get; set; } = string.Empty;
+    public long TypeId { get; set; } = DataStore.NoForeignKey;
 
-    public static Search? Get(DataStore datastore, string name, string searchString, string type)
+    public static Search? Get(DataStore datastore, string name, string searchString, SearchType type)
     {
-        var sql = "SELECT * FROM Search WHERE Name = @Name AND SearchString = @SearchString AND Type = @Type";
-        var param = new { Name = name, SearchString = searchString, Type = type };
+        var sql = "SELECT * FROM Search WHERE Name = @Name AND SearchString = @SearchString AND TypeId = @Type";
+        var param = new { Name = name, SearchString = searchString, TypeId = (long)type };
 
         return datastore.Connection!.QueryFirstOrDefault<Search>(sql, param, null);
     }
 
-    public static Search Add(DataStore datastore, string name, string searchString, string type)
+    public static Search Add(DataStore datastore, string name, string searchString, SearchType type)
     {
         var search = new Search
         {
             Name = name,
             SearchString = searchString,
-            Type = type,
+            TypeId = (long)type,
         };
         datastore.Connection.Insert<Search>(search);
         return search;
     }
 
-    public static void Remove(DataStore datastore, string name, string searchString, string type)
+    public static void Remove(DataStore datastore, string name, string searchString, SearchType type)
     {
-        datastore.Connection.Delete(new Search { Name = name, SearchString = searchString, Type = type });
+        datastore.Connection.Delete(new Search { Name = name, SearchString = searchString, TypeId = (long)type });
     }
 
     public static IEnumerable<Search> GetAll(DataStore datastore)

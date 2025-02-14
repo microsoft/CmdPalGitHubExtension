@@ -30,6 +30,7 @@ public class GitHubRepositoryHelper
         _client = client;
     }
 
+    // TODO: Fix this. Auth issues. Maybe calling way too early.
     public async Task<List<Octokit.Repository>> GetUserRepositoriesFromOctokitAsync()
     {
         try

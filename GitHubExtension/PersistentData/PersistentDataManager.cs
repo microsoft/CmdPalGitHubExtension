@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.DataModel;
+using GitHubExtension.DataModel.Enums;
 using GitHubExtension.DeveloperId;
 using Octokit;
 using Serilog;
@@ -152,7 +153,7 @@ public class PersistentDataManager : IDisposable
     }
 
     // Search methods
-    private async Task ValidadeSearch(string searchString, string searchType)
+    private async Task ValidadeSearch(string searchString, SearchType searchType)
     {
         Octokit.GitHubClient? client = DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal().First().GitHubClient;
         var issuesOptions = new SearchIssuesRequest(searchString)
@@ -166,7 +167,7 @@ public class PersistentDataManager : IDisposable
         _ = await client.Search.SearchIssues(issuesOptions);
     }
 
-    public async Task AddSearchAsync(string name, string searchString, string searchType, Octokit.GitHubClient? client = null)
+    public async Task AddSearchAsync(string name, string searchString, SearchType searchType, Octokit.GitHubClient? client = null)
     {
         await ValidadeSearch(searchString, searchType);
         ValidadeDataStore();
@@ -180,7 +181,7 @@ public class PersistentDataManager : IDisposable
         Search.Add(DataStore, name, searchString, searchType);
     }
 
-    public async void RemoveSearchAsync(string name, string searchString, string searchType)
+    public async void RemoveSearchAsync(string name, string searchString, SearchType searchType)
     {
         await Task.Run(() =>
         {

@@ -103,6 +103,11 @@ public partial class GitHubDataManager
         SendUpdateEvent(source, DataManagerUpdateKind.All, null, null);
     }
 
+    private static void SendSearchUpdateEvent(object? source, string name)
+    {
+        SendUpdateEvent(source, DataManagerUpdateKind.Search, name, null);
+    }
+
     private static void SendCancelUpdateEvent(object? source)
     {
         SendUpdateEvent(source, DataManagerUpdateKind.Cancel, null, null);

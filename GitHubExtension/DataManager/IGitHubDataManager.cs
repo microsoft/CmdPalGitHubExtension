@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.DataModel;
+using GitHubExtension.DataModel.Enums;
 
 namespace GitHubExtension;
 
@@ -44,9 +45,7 @@ public interface IGitHubDataManager : IDisposable
 
     Task UpdateAllDataForRepositoriesAsync(Octokit.RepositoryCollection repoCollection, RequestOptions requestOptions);
 
-    /*
-    Task UpdateDataForSearchAsync(long searchId, RequestOptions options);
+    Task UpdateDataForSearchAsync(string name, string searchString, SearchType type, RequestOptions options);
 
-    Task UpdateDataForSearchesAsync(IEnumerable<long> searchIds, RequestOptions options);
-    */
+    Task UpdateDataForSearchesAsync(IEnumerable<PersistentData.Search> searches, RequestOptions options);
 }

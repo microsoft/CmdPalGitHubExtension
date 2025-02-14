@@ -4,6 +4,7 @@
 
 using Dapper;
 using Dapper.Contrib.Extensions;
+using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Helpers;
 using Serilog;
 
@@ -26,7 +27,7 @@ public class Search
 
     public string Name { get; set; } = string.Empty;
 
-    public string Type { get; set; } = string.Empty;
+    public long TypeId { get; set; } = DataStore.NoForeignKey;
 
     public long TimeUpdated { get; set; } = DataStore.NoForeignKey;
 
@@ -36,20 +37,20 @@ public class Search
     [Computed]
     public DateTime UpdatedAt => TimeUpdated.ToDateTime();
 
-    private static Search Create(string name, string searchString, string type)
+    private static Search Create(string name, string searchString, SearchType type)
     {
         return new Search
         {
             Name = name,
             SearchString = searchString,
-            Type = type,
+            TypeId = (long)type,
             TimeUpdated = DateTime.Now.ToDataStoreInteger(),
         };
     }
 
     private static Search AddOrUpdate(DataStore dataStore, Search search)
     {
-        var existing = Get(dataStore, search.Name, search.SearchString, search.Type);
+        var existing = Get(dataStore, search.Name, search.SearchString, (SearchType)search.TypeId);
         if (existing is not null)
         {
             // The Search time updated is for identifying stale data for deletion later.
@@ -76,20 +77,20 @@ public class Search
         return dataStore.Connection!.Get<Search>(id);
     }
 
-    public static Search? Get(DataStore dataStore, string name, string searchString, string type)
+    public static Search? Get(DataStore dataStore, string name, string searchString, SearchType type)
     {
         var sql = @"SELECT * FROM Search WHERE SearchString = @SearchString AND Name = @Name AND Type = @Type;";
         var param = new
         {
             SearchString = searchString,
             Name = name,
-            Type = type,
+            TypeId = (long)type,
         };
 
         return dataStore.Connection!.QueryFirstOrDefault<Search>(sql, param, null);
     }
 
-    public static Search GetOrCreate(DataStore dataStore, string name, string searchString, string type)
+    public static Search GetOrCreate(DataStore dataStore, string name, string searchString, SearchType type)
     {
         var newSearch = Create(name, searchString, type);
         return AddOrUpdate(dataStore, newSearch);

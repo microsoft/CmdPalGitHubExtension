@@ -2,7 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using GitHubExtension.DeveloperId;
+using GitHubExtension.DataModel.Enums;
 using Serilog;
 
 namespace GitHubExtension.DataManager;
@@ -137,7 +137,7 @@ public class CacheManager : IDisposable
         return;
     }
 
-    private async Task Update(TimeSpan? olderThan, RefreshKind kind)
+    private async Task Update(TimeSpan? olderThan, RefreshKind kind, PersistentData.Search? search = null)
     {
         var options = new RequestOptions();
 
@@ -173,6 +173,9 @@ public class CacheManager : IDisposable
         if (kind == RefreshKind.All)
         {
             await DataManager.UpdateAllDataForRepositoriesAsync(repoCollection, options);
+
+            var searches = new List<PersistentData.Search>();
+            await DataManager.UpdateDataForSearchesAsync(searches, options);
         }
 
         if (kind == RefreshKind.Issues)
@@ -183,6 +186,11 @@ public class CacheManager : IDisposable
         if (kind == RefreshKind.PullRequests)
         {
             await DataManager.UpdatePullRequestsForRepositoriesAsync(repoCollection, options);
+        }
+
+        if (kind == RefreshKind.Search)
+        {
+            await DataManager.UpdateDataForSearchAsync(search!.Name, search!.SearchString, (SearchType)search!.TypeId, options);
         }
     }
 

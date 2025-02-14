@@ -14,6 +14,7 @@ public enum DataManagerUpdateKind
     PullRequests,   // All Pull Requests updated.
     Issues,         // All issues updated.
     Searches,       // Searches updated.
+    Search,         // A single search was updated.
     All,            // All data: PRs, Issues and Searches
     Cancel,         // Update was cancelled.
     Error,         // An error occurred during update.
