@@ -86,10 +86,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         {
             var devIds = DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal();
             GitHubRepositoryHelper.Instance.UpdateClient(devIds.First().GitHubClient);
-        }
-        else
-        {
-            GitHubRepositoryHelper.Instance.ClearRepositories();
+            SearchHelper.Instance.UpdateClient(devIds.First().GitHubClient);
         }
 
         UpdateTopLevelCommands(null, numCommands);

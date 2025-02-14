@@ -13,40 +13,36 @@ namespace GitHubExtension;
 
 internal sealed partial class SavedSearchesPage : ListPage
 {
-#pragma warning disable IDE0044 // Add readonly modifier
-    private List<SearchPage> _savedSearches;
-#pragma warning restore IDE0044 // Add readonly modifier
-
     public SavedSearchesPage()
     {
         Icon = new IconInfo(string.Empty);
         Name = "Saved Searches";
-        _savedSearches = new List<SearchPage>();
         SaveSearchForm.SearchSaved += OnSearchSaved;
     }
 
     public override IListItem[] GetItems()
     {
-        if (_savedSearches.Count > 0)
+        var savedSearches = SearchHelper.Instance.GetSavedSearches();
+        if (savedSearches.Count > 0)
         {
-            var searches = _savedSearches.Select(savedSearch => new ListItem(savedSearch)
+            var searchPages = savedSearches.Select(savedSearch => new ListItem(new SearchPage(savedSearch))
             {
-                Title = savedSearch.Title,
-                Icon = new IconInfo(GitHubIcon.IconDictionary[savedSearch.CurrentSearch.Type]),
+                Title = savedSearch.Name,
+                Icon = new IconInfo(GitHubIcon.IconDictionary[savedSearch.Type]),
             }).ToList();
 
-            searches.Add(new(new SaveSearchPage())
+            searchPages.Add(new(new SaveSearchPage())
             {
                 Title = "Add a search",
                 Icon = new IconInfo(string.Empty),
             });
-            searches.Add(new(new SaveSearchPage(SearchInput.Survey))
+            searchPages.Add(new(new SaveSearchPage(SearchInput.Survey))
             {
                 Title = "Add a search (full form)",
                 Icon = new IconInfo(string.Empty),
             });
 
-            return searches.ToArray();
+            return searchPages.ToArray();
         }
         else
         {
@@ -74,13 +70,7 @@ internal sealed partial class SavedSearchesPage : ListPage
         }
         else if (args != null && args is Search)
         {
-            AddSearch((Search)args);
+            RaiseItemsChanged(SearchHelper.Instance.GetSavedSearches().Count);
         }
-    }
-
-    private void AddSearch(Search search)
-    {
-        _savedSearches.Add(new SearchPage(search));
-        RaiseItemsChanged(_savedSearches.Count + 1);
     }
 }

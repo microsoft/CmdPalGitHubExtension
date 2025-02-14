@@ -83,6 +83,10 @@ internal sealed partial class SaveSearchForm : Form
                 _ => throw new NotImplementedException(),
             };
 
+            var searchHelper = SearchHelper.Instance;
+            searchHelper.ValidateSearch(search).Wait();
+            searchHelper.AddSavedSearch(search);
+
             SearchSaved?.Invoke(this, search);
             return search;
         }
@@ -97,9 +101,6 @@ internal sealed partial class SaveSearchForm : Form
     public static Search CreateSearchFromJson(JsonNode jsonNode)
     {
         var searchStr = jsonNode["EnteredSearch"]?.ToString() ?? string.Empty;
-
-        var repoHelper = GitHubRepositoryHelper.Instance;
-        repoHelper.ValidateSearch(searchStr).Wait();
 
         var search = new Search(searchStr);
 
