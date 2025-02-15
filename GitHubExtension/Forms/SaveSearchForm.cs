@@ -4,7 +4,6 @@
 
 using System.Text;
 using System.Text.Json.Nodes;
-using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -70,7 +69,7 @@ internal sealed partial class SaveSearchForm : Form
         ExtensionHost.LogMessage(new LogMessage() { Message = $"Search: {search}" });
     }
 
-    private Search GetSearch(string payload)
+    private SearchCandidate GetSearch(string payload)
     {
         try
         {
@@ -95,22 +94,22 @@ internal sealed partial class SaveSearchForm : Form
             SearchSaved?.Invoke(this, ex);
         }
 
-        return new Search();
+        return new SearchCandidate();
     }
 
-    public static Search CreateSearchFromJson(JsonNode jsonNode)
+    public static SearchCandidate CreateSearchFromJson(JsonNode jsonNode)
     {
         var searchStr = jsonNode["EnteredSearch"]?.ToString() ?? string.Empty;
         var name = jsonNode["Name"]?.ToString() ?? string.Empty;
 
-        var search = new Search(searchStr, name);
+        var search = new SearchCandidate(searchStr, name);
 
         return search;
     }
 
-    public static Search CreateSearchFromSurveyJson(JsonNode jsonNode)
+    public static SearchCandidate CreateSearchFromSurveyJson(JsonNode jsonNode)
     {
-        var search = new Search(
+        var search = new SearchCandidate(
             jsonNode["name"]?.ToString() ?? string.Empty,
             jsonNode["type"]?.ToString() ?? string.Empty,
             jsonNode["owner"]?.ToString() ?? string.Empty,

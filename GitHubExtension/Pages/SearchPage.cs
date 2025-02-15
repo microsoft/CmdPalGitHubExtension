@@ -5,7 +5,7 @@
 using System.Globalization;
 using GitHubExtension.Client;
 using GitHubExtension.Commands;
-using GitHubExtension.DataModel.DataObjects;
+using GitHubExtension.DataModel.Enums;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
@@ -17,31 +17,45 @@ namespace GitHubExtension;
 
 internal sealed partial class SearchPage : ListPage
 {
-    public Search CurrentSearch { get; set; } = new Search();
+    public PersistentData.Search CurrentSearch { get; set; }
 
-    public SearchPage()
-    : this(new Search())
+    // Search is mandatory for this page to exist
+    public SearchPage(PersistentData.Search search)
     {
-    }
-
-    public SearchPage(Search search)
-    {
-        Icon = new IconInfo(GitHubIcon.IconDictionary[search.Type]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary[$"{(SearchType)search.TypeId}"]);
         Name = search.Name;
         CurrentSearch = search;
     }
 
     public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();
 
+    private async Task<IEnumerable<DataModel.Issue>> LoadContentData()
+    {
+        return await Task.Run(() =>
+        {
+            var dataManager = GitHubDataManager.CreateInstance();
+            var dsSearch = dataManager!.GetSearch(CurrentSearch.Name, CurrentSearch!.SearchString, (SearchType)CurrentSearch.TypeId);
+
+            var res = new List<DataModel.Issue>();
+
+            if (dsSearch?.Issues != null)
+            {
+                res.AddRange(dsSearch.Issues);
+            }
+
+            return res;
+        });
+    }
+
     private async Task<IListItem[]> DoGetItems(string query)
     {
         try
         {
-            var items = await RunSearchAsync(query);
+            var items = await LoadContentData();
 
-            var iconString = CurrentSearch.Type;
+            var iconString = $"{(SearchType)CurrentSearch.TypeId}";
 
-            if (items.Count > 0)
+            if (items.Any())
             {
                 return items.Select(item => new ListItem(new LinkCommand(item))
                 {
@@ -59,7 +73,7 @@ internal sealed partial class SearchPage : ListPage
             }
             else
             {
-                return items.Count == 0
+                return !items.Any()
                     ? new ListItem[]
                     {
                             new(new NoOpCommand())
@@ -102,37 +116,4 @@ internal sealed partial class SearchPage : ListPage
     public static string GetOwner(string repositoryUrl) => Validation.ParseOwnerFromGitHubURL(repositoryUrl);
 
     public static string GetRepo(string repositoryUrl) => Validation.ParseRepositoryFromGitHubURL(repositoryUrl);
-
-    private async Task<List<DataModel.DataObjects.Issue>> RunSearchAsync(string query)
-    {
-        try
-        {
-            var devIdProvider = DeveloperIdProvider.GetInstance();
-            var devIds = devIdProvider.GetLoggedInDeveloperIdsInternal();
-
-            var client = devIds.Any() ? devIds.First().GitHubClient : GitHubClientProvider.Instance.GetClient();
-
-            var results = await client.Search.SearchIssues(new SearchIssuesRequest(CurrentSearch.SearchString));
-            var issues = ConvertToDataObjectsIssue(results.Items);
-
-            return issues;
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Error running query");
-            throw;
-        }
-    }
-
-    private static List<DataModel.DataObjects.Issue> ConvertToDataObjectsIssue(IReadOnlyList<Octokit.Issue> octokitIssueList)
-    {
-        var dataModelIssues = new List<DataModel.DataObjects.Issue>();
-        foreach (var octokitIssue in octokitIssueList)
-        {
-            var item = DataModel.DataObjects.Issue.CreateFromOctokitIssue(octokitIssue);
-            dataModelIssues.Add(item);
-        }
-
-        return dataModelIssues;
-    }
 }

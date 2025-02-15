@@ -839,6 +839,12 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         }
     }
 
+    public Search? GetSearch(string name, string searchString, SearchType type)
+    {
+        ValidateDataStore();
+        return Search.Get(DataStore, name, searchString, type);
+    }
+
     // Removes unused data from the datastore.
     private void PruneObsoleteData()
     {

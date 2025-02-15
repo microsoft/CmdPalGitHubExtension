@@ -182,7 +182,7 @@ public class PersistentDataManager : IDisposable
         Search.Add(DataStore, name, searchString, searchType);
     }
 
-    public async void RemoveSearchAsync(string name, string searchString, SearchType searchType)
+    public async Task RemoveSearchAsync(string name, string searchString, SearchType searchType)
     {
         await Task.Run(() =>
         {

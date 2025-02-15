@@ -56,4 +56,6 @@ public interface IGitHubDataManager : IDisposable
     Task RequestPullRequestsUpdateAsync(Octokit.RepositoryCollection repoCollection, RequestOptions options);
 
     Task RequestSearchUpdateAsync(string name, string searchString, SearchType type, RequestOptions options);
+
+    Search? GetSearch(string name, string searchString, SearchType type);
 }

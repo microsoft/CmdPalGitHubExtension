@@ -2,7 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using GitHubExtension.DataModel.DataObjects;
+using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Forms;
 using GitHubExtension.Helpers;
 using GitHubExtension.Pages;
@@ -22,13 +22,14 @@ internal sealed partial class SavedSearchesPage : ListPage
 
     public override IListItem[] GetItems()
     {
-        var savedSearches = SearchHelper.Instance.GetSavedSearches();
-        if (savedSearches.Count > 0)
+        // Maybe this should be awaited and the method async
+        var savedSearches = SearchHelper.Instance.GetSavedSearches().Result;
+        if (savedSearches.Any())
         {
             var searchPages = savedSearches.Select(savedSearch => new ListItem(new SearchPage(savedSearch))
             {
                 Title = savedSearch.Name,
-                Icon = new IconInfo(GitHubIcon.IconDictionary[savedSearch.Type]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary[$"{(SearchType)savedSearch.TypeId}"]),
             }).ToList();
 
             searchPages.Add(new(new SaveSearchPage())
@@ -68,9 +69,9 @@ internal sealed partial class SavedSearchesPage : ListPage
         {
             // do nothing
         }
-        else if (args != null && args is Search)
+        else if (args != null && args is SearchCandidate)
         {
-            RaiseItemsChanged(SearchHelper.Instance.GetSavedSearches().Count);
+            RaiseItemsChanged(SearchHelper.Instance.GetSavedSearches().Result.Count());
         }
     }
 }

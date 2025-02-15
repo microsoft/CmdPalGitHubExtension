@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Client;
-using GitHubExtension.DataModel.DataObjects;
+using GitHubExtension.PersistentData;
 using Octokit;
 
 namespace GitHubExtension.Helpers;
@@ -12,14 +12,11 @@ public class SearchHelper
 {
     private static readonly Lazy<SearchHelper> _instance = new(() => new SearchHelper(GitHubClientProvider.Instance.GetClient()));
 
-    private readonly List<Search> _savedSearches;
-
     private GitHubClient _client;
 
     private SearchHelper(GitHubClient client)
     {
         _client = client;
-        _savedSearches = new List<Search>();
     }
 
     public static SearchHelper Instance => _instance.Value;
@@ -29,28 +26,31 @@ public class SearchHelper
         _client = client;
     }
 
-    public List<Search> GetSavedSearches()
+    public async Task<IEnumerable<PersistentData.Search>> GetSavedSearches()
     {
-        return _savedSearches;
+        var dataManager = PersistentDataManager.CreateInstance();
+        return await dataManager!.GetAllSearchesAsync();
     }
 
-    public void AddSavedSearch(Search search)
+    public async void AddSavedSearch(SearchCandidate search)
     {
-        _savedSearches.Add(search);
+        var dataManager = PersistentDataManager.CreateInstance();
+        await dataManager!.AddSearchAsync(search.Name, search.SearchString, search.Type);
     }
 
-    public void RemoveSavedSearch(Search search)
+    public async void RemoveSavedSearch(SearchCandidate search)
     {
-        _savedSearches.Remove(search);
+        var dataManager = PersistentDataManager.CreateInstance();
+        await dataManager!.RemoveSearchAsync(search.Name, search.SearchString, search.Type);
     }
 
     public void ClearSavedSearches()
     {
-        _savedSearches.Clear();
+        // TODO: Implement
     }
 
     // Runs the query saved and raises any Octokit errors
-    public async Task ValidateSearch(Search search)
+    public async Task ValidateSearch(SearchCandidate search)
     {
         await _client.Search.SearchIssues(new SearchIssuesRequest(search?.SearchString));
     }
