@@ -62,38 +62,6 @@ public class PullRequestStatus
 
     [Write(false)]
     [Computed]
-    public CheckConclusion Conclusion => (CheckConclusion)ConclusionId;
-
-    [Write(false)]
-    [Computed]
-    public CheckStatus Status => (CheckStatus)StatusId;
-
-    [Write(false)]
-    [Computed]
-    public CommitState State => (CommitState)StateId;
-
-    [Write(false)]
-    [Computed]
-    public bool Pending => State == CommitState.Pending || State == CommitState.Unknown || Status == CheckStatus.InProgress;
-
-    [Write(false)]
-    [Computed]
-    public bool Completed => !Pending && Status == CheckStatus.Completed;
-
-    [Write(false)]
-    [Computed]
-    public bool Failed => State == CommitState.Failure || State == CommitState.Error || ((Conclusion > CheckConclusion.None) && (Conclusion < CheckConclusion.Neutral));
-
-    [Write(false)]
-    [Computed]
-    public bool Succeeded => Completed && !Failed && (State == CommitState.Success || State == CommitState.None);
-
-    [Write(false)]
-    [Computed]
-    public PullRequestCombinedStatus CombinedStatus => GetCombinedStatus();
-
-    [Write(false)]
-    [Computed]
     public PullRequest PullRequest
     {
         get
@@ -109,7 +77,7 @@ public class PullRequestStatus
         }
     }
 
-    public override string ToString() => $"[{Status}][{Conclusion}] {PullRequest}";
+    public override string ToString() => $"{PullRequest}";
 
     public static PullRequestStatus Create(PullRequest pullRequest)
     {
@@ -183,30 +151,5 @@ public class PullRequestStatus
         _log.Verbose(DataStore.GetCommandLogMessage(sql, command));
         var rowsDeleted = command.ExecuteNonQuery();
         _log.Verbose(DataStore.GetDeletedLogMessage(rowsDeleted));
-    }
-
-    private PullRequestCombinedStatus GetCombinedStatus()
-    {
-        // If any indication of failure, we know it is failed.
-        if (Failed)
-        {
-            return PullRequestCombinedStatus.Failed;
-        }
-
-        // If anything is pending, we cannot be in a success state.
-        if (Pending)
-        {
-            return PullRequestCombinedStatus.Pending;
-        }
-
-        // If not failed or pending we should be in a success state.
-        // But confirm that we are in a state we understand.
-        if (Succeeded)
-        {
-            return PullRequestCombinedStatus.Success;
-        }
-
-        _log.Warning($"Unknown PR Status:  State={State} Status={Status} Conclusion={Conclusion}");
-        return PullRequestCombinedStatus.Unknown;
     }
 }
