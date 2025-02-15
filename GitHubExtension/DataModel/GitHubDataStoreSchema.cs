@@ -150,74 +150,6 @@ public class GitHubDataStoreSchema : IDataStoreSchema
     ");" +
     "CREATE UNIQUE INDEX IDX_PullRequestLabel_PullRequestLabel ON PullRequestLabel (PullRequest,Label);";
 
-    private const string CheckRun =
-    @"CREATE TABLE CheckRun (" +
-        "Id INTEGER PRIMARY KEY NOT NULL," +
-        "InternalId INTEGER NOT NULL," +
-        "HeadSha TEXT NULL COLLATE NOCASE," +
-        "Name TEXT NOT NULL COLLATE NOCASE," +
-        "ConclusionId INTEGER NOT NULL," +
-        "StatusId INTEGER NOT NULL," +
-        "Result TEXT NOT NULL COLLATE NOCASE," +
-        "DetailsUrl TEXT NULL COLLATE NOCASE," +
-        "HtmlUrl TEXT NULL COLLATE NOCASE," +
-        "TimeStarted INTEGER NOT NULL," +
-        "TimeCompleted INTEGER NOT NULL" +
-    ");" +
-    "CREATE UNIQUE INDEX IDX_CheckRun_InternalId ON CheckRun (InternalId);";
-
-    private const string CheckSuite =
-    @"CREATE TABLE CheckSuite (" +
-        "Id INTEGER PRIMARY KEY NOT NULL," +
-        "InternalId INTEGER NOT NULL," +
-        "HeadSha TEXT NULL COLLATE NOCASE," +
-        "Name TEXT NOT NULL COLLATE NOCASE," +
-        "ConclusionId INTEGER NOT NULL," +
-        "StatusId INTEGER NOT NULL," +
-        "HtmlUrl TEXT NULL COLLATE NOCASE" +
-    ");" +
-    "CREATE UNIQUE INDEX IDX_CheckSuite_InternalId ON CheckSuite (InternalId);";
-
-    private const string CommitCombinedStatus =
-    @"CREATE TABLE CommitCombinedStatus (" +
-        "Id INTEGER PRIMARY KEY NOT NULL," +
-        "StateId INTEGER NOT NULL," +
-        "HeadSha TEXT NULL COLLATE NOCASE" +
-    ");" +
-    "CREATE UNIQUE INDEX IDX_CommitCombinedStatus_HeadSha ON CommitCombinedStatus (HeadSha);";
-
-    private const string PullRequestStatus =
-    @"CREATE TABLE PullRequestStatus (" +
-        "Id INTEGER PRIMARY KEY NOT NULL," +
-        "PullRequestId INTEGER NOT NULL," +
-        "HeadSha TEXT NULL COLLATE NOCASE," +
-        "ConclusionId INTEGER NOT NULL," +
-        "StatusId INTEGER NOT NULL," +
-        "StateId INTEGER NOT NULL," +
-        "Result TEXT NOT NULL COLLATE NOCASE," +
-        "DetailsUrl TEXT NULL COLLATE NOCASE," +
-        "HtmlUrl TEXT NULL COLLATE NOCASE," +
-        "TimeOccurred INTEGER NOT NULL," +
-        "TimeCreated INTEGER NOT NULL" +
-    ");";
-
-    private const string Notification =
-    @"CREATE TABLE Notification (" +
-        "Id INTEGER PRIMARY KEY NOT NULL," +
-        "TypeId INTEGER NOT NULL," +
-        "UserId INTEGER NOT NULL," +
-        "RepositoryId INTEGER NOT NULL," +
-        "Title TEXT NOT NULL COLLATE NOCASE," +
-        "Description TEXT NOT NULL COLLATE NOCASE," +
-        "Identifier TEXT NULL COLLATE NOCASE," +
-        "Result TEXT NULL COLLATE NOCASE," +
-        "HtmlUrl TEXT NULL COLLATE NOCASE," +
-        "DetailsUrl TEXT NULL COLLATE NOCASE," +
-        "ToastState INTEGER NOT NULL," +
-        "TimeOccurred INTEGER NOT NULL," +
-        "TimeCreated INTEGER NOT NULL" +
-    ");";
-
     private const string Search =
     @"CREATE TABLE Search (" +
         "Id INTEGER PRIMARY KEY NOT NULL," +
@@ -287,11 +219,6 @@ public class GitHubDataStoreSchema : IDataStoreSchema
         PullRequest,
         PullRequestAssign,
         PullRequestLabel,
-        PullRequestStatus,
-        CheckRun,
-        CheckSuite,
-        CommitCombinedStatus,
-        Notification,
         Search,
         SearchIssue,
         SearchRepository,
