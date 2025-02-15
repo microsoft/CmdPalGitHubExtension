@@ -117,41 +117,12 @@ public class PullRequestStatus
         var pullRequestStatus = new PullRequestStatus
         {
             PullRequestId = pullRequest.Id,
-            ConclusionId = (long)pullRequest.ChecksConclusion,
-            StatusId = (long)pullRequest.ChecksStatus,
             HeadSha = pullRequest.HeadSha,
             HtmlUrl = pullRequest.HtmlUrl,
             DetailsUrl = pullRequest.HtmlUrl,
             TimeOccurred = pullRequest.TimeUpdated,
             Result = string.Empty,
         };
-
-        // Get the ConclusionId and StatusId from the CheckSuites.
-        // Get the Combined Commit State.
-        pullRequestStatus.ConclusionId = (long)pullRequest.CheckSuiteConclusion;
-        pullRequestStatus.StatusId = (long)pullRequest.CheckSuiteStatus;
-        pullRequestStatus.StateId = (long)pullRequest.CommitState;
-
-        // Update the fields if necessary.
-        var failedChecks = pullRequest.FailedChecks;
-        if (failedChecks.Any())
-        {
-            // If we have a failed check, make the first one the Result & DetailsUrl.
-            pullRequestStatus.DetailsUrl = failedChecks.First().DetailsUrl;
-            pullRequestStatus.Result = failedChecks.First().Result;
-            pullRequestStatus.TimeOccurred = failedChecks.First().TimeCompleted == 0 ? DateTime.Now.ToDataStoreInteger() : failedChecks.First().TimeCompleted;
-        }
-        else
-        {
-            // No failed checks, so set the DetailsUrl and Result to be the first Check.
-            var checks = pullRequest.Checks;
-            if (checks.Any())
-            {
-                pullRequestStatus.DetailsUrl = checks.First().DetailsUrl;
-                pullRequestStatus.Result = checks.First().Result;
-                pullRequestStatus.TimeOccurred = checks.First().TimeCompleted == 0 ? DateTime.Now.ToDataStoreInteger() : checks.First().TimeCompleted;
-            }
-        }
 
         pullRequestStatus.TimeCreated = DateTime.Now.ToDataStoreInteger();
         return pullRequestStatus;
