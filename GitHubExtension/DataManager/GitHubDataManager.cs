@@ -469,7 +469,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         Search.DeleteBefore(DataStore, DateTime.Now - _searchRetentionTime);
         SearchIssue.DeleteUnreferenced(DataStore);
         SearchRepository.DeleteUnreferenced(DataStore);
-        Release.DeleteBefore(DataStore, DateTime.Now - _releaseRetentionTime);
     }
 
     // Sets a last-updated in the MetaData.

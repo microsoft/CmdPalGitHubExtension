@@ -177,35 +177,6 @@ public class GitHubDataStoreSchema : IDataStoreSchema
     ");" +
     "CREATE UNIQUE INDEX IDX_SearchRepository_SearchRepository ON SearchRepository (Search, Repository);";
 
-    private const string Review =
-    @"CREATE TABLE Review (" +
-        "Id INTEGER PRIMARY KEY NOT NULL," +
-        "InternalId INTEGER NOT NULL," +
-        "PullRequestId INTEGER NOT NULL," +
-        "AuthorId INTEGER NOT NULL," +
-        "Body TEXT NOT NULL COLLATE NOCASE," +
-        "State TEXT NOT NULL COLLATE NOCASE," +
-        "HtmlUrl TEXT NULL COLLATE NOCASE," +
-        "TimeSubmitted INTEGER NOT NULL," +
-        "TimeLastObserved INTEGER NOT NULL" +
-    ");" +
-    "CREATE UNIQUE INDEX IDX_Review_InternalId ON Review (InternalId);";
-
-    private const string Release =
-    @"CREATE TABLE Release (" +
-        "Id INTEGER PRIMARY KEY NOT NULL," +
-        "InternalId INTEGER NOT NULL," +
-        "RepositoryId INTEGER NOT NULL," +
-        "Name TEXT NOT NULL COLLATE NOCASE," +
-        "TagName TEXT NOT NULL COLLATE NOCASE," +
-        "Prerelease INTEGER NOT NULL," +
-        "HtmlUrl TEXT NULL COLLATE NOCASE," +
-        "TimeCreated INTEGER NOT NULL," +
-        "TimePublished INTEGER NOT NULL," +
-        "TimeLastObserved INTEGER NOT NULL" +
-    ");" +
-    "CREATE UNIQUE INDEX IDX_Release_InternalId ON Release (InternalId);";
-
     // All Sqls together.
     private static readonly List<string> _schemaSqlsValue = new()
     {
@@ -222,7 +193,5 @@ public class GitHubDataStoreSchema : IDataStoreSchema
         Search,
         SearchIssue,
         SearchRepository,
-        Review,
-        Release,
     };
 }
