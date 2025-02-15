@@ -465,7 +465,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
     // Removes unused data from the datastore.
     private void PruneObsoleteData()
     {
-        PullRequestStatus.DeleteUnreferenced(DataStore);
         Search.DeleteBefore(DataStore, DateTime.Now - _searchRetentionTime);
         SearchIssue.DeleteUnreferenced(DataStore);
         SearchRepository.DeleteUnreferenced(DataStore);

@@ -164,23 +164,6 @@ public class PullRequest
         }
     }
 
-    [Write(false)]
-    [Computed]
-    public PullRequestStatus? PullRequestStatus
-    {
-        get
-        {
-            if (DataStore == null)
-            {
-                return null;
-            }
-            else
-            {
-                return PullRequestStatus.Get(DataStore, this);
-            }
-        }
-    }
-
     public override string ToString() => $"{Number}: {Title}";
 
     // Create pull request from OctoKit pull request data
