@@ -5,18 +5,19 @@
 using System.Globalization;
 using GitHubExtension.Client;
 using GitHubExtension.Commands;
+using GitHubExtension.DataManager;
 using GitHubExtension.DataModel.Enums;
-using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
-using Octokit;
 using Serilog;
 
 namespace GitHubExtension;
 
 internal sealed partial class SearchPage : ListPage
 {
+    private readonly ILogger _logger;
+
     public PersistentData.Search CurrentSearch { get; set; }
 
     // Search is mandatory for this page to exist
@@ -25,12 +26,21 @@ internal sealed partial class SearchPage : ListPage
         Icon = new IconInfo(GitHubIcon.IconDictionary[$"{(SearchType)search.TypeId}"]);
         Name = search.Name;
         CurrentSearch = search;
+        _logger = Log.ForContext("SourceContext", $"Pages/{nameof(SearchPage)}");
     }
 
     public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();
 
+    public async void RequestContentData()
+    {
+        var cacheManager = CacheManager.GetInstance();
+        await cacheManager.Refresh(UpdateType.Search, CurrentSearch);
+    }
+
     private async Task<IEnumerable<DataModel.Issue>> LoadContentData()
     {
+        CacheManager.GetInstance().OnUpdate += CacheManagerUpdateHandler;
+
         return await Task.Run(() =>
         {
             var dataManager = GitHubDataManager.CreateInstance();
@@ -43,14 +53,26 @@ internal sealed partial class SearchPage : ListPage
                 res.AddRange(dsSearch.Issues);
             }
 
+            _logger.Information($"Found {res.Count} items matching search query \"{CurrentSearch.Name}\"");
+
             return res;
         });
+    }
+
+    public void CacheManagerUpdateHandler(object? source, CacheManagerUpdateEventArgs e)
+    {
+        if (e.Kind == CacheManagerUpdateKind.Updated)
+        {
+            _logger.Information($"Received cache manager update event.");
+            RaiseItemsChanged(0);
+        }
     }
 
     private async Task<IListItem[]> DoGetItems(string query)
     {
         try
         {
+            _logger.Information($"Getting items for search query \"{CurrentSearch.Name}\"");
             var items = await LoadContentData();
 
             var iconString = $"{(SearchType)CurrentSearch.TypeId}";
