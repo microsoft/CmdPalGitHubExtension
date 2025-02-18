@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Client;
+using GitHubExtension.DeveloperId;
 using GitHubExtension.PersistentData;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -28,11 +29,18 @@ public class GitHubRepositoryHelper
     public void UpdateClient(GitHubClient client)
     {
         _client = client;
+        _ = AddUsersContribuitionRepositoriesToDatabaseAsync();
     }
 
     // TODO: Fix this. Auth issues. Maybe calling way too early.
     public async Task<List<Octokit.Repository>> GetUserRepositoriesFromOctokitAsync()
     {
+        // band-aid for now: check if the client has a user
+        if (GitHubClientProvider.Instance.IsClientLoggedIn(_client) == false)
+        {
+            return new List<Octokit.Repository>();
+        }
+
         try
         {
             var repositories = new List<Octokit.Repository>();

@@ -23,7 +23,7 @@ public class Search
 
     public static Search? Get(DataStore datastore, string name, string searchString, SearchType type)
     {
-        var sql = "SELECT * FROM Search WHERE Name = @Name AND SearchString = @SearchString AND TypeId = @Type";
+        var sql = "SELECT * FROM Search WHERE Name = @Name AND SearchString = @SearchString AND TypeId = @TypeId";
         var param = new { Name = name, SearchString = searchString, TypeId = (long)type };
 
         return datastore.Connection!.QueryFirstOrDefault<Search>(sql, param, null);
