@@ -6,6 +6,7 @@ using Dapper;
 using Dapper.Contrib.Extensions;
 using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.Enums;
+using Serilog;
 
 namespace GitHubExtension.PersistentData;
 
@@ -44,7 +45,8 @@ public class Search
     // FIXME: This method doesn't actually remove the search from the PersistentData or GitHubData databases
     public static void Remove(DataStore datastore, string name, string searchString, SearchType type)
     {
-        datastore.Connection.Delete(new Search { Name = name, SearchString = searchString, TypeId = (long)type });
+        var result = datastore.Connection.Delete(new Search { Name = name, SearchString = searchString, TypeId = (long)type });
+        Log.Information($"Removed search {name} {searchString} {type}, result: {result}");
     }
 
     public static IEnumerable<Search> GetAll(DataStore datastore)
