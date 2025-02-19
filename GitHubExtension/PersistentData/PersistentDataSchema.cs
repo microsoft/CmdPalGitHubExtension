@@ -23,8 +23,7 @@ public sealed class PersistentDataSchema : IDataStoreSchema
         @"CREATE TABLE IF NOT EXISTS Search (
             Id INTEGER PRIMARY KEY AUTOINCREMENT,
             Name TEXT NOT NULL,
-            SearchString TEXT NOT NULL,
-            TypeId INTEGER NOT NULL
+            SearchString TEXT NOT NULL
         )";
 
     private static readonly List<string> _schemaSqlsValue = new()

@@ -25,7 +25,7 @@ internal sealed partial class SearchPage : ListPage
     // Search is mandatory for this page to exist
     public SearchPage(PersistentData.Search search)
     {
-        Icon = new IconInfo(GitHubIcon.IconDictionary[$"{(SearchType)search.TypeId}"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary[$"{search.Type}"]);
         Name = search.Name;
         CurrentSearch = search;
         _logger = Log.ForContext("SourceContext", $"Pages/{nameof(SearchPage)}");
@@ -47,7 +47,7 @@ internal sealed partial class SearchPage : ListPage
         {
             // FIXME: The DataManager doesn't have the saved searches, so dsSearch is always null
             var dataManager = GitHubDataManager.CreateInstance();
-            var dsSearch = dataManager!.GetSearch(CurrentSearch.Name, CurrentSearch!.SearchString, (SearchType)CurrentSearch.TypeId);
+            var dsSearch = dataManager!.GetSearch(CurrentSearch.Name, CurrentSearch!.SearchString);
 
             var res = new List<DataModel.Issue>();
 
@@ -78,7 +78,7 @@ internal sealed partial class SearchPage : ListPage
             _logger.Information($"Getting items for search query \"{CurrentSearch.Name}\"");
             var items = await GetSearchItemsAsync();
 
-            var iconString = $"{(SearchType)CurrentSearch.TypeId}";
+            var iconString = $"{CurrentSearch.Type}";
 
             if (items.Any())
             {

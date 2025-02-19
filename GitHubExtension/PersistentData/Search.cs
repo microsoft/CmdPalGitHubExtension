@@ -6,6 +6,7 @@ using Dapper;
 using Dapper.Contrib.Extensions;
 using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.Enums;
+using GitHubExtension.Helpers;
 using Serilog;
 
 namespace GitHubExtension.PersistentData;
@@ -20,33 +21,45 @@ public class Search
 
     public string SearchString { get; set; } = string.Empty;
 
-    public long TypeId { get; set; } = DataStore.NoForeignKey;
+    private SearchType _searchType = SearchType.Unkown;
 
-    public static Search? Get(DataStore datastore, string name, string searchString, SearchType type)
+    [Write(false)]
+    [Computed]
+    public SearchType Type
     {
-        var sql = "SELECT * FROM Search WHERE Name = @Name AND SearchString = @SearchString AND TypeId = @TypeId";
-        var param = new { Name = name, SearchString = searchString, TypeId = (long)type };
+        get
+        {
+            if (_searchType == SearchType.Unkown)
+            {
+                _searchType = SearchHelper.ParseSearchTypeFromSearchString(SearchString);
+            }
+
+            return _searchType;
+        }
+    }
+
+    public static Search? Get(DataStore datastore, string name, string searchString)
+    {
+        var sql = "SELECT * FROM Search WHERE Name = @Name AND SearchString = @SearchString";
+        var param = new { Name = name, SearchString = searchString };
 
         return datastore.Connection!.QueryFirstOrDefault<Search>(sql, param, null);
     }
 
-    public static Search Add(DataStore datastore, string name, string searchString, SearchType type)
+    public static Search Add(DataStore datastore, string name, string searchString)
     {
         var search = new Search
         {
             Name = name,
             SearchString = searchString,
-            TypeId = (long)type,
         };
         datastore.Connection.Insert<Search>(search);
         return search;
     }
 
-    // FIXME: This method doesn't actually remove the search from the PersistentData or GitHubData databases
-    public static void Remove(DataStore datastore, string name, string searchString, SearchType type)
+    public static void Remove(DataStore datastore, string name, string searchString)
     {
-        var result = datastore.Connection.Delete(new Search { Name = name, SearchString = searchString, TypeId = (long)type });
-        Log.Information($"Removed search {name} {searchString} {type}, result: {result}");
+        datastore.Connection.Delete(new Search { Name = name, SearchString = searchString });
     }
 
     public static IEnumerable<Search> GetAll(DataStore datastore)

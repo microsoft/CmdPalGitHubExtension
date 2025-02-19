@@ -27,8 +27,6 @@ public class Search
 
     public string Name { get; set; } = string.Empty;
 
-    public long TypeId { get; set; } = DataStore.NoForeignKey;
-
     public long TimeUpdated { get; set; } = DataStore.NoForeignKey;
 
     public override string ToString() => SearchString;
@@ -43,21 +41,37 @@ public class Search
     [Computed]
     public DateTime UpdatedAt => TimeUpdated.ToDateTime();
 
-    private static Search Create(DataStore dataStore, string name, string searchString, SearchType type)
+    private SearchType _searchType = SearchType.Unkown;
+
+    [Write(false)]
+    [Computed]
+    public SearchType Type
+    {
+        get
+        {
+            if (_searchType == SearchType.Unkown)
+            {
+                _searchType = SearchHelper.ParseSearchTypeFromSearchString(SearchString);
+            }
+
+            return _searchType;
+        }
+    }
+
+    private static Search Create(DataStore dataStore, string name, string searchString)
     {
         return new Search
         {
             DataStore = dataStore,
             Name = name,
             SearchString = searchString,
-            TypeId = (long)type,
             TimeUpdated = DateTime.Now.ToDataStoreInteger(),
         };
     }
 
     private static Search AddOrUpdate(DataStore dataStore, Search search)
     {
-        var existing = Get(dataStore, search.Name, search.SearchString, (SearchType)search.TypeId);
+        var existing = Get(dataStore, search.Name, search.SearchString);
         if (existing is not null)
         {
             // The Search time updated is for identifying stale data for deletion later.
@@ -84,14 +98,13 @@ public class Search
         return dataStore.Connection!.Get<Search>(id);
     }
 
-    public static Search? Get(DataStore dataStore, string name, string searchString, SearchType type)
+    public static Search? Get(DataStore dataStore, string name, string searchString)
     {
-        var sql = @"SELECT * FROM Search WHERE SearchString = @SearchString AND Name = @Name AND TypeId = @TypeId;";
+        var sql = @"SELECT * FROM Search WHERE SearchString = @SearchString AND Name = @Name;";
         var param = new
         {
             SearchString = searchString,
             Name = name,
-            TypeId = (long)type,
         };
 
         var search = dataStore.Connection!.QueryFirstOrDefault<Search>(sql, param, null);
@@ -104,9 +117,9 @@ public class Search
         return search;
     }
 
-    public static Search GetOrCreate(DataStore dataStore, string name, string searchString, SearchType type)
+    public static Search GetOrCreate(DataStore dataStore, string name, string searchString)
     {
-        var newSearch = Create(dataStore, name, searchString, type);
+        var newSearch = Create(dataStore, name, searchString);
         return AddOrUpdate(dataStore, newSearch);
     }
 
