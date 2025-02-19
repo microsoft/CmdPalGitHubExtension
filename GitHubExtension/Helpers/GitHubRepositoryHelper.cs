@@ -14,12 +14,14 @@ public class GitHubRepositoryHelper
 {
     private static readonly Lazy<GitHubRepositoryHelper> _instance = new(() => new GitHubRepositoryHelper(GitHubClientProvider.Instance.GetClient()));
 
+    private readonly ILogger _logger;
+
     private GitHubClient _client;
 
     private GitHubRepositoryHelper(GitHubClient client)
     {
         _client = client;
-        _ = AddUsersContribuitionRepositoriesToDatabaseAsync();
+        _logger = Log.ForContext("SourceContext", $"Helpers/{nameof(GitHubRepositoryHelper)}");
     }
 
     public static GitHubRepositoryHelper Instance => _instance.Value;
@@ -27,7 +29,6 @@ public class GitHubRepositoryHelper
     public void UpdateClient(GitHubClient client)
     {
         _client = client;
-        _ = AddUsersContribuitionRepositoriesToDatabaseAsync();
     }
 
     // TODO: Fix this. Auth issues. Maybe calling way too early.
@@ -65,7 +66,7 @@ public class GitHubRepositoryHelper
         }
         catch (Exception ex)
         {
-            Log.Error($"Error getting user repositories: {ex}");
+            _logger.Error($"Error getting user repositories: {ex}");
             return new List<Octokit.Repository>();
         }
     }
@@ -82,7 +83,7 @@ public class GitHubRepositoryHelper
             }
             catch (Exception ex)
             {
-                Log.Error($"Error adding user's repositories to database: {ex}");
+                _logger.Error($"Error adding user's repositories to database: {ex}");
             }
         }
     }
