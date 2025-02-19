@@ -20,6 +20,8 @@ internal sealed partial class SearchPage : ListPage
 
     public PersistentData.Search CurrentSearch { get; set; }
 
+    private bool _requestedData;
+
     // Search is mandatory for this page to exist
     public SearchPage(PersistentData.Search search)
     {
@@ -139,7 +141,13 @@ internal sealed partial class SearchPage : ListPage
     private async Task<IEnumerable<DataModel.Issue>> GetSearchItemsAsync()
     {
         var items = await LoadContentData();
-        RequestContentData();
+
+        if (!_requestedData)
+        {
+            RequestContentData();
+            _requestedData = true;
+        }
+
         return items;
     }
 
