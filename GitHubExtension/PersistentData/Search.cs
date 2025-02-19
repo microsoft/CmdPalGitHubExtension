@@ -41,6 +41,7 @@ public class Search
         return search;
     }
 
+    // FIXME: This method doesn't actually remove the search from the PersistentData or GitHubData databases
     public static void Remove(DataStore datastore, string name, string searchString, SearchType type)
     {
         datastore.Connection.Delete(new Search { Name = name, SearchString = searchString, TypeId = (long)type });
