@@ -8,7 +8,6 @@ using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Helpers;
 using Serilog;
-using Windows.Foundation;
 using Windows.Storage;
 
 namespace GitHubExtension;

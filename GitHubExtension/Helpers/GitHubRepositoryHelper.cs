@@ -3,9 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Client;
-using GitHubExtension.DeveloperId;
 using GitHubExtension.PersistentData;
-using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Octokit;
 using Serilog;

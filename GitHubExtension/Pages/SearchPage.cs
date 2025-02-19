@@ -43,6 +43,7 @@ internal sealed partial class SearchPage : ListPage
 
         return await Task.Run(() =>
         {
+            // FIXME: The DataManager doesn't have the saved searches, so dsSearch is always null
             var dataManager = GitHubDataManager.CreateInstance();
             var dsSearch = dataManager!.GetSearch(CurrentSearch.Name, CurrentSearch!.SearchString, (SearchType)CurrentSearch.TypeId);
 

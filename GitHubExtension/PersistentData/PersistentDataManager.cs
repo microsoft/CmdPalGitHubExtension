@@ -7,7 +7,6 @@ using GitHubExtension.DataModel.Enums;
 using GitHubExtension.DeveloperId;
 using Octokit;
 using Serilog;
-using Windows.Media.Capture;
 using Windows.Storage;
 
 namespace GitHubExtension.PersistentData;
@@ -168,6 +167,7 @@ public class PersistentDataManager : IDisposable
         _ = await client.Search.SearchIssues(issuesOptions);
     }
 
+    // FIXME: Just flagging the AddSearchAsync method
     public async Task AddSearchAsync(string name, string searchString, SearchType searchType, Octokit.GitHubClient? client = null)
     {
         await ValidateSearch(searchString, searchType);
