@@ -174,12 +174,12 @@ public class PersistentDataManager : IDisposable
         ValidateDataStore();
 
         Log.Information($"Adding search: {name} - {searchString} - {searchType}.");
-        if (Search.Get(DataStore, name, searchString, searchType) != null)
+        if (Search.Get(DataStore, name, searchString) != null)
         {
             throw new InvalidOperationException($"Search {name} - {searchString} - {searchType} already exists.");
         }
 
-        Search.Add(DataStore, name, searchString, searchType);
+        Search.Add(DataStore, name, searchString);
     }
 
     public async Task RemoveSearchAsync(string name, string searchString, SearchType searchType)
@@ -188,7 +188,7 @@ public class PersistentDataManager : IDisposable
         {
             ValidateDataStore();
             Log.Information($"Removing search: {name} - {searchString} - {searchType}.");
-            Search.Remove(DataStore, name, searchString, searchType);
+            Search.Remove(DataStore, name, searchString);
         });
     }
 

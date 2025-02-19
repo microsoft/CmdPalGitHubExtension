@@ -223,7 +223,6 @@ public class GitHubDataStoreSchema : IDataStoreSchema
         "Id INTEGER PRIMARY KEY NOT NULL," +
         "Name TEXT NOT NULL COLLATE NOCASE," +
         "SearchString TEXT NOT NULL COLLATE NOCASE," +
-        "TypeId INTEGER NOT NULL," +
         "TimeUpdated INTEGER NOT NULL" +
     ");";
 
