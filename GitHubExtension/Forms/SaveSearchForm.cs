@@ -19,14 +19,18 @@ internal sealed partial class SaveSearchForm : Form
 
     private readonly SearchInput _searchInput;
 
+    private readonly string _savedSearch;
+
     public SaveSearchForm()
     : this(SearchInput.SearchString)
     {
+        _savedSearch = string.Empty;
     }
 
     public SaveSearchForm(SearchInput input)
     {
         _searchInput = input;
+        _savedSearch = string.Empty;
     }
 
     public override string DataJson()
@@ -42,7 +46,7 @@ internal sealed partial class SaveSearchForm : Form
         var templateName = _searchInput == SearchInput.SearchString ? "SaveSearch" : "SaveSearchSurvey";
         var path = Path.Combine(AppContext.BaseDirectory, GitHubHelper.GetTemplatePath(templateName));
         var template = File.ReadAllText(path, Encoding.Default) ?? throw new FileNotFoundException(path);
-        template = template.Replace("{{SavedSearch}}", "successfully added saved search!");
+        template = template.Replace("{{SavedSearch}}", _savedSearch);
 
         return template;
     }
