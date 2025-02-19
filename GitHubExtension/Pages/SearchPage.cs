@@ -74,7 +74,7 @@ internal sealed partial class SearchPage : ListPage
         try
         {
             _logger.Information($"Getting items for search query \"{CurrentSearch.Name}\"");
-            var items = await LoadContentData();
+            var items = await GetSearchItemsAsync();
 
             var iconString = $"{(SearchType)CurrentSearch.TypeId}";
 
@@ -134,6 +134,13 @@ internal sealed partial class SearchPage : ListPage
                     },
             ];
         }
+    }
+
+    private async Task<IEnumerable<DataModel.Issue>> GetSearchItemsAsync()
+    {
+        var items = await LoadContentData();
+        RequestContentData();
+        return items;
     }
 
     public static string GetOwner(string repositoryUrl) => Validation.ParseOwnerFromGitHubURL(repositoryUrl);
