@@ -42,8 +42,12 @@ internal sealed partial class SaveSearchForm : Form
 
     public override string DataJson()
     {
-        var dataName = _searchInput == SearchInput.SearchString ? "SaveSearchData" : "SaveSearchSurveyData";
-        var path = Path.Combine(AppContext.BaseDirectory, GitHubHelper.GetTemplatePath(dataName));
+        if (_searchInput == SearchInput.SearchString)
+        {
+            return string.Empty;
+        }
+
+        var path = Path.Combine(AppContext.BaseDirectory, GitHubHelper.GetTemplatePath("SaveSearchSurveyData"));
         var data = File.ReadAllText(path, Encoding.Default) ?? throw new FileNotFoundException(path);
         return data;
     }
@@ -53,6 +57,7 @@ internal sealed partial class SaveSearchForm : Form
         var templateName = _searchInput == SearchInput.SearchString ? "SaveSearch" : "SaveSearchSurvey";
         var path = Path.Combine(AppContext.BaseDirectory, GitHubHelper.GetTemplatePath(templateName));
         var template = File.ReadAllText(path, Encoding.Default) ?? throw new FileNotFoundException(path);
+        template = template.Replace("{{SaveSearchFormTitle}}", string.IsNullOrEmpty(_savedSearch.Name) ? "Save Search" : "Edit Search");
         template = template.Replace("{{SavedSearchString}}", _savedSearch.SearchString);
         template = template.Replace("{{SavedSearchName}}", _savedSearch.Name);
 
