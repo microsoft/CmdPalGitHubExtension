@@ -36,6 +36,7 @@ public class CacheManager : IDisposable
 
     // If a refresh call is pending and has not yet completed
     private bool _pendingRefresh;
+    private PersistentData.Search? _pendingSearch;
 
     // The type of update that is currently in progress
     private UpdateType _currentUpdateType;
@@ -137,6 +138,7 @@ public class CacheManager : IDisposable
             }
 
             _pendingRefresh = true;
+            _pendingSearch = search;
             _currentUpdateType = updateType;
         }
 
@@ -262,7 +264,7 @@ public class CacheManager : IDisposable
                 // between the previous update happening and the new update trying
                 // to start and failing because of the update in progress, we will
                 // need to start the new update for that refresh request.
-                _ = Update(TimeSpan.MinValue, _currentUpdateType);
+                _ = Update(TimeSpan.MinValue, _currentUpdateType, _pendingSearch);
             }
         }
 

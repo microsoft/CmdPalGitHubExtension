@@ -94,7 +94,9 @@ public class Search
             TypeId = (long)type,
         };
 
-        return dataStore.Connection!.QueryFirstOrDefault<Search>(sql, param, null);
+        var search = dataStore.Connection!.QueryFirstOrDefault<Search>(sql, param, null);
+        search.DataStore = dataStore;
+        return search;
     }
 
     public static Search GetOrCreate(DataStore dataStore, string name, string searchString, SearchType type)

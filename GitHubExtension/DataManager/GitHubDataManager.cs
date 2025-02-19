@@ -750,7 +750,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
     // Methods to update Search items
     private async Task UpdateIssuesForSearchAsync(string name, string searchString, RequestOptions? options = null)
     {
-        _log.Information($"Updating issues for: {name}");
+        _log.Information($"Updating issues for: {name} - {searchString}");
         options ??= RequestOptions.RequestOptionsDefault();
         var searchIssuesRequest = new Octokit.SearchIssuesRequest(searchString)
         {
@@ -760,13 +760,13 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         var issuesResult = await GitHubClientProvider.Instance.GetClient().Search.SearchIssues(searchIssuesRequest);
         if (issuesResult == null)
         {
-            _log.Debug($"No issues found.");
+            _log.Information($"No issues found.");
             return;
         }
 
-        var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
-        _log.Debug($"Results contain {issuesResult.Items.Count} issues.");
+        _log.Information($"Results contain {issuesResult.Items.Count} issues.");
 
+        var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
         var dsSearch = Search.GetOrCreate(DataStore, name, searchString, SearchType.Issues);
 
         foreach (var issue in issuesResult.Items)
