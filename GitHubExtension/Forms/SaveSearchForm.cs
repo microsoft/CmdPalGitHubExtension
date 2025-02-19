@@ -86,6 +86,14 @@ internal sealed partial class SaveSearchForm : Form
     {
         try
         {
+            var searchHelper = SearchHelper.Instance;
+
+            // if editing the search, first delete the old one
+            if (_savedSearch.SearchString != string.Empty)
+            {
+                searchHelper.RemoveSavedSearch(_savedSearch);
+            }
+
             var payloadJson = JsonNode.Parse(payload) ?? throw new InvalidOperationException("No search found");
 
             var search = _searchInput switch
@@ -95,7 +103,6 @@ internal sealed partial class SaveSearchForm : Form
                 _ => throw new NotImplementedException(),
             };
 
-            var searchHelper = SearchHelper.Instance;
             searchHelper.ValidateSearch(search).Wait();
             searchHelper.AddSavedSearch(search);
 

@@ -47,6 +47,13 @@ public class SearchHelper
         await dataManager!.RemoveSearchAsync(search.Name, search.SearchString, search.Type);
     }
 
+    // TODO: update and/or delete this method
+    public async void RemoveSavedSearch(Search search)
+    {
+        var dataManager = PersistentDataManager.CreateInstance();
+        await dataManager!.RemoveSearchAsync(search.Name, search.SearchString, DataModel.Enums.SearchType.Issues);
+    }
+
     public void ClearSavedSearches()
     {
         // TODO: Implement
