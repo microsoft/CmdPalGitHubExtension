@@ -384,7 +384,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         _log.Information($"Results contain {issuesResult.Items.Count} issues.");
 
         var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
-        var dsSearch = Search.GetOrCreate(DataStore, name, searchString, SearchType.Issues);
+        var dsSearch = Search.GetOrCreate(DataStore, name, searchString);
 
         foreach (var issue in issuesResult.Items)
         {
@@ -416,7 +416,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
 
         var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
         _log.Debug($"Results contain {reposResult.Items.Count} repositories.");
-        var dsSearch = Search.GetOrCreate(DataStore, name, searchString, SearchType.Repositories);
+        var dsSearch = Search.GetOrCreate(DataStore, name, searchString);
         foreach (var repo in reposResult.Items)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -451,14 +451,14 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
     {
         foreach (var search in searches)
         {
-            await UpdateDataForSearchAsync(search.Name, search.SearchString, (SearchType)search.TypeId, options);
+            await UpdateDataForSearchAsync(search.Name, search.SearchString, search.Type, options);
         }
     }
 
-    public Search? GetSearch(string name, string searchString, SearchType type)
+    public Search? GetSearch(string name, string searchString)
     {
         ValidateDataStore();
-        return Search.Get(DataStore, name, searchString, type);
+        return Search.Get(DataStore, name, searchString);
     }
 
     // Removes unused data from the datastore.
