@@ -39,6 +39,11 @@ internal sealed partial class SavedSearchesPage : ListPage
                         Title = "Remove",
                         Icon = new IconInfo("\uE8A7"),
                     },
+                    new(new EditSearchPage())
+                    {
+                        Title = "Edit",
+                        Icon = new IconInfo(string.Empty),
+                    },
                 },
             }).ToList();
 
