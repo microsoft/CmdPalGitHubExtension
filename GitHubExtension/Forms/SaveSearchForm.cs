@@ -8,6 +8,7 @@ using GitHubExtension.Helpers;
 using GitHubExtension.PersistentData;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using Serilog;
 using Windows.Foundation;
 
 namespace GitHubExtension.Forms;
@@ -96,6 +97,7 @@ internal sealed partial class SaveSearchForm : Form
             // if editing the search, first delete the old one
             if (_savedSearch.SearchString != string.Empty)
             {
+                Log.Information($"Removing outdated search {_savedSearch.Name}, {_savedSearch.SearchString}");
                 searchHelper.RemoveSavedSearch(_savedSearch);
             }
 
@@ -109,7 +111,7 @@ internal sealed partial class SaveSearchForm : Form
             };
 
             searchHelper.ValidateSearch(search).Wait();
-            searchHelper.AddSavedSearch(search);
+            searchHelper.AddSavedSearch(search).Wait();
 
             SearchSaved?.Invoke(this, search);
             return search;

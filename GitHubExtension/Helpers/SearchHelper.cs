@@ -32,7 +32,7 @@ public class SearchHelper
         return await dataManager!.GetAllSearchesAsync();
     }
 
-    public async void AddSavedSearch(SearchCandidate search)
+    public async Task AddSavedSearch(SearchCandidate search)
     {
         // FIXME: Either add SearchCandidate to GitHubDataManager as well or move the Get
         // Search function to GitHubDataManager
