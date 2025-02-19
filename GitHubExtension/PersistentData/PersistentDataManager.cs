@@ -183,7 +183,7 @@ public class PersistentDataManager : IDisposable
             throw new InvalidOperationException($"Search {name} - {searchString} - {searchType} already exists.");
         }
 
-        Search.Add(DataStore, name, searchString, searchType);
+        Search.Add(DataStore, name, searchString);
     }
 
     public async Task RemoveSearchAsync(string name, string searchString, SearchType searchType)
