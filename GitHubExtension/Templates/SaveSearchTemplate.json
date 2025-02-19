@@ -24,7 +24,8 @@
       "id": "EnteredSearch",
       "label": "Search",
       "isRequired": true,
-      "errorMessage": "Search is required"
+      "errorMessage": "Search is required",
+      "value": "{{SavedSearch}}"
     }
   ],
   "actions": [
