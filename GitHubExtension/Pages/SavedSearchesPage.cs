@@ -29,7 +29,7 @@ internal sealed partial class SavedSearchesPage : ListPage
             var searchPages = savedSearches.Select(savedSearch => new ListItem(new SearchPage(savedSearch))
             {
                 Title = savedSearch.Name,
-                Icon = new IconInfo(GitHubIcon.IconDictionary[$"{(SearchType)savedSearch.TypeId}"]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary[$"{savedSearch.Type}"]),
             }).ToList();
 
             searchPages.Add(new(new SaveSearchPage())
