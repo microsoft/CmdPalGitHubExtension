@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Commands;
-using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Forms;
 using GitHubExtension.Helpers;
 using GitHubExtension.Pages;
@@ -20,6 +19,7 @@ internal sealed partial class SavedSearchesPage : ListPage
         Name = "Saved Searches";
         SaveSearchForm.SearchSaved += OnSearchSaved;
         RemoveSavedSearchCommand.SearchRemoved += OnSearchRemoved;
+        RemoveSavedSearchCommand.SearchRemoving += OnSearchRemoving;
     }
 
     public override IListItem[] GetItems()
@@ -32,6 +32,14 @@ internal sealed partial class SavedSearchesPage : ListPage
             {
                 Title = savedSearch.Name,
                 Icon = new IconInfo(GitHubIcon.IconDictionary[$"{savedSearch.Type}"]),
+                MoreCommands = new CommandContextItem[]
+                {
+                    new(new RemoveSavedSearchCommand(savedSearch))
+                    {
+                        Title = "Remove",
+                        Icon = new IconInfo("\uE8A7"),
+                    },
+                },
             }).ToList();
 
             searchPages.Add(new(new SaveSearchPage())
@@ -67,6 +75,7 @@ internal sealed partial class SavedSearchesPage : ListPage
 
     private void OnSearchSaved(object sender, object? args)
     {
+        IsLoading = false;
         if (args is Exception)
         {
             // do nothing
@@ -85,5 +94,10 @@ internal sealed partial class SavedSearchesPage : ListPage
         }
 
         RaiseItemsChanged(SearchHelper.Instance.GetSavedSearches().Result.Count());
+    }
+
+    private void OnSearchRemoving(object sender, object? args)
+    {
+        IsLoading = true;
     }
 }
