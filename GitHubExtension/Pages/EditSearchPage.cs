@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Forms;
-using GitHubExtension.Helpers;
+using GitHubExtension.PersistentData;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
@@ -11,16 +11,17 @@ namespace GitHubExtension.Pages;
 
 internal sealed partial class EditSearchPage : FormPage
 {
-    private readonly SaveSearchForm _saveSearchForm = new();
+    private readonly Search _searchToEdit;
 
-    public EditSearchPage()
+    public EditSearchPage(Search searchToEdit)
     {
         Icon = new IconInfo(string.Empty);
         Name = "Edit Search";
+        _searchToEdit = searchToEdit;
     }
 
     public override IForm[] Forms()
     {
-        return new IForm[] { _saveSearchForm };
+        return new IForm[] { new SaveSearchForm(_searchToEdit) };
     }
 }

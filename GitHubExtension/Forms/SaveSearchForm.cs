@@ -5,6 +5,7 @@
 using System.Text;
 using System.Text.Json.Nodes;
 using GitHubExtension.Helpers;
+using GitHubExtension.PersistentData;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.Foundation;
@@ -19,18 +20,24 @@ internal sealed partial class SaveSearchForm : Form
 
     private readonly SearchInput _searchInput;
 
-    private readonly string _savedSearch;
+    private readonly Search _savedSearch;
 
     public SaveSearchForm()
     : this(SearchInput.SearchString)
     {
-        _savedSearch = string.Empty;
+        _savedSearch = new Search();
     }
 
     public SaveSearchForm(SearchInput input)
     {
         _searchInput = input;
-        _savedSearch = string.Empty;
+        _savedSearch = new Search();
+    }
+
+    public SaveSearchForm(Search savedSearch)
+    {
+        _searchInput = SearchInput.SearchString;
+        _savedSearch = savedSearch;
     }
 
     public override string DataJson()
@@ -46,7 +53,7 @@ internal sealed partial class SaveSearchForm : Form
         var templateName = _searchInput == SearchInput.SearchString ? "SaveSearch" : "SaveSearchSurvey";
         var path = Path.Combine(AppContext.BaseDirectory, GitHubHelper.GetTemplatePath(templateName));
         var template = File.ReadAllText(path, Encoding.Default) ?? throw new FileNotFoundException(path);
-        template = template.Replace("{{SavedSearch}}", _savedSearch);
+        template = template.Replace("{{SavedSearch}}", _savedSearch.SearchString);
 
         return template;
     }
