@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using GitHubExtension.Commands;
 using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Forms;
 using GitHubExtension.Helpers;
@@ -18,6 +19,7 @@ internal sealed partial class SavedSearchesPage : ListPage
         Icon = new IconInfo(string.Empty);
         Name = "Saved Searches";
         SaveSearchForm.SearchSaved += OnSearchSaved;
+        RemoveSavedSearchCommand.SearchRemoved += OnSearchRemoved;
     }
 
     public override IListItem[] GetItems()
@@ -30,6 +32,14 @@ internal sealed partial class SavedSearchesPage : ListPage
             {
                 Title = savedSearch.Name,
                 Icon = new IconInfo(GitHubIcon.IconDictionary[$"{(SearchType)savedSearch.TypeId}"]),
+                MoreCommands = new CommandContextItem[]
+                {
+                    new(new RemoveSavedSearchCommand(savedSearch))
+                    {
+                        Title = "Remove",
+                        Icon = new IconInfo("\uE8A7"),
+                    },
+                },
             }).ToList();
 
             searchPages.Add(new(new SaveSearchPage())
@@ -73,5 +83,15 @@ internal sealed partial class SavedSearchesPage : ListPage
         {
             RaiseItemsChanged(SearchHelper.Instance.GetSavedSearches().Result.Count());
         }
+    }
+
+    private void OnSearchRemoved(object sender, object? args)
+    {
+        if (args is Exception)
+        {
+            // error behavior TBD
+        }
+
+        RaiseItemsChanged(SearchHelper.Instance.GetSavedSearches().Result.Count());
     }
 }

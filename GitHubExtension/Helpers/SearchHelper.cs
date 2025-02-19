@@ -42,6 +42,7 @@ public class SearchHelper
 
     public async void RemoveSavedSearch(SearchCandidate search)
     {
+        // FIXME: Calling this didn't remove search
         var dataManager = PersistentDataManager.CreateInstance();
         await dataManager!.RemoveSearchAsync(search.Name, search.SearchString, search.Type);
     }
