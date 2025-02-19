@@ -8,7 +8,6 @@ using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Helpers;
 using Serilog;
-using Windows.Foundation;
 using Windows.Storage;
 
 namespace GitHubExtension;
@@ -202,6 +201,36 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         }
     }
 
+    public async Task UpdatePullRequestsForLoggedInDeveloperIdsAsync()
+    {
+        ValidateDataStore();
+        var parameters = new DataStoreOperationParameters
+        {
+            OperationName = "UpdatePullRequestsForLoggedInDeveloperIdsAsync",
+        };
+        await UpdateDataStoreAsync(parameters, UpdatePullRequestsForLoggedInDeveloperIdsAsync);
+    }
+
+    public async Task UpdateReleasesForRepositoryAsync(string owner, string name, RequestOptions? options = null)
+    {
+        ValidateDataStore();
+        var parameters = new DataStoreOperationParameters
+        {
+            Owner = owner,
+            RepositoryName = name,
+            RequestOptions = options,
+            OperationName = "UpdateReleasesForRepositoryAsync",
+        };
+
+        await UpdateDataForRepositoryAsync(
+            parameters,
+            async (parameters, devId) =>
+            {
+                var repository = await UpdateRepositoryAsync(parameters.Owner!, parameters.RepositoryName!, devId.GitHubClient);
+                await UpdateReleasesAsync(repository, devId.GitHubClient, parameters.RequestOptions);
+            });
+    }
+
     public IEnumerable<Repository> GetRepositories()
     {
         ValidateDataStore();
@@ -224,6 +253,51 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
     {
         ValidateDataStore();
         return User.GetDeveloperUsers(DataStore);
+    }
+
+    public IEnumerable<Notification> GetNotifications(DateTime? since = null, bool includeToasted = false)
+    {
+        ValidateDataStore();
+        return Notification.Get(DataStore, since, includeToasted);
+    }
+
+    // Wrapper for database operations for consistent handling.
+    private async Task UpdateDataStoreAsync(DataStoreOperationParameters parameters, Func<DataStoreOperationParameters, Task> asyncAction)
+    {
+        parameters.RequestOptions ??= RequestOptions.RequestOptionsDefault();
+        parameters.DeveloperIds = DeveloperId.DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal();
+        using var tx = DataStore.Connection!.BeginTransaction();
+
+        try
+        {
+            // Do the action on the repository for the client.
+            await asyncAction(parameters);
+
+            // Clean datastore and set last updated after updating.
+            PruneObsoleteData();
+            SetLastUpdatedInMetaData();
+        }
+        catch (HttpRequestException httpEx)
+        {
+            // HttpRequestExceptions can happen when internet connection is
+            // down or various other network issues.
+            _log.Warning($"Http Request Exception: {httpEx.Message}");
+            tx.Rollback();
+
+            // Rethrow so clients can catch/display appropriate UX.
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _log.Error(ex, $"Failed Updating DataStore for: {parameters}");
+            tx.Rollback();
+
+            // Rethrow so clients can catch/display an error UX.
+            throw;
+        }
+
+        tx.Commit();
+        _log.Information($"Updated datastore: {parameters}");
     }
 
     // Wrapper for the targeted repository update pattern.
@@ -296,6 +370,162 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         _log.Information($"Updated datastore: {parameters}");
     }
 
+    // Find all pull requests the developer, and update them.
+    // This is intended to be called from within InternalUpdateDataStoreAsync.
+    private async Task UpdatePullRequestsForLoggedInDeveloperIdsAsync(DataStoreOperationParameters parameters)
+    {
+        var devIds = DeveloperId.DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal();
+        if (devIds is null || !devIds.Any())
+        {
+            // This may not be an error if the user has not yet logged in with a DevId.
+            _log.Information("Called to update all pull requests for a user with no logged in developer.");
+            return;
+        }
+
+        // Get pull requests for each logged in developer Id.
+        foreach (var devId in devIds)
+        {
+            // Get the list of all of a user's open pull requests for the logged in developer.
+            var searchIssuesRequest = new Octokit.SearchIssuesRequest()
+            {
+                Author = devId.LoginId,
+                State = Octokit.ItemState.Open,
+                Type = Octokit.IssueTypeQualifier.PullRequest,
+            };
+
+            var searchResult = await devId.GitHubClient.Search.SearchIssues(searchIssuesRequest);
+            var repositoryDict = new Dictionary<string, bool>();
+            foreach (var issue in searchResult.Items)
+            {
+                // The Issue search result does not give us enough information to collect
+                // what we need about pull requests. So, instead of trying to convert
+                // these results into incomplete data objects, we will get the repositories
+                // to which these pull requests belong, and then do a Repository pull
+                // request query which will have all of the information needed.
+                repositoryDict[Validation.ParseFullNameFromGitHubURL(issue.HtmlUrl)] = true;
+            }
+
+            // Set request options to get all open PRs for this user.
+            var requestOptions = new RequestOptions
+            {
+                PullRequestRequest = new Octokit.PullRequestRequest
+                {
+                    State = Octokit.ItemStateFilter.Open,
+                },
+                ApiOptions = new Octokit.ApiOptions
+                {
+                    // Use default, which will get all.
+                },
+            };
+
+            foreach (var repoFullName in repositoryDict.Keys)
+            {
+                var repoName = GetOwnerAndRepositoryNameFromFullName(repoFullName);
+                Octokit.Repository octoRepository;
+                try
+                {
+                    octoRepository = await devId.GitHubClient.Repository.Get(repoName[0], repoName[1]);
+                }
+                catch (Octokit.ForbiddenException ex)
+                {
+                    // The list of pull requests produced from the issues search does not account
+                    // for SAML enforcement. Skip this repository if Forbidden. This may be
+                    // opportunity to prompt user to fix the issue, but not if it is a background
+                    // update. Consider placing these errors in an AccessDenied table and allowing
+                    // the UI to query it to attempt to resolve any issues discovered in the main
+                    // app UX, such as via a user prompt that tells them not all of their data
+                    // could be accessed.
+                    _log.Warning($"Forbidden exception while trying to query repository {repoFullName}: {ex.Message}");
+                    continue;
+                }
+
+                var dsRepository = Repository.GetOrCreateByOctokitRepository(DataStore, octoRepository);
+                var octoPullRequests = await devId.GitHubClient.PullRequest.GetAllForRepository(repoName[0], repoName[1], requestOptions.PullRequestRequest, requestOptions.ApiOptions);
+                foreach (var octoPull in octoPullRequests)
+                {
+                    // We only care about pulls where the user is the Author.
+                    if (octoPull.User.Login != devId.LoginId)
+                    {
+                        continue;
+                    }
+
+                    // Update this pull request and associated CheckRuns and CheckSuites.
+                    var dsPullRequest = PullRequest.GetOrCreateByOctokitPullRequest(DataStore, octoPull, dsRepository.Id);
+
+                    try
+                    {
+                        // Remove all current information about the pull request first, so if there is an
+                        // error retrieving the updated information, we do not have torn state and would
+                        // instead have no state for it.
+                        CheckRun.DeleteAllForPullRequest(DataStore, dsPullRequest);
+                        CheckSuite.DeleteAllForPullRequest(DataStore, dsPullRequest);
+
+                        var octoCheckRunResponse = await devId.GitHubClient.Check.Run.GetAllForReference(repoName[0], repoName[1], dsPullRequest.HeadSha);
+                        foreach (var run in octoCheckRunResponse.CheckRuns)
+                        {
+                            CheckRun.GetOrCreateByOctokitCheckRun(DataStore, run);
+                        }
+
+                        var octoCheckSuiteResponse = await devId.GitHubClient.Check.Suite.GetAllForReference(repoName[0], repoName[1], dsPullRequest.HeadSha);
+                        foreach (var suite in octoCheckSuiteResponse.CheckSuites)
+                        {
+                            // Skip Dependabot, as it is not part of a pull request's blocking suites.
+                            if (suite.App.Id == CheckSuiteIdDependabot)
+                            {
+                                continue;
+                            }
+
+                            _log.Verbose($"Suite: {suite.App.Name} - {suite.App.Id} - {suite.App.Owner.Login}  Conclusion: {suite.Conclusion}  Status: {suite.Status}");
+                            CheckSuite.GetOrCreateByOctokitCheckSuite(DataStore, suite);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        // Octokit can sometimes fail unexpectedly or have bugs. Should that occur here, we
+                        // will not stop processing all pull requests and instead skip  over getting the PR
+                        // checks information for this particular pull request.
+                        _log.Error($"Error updating Check Status for Pull Request #{octoPull.Number}: {e.Message}");
+
+                        // Put the full stack trace in debug if this occurs to reduce log spam.
+                        _log.Debug(e, $"Error updating Check Status for Pull Request #{octoPull.Number}.");
+                    }
+
+                    var commitCombinedStatus = await devId.GitHubClient.Repository.Status.GetCombined(dsRepository.InternalId, dsPullRequest.HeadSha);
+                    CommitCombinedStatus.GetOrCreate(DataStore, commitCombinedStatus);
+
+                    CreatePullRequestStatus(dsPullRequest);
+
+                    // Review information for this pull request.
+                    // We will only get review data for the logged-in Developer's pull requests.
+                    try
+                    {
+                        var octoReviews = await devId.GitHubClient.PullRequest.Review.GetAll(repoName[0], repoName[1], octoPull.Number);
+                        foreach (var octoReview in octoReviews)
+                        {
+                            ProcessReview(dsPullRequest, octoReview);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        // Octokit can sometimes fail unexpectedly or have bugs. Should that occur here, we
+                        // will not stop processing all pull requests and instead skip  over getting the PR
+                        // review information for this particular pull request.
+                        _log.Error($"Error updating Reviews for Pull Request #{octoPull.Number}: {e.Message}");
+
+                        // Put the full stack trace in debug if this occurs to reduce log spam.
+                        _log.Debug(e, $"Error updating Reviews for Pull Request #{octoPull.Number}.");
+                    }
+                }
+
+                _log.Debug($"Updated developer pull requests for {repoFullName}.");
+            }
+
+            // After we update for this developer, remove all pull requests for this developer that
+            // were not observed recently.
+            PullRequest.DeleteAllByDeveloperLoginAndLastObservedBefore(DataStore, devId.LoginId, DateTime.UtcNow - _lastObservedDeleteSpan);
+        }
+    }
+
     // Internal method to update a repository.
     // DataStore transaction is assumed to be wrapped around this in the public method.
     private async Task<Repository> UpdateRepositoryAsync(string owner, string repositoryName, Octokit.GitHubClient? client = null)
@@ -328,6 +558,123 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
 
         // Remove unobserved pull requests from this repository.
         PullRequest.DeleteLastObservedBefore(DataStore, repository.Id, DateTime.UtcNow - _lastObservedDeleteSpan);
+    }
+
+    private void ProcessReview(PullRequest pullRequest, Octokit.PullRequestReview octoReview)
+    {
+        // Skip reviews that are stale.
+        if ((DateTime.Now - octoReview.SubmittedAt) > _reviewStaleTime)
+        {
+            return;
+        }
+
+        // For creating review notifications, must first determine if the review has changed.
+        var existingReview = Review.GetByInternalId(DataStore, octoReview.Id);
+
+        // Add/update the review record.
+        var newReview = Review.GetOrCreateByOctokitReview(DataStore, octoReview, pullRequest.Id);
+
+        // Ignore comments or pending state.
+        if (string.IsNullOrEmpty(newReview.State) || newReview.State == "Commented")
+        {
+            _log.Debug($"Ignoring review for {pullRequest}. State: {newReview.State}");
+            return;
+        }
+
+        // Create a new notification if the state is different or the review did not exist.
+        if (existingReview == null || (existingReview.State != newReview.State))
+        {
+            // We assume that the logged in developer created this pull request.
+            _log.Information($"Creating NewReview Notification for {pullRequest}. State: {newReview.State}");
+            Notification.Create(DataStore, newReview, NotificationType.NewReview);
+        }
+    }
+
+    private void CreatePullRequestStatus(PullRequest pullRequest)
+    {
+        // Get the previous status for comparison.
+        var prevStatus = PullRequestStatus.Get(DataStore, pullRequest);
+
+        // Create the new status.
+        var curStatus = PullRequestStatus.Add(DataStore, pullRequest);
+
+        if (ShouldCreateCheckFailureNotification(curStatus, prevStatus))
+        {
+            _log.Information($"Creating CheckRunFailure Notification for {curStatus}");
+            Notification.Create(DataStore, curStatus, NotificationType.CheckRunFailed);
+        }
+
+        if (ShouldCreateCheckSucceededNotification(curStatus, prevStatus))
+        {
+            _log.Debug($"Creating CheckRunSuccess Notification for {curStatus}");
+            Notification.Create(DataStore, curStatus, NotificationType.CheckRunSucceeded);
+        }
+    }
+
+    public bool ShouldCreateCheckFailureNotification(PullRequestStatus curStatus, PullRequestStatus? prevStatus)
+    {
+        // If the pull request is not recent, do not create a notification for it.
+        if ((DateTime.Now - curStatus.PullRequest.UpdatedAt) > _pullRequestStaleTime)
+        {
+            return false;
+        }
+
+        // Compare pull request status.
+        if (prevStatus is null || prevStatus.HeadSha != curStatus.HeadSha)
+        {
+            // No previous status for this commit, assume new PR or freshly pushed commit with
+            // checks likely running. Any check failures here are assumed to be notification worthy.
+            if (curStatus.Failed)
+            {
+                return true;
+            }
+        }
+        else
+        {
+            // A failure isn't necessarily notification worthy if we've already seen it.
+            if (curStatus.Failed)
+            {
+                // If the previous status was not failed, or the failure was for a different
+                // reason (example, it moved from ActionRequired -> Failure), that is
+                // notification worthy.
+                if (!prevStatus.Failed || curStatus.Conclusion != prevStatus.Conclusion)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public bool ShouldCreateCheckSucceededNotification(PullRequestStatus curStatus, PullRequestStatus? prevStatus)
+    {
+        // If the pull request is not recent, do not create a notification for it.
+        if ((DateTime.Now - curStatus.PullRequest.UpdatedAt) > _pullRequestStaleTime)
+        {
+            return false;
+        }
+
+        // Compare pull request status.
+        if (prevStatus is null || prevStatus.HeadSha != curStatus.HeadSha)
+        {
+            // No previous status for this commit, assume new PR or freshly pushed commit that was
+            // successful between our syncs.
+            if (curStatus.Succeeded)
+            {
+                return true;
+            }
+        }
+        else
+        {
+            // Only post success notifications if it wasn't previously successful.
+            if (curStatus.Succeeded && !prevStatus.Succeeded)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // Internal method to update issues. Assumes Repository has already been populated and created.
@@ -364,11 +711,46 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         Issue.DeleteLastObservedBefore(DataStore, repository.Id, DateTime.UtcNow - _lastObservedDeleteSpan);
     }
 
+    // Internal method to update releases. Assumes Repository has already been populated and created.
+    // DataStore transaction is assumed to be wrapped around this in the public method.
+    private async Task UpdateReleasesAsync(Repository repository, Octokit.GitHubClient? client = null, RequestOptions? options = null)
+    {
+        options ??= RequestOptions.RequestOptionsDefault();
+
+        // Limit the number of fetched releases.
+        options.ApiOptions.PageCount = 1;
+        options.ApiOptions.PageSize = 10;
+
+        client ??= await GitHubClientProvider.Instance.GetClientForLoggedInDeveloper(true);
+        _log.Information($"Updating releases for: {repository.FullName}");
+
+        var releasesResult = await client.Repository.Release.GetAll(repository.InternalId, options.ApiOptions);
+        if (releasesResult == null)
+        {
+            _log.Debug($"No releases found.");
+            return;
+        }
+
+        _log.Debug($"Results contain {releasesResult.Count} releases.");
+        foreach (var release in releasesResult)
+        {
+            if (release.Draft)
+            {
+                continue;
+            }
+
+            _ = Release.GetOrCreateByOctokitRelease(DataStore, release, repository);
+        }
+
+        // Remove releases from this repository that were not observed recently.
+        Release.DeleteLastObservedBefore(DataStore, repository.Id, DateTime.UtcNow - _lastObservedDeleteSpan);
+    }
+
     // Search area
     // Methods to update Search items
     private async Task UpdateIssuesForSearchAsync(string name, string searchString, RequestOptions? options = null)
     {
-        _log.Information($"Updating issues for: {name}");
+        _log.Information($"Updating issues for: {name} - {searchString}");
         options ??= RequestOptions.RequestOptionsDefault();
         var searchIssuesRequest = new Octokit.SearchIssuesRequest(searchString)
         {
@@ -378,13 +760,13 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         var issuesResult = await GitHubClientProvider.Instance.GetClient().Search.SearchIssues(searchIssuesRequest);
         if (issuesResult == null)
         {
-            _log.Debug($"No issues found.");
+            _log.Information($"No issues found.");
             return;
         }
 
-        var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
-        _log.Debug($"Results contain {issuesResult.Items.Count} issues.");
+        _log.Information($"Results contain {issuesResult.Items.Count} issues.");
 
+        var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
         var dsSearch = Search.GetOrCreate(DataStore, name, searchString, SearchType.Issues);
 
         foreach (var issue in issuesResult.Items)
@@ -465,9 +847,16 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
     // Removes unused data from the datastore.
     private void PruneObsoleteData()
     {
+        CheckRun.DeleteUnreferenced(DataStore);
+        CheckSuite.DeleteUnreferenced(DataStore);
+        CommitCombinedStatus.DeleteUnreferenced(DataStore);
+        PullRequestStatus.DeleteUnreferenced(DataStore);
+        Notification.DeleteBefore(DataStore, DateTime.Now - _notificationRetentionTime);
         Search.DeleteBefore(DataStore, DateTime.Now - _searchRetentionTime);
         SearchIssue.DeleteUnreferenced(DataStore);
         SearchRepository.DeleteUnreferenced(DataStore);
+        Review.DeleteUnreferenced(DataStore);
+        Release.DeleteBefore(DataStore, DateTime.Now - _releaseRetentionTime);
     }
 
     // Sets a last-updated in the MetaData.

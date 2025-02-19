@@ -20,6 +20,8 @@ internal sealed partial class SearchPage : ListPage
 
     public PersistentData.Search CurrentSearch { get; set; }
 
+    private bool _requestedData;
+
     // Search is mandatory for this page to exist
     public SearchPage(PersistentData.Search search)
     {
@@ -43,6 +45,7 @@ internal sealed partial class SearchPage : ListPage
 
         return await Task.Run(() =>
         {
+            // FIXME: The DataManager doesn't have the saved searches, so dsSearch is always null
             var dataManager = GitHubDataManager.CreateInstance();
             var dsSearch = dataManager!.GetSearch(CurrentSearch.Name, CurrentSearch!.SearchString, (SearchType)CurrentSearch.TypeId);
 
@@ -73,7 +76,7 @@ internal sealed partial class SearchPage : ListPage
         try
         {
             _logger.Information($"Getting items for search query \"{CurrentSearch.Name}\"");
-            var items = await LoadContentData();
+            var items = await GetSearchItemsAsync();
 
             var iconString = $"{(SearchType)CurrentSearch.TypeId}";
 
@@ -133,6 +136,19 @@ internal sealed partial class SearchPage : ListPage
                     },
             ];
         }
+    }
+
+    private async Task<IEnumerable<DataModel.Issue>> GetSearchItemsAsync()
+    {
+        var items = await LoadContentData();
+
+        if (!_requestedData)
+        {
+            RequestContentData();
+            _requestedData = true;
+        }
+
+        return items;
     }
 
     public static string GetOwner(string repositoryUrl) => Validation.ParseOwnerFromGitHubURL(repositoryUrl);

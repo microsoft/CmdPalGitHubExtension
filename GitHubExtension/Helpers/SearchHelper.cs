@@ -34,6 +34,8 @@ public class SearchHelper
 
     public async void AddSavedSearch(SearchCandidate search)
     {
+        // FIXME: Either add SearchCandidate to GitHubDataManager as well or move the Get
+        // Search function to GitHubDataManager
         var dataManager = PersistentDataManager.CreateInstance();
         await dataManager!.AddSearchAsync(search.Name, search.SearchString, search.Type);
     }
