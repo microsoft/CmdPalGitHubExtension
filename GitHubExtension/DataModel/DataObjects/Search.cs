@@ -95,7 +95,12 @@ public class Search
         };
 
         var search = dataStore.Connection!.QueryFirstOrDefault<Search>(sql, param, null);
-        search.DataStore = dataStore;
+
+        if (search != null)
+        {
+            search.DataStore = dataStore;
+        }
+
         return search;
     }
 
