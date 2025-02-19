@@ -215,7 +215,7 @@ public class CacheManager : IDisposable
                 await DataManager.RequestPullRequestsUpdateAsync(repoCollection, options);
                 break;
             case UpdateType.Search:
-                await DataManager.RequestSearchUpdateAsync(search!.Name, search!.SearchString, (SearchType)search!.TypeId, options);
+                await DataManager.RequestSearchUpdateAsync(search!.Name, search!.SearchString, search!.Type, options);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(updateType), updateType, null);

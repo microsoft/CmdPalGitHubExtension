@@ -24,14 +24,14 @@ public class SearchCandidate
         SearchString = string.IsNullOrEmpty(searchString) ? string.Empty : searchString;
         Name = searchString;
 
-        Type = ParseSearchTypeFromSearchString(searchString);
+        Type = SearchHelper.ParseSearchTypeFromSearchString(searchString);
     }
 
     public SearchCandidate(string searchString, string name)
     {
         SearchString = string.IsNullOrEmpty(searchString) ? string.Empty : searchString;
         Name = name;
-        Type = ParseSearchTypeFromSearchString(searchString);
+        Type = SearchHelper.ParseSearchTypeFromSearchString(searchString);
     }
 
     public SearchCandidate(string name, string type, string owner, string repository, string dateCreated, string language, string state, string reason, string numberOfComments, string labels, string author, string mentionedUsers, string assignee, string updatedDate)
@@ -55,45 +55,4 @@ public class SearchCandidate
         var updatedDateString = string.IsNullOrEmpty(updatedDate) ? string.Empty : $"updated:{updatedDate} ";
         SearchString = $"{typeString} {repositoryString}{languageString}{stateString}{reasonString}{numberOfCommentsString}{labelsString}{authorString}{mentionedUsersString}{assigneeString}{updatedDateString}";
     }
-
-    private SearchType ParseSearchTypeFromSearchString(string searchString)
-    {
-        // parse "type:typeName" if it's in the string
-        var type = searchString.Split(' ').FirstOrDefault(x => x.StartsWith("type:", StringComparison.OrdinalIgnoreCase));
-        if (type != null)
-        {
-            var typeName = type.Split(':')[1];
-            if (SearchTypeMappings.TryGetValue(typeName.ToLower(CultureInfo.CurrentCulture), out var searchType))
-            {
-                return searchType;
-            }
-
-            return (SearchType)Enum.Parse(typeof(SearchType), typeName, true);
-        }
-
-        // parse "is:typeName" if it's in the string
-        type = searchString.Split(' ').FirstOrDefault(x => x.StartsWith("is:", StringComparison.OrdinalIgnoreCase));
-        if (type != null)
-        {
-            var typeName = type.Split(':')[1];
-            if (SearchTypeMappings.TryGetValue(typeName.ToLower(CultureInfo.CurrentCulture), out var searchType))
-            {
-                return searchType;
-            }
-
-            return (SearchType)Enum.Parse(typeof(SearchType), typeName, true);
-        }
-
-        return SearchType.Unkown;
-    }
-
-    private static readonly Dictionary<string, SearchType> SearchTypeMappings = new()
-    {
-        { "issue", SearchType.Issues },
-        { "issues", SearchType.Issues },
-        { "pr", SearchType.PullRequests },
-        { "pullrequest", SearchType.PullRequests },
-        { "repository", SearchType.Repositories },
-        { "repo", SearchType.Repositories },
-    };
 }
