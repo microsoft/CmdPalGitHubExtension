@@ -53,7 +53,8 @@ internal sealed partial class SaveSearchForm : Form
         var templateName = _searchInput == SearchInput.SearchString ? "SaveSearch" : "SaveSearchSurvey";
         var path = Path.Combine(AppContext.BaseDirectory, GitHubHelper.GetTemplatePath(templateName));
         var template = File.ReadAllText(path, Encoding.Default) ?? throw new FileNotFoundException(path);
-        template = template.Replace("{{SavedSearch}}", _savedSearch.SearchString);
+        template = template.Replace("{{SavedSearchString}}", _savedSearch.SearchString);
+        template = template.Replace("{{SavedSearchName}}", _savedSearch.Name);
 
         return template;
     }

@@ -17,7 +17,8 @@
       "id": "Name",
       "label": "Name",
       "isRequired": true,
-      "errorMessage": "Name is required"
+      "errorMessage": "Name is required",
+      "value": "{{SavedSearchName}}"
     },
     {
       "type": "Input.Text",
@@ -25,7 +26,7 @@
       "label": "Search",
       "isRequired": true,
       "errorMessage": "Search is required",
-      "value": "{{SavedSearch}}"
+      "value": "{{SavedSearchString}}"
     }
   ],
   "actions": [
