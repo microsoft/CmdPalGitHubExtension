@@ -176,6 +176,15 @@ public class GitHubDataStoreSchema : IDataStoreSchema
     ");" +
     "CREATE UNIQUE INDEX IDX_SearchRepository_SearchRepository ON SearchRepository (Search, Repository);";
 
+    private const string SearchPullRequest =
+        @"CREATE TABLE SearchPullRequest (" +
+        "Id INTEGER PRIMARY KEY NOT NULL," +
+        "TimeUpdated INTEGER NOT NULL," +
+        "Search INTEGER NOT NULL," +
+        "PullRequest INTEGER NOT NULL" +
+    ");" +
+    "CREATE UNIQUE INDEX IDX_SearchPullRequest_SearchPullRequest ON SearchPullRequest (Search, PullRequest);";
+
     // All Sqls together.
     private static readonly List<string> _schemaSqlsValue = new()
     {
@@ -192,5 +201,6 @@ public class GitHubDataStoreSchema : IDataStoreSchema
         Search,
         SearchIssue,
         SearchRepository,
+        SearchPullRequest,
     };
 }

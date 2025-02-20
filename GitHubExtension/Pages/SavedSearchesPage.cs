@@ -1,7 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation
+// Copyright (c) Microsoft Corporation
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Commands;
 using GitHubExtension.Forms;
 using GitHubExtension.Helpers;
@@ -28,7 +29,7 @@ internal sealed partial class SavedSearchesPage : ListPage
         var savedSearches = SearchHelper.Instance.GetSavedSearches().Result;
         if (savedSearches.Any())
         {
-            var searchPages = savedSearches.Select(savedSearch => new ListItem(new SearchPage(savedSearch))
+            var searchPages = savedSearches.Select(savedSearch => new ListItem(SearchPage.CreateForSearch(savedSearch))
             {
                 Title = savedSearch.Name,
                 Icon = new IconInfo(GitHubIcon.IconDictionary[$"{savedSearch.Type}"]),
