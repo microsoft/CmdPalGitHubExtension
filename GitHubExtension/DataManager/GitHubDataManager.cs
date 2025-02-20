@@ -123,8 +123,10 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
     public async Task UpdateAllDataForRepositoriesAsync(Octokit.RepositoryCollection repoCollection, RequestOptions requestOptions)
     {
         ValidateDataStore();
+        var cancellationToken = requestOptions?.CancellationToken.GetValueOrDefault() ?? default;
         foreach (var repo in repoCollection)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             await UpdateAllDataForRepositoryAsync(repo, requestOptions);
         }
     }

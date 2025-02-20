@@ -6,7 +6,6 @@ using System.Globalization;
 using GitHubExtension.Client;
 using GitHubExtension.Commands;
 using GitHubExtension.DataManager;
-using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -42,6 +41,9 @@ internal sealed partial class SearchPage : ListPage
     private async Task<IEnumerable<DataModel.Issue>> LoadContentData()
     {
         CacheManager.GetInstance().OnUpdate += CacheManagerUpdateHandler;
+
+        // To avoid locked database
+        CacheManager.GetInstance().CancelUpdateInProgress();
 
         return await Task.Run(() =>
         {
@@ -141,7 +143,6 @@ internal sealed partial class SearchPage : ListPage
     private async Task<IEnumerable<DataModel.Issue>> GetSearchItemsAsync()
     {
         var items = await LoadContentData();
-
         if (!_requestedData)
         {
             RequestContentData();
