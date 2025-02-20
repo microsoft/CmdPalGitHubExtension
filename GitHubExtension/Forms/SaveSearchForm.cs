@@ -98,7 +98,7 @@ internal sealed partial class SaveSearchForm : Form
             if (_savedSearch.SearchString != string.Empty)
             {
                 Log.Information($"Removing outdated search {_savedSearch.Name}, {_savedSearch.SearchString}");
-                searchHelper.RemoveSavedSearch(_savedSearch);
+                searchHelper.RemoveSavedSearch(_savedSearch).Wait();
             }
 
             var payloadJson = JsonNode.Parse(payload) ?? throw new InvalidOperationException("No search found");

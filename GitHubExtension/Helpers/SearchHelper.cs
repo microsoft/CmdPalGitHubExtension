@@ -51,6 +51,7 @@ public class SearchHelper
         var dataManager = PersistentDataManager.CreateInstance();
         await dataManager!.RemoveSearchAsync(search.Name, search.SearchString, DataModel.Enums.SearchType.Issues);
     }
+
     public void ClearSavedSearches()
     {
         // TODO: Implement
