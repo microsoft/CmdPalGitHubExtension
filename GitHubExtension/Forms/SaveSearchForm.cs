@@ -84,7 +84,7 @@ internal sealed partial class SaveSearchForm : Form
 
             var searchHelper = SearchHelper.Instance;
             searchHelper.ValidateSearch(search).Wait();
-            searchHelper.AddSavedSearch(search);
+            searchHelper.AddSavedSearch(search).Wait();
 
             SearchSaved?.Invoke(this, search);
             return search;

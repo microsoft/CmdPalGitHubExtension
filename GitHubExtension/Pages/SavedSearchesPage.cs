@@ -24,7 +24,6 @@ internal sealed partial class SavedSearchesPage : ListPage
 
     public override IListItem[] GetItems()
     {
-        // Maybe this should be awaited and the method async
         var savedSearches = SearchHelper.Instance.GetSavedSearches().Result;
         if (savedSearches.Any())
         {
@@ -88,6 +87,8 @@ internal sealed partial class SavedSearchesPage : ListPage
 
     private void OnSearchRemoved(object sender, object? args)
     {
+        IsLoading = false;
+
         if (args is Exception)
         {
             // error behavior TBD

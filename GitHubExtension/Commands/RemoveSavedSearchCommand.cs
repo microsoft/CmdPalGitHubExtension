@@ -33,7 +33,7 @@ public partial class RemoveSavedSearchCommand : InvokableCommand
     public override CommandResult Invoke()
     {
         SearchRemoving?.Invoke(this, null);
-        SearchHelper.Instance.RemoveSavedSearch(savedSearch);
+        SearchHelper.Instance.RemoveSavedSearch(savedSearch).Wait();
         SearchRemoved?.Invoke(this, null);
 
         return CommandResult.KeepOpen();
