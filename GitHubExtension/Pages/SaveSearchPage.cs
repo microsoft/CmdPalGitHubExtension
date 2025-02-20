@@ -24,7 +24,7 @@ internal sealed partial class SaveSearchPage : FormPage
     {
         _searchInput = input;
         SaveSearchForm.SearchSaved += OnSearchSaved;
-        SaveSearchForm.LoadingStateChanged += OnLoadingChanged;
+        SaveSearchForm.SearchSaving += OnSearchSaving;
         _saveSearchStatusMessage = new StatusMessage();
         ExtensionHost.HideStatus(_saveSearchStatusMessage);
     }
@@ -44,14 +44,9 @@ internal sealed partial class SaveSearchPage : FormPage
             SetStatusMessage(ex.InnerException is Octokit.ApiException oApiEx ? $"Error in saving search: {oApiEx.Message}" : $"Error in saving search: {ex.Message}", MessageState.Error);
             ExtensionHost.ShowStatus(_saveSearchStatusMessage);
         }
-        else if (args is string message)
-        {
-            SetStatusMessage(message, MessageState.Info);
-            ToastStatusMessage();
-        }
         else
         {
-            SetStatusMessage("Search saved successfully!", MessageState.Success);
+            SetStatusMessage("Search edited successfully!", MessageState.Success);
             ToastStatusMessage();
         }
     }
@@ -68,7 +63,7 @@ internal sealed partial class SaveSearchPage : FormPage
         toast.Show();
     }
 
-    private void OnLoadingChanged(object sender, bool isLoading)
+    private void OnSearchSaving(object sender, bool isLoading)
     {
         IsLoading = isLoading;
     }

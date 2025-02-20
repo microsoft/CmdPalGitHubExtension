@@ -18,6 +18,7 @@ internal sealed partial class SavedSearchesPage : ListPage
         Icon = new IconInfo(string.Empty);
         Name = "Saved Searches";
         SaveSearchForm.SearchSaved += OnSearchSaved;
+        SaveSearchForm.SearchSaving += OnSearchSaving;
         RemoveSavedSearchCommand.SearchRemoved += OnSearchRemoved;
         RemoveSavedSearchCommand.SearchRemoving += OnSearchRemoving;
     }
@@ -87,6 +88,11 @@ internal sealed partial class SavedSearchesPage : ListPage
         }
 
         // errors are handled in SaveSearchPage
+    }
+
+    private void OnSearchSaving(object sender, bool args)
+    {
+        IsLoading = true;
     }
 
     private void OnSearchRemoved(object sender, object? args)

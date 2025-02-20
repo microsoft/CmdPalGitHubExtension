@@ -17,7 +17,7 @@ internal sealed partial class SaveSearchForm : Form
 {
     public static event TypedEventHandler<object, object?>? SearchSaved;
 
-    public static event TypedEventHandler<object, bool>? LoadingStateChanged;
+    public static event TypedEventHandler<object, bool>? SearchSaving;
 
     private readonly SearchInput _searchInput;
 
@@ -69,7 +69,7 @@ internal sealed partial class SaveSearchForm : Form
     {
         try
         {
-            LoadingStateChanged?.Invoke(this, true);
+            SearchSaving?.Invoke(this, true);
 
             Task.Run(() => HandleSubmit(payload));
 

@@ -13,15 +13,53 @@ internal sealed partial class EditSearchPage : FormPage
 {
     private readonly Search _searchToEdit;
 
+    private readonly StatusMessage _editSearchStatusMessage;
+
     public EditSearchPage(Search searchToEdit)
     {
         Icon = new IconInfo(string.Empty);
         Name = "Edit Search";
         _searchToEdit = searchToEdit;
+        _editSearchStatusMessage = new StatusMessage();
+        SaveSearchForm.SearchSaved += OnSearchSaved;
+        SaveSearchForm.SearchSaving += OnSearchSaving;
     }
 
     public override IForm[] Forms()
     {
         return new IForm[] { new SaveSearchForm(_searchToEdit) };
+    }
+
+    private void OnSearchSaved(object sender, object? args)
+    {
+        IsLoading = false;
+        if (args is Exception ex)
+        {
+            ExtensionHost.LogMessage(new LogMessage() { Message = $"Error in saving search: {ex.Message}, {ex.StackTrace}" });
+            SetStatusMessage(ex.InnerException is Octokit.ApiException oApiEx ? $"Error in saving search: {oApiEx.Message}" : $"Error in saving search: {ex.Message}", MessageState.Error);
+            ExtensionHost.ShowStatus(_editSearchStatusMessage);
+        }
+        else
+        {
+            SetStatusMessage("Search saved successfully!", MessageState.Success);
+            ToastStatusMessage();
+        }
+    }
+
+    private void SetStatusMessage(string message, MessageState state)
+    {
+        _editSearchStatusMessage.Message = message;
+        _editSearchStatusMessage.State = state;
+    }
+
+    private void ToastStatusMessage()
+    {
+        var toast = new ToastStatusMessage(_editSearchStatusMessage);
+        toast.Show();
+    }
+
+    private void OnSearchSaving(object sender, bool isLoading)
+    {
+        IsLoading = isLoading;
     }
 }
