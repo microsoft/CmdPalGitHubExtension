@@ -13,7 +13,7 @@ namespace GitHubExtension.DataModel;
 [Table("Search")]
 public class Search
 {
-    private static readonly Lazy<ILogger> _logger = new(() => Serilog.Log.ForContext("SourceContext", $"DataModel/{nameof(Search)}"));
+    private static readonly Lazy<ILogger> _logger = new(() => Log.ForContext("SourceContext", $"DataModel/{nameof(Search)}"));
 
     private static readonly ILogger _log = _logger.Value;
 

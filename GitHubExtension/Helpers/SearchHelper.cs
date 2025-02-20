@@ -34,20 +34,23 @@ public class SearchHelper
         return await dataManager!.GetAllSearchesAsync();
     }
 
-    public async void AddSavedSearch(SearchCandidate search)
+    public async Task AddSavedSearch(SearchCandidate search)
     {
-        // FIXME: Either add SearchCandidate to GitHubDataManager as well or move the Get
-        // Search function to GitHubDataManager
         var dataManager = PersistentDataManager.CreateInstance();
         await dataManager!.AddSearchAsync(search.Name, search.SearchString, search.Type);
     }
 
-    public async void RemoveSavedSearch(SearchCandidate search)
+    public async Task RemoveSavedSearch(SearchCandidate search)
     {
         var dataManager = PersistentDataManager.CreateInstance();
         await dataManager!.RemoveSearchAsync(search.Name, search.SearchString, search.Type);
     }
 
+    public async Task RemoveSavedSearch(Search search)
+    {
+        var dataManager = PersistentDataManager.CreateInstance();
+        await dataManager!.RemoveSearchAsync(search.Name, search.SearchString, DataModel.Enums.SearchType.Issues);
+    }
     public void ClearSavedSearches()
     {
         // TODO: Implement

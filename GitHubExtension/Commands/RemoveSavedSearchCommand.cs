@@ -4,6 +4,7 @@
 
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using Windows.Foundation;
 
 namespace GitHubExtension.Commands;
 
@@ -11,16 +12,37 @@ public partial class RemoveSavedSearchCommand : InvokableCommand
 {
     private readonly SearchCandidate savedSearch;
 
+    public static event TypedEventHandler<object, object?>? SearchRemoving;
+
+    public static event TypedEventHandler<object, object>? SearchRemoved;
+
     public RemoveSavedSearchCommand(SearchCandidate search)
     {
         savedSearch = search;
         Name = "Remove";
-        Icon = new IconInfo("\uE8A7");
+        Icon = new IconInfo("\uecc9");
+    }
+
+    public RemoveSavedSearchCommand(PersistentData.Search search)
+    {
+        savedSearch = new SearchCandidate(search.SearchString, search.Name);
+        Name = "Remove";
+        Icon = new IconInfo("\uecc9");
     }
 
     public override CommandResult Invoke()
     {
-        SearchHelper.Instance.RemoveSavedSearch(savedSearch);
+        try
+        {
+            var numSavedSearchesBeforeRemoval = SearchHelper.Instance.GetSavedSearches().Result.Count();
+            SearchRemoving?.Invoke(this, null);
+            SearchHelper.Instance.RemoveSavedSearch(savedSearch).Wait();
+            SearchRemoved?.Invoke(this, numSavedSearchesBeforeRemoval > SearchHelper.Instance.GetSavedSearches().Result.Count());
+        }
+        catch (Exception ex)
+        {
+            SearchRemoved?.Invoke(this, ex);
+        }
 
         return CommandResult.KeepOpen();
     }

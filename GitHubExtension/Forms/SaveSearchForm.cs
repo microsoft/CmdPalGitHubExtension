@@ -5,8 +5,10 @@
 using System.Text;
 using System.Text.Json.Nodes;
 using GitHubExtension.Helpers;
+using GitHubExtension.PersistentData;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using Serilog;
 using Windows.Foundation;
 
 namespace GitHubExtension.Forms;
@@ -15,24 +17,38 @@ internal sealed partial class SaveSearchForm : Form
 {
     public static event TypedEventHandler<object, object?>? SearchSaved;
 
-    public static event TypedEventHandler<object, bool>? LoadingStateChanged;
+    public static event TypedEventHandler<object, bool>? SearchSaving;
 
     private readonly SearchInput _searchInput;
+
+    private readonly Search _savedSearch;
 
     public SaveSearchForm()
     : this(SearchInput.SearchString)
     {
+        _savedSearch = new Search();
     }
 
     public SaveSearchForm(SearchInput input)
     {
         _searchInput = input;
+        _savedSearch = new Search();
+    }
+
+    public SaveSearchForm(Search savedSearch)
+    {
+        _searchInput = SearchInput.SearchString;
+        _savedSearch = savedSearch;
     }
 
     public override string DataJson()
     {
-        var dataName = _searchInput == SearchInput.SearchString ? "SaveSearchData" : "SaveSearchSurveyData";
-        var path = Path.Combine(AppContext.BaseDirectory, GitHubHelper.GetTemplatePath(dataName));
+        if (_searchInput == SearchInput.SearchString)
+        {
+            return string.Empty;
+        }
+
+        var path = Path.Combine(AppContext.BaseDirectory, GitHubHelper.GetTemplatePath("SaveSearchSurveyData"));
         var data = File.ReadAllText(path, Encoding.Default) ?? throw new FileNotFoundException(path);
         return data;
     }
@@ -42,6 +58,9 @@ internal sealed partial class SaveSearchForm : Form
         var templateName = _searchInput == SearchInput.SearchString ? "SaveSearch" : "SaveSearchSurvey";
         var path = Path.Combine(AppContext.BaseDirectory, GitHubHelper.GetTemplatePath(templateName));
         var template = File.ReadAllText(path, Encoding.Default) ?? throw new FileNotFoundException(path);
+        template = template.Replace("{{SaveSearchFormTitle}}", string.IsNullOrEmpty(_savedSearch.Name) ? "Save Search" : "Edit Search");
+        template = template.Replace("{{SavedSearchString}}", _savedSearch.SearchString);
+        template = template.Replace("{{SavedSearchName}}", _savedSearch.Name);
 
         return template;
     }
@@ -50,7 +69,7 @@ internal sealed partial class SaveSearchForm : Form
     {
         try
         {
-            LoadingStateChanged?.Invoke(this, true);
+            SearchSaving?.Invoke(this, true);
 
             Task.Run(() => HandleSubmit(payload));
 
@@ -73,6 +92,15 @@ internal sealed partial class SaveSearchForm : Form
     {
         try
         {
+            var searchHelper = SearchHelper.Instance;
+
+            // if editing the search, first delete the old one
+            if (_savedSearch.SearchString != string.Empty)
+            {
+                Log.Information($"Removing outdated search {_savedSearch.Name}, {_savedSearch.SearchString}");
+                searchHelper.RemoveSavedSearch(_savedSearch);
+            }
+
             var payloadJson = JsonNode.Parse(payload) ?? throw new InvalidOperationException("No search found");
 
             var search = _searchInput switch
@@ -82,9 +110,8 @@ internal sealed partial class SaveSearchForm : Form
                 _ => throw new NotImplementedException(),
             };
 
-            var searchHelper = SearchHelper.Instance;
             searchHelper.ValidateSearch(search).Wait();
-            searchHelper.AddSavedSearch(search);
+            searchHelper.AddSavedSearch(search).Wait();
 
             SearchSaved?.Invoke(this, search);
             return search;

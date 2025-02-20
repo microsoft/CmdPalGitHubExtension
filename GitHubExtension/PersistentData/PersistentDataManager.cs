@@ -171,7 +171,6 @@ public class PersistentDataManager : IDisposable
         _ = await client.Search.SearchIssues(issuesOptions);
     }
 
-    // FIXME: Just flagging the AddSearchAsync method
     public async Task AddSearchAsync(string name, string searchString, SearchType searchType, Octokit.GitHubClient? client = null)
     {
         await ValidateSearch(searchString, searchType);

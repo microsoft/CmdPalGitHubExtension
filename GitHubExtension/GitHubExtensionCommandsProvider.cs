@@ -57,7 +57,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             new CommandItem(new SavedSearchesPage())
             {
                 Title = "Saved Searches",
-                Icon = new IconInfo(string.Empty),
+                Icon = new IconInfo("\ue74e"),
             }
         ]
         : [

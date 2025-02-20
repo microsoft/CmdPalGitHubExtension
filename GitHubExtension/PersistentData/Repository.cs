@@ -5,12 +5,17 @@
 using Dapper;
 using Dapper.Contrib.Extensions;
 using GitHubExtension.DataModel;
+using Serilog;
 
 namespace GitHubExtension.PersistentData;
 
 [Table("Repository")]
 public class Repository
 {
+    private static readonly Lazy<ILogger> _logger = new(() => Log.ForContext("SourceContext", $"PersistentData/{nameof(Repository)}"));
+
+    private static readonly ILogger _log = _logger.Value;
+
     [Key]
     public long Id { get; set; }
 
@@ -41,7 +46,14 @@ public class Repository
 
     public static void Remove(DataStore datastore, string owner, string name)
     {
-        datastore.Connection.Delete(new Repository { OwnerLogin = owner, Name = name });
+        var sql = "DELETE FROM Repository WHERE OwnerLogin = @OwnerLogin AND Name = @Name";
+        var command = datastore.Connection!.CreateCommand();
+        command.CommandText = sql;
+        command.Parameters.AddWithValue("@OwnerLogin", owner);
+        command.Parameters.AddWithValue("@Name", name);
+        _log.Verbose(DataStore.GetCommandLogMessage(sql, command));
+        var deleted = command.ExecuteNonQuery();
+        _log.Verbose(DataStore.GetDeletedLogMessage(deleted));
     }
 
     public static Repository? Get(DataStore datastore, string owner, string name)

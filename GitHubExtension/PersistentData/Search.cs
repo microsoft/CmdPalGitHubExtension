@@ -7,12 +7,17 @@ using Dapper.Contrib.Extensions;
 using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Helpers;
+using Serilog;
 
 namespace GitHubExtension.PersistentData;
 
 [Table("Search")]
 public class Search
 {
+    private static readonly Lazy<ILogger> _logger = new(() => Log.ForContext("SourceContext", $"PersistentData/{nameof(Search)}"));
+
+    private static readonly ILogger _log = _logger.Value;
+
     [Key]
     public long Id { get; set; }
 
@@ -58,7 +63,14 @@ public class Search
 
     public static void Remove(DataStore datastore, string name, string searchString)
     {
-        datastore.Connection.Delete(new Search { Name = name, SearchString = searchString });
+        var sql = "DELETE FROM Search WHERE Name = @Name AND SearchString = @SearchString";
+        var command = datastore.Connection!.CreateCommand();
+        command.CommandText = sql;
+        command.Parameters.AddWithValue("@Name", name);
+        command.Parameters.AddWithValue("@SearchString", searchString);
+        _log.Verbose(DataStore.GetCommandLogMessage(sql, command));
+        var deleted = command.ExecuteNonQuery();
+        _log.Verbose(DataStore.GetDeletedLogMessage(deleted));
     }
 
     public static IEnumerable<Search> GetAll(DataStore datastore)
