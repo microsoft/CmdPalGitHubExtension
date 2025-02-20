@@ -174,6 +174,23 @@ public class Search
         }
     }
 
+    [Write(false)]
+    [Computed]
+    public IEnumerable<User> Users
+    {
+        get
+        {
+            if (DataStore is null)
+            {
+                return Enumerable.Empty<User>();
+            }
+            else
+            {
+                return User.GetForSearch(DataStore, this) ?? Enumerable.Empty<User>();
+            }
+        }
+    }
+
     public static void DeleteBefore(DataStore dataStore, DateTime date)
     {
         // Delete search queries older than the date listed.

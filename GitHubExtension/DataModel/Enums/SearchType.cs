@@ -10,4 +10,5 @@ public enum SearchType
     Issues = 1,
     PullRequests = 2,
     Repositories = 3,
+    Users = 4,
 }

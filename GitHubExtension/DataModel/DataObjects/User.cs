@@ -167,6 +167,30 @@ public class User
         return users;
     }
 
+    public static IEnumerable<User> GetForSearch(DataStore dataStore, Search search)
+    {
+        // Order the resulting set by TimeUpdated on the SearchUser table. Items returned first in
+        // a search result will be processed first, and added first to the datastore. This means the
+        // newest timestamp entry is the last one in the list. So we must order the results by time
+        // updated, but ascending to get them in the order in which they were received in the search.
+        // This is how we preserve whatever ordering the search had for these items without knowing
+        // what that search ordering actually was.
+        var sql = @"SELECT * FROM User WHERE Id IN (SELECT User FROM SearchUser WHERE Search = @SearchId ORDER BY TimeUpdated ASC)";
+        var param = new
+        {
+            SearchId = search.Id,
+        };
+
+        _log.Verbose(DataStore.GetSqlLogMessage(sql, param));
+        var users = dataStore.Connection!.Query<User>(sql, param, null) ?? Enumerable.Empty<User>();
+        foreach (var user in users)
+        {
+            user.DataStore = dataStore;
+        }
+
+        return users;
+    }
+
     private static bool IsLoginIdDeveloper(string login)
     {
         return GetDeveloperLoginIds().Contains(login);

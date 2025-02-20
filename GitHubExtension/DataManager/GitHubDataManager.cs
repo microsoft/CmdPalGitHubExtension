@@ -92,7 +92,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         }
     }
 
-    public async Task UpdateAllDataForRepositoryAsync(string owner, string name, RequestOptions? options = null)
+    private async Task UpdateAllDataForRepositoryAsync(string owner, string name, RequestOptions? options = null)
     {
         ValidateDataStore();
         var parameters = new DataStoreOperationParameters
@@ -113,14 +113,14 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
             });
     }
 
-    public async Task UpdateAllDataForRepositoryAsync(string fullName, RequestOptions? options = null)
+    private async Task UpdateAllDataForRepositoryAsync(string fullName, RequestOptions? options = null)
     {
         ValidateDataStore();
         var nameSplit = GetOwnerAndRepositoryNameFromFullName(fullName);
         await UpdateAllDataForRepositoryAsync(nameSplit[0], nameSplit[1], options);
     }
 
-    public async Task UpdateAllDataForRepositoriesAsync(Octokit.RepositoryCollection repoCollection, RequestOptions requestOptions)
+    private async Task UpdateAllDataForRepositoriesAsync(Octokit.RepositoryCollection repoCollection, RequestOptions requestOptions)
     {
         ValidateDataStore();
         var cancellationToken = requestOptions?.CancellationToken.GetValueOrDefault() ?? default;
@@ -131,7 +131,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         }
     }
 
-    public async Task UpdatePullRequestsForRepositoryAsync(string owner, string name, RequestOptions? options = null)
+    private async Task UpdatePullRequestsForRepositoryAsync(string owner, string name, RequestOptions? options = null)
     {
         ValidateDataStore();
         var parameters = new DataStoreOperationParameters
@@ -151,14 +151,14 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
             });
     }
 
-    public async Task UpdatePullRequestsForRepositoryAsync(string fullName, RequestOptions? options = null)
+    private async Task UpdatePullRequestsForRepositoryAsync(string fullName, RequestOptions? options = null)
     {
         ValidateDataStore();
         var nameSplit = GetOwnerAndRepositoryNameFromFullName(fullName);
         await UpdatePullRequestsForRepositoryAsync(nameSplit[0], nameSplit[1], options);
     }
 
-    public async Task UpdatePullRequestsForRepositoriesAsync(Octokit.RepositoryCollection repoCollection, RequestOptions requestOptions)
+    private async Task UpdatePullRequestsForRepositoriesAsync(Octokit.RepositoryCollection repoCollection, RequestOptions requestOptions)
     {
         ValidateDataStore();
         foreach (var repo in repoCollection)
@@ -167,7 +167,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         }
     }
 
-    public async Task UpdateIssuesForRepositoryAsync(string owner, string name, RequestOptions? options = null)
+    private async Task UpdateIssuesForRepositoryAsync(string owner, string name, RequestOptions? options = null)
     {
         ValidateDataStore();
         var parameters = new DataStoreOperationParameters
@@ -187,14 +187,14 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
             });
     }
 
-    public async Task UpdateIssuesForRepositoryAsync(string fullName, RequestOptions? options = null)
+    private async Task UpdateIssuesForRepositoryAsync(string fullName, RequestOptions? options = null)
     {
         ValidateDataStore();
         var nameSplit = GetOwnerAndRepositoryNameFromFullName(fullName);
         await UpdateIssuesForRepositoryAsync(nameSplit[0], nameSplit[1], options);
     }
 
-    public async Task UpdateIssuesForRepositoriesAsync(Octokit.RepositoryCollection repoCollection, RequestOptions requestOptions)
+    private async Task UpdateIssuesForRepositoriesAsync(Octokit.RepositoryCollection repoCollection, RequestOptions requestOptions)
     {
         ValidateDataStore();
         foreach (var repo in repoCollection)
@@ -459,7 +459,31 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         }
     }
 
-    public async Task UpdateDataForSearchAsync(string name, string searchString, SearchType type, RequestOptions options)
+    private async Task UpdateUsersForSearchAsync(string name, string searchString, RequestOptions? options = null)
+    {
+        _log.Information($"Updating users for: {name}");
+        options ??= RequestOptions.RequestOptionsDefault();
+        var searchUserRequest = new Octokit.SearchUsersRequest(searchString);
+        var usersResult = await GitHubClientProvider.Instance.GetClient().Search.SearchUsers(searchUserRequest);
+        if (usersResult == null)
+        {
+            _log.Debug($"No users found.");
+            return;
+        }
+
+        var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
+        _log.Debug($"Results contain {usersResult.Items.Count} users.");
+        var dsSearch = Search.GetOrCreate(DataStore, name, searchString);
+        foreach (var user in usersResult.Items)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var dsUser = User.GetOrCreateByOctokitUser(DataStore, user);
+            SearchUser.AddUserToSearch(DataStore, dsUser, dsSearch);
+        }
+    }
+
+    private async Task UpdateDataForSearchAsync(string name, string searchString, SearchType type, RequestOptions options)
     {
         var cancellaTionToken = options?.CancellationToken.GetValueOrDefault() ?? default;
         cancellaTionToken.ThrowIfCancellationRequested();
@@ -475,12 +499,15 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
             case SearchType.Repositories:
                 await UpdateRepositoriesForSearchAsync(name, searchString, options);
                 break;
+            case SearchType.Users:
+                await UpdateUsersForSearchAsync(name, searchString, options);
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
     }
 
-    public async Task UpdateDataForSearchesAsync(IEnumerable<PersistentData.Search> searches, RequestOptions options)
+    private async Task UpdateDataForSearchesAsync(IEnumerable<PersistentData.Search> searches, RequestOptions options)
     {
         foreach (var search in searches)
         {
