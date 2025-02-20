@@ -113,6 +113,16 @@ internal sealed partial class SavedSearchesPage : ListPage
         {
             RaiseItemsChanged(SearchHelper.Instance.GetSavedSearches().Result.Count());
         }
+        else if (args is false)
+        {
+            var toast = new ToastStatusMessage(new StatusMessage()
+            {
+                Message = "Failed to remove search.",
+                State = MessageState.Error,
+            });
+
+            toast.Show();
+        }
     }
 
     private void OnSearchRemoving(object sender, object? args)
