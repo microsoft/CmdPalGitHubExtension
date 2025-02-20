@@ -399,8 +399,38 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
 
     private async Task UpdatePullRequestsForSearchAsync(string name, string searchString, RequestOptions? options = null)
     {
-        await Task.CompletedTask;
-        throw new NotImplementedException();
+        _log.Information($"Updating pull requests for: {name} - {searchString}");
+        options ??= RequestOptions.RequestOptionsDefault();
+        var searchIssuesRequest = new Octokit.SearchIssuesRequest(searchString)
+        {
+            State = Octokit.ItemState.Open,
+            Type = Octokit.IssueTypeQualifier.PullRequest,
+        };
+        var issuesResult = await GitHubClientProvider.Instance.GetClient().Search.SearchIssues(searchIssuesRequest);
+        if (issuesResult == null)
+        {
+            _log.Information($"No pull requests found.");
+            return;
+        }
+
+        _log.Information($"Results contain {issuesResult.Items.Count} pull requests.");
+
+        var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
+        var dsSearch = Search.GetOrCreate(DataStore, name, searchString);
+
+        foreach (var issue in issuesResult.Items)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var issueUrl = issue.Url;
+
+            var owner = issueUrl.Split('/')[4];
+            var repoName = issueUrl.Split('/')[5];
+
+            var pullRequest = await GitHubClientProvider.Instance.GetClient().PullRequest.Get(owner, repoName, issue.Number);
+            var dsPullRequest = PullRequest.GetOrCreateByOctokitPullRequest(DataStore, pullRequest);
+            SearchPullRequest.AddPullRequestToSearch(DataStore, dsPullRequest, dsSearch);
+        }
     }
 
     private async Task UpdateRepositoriesForSearchAsync(string name, string searchString, RequestOptions? options = null)
