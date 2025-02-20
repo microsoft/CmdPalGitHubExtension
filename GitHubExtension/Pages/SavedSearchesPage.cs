@@ -15,7 +15,7 @@ internal sealed partial class SavedSearchesPage : ListPage
 {
     public SavedSearchesPage()
     {
-        Icon = new IconInfo(string.Empty);
+        Icon = new IconInfo("\ue74e");
         Name = "Saved Searches";
         SaveSearchForm.SearchSaved += OnSearchSaved;
         SaveSearchForm.SearchSaving += OnSearchSaving;
@@ -37,12 +37,12 @@ internal sealed partial class SavedSearchesPage : ListPage
                     new(new RemoveSavedSearchCommand(savedSearch))
                     {
                         Title = "Remove",
-                        Icon = new IconInfo("\uE8A7"),
+                        Icon = new IconInfo("\uecc9"),
                     },
                     new(new EditSearchPage(savedSearch))
                     {
                         Title = "Edit",
-                        Icon = new IconInfo(string.Empty),
+                        Icon = new IconInfo("\ue70f"),
                     },
                 },
             }).ToList();
@@ -50,12 +50,12 @@ internal sealed partial class SavedSearchesPage : ListPage
             searchPages.Add(new(new SaveSearchPage())
             {
                 Title = "Add a search",
-                Icon = new IconInfo(string.Empty),
+                Icon = new IconInfo("\uecc8"),
             });
             searchPages.Add(new(new SaveSearchPage(SearchInput.Survey))
             {
                 Title = "Add a search (full form)",
-                Icon = new IconInfo(string.Empty),
+                Icon = new IconInfo("\uecc8"),
             });
 
             return searchPages.ToArray();

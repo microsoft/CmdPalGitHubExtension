@@ -17,7 +17,7 @@ internal sealed partial class EditSearchPage : FormPage
 
     public EditSearchPage(Search searchToEdit)
     {
-        Icon = new IconInfo(string.Empty);
+        Icon = new IconInfo("\ue70f");
         Name = "Edit Search";
         _searchToEdit = searchToEdit;
         _editSearchStatusMessage = new StatusMessage();

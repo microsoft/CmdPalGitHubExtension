@@ -20,14 +20,14 @@ public partial class RemoveSavedSearchCommand : InvokableCommand
     {
         savedSearch = search;
         Name = "Remove";
-        Icon = new IconInfo("\uE8A7");
+        Icon = new IconInfo("\uecc9");
     }
 
     public RemoveSavedSearchCommand(PersistentData.Search search)
     {
         savedSearch = new SearchCandidate(search.SearchString, search.Name);
         Name = "Remove";
-        Icon = new IconInfo("\uE8A7");
+        Icon = new IconInfo("\uecc9");
     }
 
     public override CommandResult Invoke()
