@@ -36,15 +36,12 @@ public class SearchHelper
 
     public async Task AddSavedSearch(SearchCandidate search)
     {
-        // FIXME: Either add SearchCandidate to GitHubDataManager as well or move the Get
-        // Search function to GitHubDataManager
         var dataManager = PersistentDataManager.CreateInstance();
         await dataManager!.AddSearchAsync(search.Name, search.SearchString, search.Type);
     }
 
-    public async void RemoveSavedSearch(SearchCandidate search)
+    public async Task RemoveSavedSearch(SearchCandidate search)
     {
-        // FIXME: Calling this didn't remove search
         var dataManager = PersistentDataManager.CreateInstance();
         await dataManager!.RemoveSearchAsync(search.Name, search.SearchString, search.Type);
     }

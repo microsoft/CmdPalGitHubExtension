@@ -14,7 +14,7 @@ public partial class RemoveSavedSearchCommand : InvokableCommand
 
     public static event TypedEventHandler<object, object?>? SearchRemoving;
 
-    public static event TypedEventHandler<object, object?>? SearchRemoved;
+    public static event TypedEventHandler<object, object>? SearchRemoved;
 
     public RemoveSavedSearchCommand(SearchCandidate search)
     {
@@ -32,9 +32,17 @@ public partial class RemoveSavedSearchCommand : InvokableCommand
 
     public override CommandResult Invoke()
     {
-        SearchRemoving?.Invoke(this, null);
-        SearchHelper.Instance.RemoveSavedSearch(savedSearch);
-        SearchRemoved?.Invoke(this, null);
+        try
+        {
+            var numSavedSearchesBeforeRemoval = SearchHelper.Instance.GetSavedSearches().Result.Count();
+            SearchRemoving?.Invoke(this, null);
+            SearchHelper.Instance.RemoveSavedSearch(savedSearch).Wait();
+            SearchRemoved?.Invoke(this, numSavedSearchesBeforeRemoval > SearchHelper.Instance.GetSavedSearches().Result.Count());
+        }
+        catch (Exception ex)
+        {
+            SearchRemoved?.Invoke(this, ex);
+        }
 
         return CommandResult.KeepOpen();
     }

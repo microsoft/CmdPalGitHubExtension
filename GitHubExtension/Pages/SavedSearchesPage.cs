@@ -2,7 +2,6 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Commands;
 using GitHubExtension.Forms;
 using GitHubExtension.Helpers;
@@ -25,7 +24,6 @@ internal sealed partial class SavedSearchesPage : ListPage
 
     public override IListItem[] GetItems()
     {
-        // Maybe this should be awaited and the method async
         var savedSearches = SearchHelper.Instance.GetSavedSearches().Result;
         if (savedSearches.Any())
         {
@@ -82,24 +80,33 @@ internal sealed partial class SavedSearchesPage : ListPage
     private void OnSearchSaved(object sender, object? args)
     {
         IsLoading = false;
-        if (args is Exception)
-        {
-            // do nothing
-        }
-        else if (args != null && args is SearchCandidate)
+
+        if (args != null && args is SearchCandidate)
         {
             RaiseItemsChanged(SearchHelper.Instance.GetSavedSearches().Result.Count());
         }
+
+        // errors are handled in SaveSearchPage
     }
 
     private void OnSearchRemoved(object sender, object? args)
     {
-        if (args is Exception)
-        {
-            // error behavior TBD
-        }
+        IsLoading = false;
 
-        RaiseItemsChanged(SearchHelper.Instance.GetSavedSearches().Result.Count());
+        if (args is Exception e)
+        {
+            var toast = new ToastStatusMessage(new StatusMessage()
+            {
+                Message = $"Error in removing search: {e.Message}",
+                State = MessageState.Error,
+            });
+
+            toast.Show();
+        }
+        else if (args is true)
+        {
+            RaiseItemsChanged(SearchHelper.Instance.GetSavedSearches().Result.Count());
+        }
     }
 
     private void OnSearchRemoving(object sender, object? args)
