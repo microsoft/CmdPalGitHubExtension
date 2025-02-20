@@ -46,12 +46,11 @@ public class SearchHelper
         await dataManager!.RemoveSearchAsync(search.Name, search.SearchString, search.Type);
     }
 
-    public async void RemoveSavedSearch(Search search)
+    public async Task RemoveSavedSearch(Search search)
     {
         var dataManager = PersistentDataManager.CreateInstance();
         await dataManager!.RemoveSearchAsync(search.Name, search.SearchString, DataModel.Enums.SearchType.Issues);
     }
-
     public void ClearSavedSearches()
     {
         // TODO: Implement
