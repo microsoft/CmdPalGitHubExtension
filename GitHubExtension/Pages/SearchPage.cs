@@ -13,146 +13,56 @@ using Serilog;
 
 namespace GitHubExtension;
 
-internal sealed partial class SearchPage : ListPage
+internal abstract partial class SearchPage : ListPage
 {
-    private readonly ILogger _logger;
+    protected ILogger Logger { get; }
 
-    public PersistentData.Search CurrentSearch { get; set; }
+    public PersistentData.Search CurrentSearch { get; private set; }
 
-    private bool _requestedData;
+    protected bool RequestedData { get; set; }
 
     // Search is mandatory for this page to exist
-    public SearchPage(PersistentData.Search search)
+    protected SearchPage(PersistentData.Search search)
     {
         Icon = new IconInfo(GitHubIcon.IconDictionary[$"{search.Type}"]);
         Name = search.Name;
         CurrentSearch = search;
-        _logger = Log.ForContext("SourceContext", $"Pages/{nameof(SearchPage)}");
+        Logger = Log.ForContext("SourceContext", $"Pages/{GetType().Name}");
+    }
+
+    public static SearchPage CreateForSearch(PersistentData.Search search)
+    {
+        switch (search.Type)
+        {
+            case DataModel.Enums.SearchType.Issues:
+                return new IssuesSearchPage(search);
+            case DataModel.Enums.SearchType.PullRequests:
+                return new PullRequestsSearchPage(search);
+            default:
+                throw new NotImplementedException($"Search type {search.Type} is not implemented.");
+        }
     }
 
     public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();
 
-    public async void RequestContentData()
+    protected async void RequestContentData()
     {
         var cacheManager = CacheManager.GetInstance();
         await cacheManager.Refresh(UpdateType.Search, CurrentSearch);
     }
 
-    private async Task<IEnumerable<DataModel.Issue>> LoadContentData()
-    {
-        CacheManager.GetInstance().OnUpdate += CacheManagerUpdateHandler;
-
-        // To avoid locked database
-        CacheManager.GetInstance().CancelUpdateInProgress();
-
-        return await Task.Run(() =>
-        {
-            // FIXME: The DataManager doesn't have the saved searches, so dsSearch is always null
-            var dataManager = GitHubDataManager.CreateInstance();
-            var dsSearch = dataManager!.GetSearch(CurrentSearch.Name, CurrentSearch!.SearchString);
-
-            var res = new List<DataModel.Issue>();
-
-            if (dsSearch?.Issues != null)
-            {
-                res.AddRange(dsSearch.Issues);
-            }
-
-            _logger.Information($"Found {res.Count} items matching search query \"{CurrentSearch.Name}\"");
-
-            return res;
-        });
-    }
-
-    public void CacheManagerUpdateHandler(object? source, CacheManagerUpdateEventArgs e)
+    protected void CacheManagerUpdateHandler(object? source, CacheManagerUpdateEventArgs e)
     {
         if (e.Kind == CacheManagerUpdateKind.Updated)
         {
-            _logger.Information($"Received cache manager update event.");
+            Logger.Information($"Received cache manager update event.");
             RaiseItemsChanged(0);
         }
     }
 
-    private async Task<IListItem[]> DoGetItems(string query)
-    {
-        try
-        {
-            _logger.Information($"Getting items for search query \"{CurrentSearch.Name}\"");
-            var items = await GetSearchItemsAsync();
+    protected abstract Task<IListItem[]> DoGetItems(string query);
 
-            var iconString = $"{CurrentSearch.Type}";
+    protected static string GetOwner(string repositoryUrl) => Validation.ParseOwnerFromGitHubURL(repositoryUrl);
 
-            if (items.Any())
-            {
-                return items.Select(item => new ListItem(new LinkCommand(item))
-                {
-                    Title = item.Title,
-                    Icon = new IconInfo(GitHubIcon.IconDictionary[iconString]),
-                    Subtitle = $"{GetOwner(item.HtmlUrl)}/{GetRepo(item.HtmlUrl)}/#{item.Number}",
-                    MoreCommands = new CommandContextItem[]
-                    {
-                            new(new CopyCommand(item.HtmlUrl, "URL")),
-                            new(new CopyCommand(item.Title, "item title")),
-                            new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), "item number")),
-                            new(new IssueMarkdownPage(item)),
-                    },
-                }).ToArray();
-            }
-            else
-            {
-                return !items.Any()
-                    ? new ListItem[]
-                    {
-                            new(new NoOpCommand())
-                            {
-                                Title = "No items found. See logs for more details.",
-                                Icon = new IconInfo(GitHubIcon.IconDictionary[iconString]),
-                            },
-                    }
-                    :
-                    [
-                            new ListItem(new NoOpCommand())
-                            {
-                                Title = "Error fetching items",
-                                Details = new Details()
-                                {
-                                    Body = "No items found",
-                                },
-                                Icon = new IconInfo(GitHubIcon.IconDictionary[iconString]),
-                            },
-                    ];
-            }
-        }
-        catch (Exception ex)
-        {
-            return
-            [
-                    new ListItem(new NoOpCommand())
-                    {
-                        Title = "Error fetching items",
-                        Details = new Details()
-                        {
-                            Title = ex.Message,
-                            Body = string.IsNullOrEmpty(ex.StackTrace) ? "There is no stack trace for the error." : ex.StackTrace,
-                        },
-                    },
-            ];
-        }
-    }
-
-    private async Task<IEnumerable<DataModel.Issue>> GetSearchItemsAsync()
-    {
-        var items = await LoadContentData();
-        if (!_requestedData)
-        {
-            RequestContentData();
-            _requestedData = true;
-        }
-
-        return items;
-    }
-
-    public static string GetOwner(string repositoryUrl) => Validation.ParseOwnerFromGitHubURL(repositoryUrl);
-
-    public static string GetRepo(string repositoryUrl) => Validation.ParseRepositoryFromGitHubURL(repositoryUrl);
+    protected static string GetRepo(string repositoryUrl) => Validation.ParseRepositoryFromGitHubURL(repositoryUrl);
 }

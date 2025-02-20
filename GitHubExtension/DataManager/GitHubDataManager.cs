@@ -405,6 +405,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         {
             State = Octokit.ItemState.Open,
             Type = Octokit.IssueTypeQualifier.PullRequest,
+            PerPage = 10,
         };
         var issuesResult = await GitHubClientProvider.Instance.GetClient().Search.SearchIssues(searchIssuesRequest);
         if (issuesResult == null)
