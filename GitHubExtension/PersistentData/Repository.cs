@@ -12,7 +12,7 @@ namespace GitHubExtension.PersistentData;
 [Table("Repository")]
 public class Repository
 {
-    private static readonly Lazy<ILogger> _logger = new(() => Log.ForContext("SourceContext", $"PersistentData/{nameof(Search)}"));
+    private static readonly Lazy<ILogger> _logger = new(() => Log.ForContext("SourceContext", $"PersistentData/{nameof(Repository)}"));
 
     private static readonly ILogger _log = _logger.Value;
 
