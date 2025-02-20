@@ -75,26 +75,33 @@ internal sealed partial class SavedSearchesPage : ListPage
     private void OnSearchSaved(object sender, object? args)
     {
         IsLoading = false;
-        if (args is Exception)
-        {
-            // do nothing
-        }
-        else if (args != null && args is SearchCandidate)
+
+        if (args != null && args is SearchCandidate)
         {
             RaiseItemsChanged(SearchHelper.Instance.GetSavedSearches().Result.Count());
         }
+
+        // errors are handled in SaveSearchPage
     }
 
     private void OnSearchRemoved(object sender, object? args)
     {
         IsLoading = false;
 
-        if (args is Exception)
+        if (args is Exception e)
         {
-            // error behavior TBD
-        }
+            var toast = new ToastStatusMessage(new StatusMessage()
+            {
+                Message = $"Error in removing search: {e.Message}",
+                State = MessageState.Error,
+            });
 
-        RaiseItemsChanged(SearchHelper.Instance.GetSavedSearches().Result.Count());
+            toast.Show();
+        }
+        else if (args is true)
+        {
+            RaiseItemsChanged(SearchHelper.Instance.GetSavedSearches().Result.Count());
+        }
     }
 
     private void OnSearchRemoving(object sender, object? args)
