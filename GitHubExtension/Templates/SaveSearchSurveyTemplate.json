@@ -15,7 +15,7 @@
     },
     {
       "type": "Input.Text",
-      "label": "Query name",
+      "label": "Search name",
       "id": "name",
       "placeholder": "My issues"
     },

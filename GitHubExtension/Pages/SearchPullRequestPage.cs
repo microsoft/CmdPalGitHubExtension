@@ -19,7 +19,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
 
     public SearchPullRequestsPage()
     {
-        Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]);
         Name = "Search GitHub Pull Requests";
         this.ShowDetails = true;
         _logger = Log.ForContext("SourceContext", $"Pages/{nameof(SearchPullRequestsPage)}");
@@ -99,7 +99,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                 var res = pullRequests.Select(pullRequest => new ListItem(new LinkCommand(pullRequest))
                 {
                     Title = pullRequest.Title,
-                    Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]),
+                    Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]),
                     Subtitle = $"{GetOwner(pullRequest.HtmlUrl)}/{GetRepo(pullRequest.HtmlUrl)}/#{pullRequest.Number}",
                     MoreCommands = new CommandContextItem[]
                     {
@@ -123,7 +123,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                             new(new NoOpCommand())
                             {
                                 Title = "No pull requests found",
-                                Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]),
+                                Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]),
                             },
                     }
                     :
@@ -131,7 +131,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                             new ListItem(new NoOpCommand())
                             {
                                 Title = "Error fetching pull requests",
-                                Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]),
+                                Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]),
                             },
                     ];
             }

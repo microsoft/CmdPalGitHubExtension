@@ -164,187 +164,6 @@ public class PullRequest
         }
     }
 
-    /// <summary>
-    /// Gets all CheckRuns associated with this pull request.
-    /// </summary>
-    [Write(false)]
-    [Computed]
-    public IEnumerable<CheckRun> Checks
-    {
-        get
-        {
-            if (DataStore == null)
-            {
-                return Enumerable.Empty<CheckRun>();
-            }
-            else
-            {
-                return CheckRun.GetCheckRunsForPullRequest(DataStore, this) ?? Enumerable.Empty<CheckRun>();
-            }
-        }
-    }
-
-    /// <summary>
-    /// Gets all failed CheckRuns associated with this pull request.
-    /// </summary>
-    [Write(false)]
-    [Computed]
-    public IEnumerable<CheckRun> FailedChecks
-    {
-        get
-        {
-            if (DataStore == null)
-            {
-                return Enumerable.Empty<CheckRun>();
-            }
-            else
-            {
-                return CheckRun.GetFailedCheckRunsForPullRequest(DataStore, this) ?? Enumerable.Empty<CheckRun>();
-            }
-        }
-    }
-
-    /// <summary>
-    /// Gets the least-completed run status of all check runs associated with this pull request.
-    /// </summary>
-    /// <remarks>
-    /// If status is "Completed" then it means all runs have completed. If one or more runs is not
-    /// completed it will be in one of the other states that indicates in progress or queued.
-    /// A status of "None" means there are no checks associated with this PR or we have not added them
-    /// to the datastore. When checking the for the ChecksStatus or result of a pull request, always
-    /// check this property. It must be "Completed", meaning all checks have run, before success can
-    /// be determined. If the Status is not yet completed, check for failed checks during runs by
-    /// examining the FailedChecks.Count() value.
-    /// </remarks>
-    [Write(false)]
-    [Computed]
-    public CheckStatus ChecksStatus
-    {
-        get
-        {
-            if (DataStore == null)
-            {
-                return CheckStatus.Unknown;
-            }
-            else
-            {
-                return CheckRun.GetCheckRunStatusForPullRequest(DataStore, this);
-            }
-        }
-    }
-
-    [Write(false)]
-    [Computed]
-    public CheckStatus CheckSuiteStatus
-    {
-        get
-        {
-            if (DataStore == null)
-            {
-                return CheckStatus.Unknown;
-            }
-            else
-            {
-                return CheckSuite.GetCheckStatusForPullRequest(DataStore, this);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Gets the least-successful conclusion of all completed CheckRuns associated with this pull request.
-    /// </summary>
-    /// <remarks>
-    /// A "Success" conclusion is not accurate unless ChecksStatus property is also "Completed". Any
-    /// failures that occur mid-run will be accurately returned as the CheckConclusion.
-    /// </remarks>
-    [Write(false)]
-    [Computed]
-    public CheckConclusion ChecksConclusion
-    {
-        get
-        {
-            if (DataStore == null)
-            {
-                return CheckConclusion.Unknown;
-            }
-            else
-            {
-                return CheckRun.GetCheckRunConclusionForPullRequest(DataStore, this);
-            }
-        }
-    }
-
-    [Write(false)]
-    [Computed]
-    public CheckConclusion CheckSuiteConclusion
-    {
-        get
-        {
-            if (DataStore == null)
-            {
-                return CheckConclusion.Unknown;
-            }
-            else
-            {
-                return CheckSuite.GetCheckConclusionForPullRequest(DataStore, this);
-            }
-        }
-    }
-
-    [Write(false)]
-    [Computed]
-    public CommitState CommitState
-    {
-        get
-        {
-            if (DataStore == null)
-            {
-                return CommitState.Unknown;
-            }
-            else
-            {
-                return CommitCombinedStatus.GetCommitState(DataStore, this);
-            }
-        }
-    }
-
-    [Write(false)]
-    [Computed]
-    public PullRequestStatus? PullRequestStatus
-    {
-        get
-        {
-            if (DataStore == null)
-            {
-                return null;
-            }
-            else
-            {
-                return PullRequestStatus.Get(DataStore, this);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Gets all reviews associated with this pull request.
-    /// </summary>
-    [Write(false)]
-    [Computed]
-    public IEnumerable<Review> Reviews
-    {
-        get
-        {
-            if (DataStore == null)
-            {
-                return Enumerable.Empty<Review>();
-            }
-            else
-            {
-                return Review.GetAllForPullRequest(DataStore, this) ?? Enumerable.Empty<Review>();
-            }
-        }
-    }
-
     public override string ToString() => $"{Number}: {Title}";
 
     // Create pull request from OctoKit pull request data
@@ -521,6 +340,30 @@ public class PullRequest
         }
 
         return pulls;
+    }
+
+    public static IEnumerable<PullRequest> GetForSearch(DataStore dataStore, Search search)
+    {
+        // Order the resulting set by TimeUpdated on the SearchIssue table. Items returned first in
+        // a search result will be processed first, and added first to the datastore. This means the
+        // newest timestamp entry is the last one in the list. So we must order the results by time
+        // updated, but ascending to get them in the order in which they were received in the search.
+        // This is how we preserve whatever ordering the search had for these items without knowing
+        // what that search ordering actually was.
+        var sql = @"SELECT * FROM PullRequest WHERE Id IN (SELECT PullRequest FROM SearchPullRequest WHERE Search = @SearchId ORDER BY TimeUpdated ASC)";
+        var param = new
+        {
+            SearchId = search.Id,
+        };
+
+        _log.Verbose(DataStore.GetSqlLogMessage(sql, param));
+        var pullRequests = dataStore.Connection!.Query<PullRequest>(sql, param, null) ?? Enumerable.Empty<PullRequest>();
+        foreach (var pullRequest in pullRequests)
+        {
+            pullRequest.DataStore = dataStore;
+        }
+
+        return pullRequests;
     }
 
     private static void UpdateLabelsForPullRequest(DataStore dataStore, PullRequest pullRequest)

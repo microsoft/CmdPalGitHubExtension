@@ -13,7 +13,7 @@ namespace GitHubExtension.DataModel;
 [Table("Search")]
 public class Search
 {
-    private static readonly Lazy<ILogger> _logger = new(() => Serilog.Log.ForContext("SourceContext", $"DataModel/{nameof(Search)}"));
+    private static readonly Lazy<ILogger> _logger = new(() => Log.ForContext("SourceContext", $"DataModel/{nameof(Search)}"));
 
     private static readonly ILogger _log = _logger.Value;
 
@@ -26,8 +26,6 @@ public class Search
     public string SearchString { get; set; } = string.Empty;
 
     public string Name { get; set; } = string.Empty;
-
-    public long TypeId { get; set; } = DataStore.NoForeignKey;
 
     public long TimeUpdated { get; set; } = DataStore.NoForeignKey;
 
@@ -43,21 +41,37 @@ public class Search
     [Computed]
     public DateTime UpdatedAt => TimeUpdated.ToDateTime();
 
-    private static Search Create(DataStore dataStore, string name, string searchString, SearchType type)
+    private SearchType _searchType = SearchType.Unkown;
+
+    [Write(false)]
+    [Computed]
+    public SearchType Type
+    {
+        get
+        {
+            if (_searchType == SearchType.Unkown)
+            {
+                _searchType = SearchHelper.ParseSearchTypeFromSearchString(SearchString);
+            }
+
+            return _searchType;
+        }
+    }
+
+    private static Search Create(DataStore dataStore, string name, string searchString)
     {
         return new Search
         {
             DataStore = dataStore,
             Name = name,
             SearchString = searchString,
-            TypeId = (long)type,
             TimeUpdated = DateTime.Now.ToDataStoreInteger(),
         };
     }
 
     private static Search AddOrUpdate(DataStore dataStore, Search search)
     {
-        var existing = Get(dataStore, search.Name, search.SearchString, (SearchType)search.TypeId);
+        var existing = Get(dataStore, search.Name, search.SearchString);
         if (existing is not null)
         {
             // The Search time updated is for identifying stale data for deletion later.
@@ -84,22 +98,28 @@ public class Search
         return dataStore.Connection!.Get<Search>(id);
     }
 
-    public static Search? Get(DataStore dataStore, string name, string searchString, SearchType type)
+    public static Search? Get(DataStore dataStore, string name, string searchString)
     {
-        var sql = @"SELECT * FROM Search WHERE SearchString = @SearchString AND Name = @Name AND Type = @Type;";
+        var sql = @"SELECT * FROM Search WHERE SearchString = @SearchString AND Name = @Name;";
         var param = new
         {
             SearchString = searchString,
             Name = name,
-            TypeId = (long)type,
         };
 
-        return dataStore.Connection!.QueryFirstOrDefault<Search>(sql, param, null);
+        var search = dataStore.Connection!.QueryFirstOrDefault<Search>(sql, param, null);
+
+        if (search != null)
+        {
+            search.DataStore = dataStore;
+        }
+
+        return search;
     }
 
-    public static Search GetOrCreate(DataStore dataStore, string name, string searchString, SearchType type)
+    public static Search GetOrCreate(DataStore dataStore, string name, string searchString)
     {
-        var newSearch = Create(dataStore, name, searchString, type);
+        var newSearch = Create(dataStore, name, searchString);
         return AddOrUpdate(dataStore, newSearch);
     }
 
@@ -133,6 +153,23 @@ public class Search
             else
             {
                 return Issue.GetForSearch(DataStore, this) ?? Enumerable.Empty<Issue>();
+            }
+        }
+    }
+
+    [Write(false)]
+    [Computed]
+    public IEnumerable<PullRequest> PullRequests
+    {
+        get
+        {
+            if (DataStore is null)
+            {
+                return Enumerable.Empty<PullRequest>();
+            }
+            else
+            {
+                return PullRequest.GetForSearch(DataStore, this) ?? Enumerable.Empty<PullRequest>();
             }
         }
     }

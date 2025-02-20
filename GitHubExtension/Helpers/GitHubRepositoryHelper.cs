@@ -4,7 +4,6 @@
 
 using GitHubExtension.Client;
 using GitHubExtension.PersistentData;
-using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Octokit;
 using Serilog;
@@ -15,12 +14,14 @@ public class GitHubRepositoryHelper
 {
     private static readonly Lazy<GitHubRepositoryHelper> _instance = new(() => new GitHubRepositoryHelper(GitHubClientProvider.Instance.GetClient()));
 
+    private readonly ILogger _logger;
+
     private GitHubClient _client;
 
     private GitHubRepositoryHelper(GitHubClient client)
     {
         _client = client;
-        _ = AddUsersContribuitionRepositoriesToDatabaseAsync();
+        _logger = Log.ForContext("SourceContext", $"Helpers/{nameof(GitHubRepositoryHelper)}");
     }
 
     public static GitHubRepositoryHelper Instance => _instance.Value;
@@ -33,6 +34,12 @@ public class GitHubRepositoryHelper
     // TODO: Fix this. Auth issues. Maybe calling way too early.
     public async Task<List<Octokit.Repository>> GetUserRepositoriesFromOctokitAsync()
     {
+        // band-aid for now: check if the client has a user
+        if (GitHubClientProvider.Instance.IsClientLoggedIn(_client) == false)
+        {
+            return new List<Octokit.Repository>();
+        }
+
         try
         {
             var repositories = new List<Octokit.Repository>();
@@ -59,7 +66,7 @@ public class GitHubRepositoryHelper
         }
         catch (Exception ex)
         {
-            Log.Error($"Error getting user repositories: {ex}");
+            _logger.Error($"Error getting user repositories: {ex}");
             return new List<Octokit.Repository>();
         }
     }
@@ -76,7 +83,7 @@ public class GitHubRepositoryHelper
             }
             catch (Exception ex)
             {
-                Log.Error($"Error adding user's repositories to database: {ex}");
+                _logger.Error($"Error adding user's repositories to database: {ex}");
             }
         }
     }

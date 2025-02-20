@@ -116,23 +116,6 @@ public class Repository
         }
     }
 
-    [Write(false)]
-    [Computed]
-    public IEnumerable<Release> Releases
-    {
-        get
-        {
-            if (DataStore == null)
-            {
-                return Enumerable.Empty<Release>();
-            }
-            else
-            {
-                return Release.GetAllForRepository(DataStore, this) ?? Enumerable.Empty<Release>();
-            }
-        }
-    }
-
     public override string ToString() => FullName;
 
     // Create repository from OctoKit repo.

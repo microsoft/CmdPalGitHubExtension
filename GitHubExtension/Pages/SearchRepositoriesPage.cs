@@ -55,10 +55,10 @@ internal sealed partial class SearchRepositoriesPage : ListPage
             return repos.Count < 0
                 ? [new ListItem(new NoOpCommand()) { Title = "Something went wrong. Count < 0" },
             new ListItem(new NoOpCommand()) { Title = $"User: {user.Name}" },
-            new ListItem(new NoOpCommand()) { Title = $"Query: {query}" },]
+            new ListItem(new NoOpCommand()) { Title = $"Search: {query}" },]
                 : [new ListItem(new NoOpCommand()) { Title = "No issues found" },
             new ListItem(new NoOpCommand()) { Title = $"User: {user.Name}" },
-            new ListItem(new NoOpCommand()) { Title = $"Query: {query}" },];
+            new ListItem(new NoOpCommand()) { Title = $"Search: {query}" },];
         }
     }
 }

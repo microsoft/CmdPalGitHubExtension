@@ -16,14 +16,14 @@ internal sealed partial class PullRequestMarkdownPage : MarkdownPage
 
     public PullRequestMarkdownPage()
     {
-        Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]);
         Name = "View";
         _pullRequest = new PullRequest();
     }
 
     public PullRequestMarkdownPage(PullRequest pullRequest)
     {
-        Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]);
         Name = "View pull request in Command Palette";
         _pullRequest = pullRequest;
 #pragma warning disable IDE0300 // Simplify collection initialization

@@ -51,6 +51,7 @@
         <Content Include="Templates\*">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
+        <Compile Remove="D:\ghext\\codeAnalysis\GlobalSuppressions.cs" />
         <None Update="appsettings.json">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>

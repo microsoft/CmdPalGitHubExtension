@@ -7,13 +7,16 @@ using GitHubExtension.DataModel.Enums;
 using GitHubExtension.DeveloperId;
 using Octokit;
 using Serilog;
-using Windows.Media.Capture;
 using Windows.Storage;
 
 namespace GitHubExtension.PersistentData;
 
 public class PersistentDataManager : IDisposable
 {
+    private static readonly Lazy<ILogger> _logger = new(() => Serilog.Log.ForContext("SourceContext", nameof(PersistentDataManager)));
+
+    private static readonly ILogger _log = _logger.Value;
+
     private const string DataStoreFileName = "PersistentGitHubData.db";
 
     private DataStore DataStore { get; set; }
@@ -121,7 +124,7 @@ public class PersistentDataManager : IDisposable
     {
         await ValidateRepository(owner, name);
         ValidateDataStore();
-        Log.Information($"Adding repository {owner}/{name}.");
+        _log.Information($"Adding repository {owner}/{name}.");
 
         if (Repository.Get(DataStore, owner, name) != null)
         {
@@ -138,7 +141,7 @@ public class PersistentDataManager : IDisposable
             // No need to validate repository here as it was already
             // validated when added.
             ValidateDataStore();
-            Log.Information($"Removing repository {owner}/{name}.");
+            _log.Information($"Removing repository {owner}/{name}.");
             Repository.Remove(DataStore, owner, name);
         });
     }
@@ -173,22 +176,22 @@ public class PersistentDataManager : IDisposable
         await ValidateSearch(searchString, searchType);
         ValidateDataStore();
 
-        Log.Information($"Adding search: {name} - {searchString} - {searchType}.");
-        if (Search.Get(DataStore, name, searchString, searchType) != null)
+        _log.Information($"Adding search: {name} - {searchString} - {searchType}.");
+        if (Search.Get(DataStore, name, searchString) != null)
         {
             throw new InvalidOperationException($"Search {name} - {searchString} - {searchType} already exists.");
         }
 
-        Search.Add(DataStore, name, searchString, searchType);
+        Search.Add(DataStore, name, searchString);
     }
 
-    public async void RemoveSearchAsync(string name, string searchString, SearchType searchType)
+    public async Task RemoveSearchAsync(string name, string searchString, SearchType searchType)
     {
         await Task.Run(() =>
         {
             ValidateDataStore();
-            Log.Information($"Removing search: {name} - {searchString} - {searchType}.");
-            Search.Remove(DataStore, name, searchString, searchType);
+            _log.Information($"Removing search: {name} - {searchString} - {searchType}.");
+            Search.Remove(DataStore, name, searchString);
         });
     }
 

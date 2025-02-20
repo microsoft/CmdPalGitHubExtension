@@ -6,12 +6,18 @@ using Dapper;
 using Dapper.Contrib.Extensions;
 using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.Enums;
+using GitHubExtension.Helpers;
+using Serilog;
 
 namespace GitHubExtension.PersistentData;
 
 [Table("Search")]
 public class Search
 {
+    private static readonly Lazy<ILogger> _logger = new(() => Log.ForContext("SourceContext", $"PersistentData/{nameof(Search)}"));
+
+    private static readonly ILogger _log = _logger.Value;
+
     [Key]
     public long Id { get; set; }
 
@@ -19,31 +25,52 @@ public class Search
 
     public string SearchString { get; set; } = string.Empty;
 
-    public long TypeId { get; set; } = DataStore.NoForeignKey;
+    private SearchType _searchType = SearchType.Unkown;
 
-    public static Search? Get(DataStore datastore, string name, string searchString, SearchType type)
+    [Write(false)]
+    [Computed]
+    public SearchType Type
     {
-        var sql = "SELECT * FROM Search WHERE Name = @Name AND SearchString = @SearchString AND TypeId = @Type";
-        var param = new { Name = name, SearchString = searchString, TypeId = (long)type };
+        get
+        {
+            if (_searchType == SearchType.Unkown)
+            {
+                _searchType = SearchHelper.ParseSearchTypeFromSearchString(SearchString);
+            }
+
+            return _searchType;
+        }
+    }
+
+    public static Search? Get(DataStore datastore, string name, string searchString)
+    {
+        var sql = "SELECT * FROM Search WHERE Name = @Name AND SearchString = @SearchString";
+        var param = new { Name = name, SearchString = searchString };
 
         return datastore.Connection!.QueryFirstOrDefault<Search>(sql, param, null);
     }
 
-    public static Search Add(DataStore datastore, string name, string searchString, SearchType type)
+    public static Search Add(DataStore datastore, string name, string searchString)
     {
         var search = new Search
         {
             Name = name,
             SearchString = searchString,
-            TypeId = (long)type,
         };
         datastore.Connection.Insert<Search>(search);
         return search;
     }
 
-    public static void Remove(DataStore datastore, string name, string searchString, SearchType type)
+    public static void Remove(DataStore datastore, string name, string searchString)
     {
-        datastore.Connection.Delete(new Search { Name = name, SearchString = searchString, TypeId = (long)type });
+        var sql = "DELETE FROM Search WHERE Name = @Name AND SearchString = @SearchString";
+        var command = datastore.Connection!.CreateCommand();
+        command.CommandText = sql;
+        command.Parameters.AddWithValue("@Name", name);
+        command.Parameters.AddWithValue("@SearchString", searchString);
+        _log.Verbose(DataStore.GetCommandLogMessage(sql, command));
+        var deleted = command.ExecuteNonQuery();
+        _log.Verbose(DataStore.GetDeletedLogMessage(deleted));
     }
 
     public static IEnumerable<Search> GetAll(DataStore datastore)

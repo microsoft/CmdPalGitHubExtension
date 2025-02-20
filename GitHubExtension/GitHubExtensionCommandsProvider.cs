@@ -9,7 +9,6 @@ using GitHubExtension.Helpers;
 using GitHubExtension.Pages;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
-using Microsoft.UI.Xaml;
 
 namespace GitHubExtension;
 
@@ -42,7 +41,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             new CommandItem(new SearchPullRequestsPage())
             {
                 Title = "Search GitHub Pull Requests",
-                Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]),
             },
             new CommandItem(new AddRepoPage())
             {
@@ -55,10 +54,10 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
                 Subtitle = "Sign out",
                 Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
             },
-            new CommandItem(new SavedQueriesPage())
+            new CommandItem(new SavedSearchesPage())
             {
-                Title = "Saved Queries",
-                Icon = new IconInfo(string.Empty),
+                Title = "Saved Searches",
+                Icon = new IconInfo("\ue74e"),
             }
         ]
         : [
@@ -87,10 +86,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         {
             var devIds = DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal();
             GitHubRepositoryHelper.Instance.UpdateClient(devIds.First().GitHubClient);
-        }
-        else
-        {
-            GitHubRepositoryHelper.Instance.ClearRepositories();
+            SearchHelper.Instance.UpdateClient(devIds.First().GitHubClient);
         }
 
         UpdateTopLevelCommands(null, numCommands);

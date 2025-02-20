@@ -25,15 +25,9 @@ public interface IGitHubDataManager : IDisposable
 
     Task UpdateIssuesForRepositoryAsync(string fullName, RequestOptions? options = null);
 
-    Task UpdatePullRequestsForLoggedInDeveloperIdsAsync();
-
-    Task UpdateReleasesForRepositoryAsync(string owner, string name, RequestOptions? options = null);
-
     IEnumerable<Repository> GetRepositories();
 
     IEnumerable<User> GetDeveloperUsers();
-
-    IEnumerable<Notification> GetNotifications(DateTime? since = null, bool includeToasted = false);
 
     Repository? GetRepository(string owner, string name);
 
@@ -56,4 +50,6 @@ public interface IGitHubDataManager : IDisposable
     Task RequestPullRequestsUpdateAsync(Octokit.RepositoryCollection repoCollection, RequestOptions options);
 
     Task RequestSearchUpdateAsync(string name, string searchString, SearchType type, RequestOptions options);
+
+    Search? GetSearch(string name, string searchString);
 }

@@ -9,7 +9,7 @@ namespace GitHubExtension.DataManager;
 public class DataUpdater : IDisposable
 {
     // This is the default interval the timer will run. It is not the interval that we necessarily do work.
-    private static readonly TimeSpan _timerUpdateInterval = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan _timerUpdateInterval = TimeSpan.FromMinutes(5);
 
     private readonly ILogger _logger;
     private readonly PeriodicTimer _timer;

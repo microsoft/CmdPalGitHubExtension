@@ -36,7 +36,7 @@ internal sealed partial class SearchMentionsPage : ListPage
             {
                 Title = "Pull Request title here",
                 Subtitle = "Pull RequestNumber",
-                Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]),
                 Details = new Details()
                 {
                     Title = "Pull Request markdown title",
