@@ -3,53 +3,35 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Forms;
-using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Pages;
 
-internal sealed partial class AddRepoPage : FormPage
+internal sealed partial class AddRepoPage : GitHubFormPage
 {
-    private readonly AddRepoForm _addRepoForm;
+    private AddRepoForm _addRepoForm;
 
-#pragma warning disable IDE0044 // Add readonly modifier
-    private StatusMessage _addRepoStatusMessage;
-#pragma warning restore IDE0044 // Add readonly modifier
+    private StatusMessage _statusMessage;
+
+    private string _successMessage;
+
+    private string _errorMessage;
+
+    public override StatusMessage StatusMessage { get => _statusMessage; set => _statusMessage = value; }
+
+    public override string SuccessMessage { get => _successMessage; set => _successMessage = value; }
+
+    public override string ErrorMessage { get => _errorMessage; set => _errorMessage = value; }
+
+    public override GitHubForm PageForm { get => _addRepoForm; set => _addRepoForm = (AddRepoForm)value; }
 
     public AddRepoPage()
     {
         _addRepoForm = new();
-        _addRepoForm.RepositoryAdded += OnRepositoryAdded;
-        _addRepoForm.LoadingStateChanged += OnLoadingChanged;
-        _addRepoStatusMessage = new StatusMessage();
-    }
-
-    public override IForm[] Forms()
-    {
-        ExtensionHost.HideStatus(_addRepoStatusMessage);
-        return new IForm[] { _addRepoForm };
-    }
-
-    private void OnRepositoryAdded(object sender, object? args)
-    {
-        IsLoading = false;
-        if (args is Exception ex)
-        {
-            _addRepoStatusMessage.Message = $"Error in adding repository: {ex.Message}";
-            _addRepoStatusMessage.State = MessageState.Error;
-        }
-        else
-        {
-            _addRepoStatusMessage.Message = "Repository added successfully!";
-            _addRepoStatusMessage.State = MessageState.Success;
-        }
-
-        var toast = new ToastStatusMessage(_addRepoStatusMessage);
-        toast.Show();
-    }
-
-    private void OnLoadingChanged(object sender, bool isLoading)
-    {
-        IsLoading = isLoading;
+        _addRepoForm.FormSubmitted += OnFormSubmit;
+        _addRepoForm.LoadingStateChanged += OnLoadingStateChanged;
+        _statusMessage = new StatusMessage();
+        _successMessage = "Repository added successfully!";
+        _errorMessage = "Error in adding repository";
     }
 }

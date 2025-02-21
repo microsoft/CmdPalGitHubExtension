@@ -41,14 +41,17 @@ internal sealed partial class AddRepoForm : GitHubForm
             var repositoryName = repoInfo[1];
             var repoHelper = GitHubRepositoryHelper.Instance;
 
-            ExtensionHost.LogMessage(new LogMessage() { Message = $"IsMemberOrContributor {repoHelper.IsMemberOrContributor(ownerName, repositoryName)}..." });
-            Task.Run(() => repoHelper.AddRepository(ownerName, repositoryName));
+            Task.Run(() => repoHelper.AddRepository(ownerName, repositoryName)).Wait();
 
             RepositoryAdded?.Invoke(this, null);
+            RaiseLoadingStateChanged(false);
+            RaiseFormSubmitted(new FormSubmitEventArgs(true, null));
         }
         catch (Exception ex)
         {
             RepositoryAdded?.Invoke(this, ex);
+            RaiseLoadingStateChanged(false);
+            RaiseFormSubmitted(new FormSubmitEventArgs(false, ex));
         }
     }
 
