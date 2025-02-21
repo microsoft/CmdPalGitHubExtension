@@ -19,8 +19,6 @@ internal abstract partial class SearchPage : ListPage
 
     public PersistentData.Search CurrentSearch { get; private set; }
 
-    protected bool RequestedData { get; set; }
-
     private DateTime LastRequested { get; set; } = DateTime.MinValue;
 
     private readonly TimeSpan _requestCooldown = TimeSpan.FromMinutes(5);

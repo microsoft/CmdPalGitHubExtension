@@ -113,12 +113,7 @@ internal sealed partial class IssuesSearchPage : SearchPage
     private async Task<IEnumerable<DataModel.Issue>> GetSearchItemsAsync()
     {
         var items = await LoadContentData();
-        if (!RequestedData)
-        {
-            RequestContentData();
-            RequestedData = true;
-        }
-
+        _ = RequestContentData();
         return items;
     }
 }

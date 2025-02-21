@@ -115,12 +115,7 @@ internal sealed partial class PullRequestsSearchPage : SearchPage
     private async Task<IEnumerable<DataModel.PullRequest>> GetSearchItemsAsync()
     {
         var items = await LoadContentData();
-        if (!RequestedData)
-        {
-            RequestContentData();
-            RequestedData = true;
-        }
-
+        _ = RequestContentData();
         return items;
     }
 }
