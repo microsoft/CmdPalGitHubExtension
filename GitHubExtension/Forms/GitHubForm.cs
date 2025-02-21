@@ -16,25 +16,27 @@ internal abstract partial class GitHubForm : Form
 
     public virtual Dictionary<string, string> TemplateSubstitutions => templateSubstitutions;
 
-    public override ICommandResult SubmitForm(string payload) => throw new NotImplementedException();
+    public event TypedEventHandler<object, bool>? LoadingStateChanged;
 
-    public static event TypedEventHandler<object, bool>? LoadingStateChanged;
-
-    public static event TypedEventHandler<object, FormSubmitEventArgs>? FormSubmitted;
-
-    public override string DataJson()
-    {
-        return Data;
-    }
-
-    public override string StateJson()
-    {
-        return State;
-    }
+    public event TypedEventHandler<object, FormSubmitEventArgs>? FormSubmitted;
 
     public override string TemplateJson()
     {
         return LoadTemplateJsonFromFile(string.Empty);
+    }
+
+    public override ICommandResult SubmitForm(string payload)
+    {
+        LoadingStateChanged?.Invoke(this, true);
+        Task.Run(() => HandleSubmit(payload));
+        return CommandResult.KeepOpen();
+    }
+
+    public virtual void HandleSubmit(string payload)
+    {
+        Task.Delay(3000).Wait();
+        LoadingStateChanged?.Invoke(this, false);
+        FormSubmitted?.Invoke(this, new FormSubmitEventArgs(false, null));
     }
 
     public virtual string LoadTemplateJsonFromFile(string templateName)

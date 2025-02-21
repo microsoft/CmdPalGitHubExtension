@@ -16,7 +16,7 @@ internal abstract partial class GitHubFormPage : FormPage, IGitHubPage
 
     public abstract string ErrorMessage { get; }
 
-    public abstract GitHubForm PageForm { get; }
+    public virtual GitHubForm? PageForm { get; set; }
 
     public GitHubFormPage()
     {
@@ -29,7 +29,7 @@ internal abstract partial class GitHubFormPage : FormPage, IGitHubPage
     public override IForm[] Forms()
     {
         ExtensionHost.HideStatus(StatusMessage);
-        return new IForm[] { PageForm };
+        return new IForm[] { PageForm ?? throw new InvalidOperationException() };
     }
 
     public virtual void OnFormSubmit(object sender, FormSubmitEventArgs? args)

@@ -11,7 +11,7 @@ public class FormSubmitEventArgs : EventArgs
 
     public Exception? Exception { get; }
 
-    public FormSubmitEventArgs(bool status, Exception ex)
+    public FormSubmitEventArgs(bool status, Exception? ex)
     {
         Status = status;
         Exception = ex;
