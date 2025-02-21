@@ -12,9 +12,9 @@ internal abstract partial class GitHubFormPage : FormPage, IGitHubPage
 {
     public abstract StatusMessage StatusMessage { get; set; }
 
-    public abstract string SuccessMessage { get; }
+    public abstract string SuccessMessage { get; set; }
 
-    public abstract string ErrorMessage { get; }
+    public abstract string ErrorMessage { get; set; }
 
     public abstract GitHubForm PageForm { get; set; }
 
@@ -33,7 +33,8 @@ internal abstract partial class GitHubFormPage : FormPage, IGitHubPage
     {
         if (args?.Exception != null)
         {
-            ExtensionHost.LogMessage(new LogMessage() { Message = ErrorMessage });
+            ErrorMessage = $"{ErrorMessage}: {args.Exception.Message}";
+            ExtensionHost.LogMessage(new LogMessage() { Message = $"{args.Exception.Message}" });
             SetStatusMessage(ErrorMessage, MessageState.Error);
             ExtensionHost.ShowStatus(StatusMessage);
         }

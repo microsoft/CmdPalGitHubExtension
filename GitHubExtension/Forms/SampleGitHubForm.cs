@@ -23,9 +23,7 @@ internal sealed partial class SampleGitHubForm : GitHubForm
         try
         {
             Task.Delay(3000).Wait();
-
-            RaiseLoadingStateChanged(false);
-            RaiseFormSubmitted(new FormSubmitEventArgs(true, null));
+            throw new InvalidOperationException();
         }
         catch (Exception ex)
         {
