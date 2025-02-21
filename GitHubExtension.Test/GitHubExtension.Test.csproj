@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <RootNamespace>GitHubExtension.Test</RootNamespace>
-    <Platforms>x86;x64;arm64</Platforms>
+    <Platforms>x64;arm64</Platforms>
     <IsPackable>false</IsPackable>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
