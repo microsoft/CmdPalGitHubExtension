@@ -19,6 +19,9 @@ internal abstract partial class SearchPage : ListPage
 
     public PersistentData.Search CurrentSearch { get; private set; }
 
+    // To avoid race condition between multiple requests
+    private readonly object _requestLock = new();
+
     private DateTime LastRequested { get; set; } = DateTime.MinValue;
 
     private readonly TimeSpan _requestCooldown = TimeSpan.FromMinutes(5);
@@ -49,15 +52,19 @@ internal abstract partial class SearchPage : ListPage
 
     protected async Task RequestContentData()
     {
-        if (DateTime.UtcNow - LastRequested < _requestCooldown)
+        lock (_requestLock)
         {
-            Logger.Information($"Too soon to request an update.");
-            return;
+            if (DateTime.UtcNow - LastRequested < _requestCooldown)
+            {
+                Logger.Information($"Too soon to request an update.");
+                return;
+            }
+
+            LastRequested = DateTime.UtcNow;
         }
 
         var cacheManager = CacheManager.GetInstance();
         await cacheManager.Refresh(UpdateType.Search, CurrentSearch);
-        LastRequested = DateTime.UtcNow;
     }
 
     protected void CacheManagerUpdateHandler(object? source, CacheManagerUpdateEventArgs e)
