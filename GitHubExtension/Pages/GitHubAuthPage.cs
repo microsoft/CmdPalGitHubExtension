@@ -26,7 +26,6 @@ internal sealed partial class GitHubAuthPage : FormPage
     public GitHubAuthPage()
     {
         GitHubAuthForm.SignInAction += OnSignInCompleted;
-        GitHubAuthForm.LoadingStateChanged += OnLoadingChanged;
     }
 
     private void OnSignInCompleted(object? sender, SignInStatusChangedEventArgs args)
@@ -45,10 +44,5 @@ internal sealed partial class GitHubAuthPage : FormPage
             _authFormStatusMessage.State = MessageState.Success;
             ExtensionHost.ShowStatus(_authFormStatusMessage);
         }
-    }
-
-    private void OnLoadingChanged(object sender, bool isLoading)
-    {
-        IsLoading = isLoading;
     }
 }
