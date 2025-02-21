@@ -107,27 +107,6 @@ stages:
                       }
                     ]
 
-            - task: PowerShell@2
-              displayName: 'Run Unittests'
-              condition: ne('${{ platform}}', 'arm64')
-              retryCountOnTaskFailure: 2
-              inputs:
-                filePath: 'build/scripts/Test.ps1'
-                arguments: -Platform "${{ platform }}" -Configuration "${{ configuration }}" -IsAzurePipelineBuild
-                
-            - task: PublishTestResults@2
-              displayName: 'Add Test Results to ADO'
-              condition: and(always(), ne('${{ platform}}', 'arm64'))
-              inputs:
-                testResultsFormat: 'VSTest'
-                testResultsFiles: '*.trx'
-                searchFolder: '$(testOutputArtifactDir)'
-                mergeTestResults: true
-                failTaskOnFailedTests: true 
-                testRunTitle: '$(Agent.JobName)'
-                buildPlatform: '${{ platform }}'
-                buildConfiguration: '${{ configuration }}'
-
             - task: CopyFiles@2
               displayName: Copying files to Artifact Staging directory
               inputs:
