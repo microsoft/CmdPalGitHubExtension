@@ -18,7 +18,6 @@ internal abstract partial class GitHubForm : Form
 
     public override ICommandResult SubmitForm(string payload) => throw new NotImplementedException();
 
-    // LoadingStateChanged will be common to all pages
     public static event TypedEventHandler<object, bool>? LoadingStateChanged;
 
     public static event TypedEventHandler<object, FormSubmitEventArgs>? FormSubmitted;
