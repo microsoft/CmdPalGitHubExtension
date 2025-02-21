@@ -19,7 +19,6 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         DisplayName = "GitHub Extension";
 
         GitHubAuthForm.SignInAction += OnSignInStatusChanged;
-        SignOutCommand.SignOutAction += OnSignInStatusChanged;
         SignOutForm.SignOutAction += OnSignInStatusChanged;
 
         UpdateSignInStatus(IsSignedIn());
