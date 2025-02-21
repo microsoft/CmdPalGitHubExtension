@@ -1,0 +1,38 @@
+﻿{
+  "type": "AdaptiveCard",
+  "version": "1.3",
+  "body": [
+    {
+      "type": "Image",
+      "url": "{{GitHubIcon}}",
+      "size": "large",
+      "horizontalAlignment": "center"
+    },
+    {
+      "type": "Container",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "{{AddRepoTitle}}",
+          "weight": "bolder",
+          "size": "medium"
+        },
+        {
+          "type": "Input.Text",
+          "id": "repositoryUrl",
+          "placeholder": "{{RepoURLPlaceholder}}"
+        }
+      ],
+      "horizontalAlignment": "left"
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": "{{AddRepoButtonTitle}}",
+      "data": {
+        "repositoryUrl": "{repositoryUrl.value}"
+      }
+    }
+  ]
+}
