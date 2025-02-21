@@ -3,46 +3,49 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Forms;
-using GitHubExtension.Helpers;
-using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
-using Windows.Foundation;
 
 namespace GitHubExtension.Pages;
 
-internal sealed partial class GitHubAuthPage : FormPage
+internal sealed partial class GitHubAuthPage : GitHubFormPage
 {
-    public override IForm[] Forms()
+    private StatusMessage _statusMessage;
+
+    private GitHubAuthForm _gitHubForm;
+    private string _successMessage;
+    private string _errorMessage;
+
+    public override StatusMessage StatusMessage
     {
-        ExtensionHost.HideStatus(_authFormStatusMessage);
-        IsLoading = false;
-        return new IForm[] { new GitHubAuthForm() };
+        get => _statusMessage;
+        set => _statusMessage = value;
     }
 
-#pragma warning disable IDE0044 // Add readonly modifier
-    private StatusMessage _authFormStatusMessage = new();
-#pragma warning disable IDE0044 // Add readonly modifier
+    public override GitHubForm PageForm
+    {
+        get => _gitHubForm;
+        set => _gitHubForm = (GitHubAuthForm)value;
+    }
+
+    public override string SuccessMessage
+    {
+        get => _successMessage;
+        set => _successMessage = value;
+    }
+
+    public override string ErrorMessage
+    {
+        get => _errorMessage;
+        set => _errorMessage = value;
+    }
 
     public GitHubAuthPage()
     {
-        GitHubAuthForm.SignInAction += OnSignInCompleted;
-    }
-
-    private void OnSignInCompleted(object? sender, SignInStatusChangedEventArgs args)
-    {
-        if (args.Error != null)
-        {
-            IsLoading = false;
-            _authFormStatusMessage.Message = $"Error in sign-in: {args.Error.Message}";
-            _authFormStatusMessage.State = MessageState.Error;
-            ExtensionHost.ShowStatus(_authFormStatusMessage);
-        }
-        else if (args.IsSignedIn)
-        {
-            IsLoading = false;
-            _authFormStatusMessage.Message = "Sign in succeeded!";
-            _authFormStatusMessage.State = MessageState.Success;
-            ExtensionHost.ShowStatus(_authFormStatusMessage);
-        }
+        _gitHubForm = new GitHubAuthForm();
+        PageForm.LoadingStateChanged += OnLoadingStateChanged;
+        PageForm.FormSubmitted += OnFormSubmit;
+        _statusMessage = new();
+        _successMessage = "Sign in succeeded!";
+        _errorMessage = "Sign in failed";
     }
 }
