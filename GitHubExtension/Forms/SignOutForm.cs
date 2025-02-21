@@ -2,94 +2,29 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Text;
-using System.Text.Json.Nodes;
+using GitHubExtension;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
-using Windows.Foundation;
 
-internal sealed partial class SignOutForm : Form
+internal sealed partial class SignOutForm : GitHubForm
 {
+    public override Dictionary<string, string> TemplateSubstitutions => new()
+    {
+        { "{{AuthTitle}}", "Are you sure you want to sign out?" },
+        { "{{AuthButtonTitle}}", "Sign out" },
+        { "{{AuthIcon}}", $"data:image/png;base64,{GitHubIcon.GetBase64Icon("logo")}" },
+        { "{{AuthButtonTooltip}}", "Sign out GitHub extension" },
+    };
+
+    public override ICommandResult DefaultSubmitFormCommand => CommandResult.GoHome();
+
     public static event EventHandler<SignInStatusChangedEventArgs>? SignOutAction;
 
-    public override string TemplateJson()
-    {
-        var template = $$"""
-        {
-          "type": "AdaptiveCard",
-          "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-          "version": "1.5",
-          "body": [
-            {
-              "type": "Container",
-              "spacing": "none",
-              "items": [
-                {
-                  "type": "Image",
-                  "url": "data:image/png;base64,%GitHubLogo%",
-                  "horizontalAlignment": "center",
-                  "size": "large"
-                },
-                {
-                  "type": "TextBlock",
-                  "text": "Are you sure you want to sign out?",
-                  "wrap": true,
-                  "horizontalAlignment": "center",
-                  "height": "stretch",
-                  "size": "medium",
-                  "weight": "bolder"
-                },
-                {
-                  "type": "ColumnSet",
-                  "columns": [
-                    {
-                      "type": "Column",
-                      "width": "stretch"
-                    },
-                    {
-                      "type": "Column",
-                      "width": "auto",
-                      "items": [
-                        {
-                          "type": "ActionSet",
-                          "actions": [
-                            {
-                              "type": "Action.Submit",
-                              "title": "Sign out"
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Column",
-                      "width": "stretch"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-        """;
+    public override string TemplateJson() => LoadTemplateJsonFromFile("AuthTemplate");
 
-        template = Resources.ReplaceIdentifiers(template, Resources.GetWidgetResourceIdentifiers());
-        var gh_base64 = GitHubIcon.GetBase64Icon("logo");
-        template = template.Replace("%GitHubLogo%", gh_base64);
-
-        return template;
-    }
-
-    public override CommandResult SubmitForm(string payload)
-    {
-        HandleSignOut();
-
-        return CommandResult.GoHome();
-    }
-
-    private void HandleSignOut()
+    public override void HandleSubmit(string payload)
     {
         try
         {

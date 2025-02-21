@@ -36,7 +36,7 @@ internal sealed class GitHubHelper
     {
         return page switch
         {
-            "SignIn" => "Templates\\AuthTemplate.json",
+            "AuthTemplate" => "Templates\\AuthTemplate.json",
             "SaveSearchSurvey" => "Templates\\SaveSearchSurveyTemplate.json",
             "SaveSearchSurveyData" => "Templates\\SaveSearchSurveyData.json",
             "SaveSearch" => "Templates\\SaveSearchTemplate.json",

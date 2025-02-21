@@ -4,6 +4,7 @@
 
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
+using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Forms;
@@ -20,7 +21,9 @@ internal sealed partial class GitHubAuthForm : GitHubForm
         { "{{AuthButtonTooltip}}", "Sign in to GitHub" },
     };
 
-    public override string TemplateJson() => LoadTemplateJsonFromFile("SignIn");
+    public override ICommandResult DefaultSubmitFormCommand => CommandResult.KeepOpen();
+
+    public override string TemplateJson() => LoadTemplateJsonFromFile("AuthTemplate");
 
     public override void HandleSubmit(string payload)
     {

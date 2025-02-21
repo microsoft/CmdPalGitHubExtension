@@ -2,45 +2,51 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using GitHubExtension.Helpers;
-using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Pages;
 
-internal sealed partial class SignOutPage : FormPage
+internal sealed partial class SignOutPage : GitHubFormPage
 {
-    public override IForm[] Forms()
+    private StatusMessage _statusMessage;
+
+    private string _successMessage;
+
+    private string _errorMessage;
+
+    private GitHubForm _gitHubForm;
+
+    public override StatusMessage StatusMessage
     {
-        ExtensionHost.HideStatus(_signOutFormStatusMessage);
-        IsLoading = false;
-        return new IForm[] { new SignOutForm() };
+        get => _statusMessage;
+        set => _statusMessage = value;
     }
 
-#pragma warning disable IDE0044 // Add readonly modifier
-    private StatusMessage _signOutFormStatusMessage = new();
-#pragma warning disable IDE0044 // Add readonly modifier
+    public override GitHubForm PageForm
+    {
+        get => _gitHubForm;
+        set => _gitHubForm = value;
+    }
+
+    public override string SuccessMessage
+    {
+        get => _successMessage;
+        set => _successMessage = value;
+    }
+
+    public override string ErrorMessage
+    {
+        get => _errorMessage;
+        set => _errorMessage = value;
+    }
 
     public SignOutPage()
     {
-        SignOutForm.SignOutAction += OnSignOutCompleted;
-    }
-
-    private void OnSignOutCompleted(object? sender, SignInStatusChangedEventArgs args)
-    {
-        if (args.Error != null)
-        {
-            IsLoading = false;
-            _signOutFormStatusMessage.Message = $"Error in sign-out: {args.Error.Message}";
-            _signOutFormStatusMessage.State = MessageState.Error;
-            ExtensionHost.ShowStatus(_signOutFormStatusMessage);
-        }
-        else if (!args.IsSignedIn)
-        {
-            IsLoading = false;
-            _signOutFormStatusMessage.Message = "Sign out succeeded!";
-            _signOutFormStatusMessage.State = MessageState.Success;
-            ExtensionHost.ShowStatus(_signOutFormStatusMessage);
-        }
+        _gitHubForm = new SignOutForm();
+        PageForm.LoadingStateChanged += OnLoadingStateChanged;
+        PageForm.FormSubmitted += OnFormSubmit;
+        _statusMessage = new();
+        _successMessage = "Sign out succeeded!";
+        _errorMessage = "Sign out failed";
     }
 }

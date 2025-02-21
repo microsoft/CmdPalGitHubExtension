@@ -16,6 +16,8 @@ internal abstract partial class GitHubForm : Form
 
     public virtual Dictionary<string, string> TemplateSubstitutions => templateSubstitutions;
 
+    public abstract ICommandResult DefaultSubmitFormCommand { get; }
+
     public event TypedEventHandler<object, bool>? LoadingStateChanged;
 
     public event TypedEventHandler<object, FormSubmitEventArgs>? FormSubmitted;
@@ -29,7 +31,7 @@ internal abstract partial class GitHubForm : Form
     {
         LoadingStateChanged?.Invoke(this, true);
         Task.Run(() => HandleSubmit(payload));
-        return CommandResult.KeepOpen();
+        return DefaultSubmitFormCommand;
     }
 
     public abstract void HandleSubmit(string payload);

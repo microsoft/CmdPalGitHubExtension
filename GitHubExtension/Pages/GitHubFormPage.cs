@@ -26,7 +26,7 @@ internal abstract partial class GitHubFormPage : FormPage, IGitHubPage
     public override IForm[] Forms()
     {
         ExtensionHost.HideStatus(StatusMessage);
-        return new IForm[] { PageForm ?? throw new InvalidOperationException() };
+        return [PageForm ?? throw new InvalidOperationException()];
     }
 
     public virtual void OnFormSubmit(object sender, FormSubmitEventArgs? args)

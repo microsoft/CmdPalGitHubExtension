@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Helpers;
+using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Forms;
@@ -15,6 +16,8 @@ internal sealed partial class SampleGitHubForm : GitHubForm
         { "{{SavedSearchString}}", string.Empty },
         { "{{SavedSearchName}}", string.Empty },
     };
+
+    public override ICommandResult DefaultSubmitFormCommand => CommandResult.KeepOpen();
 
     public override string TemplateJson() => LoadTemplateJsonFromFile("SaveSearch");
 
