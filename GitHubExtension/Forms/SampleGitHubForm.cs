@@ -2,8 +2,8 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
-using Windows.Devices.Bluetooth.Advertisement;
 
 namespace GitHubExtension.Forms;
 
@@ -17,6 +17,22 @@ internal sealed partial class SampleGitHubForm : GitHubForm
     };
 
     public override string TemplateJson() => LoadTemplateJsonFromFile("SaveSearch");
+
+    public override void HandleSubmit(string payload)
+    {
+        try
+        {
+            Task.Delay(3000).Wait();
+
+            RaiseLoadingStateChanged(false);
+            RaiseFormSubmitted(new FormSubmitEventArgs(true, null));
+        }
+        catch (Exception ex)
+        {
+            RaiseLoadingStateChanged(false);
+            RaiseFormSubmitted(new FormSubmitEventArgs(false, ex));
+        }
+    }
 
     public SampleGitHubForm()
     {

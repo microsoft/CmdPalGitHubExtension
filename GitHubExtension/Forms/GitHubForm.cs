@@ -32,12 +32,7 @@ internal abstract partial class GitHubForm : Form
         return CommandResult.KeepOpen();
     }
 
-    public virtual void HandleSubmit(string payload)
-    {
-        Task.Delay(3000).Wait();
-        LoadingStateChanged?.Invoke(this, false);
-        FormSubmitted?.Invoke(this, new FormSubmitEventArgs(false, null));
-    }
+    public abstract void HandleSubmit(string payload);
 
     public virtual string LoadTemplateJsonFromFile(string templateName)
     {
@@ -60,5 +55,15 @@ internal abstract partial class GitHubForm : Form
         }
 
         return template;
+    }
+
+    protected void RaiseLoadingStateChanged(bool isLoading)
+    {
+        LoadingStateChanged?.Invoke(this, isLoading);
+    }
+
+    protected void RaiseFormSubmitted(FormSubmitEventArgs args)
+    {
+        FormSubmitted?.Invoke(this, args);
     }
 }

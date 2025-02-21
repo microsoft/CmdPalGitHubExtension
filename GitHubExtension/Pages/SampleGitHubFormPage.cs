@@ -9,18 +9,33 @@ namespace GitHubExtension.Pages;
 
 internal sealed partial class SampleGitHubFormPage : GitHubFormPage
 {
-    public override string Title => "Sample GitHub Form Page";
+    private StatusMessage _statusMessage;
 
-    public override StatusMessage StatusMessage => new() { Message = "Sample status message" };
+    private GitHubForm _gitHubForm;
+
+    public override string Title => "Sample GitHub Form Page";
 
     public override string SuccessMessage => "Sample success message";
 
     public override string ErrorMessage => "Sample error message";
 
+    public override StatusMessage StatusMessage
+    {
+        get => _statusMessage;
+        set => _statusMessage = value;
+    }
+
+    public override GitHubForm PageForm
+    {
+        get => _gitHubForm;
+        set => _gitHubForm = value;
+    }
+
     public SampleGitHubFormPage()
     {
-        PageForm = new SampleGitHubForm();
+        _gitHubForm = new SampleGitHubForm();
         PageForm.LoadingStateChanged += OnLoadingStateChanged;
         PageForm.FormSubmitted += OnFormSubmit;
+        _statusMessage = new StatusMessage { Message = "Sample status message" };
     }
 }

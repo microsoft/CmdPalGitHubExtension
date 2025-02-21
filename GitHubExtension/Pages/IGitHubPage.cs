@@ -11,7 +11,7 @@ internal partial interface IGitHubPage : IPage
 {
     public void OnLoadingStateChanged(object sender, bool isLoading);
 
-    public void ToastStatusMessage(StatusMessage statusMessage);
+    public void ToastStatusMessage();
 
-    public void SetStatusMessage(StatusMessage statusMessage, string message, MessageState state);
+    public void SetStatusMessage(string message, MessageState state);
 }

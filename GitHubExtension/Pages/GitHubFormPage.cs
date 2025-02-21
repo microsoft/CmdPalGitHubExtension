@@ -10,20 +10,17 @@ namespace GitHubExtension.Pages;
 
 internal abstract partial class GitHubFormPage : FormPage, IGitHubPage
 {
-    public abstract StatusMessage StatusMessage { get; }
+    public abstract StatusMessage StatusMessage { get; set; }
 
     public abstract string SuccessMessage { get; }
 
     public abstract string ErrorMessage { get; }
 
-    public virtual GitHubForm? PageForm { get; set; }
+    public abstract GitHubForm PageForm { get; set; }
 
     public GitHubFormPage()
     {
-        if (StatusMessage != null)
-        {
-            ExtensionHost.HideStatus(StatusMessage);
-        }
+        ExtensionHost.HideStatus(StatusMessage);
     }
 
     public override IForm[] Forms()
@@ -34,17 +31,16 @@ internal abstract partial class GitHubFormPage : FormPage, IGitHubPage
 
     public virtual void OnFormSubmit(object sender, FormSubmitEventArgs? args)
     {
-        // LoadingStateChanged will stop loading
         if (args?.Exception != null)
         {
             ExtensionHost.LogMessage(new LogMessage() { Message = ErrorMessage });
-            SetStatusMessage(StatusMessage, ErrorMessage, MessageState.Error);
+            SetStatusMessage(ErrorMessage, MessageState.Error);
             ExtensionHost.ShowStatus(StatusMessage);
         }
         else
         {
-            SetStatusMessage(StatusMessage, SuccessMessage, MessageState.Success);
-            ToastStatusMessage(StatusMessage);
+            SetStatusMessage(SuccessMessage, MessageState.Success);
+            ToastStatusMessage();
         }
 
         return;
@@ -55,15 +51,15 @@ internal abstract partial class GitHubFormPage : FormPage, IGitHubPage
         IsLoading = isLoading;
     }
 
-    public void SetStatusMessage(StatusMessage statusMessage, string message, MessageState state)
+    public void SetStatusMessage(string message, MessageState state)
     {
-        statusMessage.Message = message;
-        statusMessage.State = state;
+        StatusMessage.Message = message;
+        StatusMessage.State = state;
     }
 
-    public void ToastStatusMessage(StatusMessage statusMessage)
+    public void ToastStatusMessage()
     {
-        var toast = new ToastStatusMessage(statusMessage);
+        var toast = new ToastStatusMessage(StatusMessage);
         toast.Show();
     }
 }
