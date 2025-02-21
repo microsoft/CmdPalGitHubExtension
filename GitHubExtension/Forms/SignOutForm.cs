@@ -42,8 +42,11 @@ internal sealed partial class SignOutForm : GitHubForm
         }
         catch (Exception ex)
         {
+            RaiseLoadingStateChanged(false);
+
             // if sign out fails, the user is still signed in (true)
             SignOutAction?.Invoke(this, new SignInStatusChangedEventArgs(true, ex));
+            RaiseFormSubmitted(new FormSubmitEventArgs(false, ex));
         }
     }
 }
