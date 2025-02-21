@@ -21,6 +21,10 @@ internal abstract partial class SearchPage : ListPage
 
     protected bool RequestedData { get; set; }
 
+    private DateTime LastRequested { get; set; } = DateTime.MinValue;
+
+    private readonly TimeSpan _requestCooldown = TimeSpan.FromMinutes(5);
+
     // Search is mandatory for this page to exist
     protected SearchPage(PersistentData.Search search)
     {
@@ -45,10 +49,17 @@ internal abstract partial class SearchPage : ListPage
 
     public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();
 
-    protected async void RequestContentData()
+    protected async Task RequestContentData()
     {
+        if (DateTime.UtcNow - LastRequested < _requestCooldown)
+        {
+            Logger.Information($"Too soon to request an update.");
+            return;
+        }
+
         var cacheManager = CacheManager.GetInstance();
         await cacheManager.Refresh(UpdateType.Search, CurrentSearch);
+        LastRequested = DateTime.UtcNow;
     }
 
     protected void CacheManagerUpdateHandler(object? source, CacheManagerUpdateEventArgs e)
