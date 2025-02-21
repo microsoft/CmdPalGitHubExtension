@@ -19,7 +19,6 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         DisplayName = "GitHub Extension";
 
         GitHubAuthForm.SignInAction += OnSignInStatusChanged;
-        SignOutCommand.SignOutAction += OnSignInStatusChanged;
         SignOutForm.SignOutAction += OnSignInStatusChanged;
 
         UpdateSignInStatus(IsSignedIn());
@@ -58,7 +57,12 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             {
                 Title = "Saved Searches",
                 Icon = new IconInfo("\ue74e"),
-            }
+            },
+            new CommandItem(new SampleGitHubFormPage())
+            {
+                Title = "Sample Form",
+                Icon = new IconInfo("\ue74e"),
+            },
         ]
         : [
             new CommandItem(new GitHubAuthPage())

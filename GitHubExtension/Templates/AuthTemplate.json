@@ -9,7 +9,7 @@
       "items": [
         {
           "type": "TextBlock",
-          "text": "%SignIn_Title%",
+          "text": "{{AuthTitle}}",
           "wrap": true,
           "horizontalAlignment": "center",
           "height": "stretch",
@@ -18,7 +18,7 @@
         },
         {
           "type": "Image",
-          "url": "data:image/png;base64,%GitHubLogo%",
+          "url": "{{AuthIcon}}",
           "horizontalAlignment": "center",
           "size": "large"
         },
@@ -38,8 +38,8 @@
                   "actions": [
                     {
                       "type": "Action.Submit",
-                      "title": "%Widget_Template_Button/SignIn%",
-                      "tooltip": "%Widget_Template_Tooltip/SignIn%"
+                      "title": "{{AuthButtonTitle}}",
+                      "tooltip": "{{AuthButtonTooltip}}"
                     }
                   ]
                 }
