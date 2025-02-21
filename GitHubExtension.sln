@@ -10,6 +10,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Common.Dotnet.CsWinRT.props = Common.Dotnet.CsWinRT.props
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GitHubExtension.Test", "GitHubExtension.Test\GitHubExtension.Test.csproj", "{3712D2EC-5B4E-4D2F-A8CB-96E462E185FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -30,6 +32,14 @@ Global
 		{3CFB67D2-224C-4A58-B501-E55D98B8744B}.Release|x64.ActiveCfg = Release|x64
 		{3CFB67D2-224C-4A58-B501-E55D98B8744B}.Release|x64.Build.0 = Release|x64
 		{3CFB67D2-224C-4A58-B501-E55D98B8744B}.Release|x64.Deploy.0 = Release|x64
+		{3712D2EC-5B4E-4D2F-A8CB-96E462E185FC}.Debug|ARM64.ActiveCfg = Debug|arm64
+		{3712D2EC-5B4E-4D2F-A8CB-96E462E185FC}.Debug|ARM64.Build.0 = Debug|arm64
+		{3712D2EC-5B4E-4D2F-A8CB-96E462E185FC}.Debug|x64.ActiveCfg = Debug|x64
+		{3712D2EC-5B4E-4D2F-A8CB-96E462E185FC}.Debug|x64.Build.0 = Debug|x64
+		{3712D2EC-5B4E-4D2F-A8CB-96E462E185FC}.Release|ARM64.ActiveCfg = Release|arm64
+		{3712D2EC-5B4E-4D2F-A8CB-96E462E185FC}.Release|ARM64.Build.0 = Release|arm64
+		{3712D2EC-5B4E-4D2F-A8CB-96E462E185FC}.Release|x64.ActiveCfg = Release|x64
+		{3712D2EC-5B4E-4D2F-A8CB-96E462E185FC}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
