@@ -13,7 +13,7 @@ using Windows.Foundation;
 
 namespace GitHubExtension.Forms;
 
-internal sealed partial class SaveSearchForm : Form
+internal sealed partial class SaveSearchForm : GitHubForm
 {
     public static event TypedEventHandler<object, object?>? SearchSaved;
 
@@ -22,6 +22,15 @@ internal sealed partial class SaveSearchForm : Form
     private readonly SearchInput _searchInput;
 
     private readonly Search _savedSearch;
+
+    public override ICommandResult DefaultSubmitFormCommand => CommandResult.KeepOpen();
+
+    public override Dictionary<string, string> TemplateSubstitutions => new()
+    {
+        { "{{SaveSearchFormTitle}}", string.IsNullOrEmpty(_savedSearch.Name) ? "Save Search" : "Edit Search" },
+        { "{{SavedSearchString}}", _savedSearch.SearchString },
+        { "{{SavedSearchName}}", _savedSearch.Name },
+    };
 
     public SaveSearchForm()
     : this(SearchInput.SearchString)
@@ -53,17 +62,7 @@ internal sealed partial class SaveSearchForm : Form
         return data;
     }
 
-    public override string TemplateJson()
-    {
-        var templateName = _searchInput == SearchInput.SearchString ? "SaveSearch" : "SaveSearchSurvey";
-        var path = Path.Combine(AppContext.BaseDirectory, GitHubHelper.GetTemplatePath(templateName));
-        var template = File.ReadAllText(path, Encoding.Default) ?? throw new FileNotFoundException(path);
-        template = template.Replace("{{SaveSearchFormTitle}}", string.IsNullOrEmpty(_savedSearch.Name) ? "Save Search" : "Edit Search");
-        template = template.Replace("{{SavedSearchString}}", _savedSearch.SearchString);
-        template = template.Replace("{{SavedSearchName}}", _savedSearch.Name);
-
-        return template;
-    }
+    public override string TemplateJson() => LoadTemplateJsonFromFile(_searchInput == SearchInput.SearchString ? "SaveSearch" : "SaveSearchSurvey");
 
     public override ICommandResult SubmitForm(string payload)
     {
@@ -82,7 +81,7 @@ internal sealed partial class SaveSearchForm : Form
         }
     }
 
-    private void HandleSubmit(string payload)
+    public override void HandleSubmit(string payload)
     {
         var search = GetSearch(payload);
         ExtensionHost.LogMessage(new LogMessage() { Message = $"Search: {search}" });
