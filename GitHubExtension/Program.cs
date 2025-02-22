@@ -101,8 +101,16 @@ public class Program
         server.RegisterExtension(() => extensionInstance);
 
         // Set up cache manager to pre-update data
+        // Cache manager is a IDisposable object, so we need to dispose it when we are done.
         using var cacheManager = CacheManager.GetInstance();
         cacheManager?.Start();
+
+        // Set up the cache manager to be injected in the
+        // Search pages via the factory. The pages uses the
+        // cache manager, which is a singleton, to fetch
+        // and request for data.
+        // Cache manager should never be null here.
+        SearchPageFactory.Initialize(cacheManager!);
 
         // This will make the main thread wait until the event is signalled by the extension class.
         // Since we have single instance of the extension object, we exit as soon as it is disposed.

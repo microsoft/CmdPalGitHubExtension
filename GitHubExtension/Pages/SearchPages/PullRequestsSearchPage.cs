@@ -4,13 +4,19 @@
 
 using System.Globalization;
 using GitHubExtension.Commands;
+using GitHubExtension.DataManager;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension;
 
-internal sealed partial class PullRequestsSearchPage(PersistentData.Search search) : SearchPage<DataModel.PullRequest>(search)
+internal sealed partial class PullRequestsSearchPage : SearchPage<DataModel.PullRequest>
 {
+    public PullRequestsSearchPage(PersistentData.Search search, ICacheManager cacheManager)
+        : base(search, cacheManager)
+    {
+    }
+
     protected override ListItem GetListItem(DataModel.PullRequest item)
     {
         return new ListItem(new LinkCommand(item))

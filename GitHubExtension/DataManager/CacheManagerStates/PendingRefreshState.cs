@@ -6,7 +6,7 @@ using GitHubExtension.PersistentData;
 
 namespace GitHubExtension.DataManager.CacheManagerStates;
 
-public class PendingRefreshState : CacheManagerState
+internal sealed class PendingRefreshState : CacheManagerState
 {
     public PendingRefreshState(CacheManager cacheManager)
         : base(cacheManager)

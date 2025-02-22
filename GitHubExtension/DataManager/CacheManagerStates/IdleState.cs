@@ -6,7 +6,7 @@ using GitHubExtension.PersistentData;
 
 namespace GitHubExtension.DataManager.CacheManagerStates;
 
-public class IdleState : CacheManagerState
+internal sealed class IdleState : CacheManagerState
 {
     public IdleState(CacheManager cacheManager)
         : base(cacheManager)

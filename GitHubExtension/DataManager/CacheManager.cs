@@ -7,7 +7,7 @@ using Serilog;
 
 namespace GitHubExtension.DataManager;
 
-public class CacheManager : IDisposable
+internal sealed class CacheManager : ICacheManager, IDisposable
 {
     public static readonly TimeSpan UpdateInterval = TimeSpan.FromMinutes(10);
 
@@ -45,7 +45,7 @@ public class CacheManager : IDisposable
 
     private CancellationTokenSource _cancelSource;
 
-    private IGitHubDataManager DataManager { get; set; }
+    public IGitHubDataManager DataManager { get; private set; }
 
     private GitHubRepositoryHelper RepositoryHelper { get; set; }
 

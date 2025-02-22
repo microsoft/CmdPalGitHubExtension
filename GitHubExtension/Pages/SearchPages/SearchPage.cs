@@ -15,6 +15,8 @@ internal abstract partial class SearchPage<T> : ListPage
 {
     protected ILogger Logger { get; }
 
+    private readonly ICacheManager _cacheManager;
+
     public PersistentData.Search CurrentSearch { get; private set; }
 
     // To avoid race condition between multiple requests
@@ -25,11 +27,12 @@ internal abstract partial class SearchPage<T> : ListPage
     private readonly TimeSpan _requestCooldown = TimeSpan.FromMinutes(5);
 
     // Search is mandatory for this page to exist
-    protected SearchPage(PersistentData.Search search)
+    protected SearchPage(PersistentData.Search search, ICacheManager cacheManager)
     {
         Icon = new IconInfo(GitHubIcon.IconDictionary[$"{search.Type}"]);
         Name = search.Name;
         CurrentSearch = search;
+        _cacheManager = cacheManager;
         Logger = Log.ForContext("SourceContext", $"Pages/{GetType().Name}");
     }
 
@@ -48,8 +51,7 @@ internal abstract partial class SearchPage<T> : ListPage
             LastRequested = DateTime.UtcNow;
         }
 
-        var cacheManager = CacheManager.GetInstance();
-        await cacheManager.Refresh(UpdateType.Search, CurrentSearch);
+        await _cacheManager.Refresh(UpdateType.Search, CurrentSearch);
     }
 
     protected void CacheManagerUpdateHandler(object? source, CacheManagerUpdateEventArgs e)
@@ -118,12 +120,12 @@ internal abstract partial class SearchPage<T> : ListPage
 
     private async Task<IEnumerable<T>> GetSearchItemsAsync()
     {
-        CacheManager.GetInstance().OnUpdate += CacheManagerUpdateHandler;
+        _cacheManager.OnUpdate += CacheManagerUpdateHandler;
 
         // To avoid locked database
-        CacheManager.GetInstance().CancelUpdateInProgress();
-        var dataManager = GitHubDataManager.CreateInstance();
-        var dsSearch = dataManager!.GetSearch(CurrentSearch.Name, CurrentSearch!.SearchString);
+        _cacheManager.CancelUpdateInProgress();
+        var dataManager = _cacheManager.DataManager;
+        var dsSearch = dataManager.GetSearch(CurrentSearch.Name, CurrentSearch!.SearchString);
         var items = await LoadContentData(dsSearch!);
 
         Logger.Information($"Found {items.Count()} items matching search query \"{CurrentSearch.Name}\"");

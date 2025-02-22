@@ -6,7 +6,7 @@ using Serilog;
 
 namespace GitHubExtension.DataManager.CacheManagerStates;
 
-public abstract class CacheManagerState
+internal abstract class CacheManagerState
 {
     protected CacheManager CacheManager { get; private set; }
 

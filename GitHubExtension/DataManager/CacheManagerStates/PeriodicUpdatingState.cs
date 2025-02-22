@@ -6,7 +6,7 @@ using GitHubExtension.PersistentData;
 
 namespace GitHubExtension.DataManager.CacheManagerStates;
 
-public class PeriodicUpdatingState : CacheManagerState
+internal sealed class PeriodicUpdatingState : CacheManagerState
 {
     public PeriodicUpdatingState(CacheManager cacheManager)
         : base(cacheManager)
