@@ -46,7 +46,7 @@ internal sealed partial class SaveSearchPage : GitHubFormPage
         _saveSearchForm.FormSubmitted += OnFormSubmit;
         _saveSearchForm.LoadingStateChanged += OnLoadingStateChanged;
         _statusMessage = new StatusMessage();
-        _successMessage = "Search saved successfully!";
+        _successMessage = $"Search saved successfully!";
         _errorMessage = "Error in saving search";
     }
 }

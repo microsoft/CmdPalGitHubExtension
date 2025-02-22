@@ -18,7 +18,6 @@ internal sealed partial class SavedSearchesPage : ListPage
         Icon = new IconInfo("\ue74e");
         Name = "Saved Searches";
         SaveSearchForm.SearchSaved += OnSearchSaved;
-        SaveSearchForm.SearchSaving += OnSearchSaving;
         RemoveSavedSearchCommand.SearchRemoved += OnSearchRemoved;
         RemoveSavedSearchCommand.SearchRemoving += OnSearchRemoving;
     }

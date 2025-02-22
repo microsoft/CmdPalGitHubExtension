@@ -17,8 +17,6 @@ internal sealed partial class SaveSearchForm : GitHubForm
 {
     public static event TypedEventHandler<object, object?>? SearchSaved;
 
-    public static event TypedEventHandler<object, bool>? SearchSaving;
-
     private readonly SearchInput _searchInput;
 
     private readonly Search _savedSearch;
@@ -64,23 +62,6 @@ internal sealed partial class SaveSearchForm : GitHubForm
 
     public override string TemplateJson() => LoadTemplateJsonFromFile(_searchInput == SearchInput.SearchString ? "SaveSearch" : "SaveSearchSurvey");
 
-    public override ICommandResult SubmitForm(string payload)
-    {
-        try
-        {
-            SearchSaving?.Invoke(this, true);
-
-            Task.Run(() => HandleSubmit(payload));
-
-            return CommandResult.KeepOpen();
-        }
-        catch (Exception ex)
-        {
-            ExtensionHost.LogMessage(new LogMessage() { Message = $"Error in SubmitForm: {ex.Message}, {ex.InnerException}" });
-            return CommandResult.GoHome();
-        }
-    }
-
     public override void HandleSubmit(string payload)
     {
         var search = GetSearch(payload);
@@ -113,11 +94,15 @@ internal sealed partial class SaveSearchForm : GitHubForm
             searchHelper.AddSavedSearch(search).Wait();
 
             SearchSaved?.Invoke(this, search);
+            RaiseLoadingStateChanged(false);
+            RaiseFormSubmitted(new FormSubmitEventArgs(true, null));
             return search;
         }
         catch (Exception ex)
         {
             SearchSaved?.Invoke(this, ex);
+            RaiseLoadingStateChanged(false);
+            RaiseFormSubmitted(new FormSubmitEventArgs(false, ex));
         }
 
         return new SearchCandidate();
