@@ -9,13 +9,8 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension;
 
-internal sealed partial class PullRequestsSearchPage : SearchPage<DataModel.PullRequest>
+internal sealed partial class PullRequestsSearchPage(PersistentData.Search search) : SearchPage<DataModel.PullRequest>(search)
 {
-    public PullRequestsSearchPage(PersistentData.Search search)
-        : base(search)
-    {
-    }
-
     protected override ListItem GetListItem(DataModel.PullRequest item)
     {
         return new ListItem(new LinkCommand(item))
