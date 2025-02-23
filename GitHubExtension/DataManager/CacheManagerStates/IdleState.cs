@@ -17,7 +17,7 @@ internal sealed class IdleState : CacheManagerState
     {
         lock (CacheManager.GetStateLock())
         {
-            CacheManager.SetState(CacheManager.RefreshingState);
+            CacheManager.State = CacheManager.RefreshingState;
             CacheManager.PendingSearch = search;
         }
 
@@ -36,7 +36,7 @@ internal sealed class IdleState : CacheManagerState
 
         lock (CacheManager.GetStateLock())
         {
-            CacheManager.SetState(CacheManager.PeriodicUpdatingState);
+            CacheManager.State = CacheManager.PeriodicUpdatingState;
         }
 
         Logger.Information("Starting periodic update.");

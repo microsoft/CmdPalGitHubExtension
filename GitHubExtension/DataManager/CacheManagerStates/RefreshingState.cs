@@ -39,7 +39,7 @@ internal sealed class RefreshingState : CacheManagerState
 
             lock (CacheManager.GetStateLock())
             {
-                CacheManager.SetState(CacheManager.PendingRefreshState);
+                CacheManager.State = CacheManager.PendingRefreshState;
             }
         });
     }
@@ -49,7 +49,7 @@ internal sealed class RefreshingState : CacheManagerState
         Logger.Information("Received data manager update event. Changing to Idle state.");
         lock (CacheManager.GetStateLock())
         {
-            CacheManager.SetState(CacheManager.IdleState);
+            CacheManager.State = CacheManager.IdleState;
             CacheManager.PendingSearch = null;
         }
     }

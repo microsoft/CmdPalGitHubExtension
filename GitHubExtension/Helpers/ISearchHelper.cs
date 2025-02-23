@@ -4,7 +4,7 @@
 
 namespace GitHubExtension.Helpers;
 
-internal interface ISearchHelper
+public interface ISearchHelper
 {
     public Task<IEnumerable<PersistentData.Search>> GetSavedSearches();
 }

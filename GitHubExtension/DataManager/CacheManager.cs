@@ -8,7 +8,7 @@ using Serilog;
 
 namespace GitHubExtension.DataManager;
 
-internal sealed class CacheManager : ICacheManager, IDisposable
+public sealed class CacheManager : ICacheManager, IDisposable
 {
     public static readonly TimeSpan UpdateInterval = TimeSpan.FromMinutes(10);
 
@@ -22,12 +22,7 @@ internal sealed class CacheManager : ICacheManager, IDisposable
 
     private readonly ILogger _logger;
 
-    private CacheManagerState _state;
-
-    public void SetState(CacheManagerState state)
-    {
-        _state = state;
-    }
+    public CacheManagerState State { get; internal set; }
 
     public object GetStateLock()
     {
@@ -91,10 +86,12 @@ internal sealed class CacheManager : ICacheManager, IDisposable
 
     public CacheManager(IGitHubDataManager dataManager, IRepositoryHelper repositoryHelper, ISearchHelper searchHelper)
     {
-        DataManager = dataManager ?? throw new DataStoreInaccessibleException();
-        DataUpdater = new DataUpdater(PeriodicUpdate);
+        // Injected dependencies
+        DataManager = dataManager;
         RepositoryHelper = repositoryHelper;
         SearchHelper = searchHelper;
+
+        DataUpdater = new DataUpdater(PeriodicUpdate);
         dataManager.OnUpdate += HandleDataManagerUpdate;
         _cancelSource = new CancellationTokenSource();
         _logger = Log.Logger.ForContext("SourceContext", nameof(CacheManager));
@@ -104,7 +101,7 @@ internal sealed class CacheManager : ICacheManager, IDisposable
         RefreshingState = new RefreshingState(this);
         PeriodicUpdatingState = new PeriodicUpdatingState(this);
         PendingRefreshState = new PendingRefreshState(this);
-        _state = IdleState;
+        State = IdleState;
 
         Start();
     }
@@ -135,12 +132,12 @@ internal sealed class CacheManager : ICacheManager, IDisposable
     // an instant update of its data.
     public async Task Refresh(UpdateType updateType, PersistentData.Search? search = null)
     {
-        await _state.Refresh(updateType, search);
+        await State.Refresh(updateType, search);
     }
 
-    private async Task PeriodicUpdate()
+    public async Task PeriodicUpdate()
     {
-        await _state.PeriodicUpdate();
+        await State.PeriodicUpdate();
     }
 
     public async Task Update(TimeSpan? olderThan, UpdateType updateType, PersistentData.Search? search = null)
@@ -195,7 +192,7 @@ internal sealed class CacheManager : ICacheManager, IDisposable
     private void HandleDataManagerUpdate(object? source, DataManagerUpdateEventArgs e)
     {
         _logger.Information($"DataManager update: {e.Kind}, {e.UpdateType}");
-        _state.HandleDataManagerUpdate(source, e);
+        State.HandleDataManagerUpdate(source, e);
 
         switch (e.Kind)
         {

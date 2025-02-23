@@ -23,7 +23,7 @@ internal sealed class PeriodicUpdatingState : CacheManagerState
             {
                 CacheManager.PendingSearch = search;
                 CacheManager.CurrentUpdateType = updateType;
-                CacheManager.SetState(CacheManager.PendingRefreshState);
+                CacheManager.State = CacheManager.PendingRefreshState;
             }
         });
     }
@@ -33,7 +33,7 @@ internal sealed class PeriodicUpdatingState : CacheManagerState
         Logger.Information("Received data manager update event. Changing to Idle state.");
         lock (CacheManager.GetStateLock())
         {
-            CacheManager.SetState(CacheManager.IdleState);
+            CacheManager.State = CacheManager.IdleState;
             CacheManager.PendingSearch = null;
             CacheManager.CurrentUpdateType = UpdateType.Unknown;
         }

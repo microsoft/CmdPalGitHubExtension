@@ -6,7 +6,7 @@ using Octokit;
 
 namespace GitHubExtension.Helpers;
 
-internal interface IRepositoryHelper
+public interface IRepositoryHelper
 {
     RepositoryCollection GetUserRepositoryCollection();
 }
