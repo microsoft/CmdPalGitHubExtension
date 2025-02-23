@@ -34,14 +34,14 @@ public partial class GitHubDataManager
         {
             tx.Rollback();
             _log.Information($"Update cancelled: {parameters}");
-            SendCancelUpdateEvent(this, parameters.UpdateType);
+            SendCancelUpdateEvent(parameters.UpdateType);
             return;
         }
         catch (Exception ex)
         {
             tx.Rollback();
             _log.Error(ex, $"Error during update: {ex.Message}");
-            SendErrorUpdateEvent(this, parameters.UpdateType, ex);
+            SendErrorUpdateEvent(parameters.UpdateType, ex);
             return;
         }
 
@@ -53,11 +53,11 @@ public partial class GitHubDataManager
             // the ItemsChanged event. So if a search is updated in the background,
             // the open page is the only one that could have requested it.
             // So having the name might not matter at all.
-            SendSearchSuccessUpdateEvent(this, parameters.SearchName!, parameters.SearchType);
+            SendSearchSuccessUpdateEvent(parameters.SearchName!, parameters.SearchType);
         }
         else
         {
-            SendSuccessUpdateEvent(this, parameters.UpdateType);
+            SendSuccessUpdateEvent(parameters.UpdateType);
         }
 
         _log.Information($"Update complete: {parameters}");
@@ -137,44 +137,44 @@ public partial class GitHubDataManager
         _lastUpdateTime = DateTime.UtcNow;
     }
 
-    private static void SendDeveloperUpdateEvent(object? source)
+    private void SendDeveloperUpdateEvent(IGitHubDataManager? source)
     {
-        SendUpdateEvent(source, DataManagerUpdateKind.Success, UpdateType.Developer, null, null);
+        SendUpdateEvent(DataManagerUpdateKind.Success, UpdateType.Developer, null, null);
     }
 
-    private static void SendRepositoryUpdateEvent(object? source, string fullName, string[] context)
+    private void SendRepositoryUpdateEvent(string fullName, string[] context)
     {
-        SendUpdateEvent(source, DataManagerUpdateKind.Success, UpdateType.Repository, fullName, context);
+        SendUpdateEvent(DataManagerUpdateKind.Success, UpdateType.Repository, fullName, context);
     }
 
-    private static void SendUpdateEvent(object? source, DataManagerUpdateKind kind, UpdateType updateType, string? info = null, string[]? context = null, Exception? ex = null)
+    private void SendUpdateEvent(DataManagerUpdateKind kind, UpdateType updateType, string? info = null, string[]? context = null, Exception? ex = null)
     {
         if (OnUpdate != null)
         {
             info ??= string.Empty;
             context ??= Array.Empty<string>();
             _log.Information($"Sending Update Event: {kind}  Type: {updateType} Info: {info}  Context: {string.Join(",", context)}");
-            OnUpdate.Invoke(source, new DataManagerUpdateEventArgs(kind, updateType, info, context, ex));
+            OnUpdate.Invoke(this, new DataManagerUpdateEventArgs(kind, updateType, info, context, ex));
         }
     }
 
-    private static void SendSuccessUpdateEvent(object? source, UpdateType updateType)
+    private void SendSuccessUpdateEvent(UpdateType updateType)
     {
-        SendUpdateEvent(source, DataManagerUpdateKind.Success, updateType, null, null);
+        SendUpdateEvent(DataManagerUpdateKind.Success, updateType, null, null);
     }
 
-    private static void SendSearchSuccessUpdateEvent(object? source, string searchName, SearchType searchType)
+    private void SendSearchSuccessUpdateEvent(string searchName, SearchType searchType)
     {
-        SendUpdateEvent(source, DataManagerUpdateKind.Success, UpdateType.Search, $"{searchName}:{searchType}", null);
+        SendUpdateEvent(DataManagerUpdateKind.Success, UpdateType.Search, $"{searchName}:{searchType}", null);
     }
 
-    private static void SendCancelUpdateEvent(object? source, UpdateType updateType)
+    private void SendCancelUpdateEvent(UpdateType updateType)
     {
-        SendUpdateEvent(source, DataManagerUpdateKind.Cancel, updateType, null, null);
+        SendUpdateEvent(DataManagerUpdateKind.Cancel, updateType, null, null);
     }
 
-    private static void SendErrorUpdateEvent(object? source, UpdateType updateType, Exception ex)
+    private void SendErrorUpdateEvent(UpdateType updateType, Exception ex)
     {
-        SendUpdateEvent(source, DataManagerUpdateKind.Error, updateType, null, null, ex);
+        SendUpdateEvent(DataManagerUpdateKind.Error, updateType, null, null, ex);
     }
 }

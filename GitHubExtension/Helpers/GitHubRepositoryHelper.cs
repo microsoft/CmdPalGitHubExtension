@@ -8,9 +8,9 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 using Octokit;
 using Serilog;
 
-namespace GitHubExtension;
+namespace GitHubExtension.Helpers;
 
-public class GitHubRepositoryHelper
+public class GitHubRepositoryHelper : IRepositoryHelper
 {
     private static readonly Lazy<GitHubRepositoryHelper> _instance = new(() => new GitHubRepositoryHelper(GitHubClientProvider.Instance.GetClient()));
 
@@ -18,7 +18,7 @@ public class GitHubRepositoryHelper
 
     private GitHubClient _client;
 
-    private GitHubRepositoryHelper(GitHubClient client)
+    public GitHubRepositoryHelper(GitHubClient client)
     {
         _client = client;
         _logger = Log.ForContext("SourceContext", $"Helpers/{nameof(GitHubRepositoryHelper)}");

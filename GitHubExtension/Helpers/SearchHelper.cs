@@ -10,15 +10,18 @@ using Octokit;
 
 namespace GitHubExtension.Helpers;
 
-public class SearchHelper
+public class SearchHelper : ISearchHelper
 {
     private static readonly Lazy<SearchHelper> _instance = new(() => new SearchHelper(GitHubClientProvider.Instance.GetClient()));
 
+    private readonly PersistentDataManager _dataManager;
+
     private GitHubClient _client;
 
-    private SearchHelper(GitHubClient client)
+    public SearchHelper(GitHubClient client)
     {
         _client = client;
+        _dataManager = PersistentDataManager.CreateInstance()!;
     }
 
     public static SearchHelper Instance => _instance.Value;
@@ -30,26 +33,22 @@ public class SearchHelper
 
     public async Task<IEnumerable<PersistentData.Search>> GetSavedSearches()
     {
-        var dataManager = PersistentDataManager.CreateInstance();
-        return await dataManager!.GetAllSearchesAsync();
+        return await _dataManager.GetAllSearchesAsync();
     }
 
     public async Task AddSavedSearch(SearchCandidate search)
     {
-        var dataManager = PersistentDataManager.CreateInstance();
-        await dataManager!.AddSearchAsync(search.Name, search.SearchString, search.Type);
+        await _dataManager.AddSearchAsync(search.Name, search.SearchString, search.Type);
     }
 
     public async Task RemoveSavedSearch(SearchCandidate search)
     {
-        var dataManager = PersistentDataManager.CreateInstance();
-        await dataManager!.RemoveSearchAsync(search.Name, search.SearchString, search.Type);
+        await _dataManager.RemoveSearchAsync(search.Name, search.SearchString, search.Type);
     }
 
     public async Task RemoveSavedSearch(Search search)
     {
-        var dataManager = PersistentDataManager.CreateInstance();
-        await dataManager!.RemoveSearchAsync(search.Name, search.SearchString, DataModel.Enums.SearchType.Issues);
+        await _dataManager.RemoveSearchAsync(search.Name, search.SearchString, DataModel.Enums.SearchType.Issues);
     }
 
     public void ClearSavedSearches()

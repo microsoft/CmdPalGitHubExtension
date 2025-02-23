@@ -2,11 +2,16 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using GitHubExtension.Client;
 using GitHubExtension.DataManager;
+using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Windows.AppLifecycle;
 using Microsoft.Windows.Storage;
+using Octokit;
 using Serilog;
 using Windows.ApplicationModel.Activation;
 
@@ -14,6 +19,8 @@ namespace GitHubExtension;
 
 public class Program
 {
+    public static IHost? ServiceProvider { get; set; }
+
     [MTAThread]
     public static async Task Main(string[] args)
     {
@@ -100,17 +107,16 @@ public class Program
         // If you want to instantiate a new instance each time the host asks, create the new instance inside the delegate.
         server.RegisterExtension(() => extensionInstance);
 
-        // Set up cache manager to pre-update data
-        // Cache manager is a IDisposable object, so we need to dispose it when we are done.
-        using var cacheManager = CacheManager.GetInstance();
-        cacheManager?.Start();
-
-        // Set up the cache manager to be injected in the
-        // Search pages via the factory. The pages uses the
-        // cache manager, which is a singleton, to fetch
-        // and request for data.
-        // Cache manager should never be null here.
-        SearchPageFactory.Initialize(cacheManager!);
+        ServiceProvider = Host.CreateDefaultBuilder()
+            .ConfigureServices((context, services) =>
+            {
+                services.AddSingleton<SearchPageFactory, SearchPageFactory>();
+                services.AddTransient<GitHubClient>(sp => GitHubClientProvider.Instance.GetClient());
+                services.AddSingleton<IGitHubDataManager>(sp => GitHubDataManager.CreateInstance()!);
+                services.AddSingleton<IRepositoryHelper, GitHubRepositoryHelper>();
+                services.AddSingleton<ISearchHelper, SearchHelper>();
+                services.AddSingleton<ICacheManager, CacheManager>();
+            }).Build();
 
         // This will make the main thread wait until the event is signalled by the extension class.
         // Since we have single instance of the extension object, we exit as soon as it is disposed.

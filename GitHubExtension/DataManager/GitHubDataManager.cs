@@ -18,7 +18,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
 
     private static readonly ILogger _log = _logger.Value;
 
-    public static event DataManagerUpdateEventHandler? OnUpdate;
+    public event DataManagerUpdateEventHandler? OnUpdate;
 
     private const string LastUpdatedKeyName = "LastUpdated";
     private static readonly TimeSpan _notificationRetentionTime = TimeSpan.FromDays(7);

@@ -32,16 +32,6 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
     {
         return _isSignedIn
         ? [
-            new CommandItem(new SearchIssuesPage())
-            {
-                Title = "Search GitHub Issues",
-                Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
-            },
-            new CommandItem(new SearchPullRequestsPage())
-            {
-                Title = "Search GitHub Pull Requests",
-                Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]),
-            },
             new CommandItem(new AddRepoPage())
             {
                 Title = "Add a repo via URL",
