@@ -148,6 +148,7 @@ public partial class DataStoreTests
 
         Assert.AreEqual(stubSearch1.Object, cacheManager.PendingSearch);
         Assert.AreEqual(cacheManager.RefreshingState, cacheManager.State);
+        mockGitHubDataManager.Verify(x => x.RequestSearchUpdateAsync(It.IsAny<string>(), "Test1", It.IsAny<SearchType>(), It.IsAny<RequestOptions>()), Times.Once);
 
         await cacheManager.Refresh(UpdateType.Search, stubSearch2.Object);
 
@@ -159,6 +160,7 @@ public partial class DataStoreTests
 
         Thread.Sleep(1000);
         Assert.AreEqual(cacheManager.RefreshingState, cacheManager.State);
+        mockGitHubDataManager.Verify(x => x.RequestSearchUpdateAsync(It.IsAny<string>(), "Test2", It.IsAny<SearchType>(), It.IsAny<RequestOptions>()), Times.Once);
 
         mockGitHubDataManager.Raise(x => x.OnUpdate += null, this, new DataManagerUpdateEventArgs(DataManagerUpdateKind.Success, UpdateType.Search, string.Empty, Array.Empty<string>()));
 

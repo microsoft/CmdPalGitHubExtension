@@ -11,7 +11,7 @@ namespace GitHubExtension;
 
 public class SearchPageFactory
 {
-    private readonly ICacheManager _cacheManager;
+    private static ICacheManager? _cacheManager;
 
     // This injects the cache manager into the factory class.
     // This works to decouple the pages from other dependencies
@@ -21,16 +21,11 @@ public class SearchPageFactory
         _cacheManager = cacheManager;
     }
 
-    public static SearchPageFactory GetInstance()
-    {
-        return Program.ServiceProvider!.Services.GetRequiredService<SearchPageFactory>();
-    }
-
-    public ListPage CreateForSearch(PersistentData.Search search)
+    public static ListPage CreateForSearch(PersistentData.Search search)
     {
         return search.Type switch
         {
-            SearchType.PullRequests => new PullRequestsSearchPage(search, _cacheManager),
+            SearchType.PullRequests => new PullRequestsSearchPage(search, _cacheManager!),
             SearchType.Issues => new IssuesSearchPage(search, _cacheManager!),
             _ => throw new NotImplementedException(),
         };

@@ -13,8 +13,6 @@ namespace GitHubExtension;
 
 internal sealed partial class SavedSearchesPage : ListPage
 {
-    private readonly SearchPageFactory _searchPageFactory;
-
     public SavedSearchesPage()
     {
         Icon = new IconInfo("\ue74e");
@@ -23,7 +21,6 @@ internal sealed partial class SavedSearchesPage : ListPage
         SaveSearchForm.SearchSaving += OnSearchSaving;
         RemoveSavedSearchCommand.SearchRemoved += OnSearchRemoved;
         RemoveSavedSearchCommand.SearchRemoving += OnSearchRemoving;
-        _searchPageFactory = SearchPageFactory.GetInstance();
     }
 
     public override IListItem[] GetItems()
@@ -31,7 +28,7 @@ internal sealed partial class SavedSearchesPage : ListPage
         var savedSearches = SearchHelper.Instance.GetSavedSearches().Result;
         if (savedSearches.Any())
         {
-            var searchPages = savedSearches.Select(savedSearch => new ListItem(_searchPageFactory.CreateForSearch(savedSearch))
+            var searchPages = savedSearches.Select(savedSearch => new ListItem(SearchPageFactory.CreateForSearch(savedSearch))
             {
                 Title = savedSearch.Name,
                 Icon = new IconInfo(GitHubIcon.IconDictionary[$"{savedSearch.Type}"]),
