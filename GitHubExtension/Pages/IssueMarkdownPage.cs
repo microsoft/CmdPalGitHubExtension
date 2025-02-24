@@ -6,22 +6,23 @@ using System.Globalization;
 using GitHubExtension.Commands;
 using GitHubExtension.DataModel;
 using GitHubExtension.Helpers;
+using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension;
 
-internal sealed partial class IssueMarkdownPage : MarkdownPage
+internal sealed partial class IssueContentPage : ContentPage
 {
     private readonly Issue _issue;
 
-    public IssueMarkdownPage()
+    public IssueContentPage()
     {
         Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
         Name = "View";
         _issue = new Issue();
     }
 
-    public IssueMarkdownPage(Issue issue)
+    public IssueContentPage(Issue issue)
     {
         Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
         Name = "View issue in Command Palette";
@@ -37,12 +38,16 @@ internal sealed partial class IssueMarkdownPage : MarkdownPage
 #pragma warning restore IDE0300 // Simplify collection initialization
     }
 
-    public override string[] Bodies()
+    public override IContent[] GetContent()
     {
-        var template = $$"""
+        var template = new MarkdownContent
+        {
+            Body = $$"""
         # {{_issue.Title}}
         {{_issue.Body}}
-        """;
+        """,
+        };
+
         return [template];
     }
 }

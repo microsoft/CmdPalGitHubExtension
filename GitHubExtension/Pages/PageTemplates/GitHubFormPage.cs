@@ -8,7 +8,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Pages;
 
-internal abstract partial class GitHubFormPage : FormPage, IGitHubPage
+internal abstract partial class GitHubContentPage : ContentPage, IGitHubPage
 {
     public abstract StatusMessage StatusMessage { get; set; }
 
@@ -18,15 +18,15 @@ internal abstract partial class GitHubFormPage : FormPage, IGitHubPage
 
     public abstract GitHubForm PageForm { get; set; }
 
-    public GitHubFormPage()
+    public GitHubContentPage()
     {
         ExtensionHost.HideStatus(StatusMessage);
     }
 
-    public override IForm[] Forms()
+    public override IContent[] GetContent()
     {
         ExtensionHost.HideStatus(StatusMessage);
-        return [PageForm ?? throw new InvalidOperationException()];
+        return [PageForm];
     }
 
     public virtual void OnFormSubmit(object sender, FormSubmitEventArgs? args)

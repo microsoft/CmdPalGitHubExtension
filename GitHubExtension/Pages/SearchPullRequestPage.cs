@@ -108,7 +108,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                             new(new CopyCommand(pullRequest.HtmlUrl, "URL")),
                             new(new CopyCommand(pullRequest.Title, "pull request title")),
                             new(new CopyCommand(pullRequest.Number.ToString(CultureInfo.InvariantCulture), "pull request number")),
-                            new(new PullRequestMarkdownPage(pullRequest)),
+                            new(new PullRequestContentPage(pullRequest)),
                     },
                 }).ToArray();
 

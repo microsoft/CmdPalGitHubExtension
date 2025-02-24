@@ -23,7 +23,7 @@ internal sealed partial class SignInForm : GitHubForm
 
     public override ICommandResult DefaultSubmitFormCommand => CommandResult.KeepOpen();
 
-    public override string TemplateJson() => LoadTemplateJsonFromFile("AuthTemplate");
+    public override string TemplateJson => LoadTemplateJsonFromFile("AuthTemplate");
 
     public override void HandleSubmit(string payload)
     {

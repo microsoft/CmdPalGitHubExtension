@@ -48,9 +48,11 @@ internal sealed partial class SaveSearchForm : GitHubForm
         _savedSearch = savedSearch;
     }
 
-    public override string DataJson()
+    public override string DataJson => LoadDataJson(_searchInput);
+
+    private string LoadDataJson(SearchInput searchInput)
     {
-        if (_searchInput == SearchInput.SearchString)
+        if (searchInput == SearchInput.SearchString)
         {
             return string.Empty;
         }
@@ -60,7 +62,7 @@ internal sealed partial class SaveSearchForm : GitHubForm
         return data;
     }
 
-    public override string TemplateJson() => LoadTemplateJsonFromFile(_searchInput == SearchInput.SearchString ? "SaveSearch" : "SaveSearchSurvey");
+    public override string TemplateJson => LoadTemplateJsonFromFile(_searchInput == SearchInput.SearchString ? "SaveSearch" : "SaveSearchSurvey");
 
     public override void HandleSubmit(string payload)
     {

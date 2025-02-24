@@ -104,7 +104,7 @@ internal sealed partial class SearchIssuesPage : ListPage
                             new(new CopyCommand(issue.HtmlUrl, "URL")),
                             new(new CopyCommand(issue.Title, "issue title")),
                             new(new CopyCommand(issue.Number.ToString(CultureInfo.InvariantCulture), "issue number")),
-                            new(new IssueMarkdownPage(issue)),
+                            new(new IssueContentPage(issue)),
                     },
                 }).ToArray();
 

@@ -8,7 +8,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Pages;
 
-internal sealed partial class SaveSearchPage : GitHubFormPage
+internal sealed partial class SaveSearchPage : GitHubContentPage
 {
     private SaveSearchForm _saveSearchForm;
 

@@ -8,7 +8,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Pages;
 
-internal sealed partial class EditSearchPage : GitHubFormPage
+internal sealed partial class EditSearchPage : GitHubContentPage
 {
     private readonly Search _searchToEdit;
 
