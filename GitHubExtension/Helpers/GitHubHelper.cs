@@ -40,7 +40,6 @@ internal sealed class GitHubHelper
             "SaveSearchSurvey" => "Templates\\SaveSearchSurveyTemplate.json",
             "SaveSearchSurveyData" => "Templates\\SaveSearchSurveyData.json",
             "SaveSearch" => "Templates\\SaveSearchTemplate.json",
-            "AddRepo" => "Templates\\AddRepoTemplate.json",
             _ => throw new NotImplementedException(),
         };
     }
