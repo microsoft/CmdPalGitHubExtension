@@ -28,19 +28,6 @@ internal sealed partial class EditSearchPage : GitHubFormPage
 
     public override GitHubForm PageForm { get => _saveSearchForm; set => _saveSearchForm = (SaveSearchForm)value; }
 
-    public EditSearchPage(Search searchToEdit)
-    {
-        Icon = new IconInfo("\ue70f");
-        Name = "Edit Search";
-        _searchToEdit = searchToEdit;
-        _saveSearchForm = new SaveSearchForm(_searchToEdit);
-        _saveSearchForm.FormSubmitted += OnFormSubmit;
-        _saveSearchForm.LoadingStateChanged += OnLoadingStateChanged;
-        _statusMessage = new StatusMessage();
-        _errorMessage = "Error in editing search";
-        _successMessage = "Search edited successfully!";
-    }
-
     public EditSearchPage(Search searchToEdit, SaveSearchForm saveSearchForm, StatusMessage statusMessage, string successMessage, string errorMessage)
     {
         _searchToEdit = searchToEdit;
