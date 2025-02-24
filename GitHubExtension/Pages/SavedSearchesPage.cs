@@ -38,7 +38,7 @@ internal sealed partial class SavedSearchesPage : ListPage
                         Title = "Remove",
                         Icon = new IconInfo("\uecc9"),
                     },
-                    new(new EditSearchPage(savedSearch))
+                    new(new EditSearchPage(savedSearch, new SaveSearchForm(savedSearch), new StatusMessage(), "Search edited successfully!", "Error in editing search"))
                     {
                         Title = "Edit",
                         Icon = new IconInfo("\ue70f"),

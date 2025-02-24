@@ -40,4 +40,18 @@ internal sealed partial class EditSearchPage : GitHubFormPage
         _errorMessage = "Error in editing search";
         _successMessage = "Search edited successfully!";
     }
+
+    public EditSearchPage(Search searchToEdit, SaveSearchForm saveSearchForm, StatusMessage statusMessage, string successMessage, string errorMessage)
+    {
+        _searchToEdit = searchToEdit;
+        _saveSearchForm = saveSearchForm;
+        _saveSearchForm.FormSubmitted += OnFormSubmit;
+        _saveSearchForm.LoadingStateChanged += OnLoadingStateChanged;
+        _statusMessage = statusMessage;
+        _successMessage = successMessage;
+        _errorMessage = errorMessage;
+        StatusMessage = statusMessage;
+        SuccessMessage = successMessage;
+        ErrorMessage = errorMessage;
+    }
 }
