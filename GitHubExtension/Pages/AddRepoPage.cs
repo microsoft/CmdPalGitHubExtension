@@ -25,13 +25,13 @@ internal sealed partial class AddRepoPage : GitHubFormPage
 
     public override GitHubForm PageForm { get => _addRepoForm; set => _addRepoForm = (AddRepoForm)value; }
 
-    public AddRepoPage()
+    public AddRepoPage(AddRepoForm addRepoForm, StatusMessage statusMessage, string successMessage, string errorMessage)
     {
-        _addRepoForm = new();
+        _addRepoForm = addRepoForm;
         _addRepoForm.FormSubmitted += OnFormSubmit;
         _addRepoForm.LoadingStateChanged += OnLoadingStateChanged;
-        _statusMessage = new StatusMessage();
-        _successMessage = "Repository added successfully!";
-        _errorMessage = "Error in adding repository";
+        _statusMessage = statusMessage;
+        _successMessage = successMessage;
+        _errorMessage = errorMessage;
     }
 }
