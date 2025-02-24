@@ -58,11 +58,6 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
                 Title = "Saved Searches",
                 Icon = new IconInfo("\ue74e"),
             },
-            new CommandItem(new SampleGitHubFormPage())
-            {
-                Title = "Sample Form",
-                Icon = new IconInfo("\ue74e"),
-            },
         ]
         : [
             new CommandItem(new SignInPage(new SignInForm(), new StatusMessage(), "Sign in succeeded!", "Sign in failed"))
