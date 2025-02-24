@@ -4,62 +4,41 @@
 
 using GitHubExtension.Forms;
 using GitHubExtension.PersistentData;
-using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Pages;
 
-internal sealed partial class EditSearchPage : FormPage
+internal sealed partial class EditSearchPage : GitHubFormPage
 {
     private readonly Search _searchToEdit;
 
-    private readonly StatusMessage _editSearchStatusMessage;
+    private SaveSearchForm _saveSearchForm;
 
-    public EditSearchPage(Search searchToEdit)
+    private StatusMessage _statusMessage;
+
+    private string _successMessage;
+
+    private string _errorMessage;
+
+    public override StatusMessage StatusMessage { get => _statusMessage; set => _statusMessage = value; }
+
+    public override string SuccessMessage { get => _successMessage; set => _successMessage = value; }
+
+    public override string ErrorMessage { get => _errorMessage; set => _errorMessage = value; }
+
+    public override GitHubForm PageForm { get => _saveSearchForm; set => _saveSearchForm = (SaveSearchForm)value; }
+
+    public EditSearchPage(Search searchToEdit, SaveSearchForm saveSearchForm, StatusMessage statusMessage, string successMessage, string errorMessage)
     {
-        Icon = new IconInfo("\ue70f");
-        Name = "Edit Search";
         _searchToEdit = searchToEdit;
-        _editSearchStatusMessage = new StatusMessage();
-        SaveSearchForm.SearchSaved += OnSearchSaved;
-        SaveSearchForm.SearchSaving += OnSearchSaving;
-    }
-
-    public override IForm[] Forms()
-    {
-        return new IForm[] { new SaveSearchForm(_searchToEdit) };
-    }
-
-    private void OnSearchSaved(object sender, object? args)
-    {
-        IsLoading = false;
-        if (args is Exception ex)
-        {
-            ExtensionHost.LogMessage(new LogMessage() { Message = $"Error in saving search: {ex.Message}, {ex.StackTrace}" });
-            SetStatusMessage(ex.InnerException is Octokit.ApiException oApiEx ? $"Error in saving search: {oApiEx.Message}" : $"Error in saving search: {ex.Message}", MessageState.Error);
-            ExtensionHost.ShowStatus(_editSearchStatusMessage);
-        }
-        else
-        {
-            SetStatusMessage("Search saved successfully!", MessageState.Success);
-            ToastStatusMessage();
-        }
-    }
-
-    private void SetStatusMessage(string message, MessageState state)
-    {
-        _editSearchStatusMessage.Message = message;
-        _editSearchStatusMessage.State = state;
-    }
-
-    private void ToastStatusMessage()
-    {
-        var toast = new ToastStatusMessage(_editSearchStatusMessage);
-        toast.Show();
-    }
-
-    private void OnSearchSaving(object sender, bool isLoading)
-    {
-        IsLoading = isLoading;
+        _saveSearchForm = saveSearchForm;
+        _saveSearchForm.FormSubmitted += OnFormSubmit;
+        _saveSearchForm.LoadingStateChanged += OnLoadingStateChanged;
+        _statusMessage = statusMessage;
+        _successMessage = successMessage;
+        _errorMessage = errorMessage;
+        StatusMessage = statusMessage;
+        SuccessMessage = successMessage;
+        ErrorMessage = errorMessage;
     }
 }

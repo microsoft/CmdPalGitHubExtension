@@ -13,15 +13,22 @@ using Windows.Foundation;
 
 namespace GitHubExtension.Forms;
 
-internal sealed partial class SaveSearchForm : Form
+internal sealed partial class SaveSearchForm : GitHubForm
 {
     public static event TypedEventHandler<object, object?>? SearchSaved;
-
-    public static event TypedEventHandler<object, bool>? SearchSaving;
 
     private readonly SearchInput _searchInput;
 
     private readonly Search _savedSearch;
+
+    public override ICommandResult DefaultSubmitFormCommand => CommandResult.KeepOpen();
+
+    public override Dictionary<string, string> TemplateSubstitutions => new()
+    {
+        { "{{SaveSearchFormTitle}}", string.IsNullOrEmpty(_savedSearch.Name) ? "Save Search" : "Edit Search" },
+        { "{{SavedSearchString}}", _savedSearch.SearchString },
+        { "{{SavedSearchName}}", _savedSearch.Name },
+    };
 
     public SaveSearchForm()
     : this(SearchInput.SearchString)
@@ -53,36 +60,9 @@ internal sealed partial class SaveSearchForm : Form
         return data;
     }
 
-    public override string TemplateJson()
-    {
-        var templateName = _searchInput == SearchInput.SearchString ? "SaveSearch" : "SaveSearchSurvey";
-        var path = Path.Combine(AppContext.BaseDirectory, GitHubHelper.GetTemplatePath(templateName));
-        var template = File.ReadAllText(path, Encoding.Default) ?? throw new FileNotFoundException(path);
-        template = template.Replace("{{SaveSearchFormTitle}}", string.IsNullOrEmpty(_savedSearch.Name) ? "Save Search" : "Edit Search");
-        template = template.Replace("{{SavedSearchString}}", _savedSearch.SearchString);
-        template = template.Replace("{{SavedSearchName}}", _savedSearch.Name);
+    public override string TemplateJson() => LoadTemplateJsonFromFile(_searchInput == SearchInput.SearchString ? "SaveSearch" : "SaveSearchSurvey");
 
-        return template;
-    }
-
-    public override ICommandResult SubmitForm(string payload)
-    {
-        try
-        {
-            SearchSaving?.Invoke(this, true);
-
-            Task.Run(() => HandleSubmit(payload));
-
-            return CommandResult.KeepOpen();
-        }
-        catch (Exception ex)
-        {
-            ExtensionHost.LogMessage(new LogMessage() { Message = $"Error in SubmitForm: {ex.Message}, {ex.InnerException}" });
-            return CommandResult.GoHome();
-        }
-    }
-
-    private void HandleSubmit(string payload)
+    public override void HandleSubmit(string payload)
     {
         var search = GetSearch(payload);
         ExtensionHost.LogMessage(new LogMessage() { Message = $"Search: {search}" });
@@ -114,11 +94,15 @@ internal sealed partial class SaveSearchForm : Form
             searchHelper.AddSavedSearch(search).Wait();
 
             SearchSaved?.Invoke(this, search);
+            RaiseLoadingStateChanged(false);
+            RaiseFormSubmitted(new FormSubmitEventArgs(true, null));
             return search;
         }
         catch (Exception ex)
         {
             SearchSaved?.Invoke(this, ex);
+            RaiseLoadingStateChanged(false);
+            RaiseFormSubmitted(new FormSubmitEventArgs(false, ex));
         }
 
         return new SearchCandidate();

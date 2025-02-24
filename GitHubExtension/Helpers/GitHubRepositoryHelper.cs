@@ -109,8 +109,8 @@ public class GitHubRepositoryHelper
 
     public async Task AddRepository(string owner, string repo)
     {
-        PersistentDataManager? dataManager = PersistentDataManager.CreateInstance();
-        await dataManager!.AddRepositoryAsync(owner, repo);
+            PersistentDataManager? dataManager = PersistentDataManager.CreateInstance();
+            await dataManager!.AddRepositoryAsync(owner, repo);
     }
 
     public bool IsMemberOrContributor(string ownerName, string repositoryName)

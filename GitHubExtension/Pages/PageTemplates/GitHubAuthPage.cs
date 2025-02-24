@@ -7,17 +7,13 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Pages;
 
-internal sealed partial class SampleGitHubFormPage : GitHubFormPage
+internal partial class GitHubAuthPage : GitHubFormPage
 {
     private StatusMessage _statusMessage;
 
     private GitHubForm _gitHubForm;
-
     private string _successMessage;
-
     private string _errorMessage;
-
-    public override string Title => "Sample GitHub Form Page";
 
     public override StatusMessage StatusMessage
     {
@@ -28,7 +24,7 @@ internal sealed partial class SampleGitHubFormPage : GitHubFormPage
     public override GitHubForm PageForm
     {
         get => _gitHubForm;
-        set => _gitHubForm = value;
+        set => _gitHubForm = (SignInForm)value;
     }
 
     public override string SuccessMessage
@@ -43,13 +39,13 @@ internal sealed partial class SampleGitHubFormPage : GitHubFormPage
         set => _errorMessage = value;
     }
 
-    public SampleGitHubFormPage()
+    public GitHubAuthPage(GitHubForm gitHubAuthForm, StatusMessage statusMessage, string successMessage, string errorMessage)
     {
-        _gitHubForm = new SampleGitHubForm();
+        _gitHubForm = gitHubAuthForm;
         PageForm.LoadingStateChanged += OnLoadingStateChanged;
         PageForm.FormSubmitted += OnFormSubmit;
-        _statusMessage = new StatusMessage { Message = "Sample status message" };
-        _successMessage = "Sample success message";
-        _errorMessage = "Sample error message";
+        _statusMessage = statusMessage;
+        _successMessage = successMessage;
+        _errorMessage = errorMessage;
     }
 }
