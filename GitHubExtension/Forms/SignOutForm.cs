@@ -22,7 +22,7 @@ internal sealed partial class SignOutForm : GitHubForm
 
     public static event EventHandler<SignInStatusChangedEventArgs>? SignOutAction;
 
-    public override string TemplateJson() => LoadTemplateJsonFromFile("AuthTemplate");
+    public override string TemplateJson => LoadTemplateJsonFromFile("AuthTemplate");
 
     public override void HandleSubmit(string payload)
     {

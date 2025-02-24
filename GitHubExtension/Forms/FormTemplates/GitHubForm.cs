@@ -10,7 +10,7 @@ using Windows.Foundation;
 
 namespace GitHubExtension;
 
-internal abstract partial class GitHubForm : Form
+internal abstract partial class GitHubForm : FormContent
 {
     private readonly Dictionary<string, string> templateSubstitutions = new();
 
@@ -21,11 +21,6 @@ internal abstract partial class GitHubForm : Form
     public event TypedEventHandler<object, bool>? LoadingStateChanged;
 
     public event TypedEventHandler<object, FormSubmitEventArgs>? FormSubmitted;
-
-    public override string TemplateJson()
-    {
-        return LoadTemplateJsonFromFile(string.Empty);
-    }
 
     public override ICommandResult SubmitForm(string payload)
     {
