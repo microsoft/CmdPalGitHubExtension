@@ -15,7 +15,9 @@ internal sealed partial class EditSearchPage : FormPage
 
     private readonly StatusMessage _editSearchStatusMessage;
 
-    public EditSearchPage(Search searchToEdit)
+    private readonly IFormFactory _formFactory;
+
+    public EditSearchPage(Search searchToEdit, IFormFactory formFactory)
     {
         Icon = new IconInfo("\ue70f");
         Name = "Edit Search";
@@ -23,11 +25,12 @@ internal sealed partial class EditSearchPage : FormPage
         _editSearchStatusMessage = new StatusMessage();
         SaveSearchForm.SearchSaved += OnSearchSaved;
         SaveSearchForm.SearchSaving += OnSearchSaving;
+        _formFactory = formFactory;
     }
 
     public override IForm[] Forms()
     {
-        return new IForm[] { new SaveSearchForm(_searchToEdit) };
+        return new IForm[] { _formFactory.GetSaveSearchForm(_searchToEdit) };
     }
 
     private void OnSearchSaved(object sender, object? args)

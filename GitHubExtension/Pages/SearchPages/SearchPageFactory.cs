@@ -5,13 +5,12 @@
 using GitHubExtension.DataManager;
 using GitHubExtension.DataModel.Enums;
 using Microsoft.CommandPalette.Extensions.Toolkit;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace GitHubExtension;
+namespace GitHubExtension.Pages;
 
 public class SearchPageFactory
 {
-    private static ICacheManager? _cacheManager;
+    private readonly ICacheManager _cacheManager;
 
     // This injects the cache manager into the factory class.
     // This works to decouple the pages from other dependencies
@@ -21,7 +20,7 @@ public class SearchPageFactory
         _cacheManager = cacheManager;
     }
 
-    public static ListPage CreateForSearch(PersistentData.Search search)
+    public ListPage CreateForSearch(PersistentData.Search search)
     {
         return search.Type switch
         {

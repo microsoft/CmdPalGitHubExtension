@@ -4,8 +4,12 @@
 
 using GitHubExtension.Client;
 using GitHubExtension.DataManager;
+using GitHubExtension.DeveloperId;
+using GitHubExtension.Forms;
 using GitHubExtension.Helpers;
+using GitHubExtension.Pages;
 using Microsoft.CommandPalette.Extensions;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -100,23 +104,29 @@ public class Program
     {
         using ExtensionServer server = new();
         var extensionDisposedEvent = new ManualResetEvent(false);
-        var extensionInstance = new GitHubExtension(extensionDisposedEvent);
-
-        // We are instantiating an extension instance once above, and returning it every time the callback in RegisterExtension below is called.
-        // This makes sure that only one instance of GitHubExtension is alive, which is returned every time the host asks for the IExtension object.
-        // If you want to instantiate a new instance each time the host asks, create the new instance inside the delegate.
-        server.RegisterExtension(() => extensionInstance);
 
         ServiceProvider = Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
             {
-                services.AddSingleton<SearchPageFactory, SearchPageFactory>();
+                services.AddSingleton<SearchPageFactory>();
+                services.AddSingleton<IPagesFactory, PagesFactory>();
+                services.AddSingleton<IFormFactory, FormFactory>();
                 services.AddTransient<GitHubClient>(sp => GitHubClientProvider.Instance.GetClient());
                 services.AddSingleton<IGitHubDataManager>(sp => GitHubDataManager.CreateInstance()!);
                 services.AddSingleton<IRepositoryHelper, GitHubRepositoryHelper>();
                 services.AddSingleton<ISearchHelper, SearchHelper>();
                 services.AddSingleton<ICacheManager, CacheManager>();
+                services.AddTransient<CommandProvider, GitHubExtensionCommandsProvider>();
             }).Build();
+
+        var extensionInstance = new GitHubExtension(
+            extensionDisposedEvent,
+            ServiceProvider.Services.GetRequiredService<CommandProvider>());
+
+        // We are instantiating an extension instance once above, and returning it every time the callback in RegisterExtension below is called.
+        // This makes sure that only one instance of GitHubExtension is alive, which is returned every time the host asks for the IExtension object.
+        // If you want to instantiate a new instance each time the host asks, create the new instance inside the delegate.
+        server.RegisterExtension(() => extensionInstance);
 
         // This will make the main thread wait until the event is signalled by the extension class.
         // Since we have single instance of the extension object, we exit as soon as it is disposed.

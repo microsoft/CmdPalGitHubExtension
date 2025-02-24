@@ -13,14 +13,21 @@ namespace GitHubExtension;
 
 internal sealed partial class SavedSearchesPage : ListPage
 {
-    public SavedSearchesPage()
+    private readonly ISearchHelper _searchHelper;
+    private readonly IPagesFactory _pagesFactory;
+
+    public SavedSearchesPage(ISearchHelper searchHelper, IPagesFactory pagesFactory)
     {
         Icon = new IconInfo("\ue74e");
         Name = "Saved Searches";
+
+        // I still don't know how I feel about static events
         SaveSearchForm.SearchSaved += OnSearchSaved;
         SaveSearchForm.SearchSaving += OnSearchSaving;
         RemoveSavedSearchCommand.SearchRemoved += OnSearchRemoved;
         RemoveSavedSearchCommand.SearchRemoving += OnSearchRemoving;
+        _searchHelper = searchHelper;
+        _pagesFactory = pagesFactory;
     }
 
     public override IListItem[] GetItems()
@@ -28,18 +35,18 @@ internal sealed partial class SavedSearchesPage : ListPage
         var savedSearches = SearchHelper.Instance.GetSavedSearches().Result;
         if (savedSearches.Any())
         {
-            var searchPages = savedSearches.Select(savedSearch => new ListItem(SearchPageFactory.CreateForSearch(savedSearch))
+            var searchPages = savedSearches.Select(savedSearch => new ListItem(_pagesFactory.CreateForSearch(savedSearch))
             {
                 Title = savedSearch.Name,
                 Icon = new IconInfo(GitHubIcon.IconDictionary[$"{savedSearch.Type}"]),
                 MoreCommands = new CommandContextItem[]
                 {
-                    new(new RemoveSavedSearchCommand(savedSearch))
+                    new(_pagesFactory.GetRemoveSavedSearchCommand(savedSearch))
                     {
                         Title = "Remove",
                         Icon = new IconInfo("\uecc9"),
                     },
-                    new(new EditSearchPage(savedSearch))
+                    new(_pagesFactory.GetEditSearchPage(savedSearch))
                     {
                         Title = "Edit",
                         Icon = new IconInfo("\ue70f"),
@@ -47,12 +54,12 @@ internal sealed partial class SavedSearchesPage : ListPage
                 },
             }).ToList();
 
-            searchPages.Add(new(new SaveSearchPage())
+            searchPages.Add(new(_pagesFactory.GetSaveSearchPage())
             {
                 Title = "Add a search",
                 Icon = new IconInfo("\uecc8"),
             });
-            searchPages.Add(new(new SaveSearchPage(SearchInput.Survey))
+            searchPages.Add(new(_pagesFactory.GetSaveSearchPage(SearchInput.Survey))
             {
                 Title = "Add a search (full form)",
                 Icon = new IconInfo("\uecc8"),
@@ -64,12 +71,12 @@ internal sealed partial class SavedSearchesPage : ListPage
         {
             return new ListItem[]
             {
-                new(new SaveSearchPage(SearchInput.Survey))
+                new(_pagesFactory.GetSaveSearchPage(SearchInput.Survey))
                 {
                     Title = "Add a search (full form)",
                     Icon = new IconInfo(string.Empty),
                 },
-                new(new SaveSearchPage())
+                new(_pagesFactory.GetSaveSearchPage())
                 {
                     Title = "Add a search by string",
                     Icon = new IconInfo(string.Empty),
@@ -84,7 +91,7 @@ internal sealed partial class SavedSearchesPage : ListPage
 
         if (args != null && args is SearchCandidate)
         {
-            RaiseItemsChanged(SearchHelper.Instance.GetSavedSearches().Result.Count());
+            RaiseItemsChanged(_searchHelper.GetSavedSearches().Result.Count());
         }
 
         // errors are handled in SaveSearchPage

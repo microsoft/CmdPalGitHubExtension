@@ -15,24 +15,27 @@ internal sealed partial class SaveSearchPage : FormPage
 
     private readonly SearchInput _searchInput;
 
-    public SaveSearchPage()
-        : this(SearchInput.SearchString)
+    private readonly IFormFactory _formFactory;
+
+    public SaveSearchPage(IFormFactory formFactory)
+        : this(SearchInput.SearchString, formFactory)
     {
     }
 
-    public SaveSearchPage(SearchInput input)
+    public SaveSearchPage(SearchInput input, IFormFactory formFactory)
     {
         _searchInput = input;
         SaveSearchForm.SearchSaved += OnSearchSaved;
         SaveSearchForm.SearchSaving += OnSearchSaving;
         _saveSearchStatusMessage = new StatusMessage();
         ExtensionHost.HideStatus(_saveSearchStatusMessage);
+        _formFactory = formFactory;
     }
 
     public override IForm[] Forms()
     {
         ExtensionHost.HideStatus(_saveSearchStatusMessage);
-        return [new SaveSearchForm(_searchInput)];
+        return [_formFactory.GetSaveSearchForm(_searchInput)];
     }
 
     private void OnSearchSaved(object sender, object? args)

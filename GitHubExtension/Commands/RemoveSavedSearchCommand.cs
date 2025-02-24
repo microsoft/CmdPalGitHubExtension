@@ -12,32 +12,36 @@ public partial class RemoveSavedSearchCommand : InvokableCommand
 {
     private readonly SearchCandidate savedSearch;
 
+    private readonly ISearchHelper _searchHelper;
+
     public static event TypedEventHandler<object, object?>? SearchRemoving;
 
     public static event TypedEventHandler<object, object>? SearchRemoved;
 
-    public RemoveSavedSearchCommand(SearchCandidate search)
+    public RemoveSavedSearchCommand(SearchCandidate search, ISearchHelper searchHelper)
     {
         savedSearch = search;
         Name = "Remove";
         Icon = new IconInfo("\uecc9");
+        _searchHelper = searchHelper;
     }
 
-    public RemoveSavedSearchCommand(PersistentData.Search search)
+    public RemoveSavedSearchCommand(PersistentData.Search search, ISearchHelper searchHelper)
     {
         savedSearch = new SearchCandidate(search.SearchString, search.Name);
         Name = "Remove";
         Icon = new IconInfo("\uecc9");
+        _searchHelper = searchHelper;
     }
 
     public override CommandResult Invoke()
     {
         try
         {
-            var numSavedSearchesBeforeRemoval = SearchHelper.Instance.GetSavedSearches().Result.Count();
+            var numSavedSearchesBeforeRemoval = _searchHelper.GetSavedSearches().Result.Count();
             SearchRemoving?.Invoke(this, null);
-            SearchHelper.Instance.RemoveSavedSearch(savedSearch).Wait();
-            SearchRemoved?.Invoke(this, numSavedSearchesBeforeRemoval > SearchHelper.Instance.GetSavedSearches().Result.Count());
+            _searchHelper.RemoveSavedSearch(savedSearch).Wait();
+            SearchRemoved?.Invoke(this, numSavedSearchesBeforeRemoval > _searchHelper.GetSavedSearches().Result.Count());
         }
         catch (Exception ex)
         {

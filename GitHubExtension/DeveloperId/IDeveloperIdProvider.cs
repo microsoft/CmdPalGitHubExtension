@@ -6,7 +6,5 @@ namespace GitHubExtension.DeveloperId;
 
 public interface IDeveloperIdProvider
 {
-    string LoginId { get; }
-
-    string Url { get; }
+    public bool LogoutDeveloperId(IDeveloperId developerId);
 }

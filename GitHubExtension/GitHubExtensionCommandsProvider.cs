@@ -14,9 +14,15 @@ namespace GitHubExtension;
 
 public partial class GitHubExtensionCommandsProvider : CommandProvider
 {
-    public GitHubExtensionCommandsProvider()
+    private readonly ISearchHelper _searchHelper;
+    private readonly IPagesFactory _pagesFactory;
+
+    public GitHubExtensionCommandsProvider(ISearchHelper searchHelper, IPagesFactory pagesFactory)
     {
         DisplayName = "GitHub Extension";
+
+        _searchHelper = searchHelper;
+        _pagesFactory = pagesFactory;
 
         GitHubAuthForm.SignInAction += OnSignInStatusChanged;
         SignOutForm.SignOutAction += OnSignInStatusChanged;
@@ -43,7 +49,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
                 Subtitle = "Sign out",
                 Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
             },
-            new CommandItem(new SavedSearchesPage())
+            new CommandItem(_pagesFactory.GetSavedSearchesPage())
             {
                 Title = "Saved Searches",
                 Icon = new IconInfo("\ue74e"),
@@ -80,7 +86,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         {
             var devIds = DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal();
             GitHubRepositoryHelper.Instance.UpdateClient(devIds.First().GitHubClient);
-            SearchHelper.Instance.UpdateClient(devIds.First().GitHubClient);
+            _searchHelper.UpdateClient(devIds.First().GitHubClient);
         }
 
         UpdateTopLevelCommands(null, numCommands);

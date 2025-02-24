@@ -23,22 +23,20 @@ internal sealed partial class SaveSearchForm : Form
 
     private readonly Search _savedSearch;
 
-    public SaveSearchForm()
-    : this(SearchInput.SearchString)
-    {
-        _savedSearch = new Search();
-    }
+    private readonly ISearchHelper _searchHelper;
 
-    public SaveSearchForm(SearchInput input)
+    public SaveSearchForm(SearchInput input, ISearchHelper searchHelper )
     {
         _searchInput = input;
         _savedSearch = new Search();
+        _searchHelper = searchHelper;
     }
 
-    public SaveSearchForm(Search savedSearch)
+    public SaveSearchForm(Search savedSearch, ISearchHelper searchHelper)
     {
         _searchInput = SearchInput.SearchString;
         _savedSearch = savedSearch;
+        _searchHelper = searchHelper;
     }
 
     public override string DataJson()
@@ -92,7 +90,7 @@ internal sealed partial class SaveSearchForm : Form
     {
         try
         {
-            var searchHelper = SearchHelper.Instance;
+            var searchHelper = _searchHelper!;
 
             // if editing the search, first delete the old one
             if (_savedSearch.SearchString != string.Empty)

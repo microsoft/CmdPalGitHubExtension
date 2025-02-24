@@ -10,7 +10,7 @@ using Windows.Foundation;
 
 namespace GitHubExtension.DeveloperId;
 
-public class DeveloperIdProvider
+public class DeveloperIdProvider : IDeveloperIdProvider
 {
     private static readonly Lock _oAuthRequestsLock = new();
 

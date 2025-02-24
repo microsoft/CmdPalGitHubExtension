@@ -9,7 +9,7 @@ using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Serilog;
 
-namespace GitHubExtension;
+namespace GitHubExtension.Pages;
 
 internal abstract partial class SearchPage<T> : ListPage
 {

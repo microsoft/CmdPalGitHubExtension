@@ -8,7 +8,7 @@ using GitHubExtension.DataManager;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace GitHubExtension;
+namespace GitHubExtension.Pages;
 
 internal sealed partial class IssuesSearchPage : SearchPage<DataModel.Issue>
 {
