@@ -23,7 +23,7 @@ internal sealed partial class IssuesSearchPage(PersistentData.Search search) : S
                 new(new CopyCommand(item.HtmlUrl, "URL")),
                 new(new CopyCommand(item.Title, "item title")),
                 new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), "item number")),
-                new(new IssueMarkdownPage(item)),
+                new(new IssueContentPage(item)),
             },
         };
     }

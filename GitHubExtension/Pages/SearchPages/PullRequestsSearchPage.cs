@@ -25,7 +25,7 @@ internal sealed partial class PullRequestsSearchPage(PersistentData.Search searc
                 new(new CopyCommand(item.HtmlUrl, "URL")),
                 new(new CopyCommand(item.Title, "pull request title")),
                 new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), "pull request number")),
-                new(new PullRequestMarkdownPage(item)),
+                new(new PullRequestContentPage(item)),
             },
         };
     }
