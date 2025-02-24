@@ -7,10 +7,10 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Pages;
 
-internal sealed partial class SignOutPage : GitHubAuthPage
+internal sealed partial class SignInPage : GitHubAuthPage
 {
-    public SignOutPage(SignOutForm signOutForm, StatusMessage statusMessage, string successMessage, string errorMessage)
-        : base(signOutForm, statusMessage, successMessage, errorMessage)
+    public SignInPage(SignInForm gitHubAuthForm, StatusMessage statusMessage, string successMessage, string errorMessage)
+        : base(gitHubAuthForm, statusMessage, successMessage, errorMessage)
     {
     }
 }

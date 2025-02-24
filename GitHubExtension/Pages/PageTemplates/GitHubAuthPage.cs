@@ -7,11 +7,11 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Pages;
 
-internal sealed partial class GitHubAuthPage : GitHubFormPage
+internal partial class GitHubAuthPage : GitHubFormPage
 {
     private StatusMessage _statusMessage;
 
-    private GitHubAuthForm _gitHubForm;
+    private GitHubForm _gitHubForm;
     private string _successMessage;
     private string _errorMessage;
 
@@ -24,7 +24,7 @@ internal sealed partial class GitHubAuthPage : GitHubFormPage
     public override GitHubForm PageForm
     {
         get => _gitHubForm;
-        set => _gitHubForm = (GitHubAuthForm)value;
+        set => _gitHubForm = (SignInForm)value;
     }
 
     public override string SuccessMessage
@@ -39,13 +39,13 @@ internal sealed partial class GitHubAuthPage : GitHubFormPage
         set => _errorMessage = value;
     }
 
-    public GitHubAuthPage()
+    public GitHubAuthPage(GitHubForm gitHubAuthForm, StatusMessage statusMessage, string successMessage, string errorMessage)
     {
-        _gitHubForm = new GitHubAuthForm();
+        _gitHubForm = gitHubAuthForm;
         PageForm.LoadingStateChanged += OnLoadingStateChanged;
         PageForm.FormSubmitted += OnFormSubmit;
-        _statusMessage = new();
-        _successMessage = "Sign in succeeded!";
-        _errorMessage = "Sign in failed";
+        _statusMessage = statusMessage;
+        _successMessage = successMessage;
+        _errorMessage = errorMessage;
     }
 }
