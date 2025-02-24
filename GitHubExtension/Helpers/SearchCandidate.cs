@@ -39,7 +39,7 @@ public class SearchCandidate
         // create a search string based on the fields passed in
         Name = name;
 
-        Type = (SearchType)Enum.Parse(typeof(SearchType), type);
+        Type = SearchHelper.ParseSearchTypeFromSearchString(type);
 
         // check if fields are null or empty before adding to string
         var typeString = string.IsNullOrEmpty(type) ? string.Empty : $"type:{type} ";

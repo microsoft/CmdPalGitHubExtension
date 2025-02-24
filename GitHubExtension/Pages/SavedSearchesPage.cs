@@ -46,12 +46,12 @@ internal sealed partial class SavedSearchesPage : ListPage
                 },
             }).ToList();
 
-            searchPages.Add(new(new SaveSearchPage())
+            searchPages.Add(new(new SaveSearchPage(new SaveSearchForm(), new StatusMessage(), "Search saved successfully!", "Error in saving search"))
             {
                 Title = "Add a search",
                 Icon = new IconInfo("\uecc8"),
             });
-            searchPages.Add(new(new SaveSearchPage(SearchInput.Survey))
+            searchPages.Add(new(new SaveSearchPage(new SaveSearchForm(SearchInput.Survey), new StatusMessage(), "Search saved successfully!", "Error in saving search"))
             {
                 Title = "Add a search (full form)",
                 Icon = new IconInfo("\uecc8"),
@@ -63,12 +63,12 @@ internal sealed partial class SavedSearchesPage : ListPage
         {
             return new ListItem[]
             {
-                new(new SaveSearchPage(SearchInput.Survey))
+                new(new SaveSearchPage(new SaveSearchForm(SearchInput.Survey), new StatusMessage(), "Search saved successfully!", "Error in saving search"))
                 {
                     Title = "Add a search (full form)",
                     Icon = new IconInfo(string.Empty),
                 },
-                new(new SaveSearchPage())
+                new(new SaveSearchPage(new SaveSearchForm(), new StatusMessage(), "Search saved successfully!", "Error in saving search"))
                 {
                     Title = "Add a search by string",
                     Icon = new IconInfo(string.Empty),

@@ -10,8 +10,6 @@ namespace GitHubExtension.Pages;
 
 internal sealed partial class SaveSearchPage : GitHubFormPage
 {
-    private readonly SearchInput _searchInput;
-
     private SaveSearchForm _saveSearchForm;
 
     private StatusMessage _statusMessage;
@@ -28,25 +26,14 @@ internal sealed partial class SaveSearchPage : GitHubFormPage
 
     public override GitHubForm PageForm { get => _saveSearchForm; set => _saveSearchForm = (SaveSearchForm)value; }
 
-    public SaveSearchPage()
-        : this(SearchInput.SearchString)
+    public SaveSearchPage(SaveSearchForm saveSearchForm, StatusMessage statusMessage, string successMessage, string errorMessage)
     {
-        _saveSearchForm = new SaveSearchForm();
+        _saveSearchForm = saveSearchForm;
         _saveSearchForm.FormSubmitted += OnFormSubmit;
         _saveSearchForm.LoadingStateChanged += OnLoadingStateChanged;
-        _statusMessage = new StatusMessage();
-        _successMessage = "Search saved successfully!";
-        _errorMessage = "Error in saving search";
-    }
-
-    public SaveSearchPage(SearchInput input)
-    {
-        _searchInput = input;
-        _saveSearchForm = new SaveSearchForm(_searchInput);
-        _saveSearchForm.FormSubmitted += OnFormSubmit;
-        _saveSearchForm.LoadingStateChanged += OnLoadingStateChanged;
-        _statusMessage = new StatusMessage();
-        _successMessage = $"Search saved successfully!";
-        _errorMessage = "Error in saving search";
+        _statusMessage = statusMessage;
+        _successMessage = successMessage;
+        _errorMessage = errorMessage;
+        _errorMessage = errorMessage;
     }
 }
