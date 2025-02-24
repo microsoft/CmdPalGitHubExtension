@@ -375,8 +375,8 @@
     <value>GitHub</value>
     <comment>Shown in various places, is GitHub even localized as a product name?</comment>
   </data>
-  <data name="Widget_Template.Query" xml:space="preserve">
-    <value>Query</value>
+  <data name="Widget_Template.Search" xml:space="preserve">
+    <value>Search</value>
     <comment>Shown in Widget, label for the query used to filter GitHub issues</comment>
   </data>
   <data name="Widget_Template.EmptyAssigned" xml:space="preserve">

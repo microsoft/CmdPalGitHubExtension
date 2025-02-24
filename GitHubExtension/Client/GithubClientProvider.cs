@@ -55,6 +55,11 @@ public class GitHubClientProvider
 
     public GitHubClient GetClient() => _publicRepoClient;
 
+    public bool IsClientLoggedIn(GitHubClient client)
+    {
+        return !GitHubClient.Equals(client, _publicRepoClient);
+    }
+
     public async Task<GitHubClient> GetClientForLoggedInDeveloper(bool logRateLimit = false)
     {
         var authProvider = DeveloperIdProvider.GetInstance();

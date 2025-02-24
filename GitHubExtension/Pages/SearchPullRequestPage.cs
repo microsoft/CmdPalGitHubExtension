@@ -5,7 +5,7 @@
 using System.Globalization;
 using GitHubExtension.Client;
 using GitHubExtension.Commands;
-using GitHubExtension.DeveloperId;
+using GitHubExtension.DataManager;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -15,32 +15,91 @@ namespace GitHubExtension;
 
 internal sealed partial class SearchPullRequestsPage : ListPage
 {
+    private readonly ILogger _logger;
+
     public SearchPullRequestsPage()
     {
-        Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]);
         Name = "Search GitHub Pull Requests";
         this.ShowDetails = true;
+        _logger = Log.ForContext("SourceContext", $"Pages/{nameof(SearchPullRequestsPage)}");
+    }
+
+    ~SearchPullRequestsPage()
+    {
+        CacheManager.GetInstance().OnUpdate -= CacheManagerUpdateHandler;
     }
 
     public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();
+
+    private async void RequestContentData()
+    {
+        var cacheManager = CacheManager.GetInstance();
+        await cacheManager.Refresh(UpdateType.PullRequests);
+    }
+
+    private async Task<List<DataModel.PullRequest>> LoadContentData()
+    {
+        CacheManager.GetInstance().OnUpdate += CacheManagerUpdateHandler;
+
+        return await Task.Run(() =>
+        {
+            _logger.Information($"Starting loading data.");
+            var repoHelper = GitHubRepositoryHelper.Instance;
+            var repoCollection = repoHelper.GetUserRepositoryCollection();
+            var data = new List<DataModel.PullRequest>();
+            var dataManager = GitHubDataManager.CreateInstance();
+
+            foreach (var repo in repoCollection)
+            {
+                try
+                {
+                    var repository = dataManager!.GetRepository(GetOwner(repo), GetRepo(repo));
+                    var pulls = repository?.PullRequests;
+                    if (pulls != null)
+                    {
+                        data.AddRange(pulls);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error($"Error loading pull requests for repository {repo}: {ex}");
+                }
+                finally
+                {
+                    _logger.Information($"Finished loading pulls data for {repo}.");
+                }
+            }
+
+            _logger.Information($"Finishing loading data.");
+            return data;
+        });
+    }
+
+    public void CacheManagerUpdateHandler(object? source, CacheManagerUpdateEventArgs e)
+    {
+        if (e.Kind == CacheManagerUpdateKind.Updated)
+        {
+            _logger.Information($"Received cache manager update event.");
+            RaiseItemsChanged(0);
+        }
+    }
 
     private async Task<IListItem[]> DoGetItems(string query)
     {
         try
         {
-            var pullRequests = await GetGitHubPullRequestsAsync(query);
+            _logger.Information($"Pull Page GetItems command called.");
 
-            foreach (var pullRequest in pullRequests)
-            {
-                Log.Information($"{pullRequest.Title}, {GetRepo(pullRequest.HtmlUrl)}, {pullRequest.Body}, {pullRequest.Number}");
-            }
+            var pullRequests = await GetGitHubPullRequestsAsync(query);
+            _logger.Information($"Got {pullRequests.Count} pull requests data.");
 
             if (pullRequests.Count > 0)
             {
-                return pullRequests.Select(pullRequest => new ListItem(new LinkCommand(pullRequest))
+                var res = pullRequests.Select(pullRequest => new ListItem(new LinkCommand(pullRequest))
                 {
                     Title = pullRequest.Title,
-                    Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]),
+                    Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]),
                     Subtitle = $"{GetOwner(pullRequest.HtmlUrl)}/{GetRepo(pullRequest.HtmlUrl)}/#{pullRequest.Number}",
                     MoreCommands = new CommandContextItem[]
                     {
@@ -49,9 +108,12 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                             new(new CopyCommand(pullRequest.HtmlUrl, "URL")),
                             new(new CopyCommand(pullRequest.Title, "pull request title")),
                             new(new CopyCommand(pullRequest.Number.ToString(CultureInfo.InvariantCulture), "pull request number")),
-                            new(new PullRequestMarkdownPage(pullRequest)),
+                            new(new PullRequestContentPage(pullRequest)),
                     },
                 }).ToArray();
+
+                _logger.Information($"Finished initializing pull objects.");
+                return res;
             }
             else
             {
@@ -61,7 +123,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                             new(new NoOpCommand())
                             {
                                 Title = "No pull requests found",
-                                Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]),
+                                Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]),
                             },
                     }
                     :
@@ -69,7 +131,7 @@ internal sealed partial class SearchPullRequestsPage : ListPage
                             new ListItem(new NoOpCommand())
                             {
                                 Title = "Error fetching pull requests",
-                                Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]),
+                                Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]),
                             },
                     ];
             }
@@ -102,40 +164,12 @@ internal sealed partial class SearchPullRequestsPage : ListPage
 
     public static string GetRepo(string repositoryUrl) => Validation.ParseRepositoryFromGitHubURL(repositoryUrl);
 
-    private static async Task<List<DataModel.DataObjects.PullRequest>> GetGitHubPullRequestsAsync(string query)
+    private async Task<List<DataModel.PullRequest>> GetGitHubPullRequestsAsync(string query)
     {
-        var devIdProvider = DeveloperIdProvider.GetInstance();
-        var devIds = devIdProvider.GetLoggedInDeveloperIdsInternal();
+        var res = await LoadContentData();
+        _logger.Information($"Starting request for data.");
 
-        var client = devIds.Any() ? devIds.First().GitHubClient : GitHubClientProvider.Instance.GetClient();
-
-        var repoHelper = GitHubRepositoryHelper.Instance;
-
-        var repos = repoHelper.GetUserRepositories();
-
-        var requestOptions = new RequestOptions();
-
-        var pullRequests = new List<Octokit.PullRequest>();
-        foreach (var repo in repos)
-        {
-            var repoPRs = await client.PullRequest.GetAllForRepository(repo.Owner.Login, repo.Name, requestOptions.PullRequestRequest);
-            pullRequests.AddRange(repoPRs);
-        }
-
-        var pullRequestDataObjects = ConvertToDataObjectsPullRequest(pullRequests);
-
-        return pullRequestDataObjects;
-    }
-
-    private static List<DataModel.DataObjects.PullRequest> ConvertToDataObjectsPullRequest(IReadOnlyList<Octokit.PullRequest> octokitPullRequestList)
-    {
-        var dataModelPullRequests = new List<DataModel.DataObjects.PullRequest>();
-        foreach (var octokitPullRequest in octokitPullRequestList)
-        {
-            var pullRequest = DataModel.DataObjects.PullRequest.CreateFromOctokitPullRequest(octokitPullRequest);
-            dataModelPullRequests.Add(pullRequest);
-        }
-
-        return dataModelPullRequests;
+        RequestContentData();
+        return res;
     }
 }

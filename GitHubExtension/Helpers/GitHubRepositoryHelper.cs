@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Client;
-using Microsoft.CommandPalette.Extensions;
+using GitHubExtension.PersistentData;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Octokit;
 using Serilog;
@@ -14,16 +14,14 @@ public class GitHubRepositoryHelper
 {
     private static readonly Lazy<GitHubRepositoryHelper> _instance = new(() => new GitHubRepositoryHelper(GitHubClientProvider.Instance.GetClient()));
 
-    private GitHubClient _client;
+    private readonly ILogger _logger;
 
-#pragma warning disable IDE0044 // Add readonly modifier
-    private List<Repository> _repositories;
-#pragma warning restore IDE0044 // Add readonly modifier
+    private GitHubClient _client;
 
     private GitHubRepositoryHelper(GitHubClient client)
     {
         _client = client;
-        _repositories = new List<Repository>();
+        _logger = Log.ForContext("SourceContext", $"Helpers/{nameof(GitHubRepositoryHelper)}");
     }
 
     public static GitHubRepositoryHelper Instance => _instance.Value;
@@ -33,11 +31,18 @@ public class GitHubRepositoryHelper
         _client = client;
     }
 
-    public async Task<List<Repository>> GetUserRepositoriesAsync()
+    // TODO: Fix this. Auth issues. Maybe calling way too early.
+    public async Task<List<Octokit.Repository>> GetUserRepositoriesFromOctokitAsync()
     {
+        // band-aid for now: check if the client has a user
+        if (GitHubClientProvider.Instance.IsClientLoggedIn(_client) == false)
+        {
+            return new List<Octokit.Repository>();
+        }
+
         try
         {
-            var repositories = new List<Repository>();
+            var repositories = new List<Octokit.Repository>();
 
             var user = await _client.User.Current();
 
@@ -61,116 +66,51 @@ public class GitHubRepositoryHelper
         }
         catch (Exception ex)
         {
-            Log.Error($"Error getting user repositories: {ex}");
-            return new List<Repository>();
+            _logger.Error($"Error getting user repositories: {ex}");
+            return new List<Octokit.Repository>();
+        }
+    }
+
+    public async Task AddUsersContribuitionRepositoriesToDatabaseAsync()
+    {
+        var repositories = await GetUserRepositoriesFromOctokitAsync();
+        var dataManager = PersistentDataManager.CreateInstance();
+        foreach (var repo in repositories)
+        {
+            try
+            {
+                await dataManager!.AddRepositoryAsync(repo.Owner.Login, repo.Name);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Error adding user's repositories to database: {ex}");
+            }
         }
     }
 
     public RepositoryCollection GetUserRepositoryCollection()
     {
         var repositoryCollection = new RepositoryCollection();
-        var repositories = GetUserRepositories();
+        var repositories = GetUserRepositoriesAsync().Result;
 
         foreach (var repo in repositories)
         {
-            repositoryCollection.Add($"{repo.Owner.Login}/{repo.Name}");
+            repositoryCollection.Add($"{repo.OwnerLogin}/{repo.Name}");
         }
 
         return repositoryCollection;
     }
 
-    public async Task<List<Repository>> GetUserAndOrganizationRepositoryCollection()
+    public async Task<IEnumerable<PersistentData.Repository>> GetUserRepositoriesAsync()
     {
-        var organizationRepositoryCollection = new List<Repository>();
-        var apiOptions = new ApiOptions
-        {
-            PageSize = 100,
-            PageCount = 1,
-            StartPage = 1,
-        };
-
-        var organizationRepos = await _client.Repository.GetAllForCurrent(
-            new RepositoryRequest
-            {
-                Affiliation = RepositoryAffiliation.OrganizationMember,
-            },
-            apiOptions);
-        organizationRepositoryCollection.AddRange(organizationRepos);
-
-        return organizationRepositoryCollection;
+        PersistentDataManager? dataManager = PersistentDataManager.CreateInstance();
+        return await dataManager!.GetAllRepositoriesAsync();
     }
 
-    public async Task<List<Organization>> GetUserOrganizationsAsync()
+    public async Task AddRepository(string owner, string repo)
     {
-        try
-        {
-            var organizations = await _client.Organization.GetAllForCurrent();
-            return organizations.ToList();
-        }
-        catch (Exception ex)
-        {
-            Log.Error($"Error getting user organizations: {ex}");
-            return new List<Organization>();
-        }
-    }
-
-    public List<Repository> GetUserRepositories()
-    {
-        List<Repository> repositories = GetUserRepositoriesAsync().Result;
-
-        foreach (var repo in repositories)
-        {
-            if (!_repositories.Any(r => r.Id == repo.Id))
-            {
-                _repositories.Add(repo);
-            }
-        }
-
-        return _repositories;
-    }
-
-    public List<Repository> AddRepository(string owner, string repo)
-    {
-        var repository = GetGitHubRepository(owner, repo).Result;
-
-        if (_repositories.Any(repo => repo.Id == repository.Id))
-        {
-            return _repositories;
-        }
-        else
-        {
-            _repositories.Add(repository);
-        }
-
-        return _repositories;
-    }
-
-    private sealed class RepositoryInfo
-    {
-        private string? url = string.Empty;
-
-        public string? Name { get; set; }
-
-        public string Url
-        {
-            get => url ?? string.Empty;
-            set => url = value;
-        }
-
-        public string Owner => Url.Split('/')[3];
-    }
-
-    public async Task<Repository> GetGitHubRepository(string owner, string repo)
-    {
-        try
-        {
-            return await _client.Repository.Get(owner, repo);
-        }
-        catch (ForbiddenException oFE)
-        {
-            ExtensionHost.LogMessage(new LogMessage() { Message = oFE.Message, State = MessageState.Error });
-            throw;
-        }
+            PersistentDataManager? dataManager = PersistentDataManager.CreateInstance();
+            await dataManager!.AddRepositoryAsync(owner, repo);
     }
 
     public bool IsMemberOrContributor(string ownerName, string repositoryName)
@@ -230,6 +170,6 @@ public class GitHubRepositoryHelper
 
     public void ClearRepositories()
     {
-        _repositories.Clear();
+        // TODO: Implement deleting from the data store
     }
 }

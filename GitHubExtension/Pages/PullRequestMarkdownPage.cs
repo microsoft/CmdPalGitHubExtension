@@ -4,26 +4,27 @@
 
 using System.Globalization;
 using GitHubExtension.Commands;
-using GitHubExtension.DataModel.DataObjects;
+using GitHubExtension.DataModel;
 using GitHubExtension.Helpers;
+using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension;
 
-internal sealed partial class PullRequestMarkdownPage : MarkdownPage
+internal sealed partial class PullRequestContentPage : ContentPage
 {
     private readonly PullRequest _pullRequest;
 
-    public PullRequestMarkdownPage()
+    public PullRequestContentPage()
     {
-        Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]);
         Name = "View";
         _pullRequest = new PullRequest();
     }
 
-    public PullRequestMarkdownPage(PullRequest pullRequest)
+    public PullRequestContentPage(PullRequest pullRequest)
     {
-        Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]);
+        Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]);
         Name = "View pull request in Command Palette";
         _pullRequest = pullRequest;
 #pragma warning disable IDE0300 // Simplify collection initialization
@@ -37,12 +38,16 @@ internal sealed partial class PullRequestMarkdownPage : MarkdownPage
 #pragma warning restore IDE0300 // Simplify collection initialization
     }
 
-    public override string[] Bodies()
+    public override IContent[] GetContent()
     {
-        var template = $$"""
-        # {{_pullRequest.Title}}
-        {{_pullRequest.Body}}
-        """;
-        return new[] { template };
+        var template = new MarkdownContent
+        {
+            Body = $$"""
+                # {{_pullRequest.Title}}
+                {{_pullRequest.Body}}
+                """,
+        };
+
+        return [template];
     }
 }

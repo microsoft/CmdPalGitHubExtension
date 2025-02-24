@@ -1,0 +1,131 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "TextBlock",
+      "size": "Medium",
+      "weight": "Bolder",
+      "text": "Search",
+      "horizontalAlignment": "Center",
+      "wrap": true,
+      "style": "heading",
+      "id": "SearchTitle"
+    },
+    {
+      "type": "Input.Text",
+      "label": "Search name",
+      "id": "name",
+      "placeholder": "My issues"
+    },
+    {
+      "type": "Input.ChoiceSet",
+      "id": "type",
+      "label": "Type",
+      "value": "${choice}",
+      "choices": [
+        {
+          "$data": "${Search.filters[2].items}",
+          "title": "${choice}",
+          "value": "${value}"
+        }
+      ]
+    },
+    {
+      "type": "Input.Text",
+      "label": "Owner",
+      "id": "owner",
+      "placeholder": "github, microsoft"
+    },
+    {
+      "type": "Input.Text",
+      "label": "Repository",
+      "id": "repository",
+      "placeholder": "microsoft/terminal"
+    },
+    {
+      "type": "Input.Date",
+      "label": "Date created",
+      "id": "dateCreated",
+      "placeholder": "YYYY-MM-DD"
+    },
+    {
+      "type": "Input.Text",
+      "label": "Language",
+      "id": "language",
+      "placeholder": "C#, Java"
+    },
+    {
+      "type": "Input.ChoiceSet",
+      "id": "state",
+      "label": "State",
+      "value": "open/closed",
+      "choices": [
+        {
+          "$data": "${Search.filters[0].items}",
+          "title": "${choice}",
+          "value": "${value}"
+        }
+      ]
+    },
+    {
+      "type": "Input.ChoiceSet",
+      "id": "reason",
+      "label": "Reason",
+      "value": "any reason",
+      "choices": [
+        {
+          "$data": "${Search.filters[1].items}",
+          "title": "${choice}",
+          "value": "${value}"
+        }
+      ]
+    },
+    {
+      "type": "Input.Text",
+      "label": "Number of comments",
+      "id": "numberOfComments",
+      "placeholder": "1...50, >400"
+    },
+    {
+      "type": "Input.Text",
+      "label": "Labels",
+      "id": "labels",
+      "placeholder": "bug, help-wanted"
+    },
+    {
+      "type": "Input.Text",
+      "label": "Author",
+      "id": "author",
+      "placeholder": "Enter author login here"
+    },
+    {
+      "type": "Input.Text",
+      "label": "Mentioned users",
+      "id": "mentionedUsers",
+      "placeholder": "Enter mentioned users here"
+    },
+    {
+      "type": "Input.Text",
+      "label": "Assignees",
+      "id": "assignees",
+      "placeholder": "microsoft"
+    },
+    {
+      "type": "Input.Date",
+      "label": "Updated before date",
+      "id": "updatedDate",
+      "placeholder": "YYYY-MM-DD"
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": "Submit",
+      "data": {
+        "id": "1234567890"
+      }
+    }
+  ]
+}

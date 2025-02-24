@@ -2,49 +2,128 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Dapper;
+using Dapper.Contrib.Extensions;
+using GitHubExtension.Helpers;
+using Octokit;
+using Serilog;
 
-namespace GitHubExtension.DataModel.DataObjects;
+namespace GitHubExtension.DataModel;
 
+[Table("Repository")]
 public class Repository
 {
-    public long Id { get; set; } = -1;
+    private static readonly Lazy<ILogger> _logger = new(() => Serilog.Log.ForContext("SourceContext", $"DataModel/{nameof(Repository)}"));
 
-    public long InternalId { get; set; } = -1;
+    private static readonly ILogger _log = _logger.Value;
 
-    public long OwnerId { get; set; } = -1;
+    [Key]
+    public long Id { get; set; } = DataStore.NoForeignKey;
+
+    // User table
+    public long OwnerId { get; set; } = DataStore.NoForeignKey;
 
     public string Name { get; set; } = string.Empty;
+
+    public string Description { get; set; } = string.Empty;
+
+    public long InternalId { get; set; } = DataStore.NoForeignKey;
+
+    public long Private { get; set; } = DataStore.NoForeignKey;
 
     public string HtmlUrl { get; set; } = string.Empty;
 
     public string CloneUrl { get; set; } = string.Empty;
 
-    public string Description { get; set; } = string.Empty;
-
-    public int Private { get; set; }
-
-    public int Fork { get; set; }
+    public long Fork { get; set; } = DataStore.NoForeignKey;
 
     public string DefaultBranch { get; set; } = string.Empty;
 
     public string Visibility { get; set; } = string.Empty;
 
-    public int HasIssues { get; set; }
+    public long HasIssues { get; set; } = DataStore.NoForeignKey;
 
-    public string FullName { get; private set; } = string.Empty;
+    public long TimeUpdated { get; set; } = DataStore.NoForeignKey;
+
+    public long TimePushed { get; set; } = DataStore.NoForeignKey;
+
+    [Write(false)]
+    private DataStore? DataStore
+    {
+        get; set;
+    }
+
+    [Write(false)]
+    [Computed]
+    public DateTime UpdatedAt => TimeUpdated.ToDateTime();
+
+    [Write(false)]
+    [Computed]
+    public DateTime PushedAt => TimePushed.ToDateTime();
+
+    [Write(false)]
+    [Computed]
+    public string FullName => Owner.Login + '/' + Name;
+
+    [Write(false)]
+    [Computed]
+    public User Owner
+    {
+        get
+        {
+            if (DataStore == null)
+            {
+                return new User();
+            }
+            else
+            {
+                return User.GetById(DataStore, OwnerId) ?? new User();
+            }
+        }
+    }
+
+    [Write(false)]
+    [Computed]
+    public IEnumerable<PullRequest> PullRequests
+    {
+        get
+        {
+            if (DataStore == null)
+            {
+                return Enumerable.Empty<PullRequest>();
+            }
+            else
+            {
+                return PullRequest.GetAllForRepository(DataStore, this) ?? Enumerable.Empty<PullRequest>();
+            }
+        }
+    }
+
+    [Write(false)]
+    [Computed]
+    public IEnumerable<Issue> Issues
+    {
+        get
+        {
+            if (DataStore == null)
+            {
+                return Enumerable.Empty<Issue>();
+            }
+            else
+            {
+                return Issue.GetAllForRepository(DataStore, this) ?? Enumerable.Empty<Issue>();
+            }
+        }
+    }
 
     public override string ToString() => FullName;
 
     // Create repository from OctoKit repo.
-    public static Repository CreateFromOctokitRepository(Octokit.Repository octokitRepository)
+    private static Repository CreateFromOctokitRepository(DataStore dataStore, Octokit.Repository octokitRepository)
     {
         var repo = new Repository
         {
+            DataStore = dataStore,
             Name = octokitRepository.Name,                                  // Cannot be null.
             HtmlUrl = octokitRepository.HtmlUrl ?? string.Empty,
             CloneUrl = octokitRepository.CloneUrl ?? string.Empty,
@@ -55,12 +134,139 @@ public class Repository
             DefaultBranch = octokitRepository.DefaultBranch ?? string.Empty,
             Visibility = octokitRepository.Visibility.HasValue ? octokitRepository.Visibility.Value.ToString() : string.Empty,
             HasIssues = octokitRepository.HasIssues ? 1 : 0,
+            TimeUpdated = octokitRepository.UpdatedAt.DateTime.ToDataStoreInteger(),
+            TimePushed = octokitRepository.UpdatedAt.DateTime.ToDataStoreInteger(),
         };
 
         // Owner is a rowId in the User table
-        var owner = User.CreateFromOctokitUser(octokitRepository.Owner);
+        var owner = User.GetOrCreateByOctokitUser(dataStore, octokitRepository.Owner);
         repo.OwnerId = owner.Id;
 
         return repo;
+    }
+
+    private static Repository AddOrUpdateRepository(DataStore dataStore, Repository repository)
+    {
+        // Check for existing repository data.
+        var existingRepository = GetByInternalId(dataStore, repository.InternalId);
+        if (existingRepository is not null)
+        {
+            // Only update if the TimeUpdated is different. That is our clue that something changed.
+            // We will see a lot of repository AddOrUpdate when inserting pull requests and issues, so
+            // avoid unnecessary work or database operations.
+            if (existingRepository.TimeUpdated < repository.TimeUpdated)
+            {
+                repository.Id = existingRepository.Id;
+                dataStore.Connection!.Update(repository);
+                repository.DataStore = dataStore;
+                return repository;
+            }
+            else
+            {
+                return existingRepository;
+            }
+        }
+
+        // No existing repository, add it.
+        repository.Id = dataStore.Connection!.Insert(repository);
+        repository.DataStore = dataStore;
+        return repository;
+    }
+
+    public static Repository? GetById(DataStore dataStore, long id)
+    {
+        var repo = dataStore.Connection!.Get<Repository>(id);
+        if (repo is not null)
+        {
+            // Add Datastore so this object can make internal queries.
+            repo.DataStore = dataStore;
+        }
+
+        return repo;
+    }
+
+    public static Repository? GetByInternalId(DataStore dataStore, long internalId)
+    {
+        var sql = @"SELECT * FROM Repository WHERE InternalId = @InternalId;";
+        var param = new
+        {
+            InternalId = internalId,
+        };
+
+        var repo = dataStore.Connection!.QueryFirstOrDefault<Repository>(sql, param, null);
+        if (repo is not null)
+        {
+            // Add Datastore so this object can make internal queries.
+            repo.DataStore = dataStore;
+        }
+
+        return repo;
+    }
+
+    public static Repository GetOrCreateByOctokitRepository(DataStore dataStore, Octokit.Repository octokitRepository)
+    {
+        var repository = CreateFromOctokitRepository(dataStore, octokitRepository);
+        return AddOrUpdateRepository(dataStore, repository);
+    }
+
+    public static IEnumerable<Repository> GetAll(DataStore dataStore)
+    {
+        var repositories = dataStore.Connection!.GetAll<Repository>() ?? Enumerable.Empty<Repository>();
+        foreach (var repository in repositories)
+        {
+            repository.DataStore = dataStore;
+        }
+
+        return repositories;
+    }
+
+    public static IEnumerable<Repository> GetAllForSearch(DataStore dataStore, Search search)
+    {
+        var sql = @"SELECT * FROM Repository WHERE Id IN (SELECT Repository FROM SearchRepository WHERE SearchId = @SearchId ORDER BY TimeUpdated ASC);";
+        var param = new
+        {
+            SearchId = search.Id,
+        };
+
+        _log.Verbose(DataStore.GetSqlLogMessage(sql, param));
+
+        var repositories = dataStore.Connection!.Query<Repository>(sql, param, null) ?? Enumerable.Empty<Repository>();
+        foreach (var repository in repositories)
+        {
+            repository.DataStore = dataStore;
+        }
+
+        return repositories;
+    }
+
+    public static Repository? Get(DataStore dataStore, string owner, string name)
+    {
+        var sql = @"SELECT * FROM Repository AS R WHERE R.Name = @Name AND R.OwnerId IN (SELECT Id FROM User WHERE User.Login = @Owner)";
+        var param = new
+        {
+            Name = name,
+            Owner = owner,
+        };
+
+        _log.Verbose(DataStore.GetSqlLogMessage(sql, param));
+        var repo = dataStore.Connection!.QueryFirstOrDefault<Repository>(sql, param, null);
+        if (repo is not null)
+        {
+            repo.DataStore = dataStore;
+        }
+
+        return repo;
+    }
+
+    public static Repository? Get(DataStore dataStore, string fullName)
+    {
+        var nameSplit = fullName.Split(['/'], 2);
+        if (nameSplit.Length != 2)
+        {
+            _log.Warning($"Invalid fullName input into Repository.Get: {fullName}");
+            return null;
+        }
+
+        return Get(dataStore, nameSplit[0], nameSplit[1]);
     }
 }

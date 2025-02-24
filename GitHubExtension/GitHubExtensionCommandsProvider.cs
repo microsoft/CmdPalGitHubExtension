@@ -9,7 +9,6 @@ using GitHubExtension.Helpers;
 using GitHubExtension.Pages;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
-using Microsoft.UI.Xaml;
 
 namespace GitHubExtension;
 
@@ -19,8 +18,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
     {
         DisplayName = "GitHub Extension";
 
-        GitHubAuthForm.SignInAction += OnSignInStatusChanged;
-        SignOutCommand.SignOutAction += OnSignInStatusChanged;
+        SignInForm.SignInAction += OnSignInStatusChanged;
         SignOutForm.SignOutAction += OnSignInStatusChanged;
 
         UpdateSignInStatus(IsSignedIn());
@@ -42,27 +40,22 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             new CommandItem(new SearchPullRequestsPage())
             {
                 Title = "Search GitHub Pull Requests",
-                Icon = new IconInfo(GitHubIcon.IconDictionary["pullRequest"]),
+                Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]),
             },
-            new CommandItem(new AddRepoPage())
-            {
-                Title = "Add a repo via URL",
-                Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
-            },
-            new CommandItem(new SignOutPage())
+            new CommandItem(new SignOutPage(new SignOutForm(), new StatusMessage(), "Sign out succeeded!", "Sign out failed"))
             {
                 Title = "GitHub Extension",
                 Subtitle = "Sign out",
                 Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
             },
-            new CommandItem(new SavedQueriesPage())
+            new CommandItem(new SavedSearchesPage())
             {
-                Title = "Saved Queries",
-                Icon = new IconInfo(string.Empty),
-            }
+                Title = "Saved Searches",
+                Icon = new IconInfo("\ue74e"),
+            },
         ]
         : [
-            new CommandItem(new GitHubAuthPage())
+            new CommandItem(new SignInPage(new SignInForm(), new StatusMessage(), "Sign in succeeded!", "Sign in failed"))
             {
                 Title = "GitHub Extension",
                 Subtitle = "Log in",
@@ -87,10 +80,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         {
             var devIds = DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal();
             GitHubRepositoryHelper.Instance.UpdateClient(devIds.First().GitHubClient);
-        }
-        else
-        {
-            GitHubRepositoryHelper.Instance.ClearRepositories();
+            SearchHelper.Instance.UpdateClient(devIds.First().GitHubClient);
         }
 
         UpdateTopLevelCommands(null, numCommands);

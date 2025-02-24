@@ -65,7 +65,7 @@ public static class Validation
         return IsValidGitHubURL(parsedUri);
     }
 
-    public static bool IsValidGitHubIssueQueryURL(string url)
+    public static bool IsValidGitHubIssueSearchURL(string url)
     {
         if (!IsValidGitHubURL(url))
         {
@@ -125,9 +125,9 @@ public static class Validation
         return RemoveDotGitFromEndOfString(repoName);
     }
 
-    public static string ParseIssueQueryFromGitHubURL(string url)
+    public static string ParseIssueSearchFromGitHubURL(string url)
     {
-        if (!IsValidGitHubIssueQueryURL(url))
+        if (!IsValidGitHubIssueSearchURL(url))
         {
             return string.Empty;
         }
