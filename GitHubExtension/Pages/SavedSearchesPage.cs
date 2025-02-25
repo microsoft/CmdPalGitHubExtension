@@ -42,6 +42,7 @@ internal sealed partial class SavedSearchesPage : ListPage
             var searchPages = savedSearches.Select(savedSearch => new ListItem(SearchPageFactory.CreateForSearch(savedSearch))
             {
                 Title = savedSearch.Name,
+                Subtitle = savedSearch.SearchString,
                 Icon = new IconInfo(GitHubIcon.IconDictionary[$"{savedSearch.Type}"]),
                 MoreCommands = new CommandContextItem[]
                 {
