@@ -95,15 +95,15 @@ internal sealed partial class SaveSearchForm : GitHubForm
                 searchHelper.RemoveSavedSearch(_savedSearch).Wait();
             }
 
-            SearchSaved?.Invoke(this, search);
             RaiseLoadingStateChanged(false);
+            SearchSaved?.Invoke(this, search);
             RaiseFormSubmitted(new FormSubmitEventArgs(true, null));
             return search;
         }
         catch (Exception ex)
         {
-            SearchSaved?.Invoke(this, ex);
             RaiseLoadingStateChanged(false);
+            SearchSaved?.Invoke(this, ex);
             RaiseFormSubmitted(new FormSubmitEventArgs(false, ex));
         }
 
