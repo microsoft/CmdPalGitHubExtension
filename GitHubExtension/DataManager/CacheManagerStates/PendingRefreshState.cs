@@ -44,7 +44,7 @@ public class PendingRefreshState : CacheManagerState
         switch (e.Kind)
         {
             case DataManagerUpdateKind.Cancel:
-                Logger.Information($"Received data manager cancellation. Refreshing for {CacheManager.PendingSearch!.Name}");
+                Logger.Information($"Received data manager cancellation. Refreshing for {CacheManager.PendingSearch?.Name}");
                 lock (CacheManager.GetStateLock())
                 {
                     CacheManager.SetState(CacheManager.RefreshingState);
