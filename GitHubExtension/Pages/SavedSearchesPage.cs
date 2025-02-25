@@ -81,11 +81,6 @@ internal sealed partial class SavedSearchesPage : ListPage
         // errors are handled in SaveSearchPage
     }
 
-    private void OnSearchSaving(object sender, bool args)
-    {
-        IsLoading = true;
-    }
-
     private void OnSearchRemoved(object sender, object? args)
     {
         IsLoading = false;
