@@ -27,8 +27,8 @@ internal sealed partial class SavedSearchesPage : ListPage
 
     public SavedSearchesPage()
     {
-        Icon = new IconInfo("\ue74e");
-        Name = "Saved Searches";
+        Icon = new IconInfo("\ue721");
+        Name = "Saved GitHub Searches";
         SaveSearchForm.SearchSaved += OnSearchSaved;
         RemoveSavedSearchCommand.SearchRemoved += OnSearchRemoved;
         RemoveSavedSearchCommand.SearchRemoving += OnSearchRemoving;
