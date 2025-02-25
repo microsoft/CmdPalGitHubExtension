@@ -76,13 +76,6 @@ internal sealed partial class SaveSearchForm : GitHubForm
         {
             var searchHelper = SearchHelper.Instance;
 
-            // if editing the search, first delete the old one
-            if (_savedSearch.SearchString != string.Empty)
-            {
-                Log.Information($"Removing outdated search {_savedSearch.Name}, {_savedSearch.SearchString}");
-                searchHelper.RemoveSavedSearch(_savedSearch).Wait();
-            }
-
             var payloadJson = JsonNode.Parse(payload) ?? throw new InvalidOperationException("No search found");
 
             var search = _searchInput switch
@@ -94,6 +87,13 @@ internal sealed partial class SaveSearchForm : GitHubForm
 
             searchHelper.ValidateSearch(search).Wait();
             searchHelper.AddSavedSearch(search).Wait();
+
+            // if editing the search, delete the old one
+            if (_savedSearch.SearchString != string.Empty)
+            {
+                Log.Information($"Removing outdated search {_savedSearch.Name}, {_savedSearch.SearchString}");
+                searchHelper.RemoveSavedSearch(_savedSearch).Wait();
+            }
 
             SearchSaved?.Invoke(this, search);
             RaiseLoadingStateChanged(false);

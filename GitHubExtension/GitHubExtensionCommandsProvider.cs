@@ -2,7 +2,6 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using GitHubExtension.Commands;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Forms;
 using GitHubExtension.Helpers;
@@ -32,26 +31,16 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
     {
         return _isSignedIn
         ? [
-            new CommandItem(new SearchIssuesPage())
+            new CommandItem(new SavedSearchesPage())
             {
-                Title = "Search GitHub Issues",
-                Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
-            },
-            new CommandItem(new SearchPullRequestsPage())
-            {
-                Title = "Search GitHub Pull Requests",
-                Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]),
+                Title = "Saved GitHub Searches",
+                Icon = new IconInfo("\ue721"),
             },
             new CommandItem(new SignOutPage(new SignOutForm(), new StatusMessage(), "Sign out succeeded!", "Sign out failed"))
             {
                 Title = "GitHub Extension",
                 Subtitle = "Sign out",
                 Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
-            },
-            new CommandItem(new SavedSearchesPage())
-            {
-                Title = "Saved Searches",
-                Icon = new IconInfo("\ue74e"),
             },
         ]
         : [
