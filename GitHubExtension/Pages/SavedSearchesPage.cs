@@ -63,14 +63,14 @@ internal sealed partial class SavedSearchesPage : ListPage
         {
             return new ListItem[]
             {
+                new(new SaveSearchPage(new SaveSearchForm(), new StatusMessage(), "Search saved successfully!", "Error in saving search"))
+                {
+                    Title = "Add a search",
+                    Icon = new IconInfo(string.Empty),
+                },
                 new(new SaveSearchPage(new SaveSearchForm(SearchInput.Survey), new StatusMessage(), "Search saved successfully!", "Error in saving search"))
                 {
                     Title = "Add a search (full form)",
-                    Icon = new IconInfo(string.Empty),
-                },
-                new(new SaveSearchPage(new SaveSearchForm(), new StatusMessage(), "Search saved successfully!", "Error in saving search"))
-                {
-                    Title = "Add a search by string",
                     Icon = new IconInfo(string.Empty),
                 },
             };
