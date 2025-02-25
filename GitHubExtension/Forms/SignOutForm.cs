@@ -38,7 +38,9 @@ internal sealed partial class SignOutForm : GitHubForm
 
             var signOutSucceeded = !authProvider.GetLoggedInDeveloperIdsInternal().Any();
 
+            RaiseLoadingStateChanged(false);
             SignOutAction?.Invoke(this, new SignInStatusChangedEventArgs(!signOutSucceeded, null));
+            RaiseFormSubmitted(new FormSubmitEventArgs(true, null));
         }
         catch (Exception ex)
         {

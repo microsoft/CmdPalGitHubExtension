@@ -38,6 +38,7 @@ internal sealed partial class SignInForm : GitHubForm
         {
             RaiseLoadingStateChanged(false);
             SignInAction?.Invoke(this, new SignInStatusChangedEventArgs(false, ex));
+            RaiseFormSubmitted(new FormSubmitEventArgs(false, ex));
         }
     }
 
