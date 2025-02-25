@@ -13,6 +13,18 @@ namespace GitHubExtension;
 
 internal sealed partial class SavedSearchesPage : ListPage
 {
+    private readonly ListItem addSearchListItem = new(new SaveSearchPage(new SaveSearchForm(), new StatusMessage(), "Search saved successfully!", "Error in saving search"))
+    {
+        Title = "Add a search",
+        Icon = new IconInfo("\uecc8"),
+    };
+
+    private readonly ListItem addSearchFullFormListItem = new(new SaveSearchPage(new SaveSearchForm(SearchInput.Survey), new StatusMessage(), "Search saved successfully!", "Error in saving search"))
+    {
+        Title = "Add a search (full form)",
+        Icon = new IconInfo("\uecc8"),
+    };
+
     public SavedSearchesPage()
     {
         Icon = new IconInfo("\ue74e");
@@ -46,34 +58,14 @@ internal sealed partial class SavedSearchesPage : ListPage
                 },
             }).ToList();
 
-            searchPages.Add(new(new SaveSearchPage(new SaveSearchForm(), new StatusMessage(), "Search saved successfully!", "Error in saving search"))
-            {
-                Title = "Add a search",
-                Icon = new IconInfo("\uecc8"),
-            });
-            searchPages.Add(new(new SaveSearchPage(new SaveSearchForm(SearchInput.Survey), new StatusMessage(), "Search saved successfully!", "Error in saving search"))
-            {
-                Title = "Add a search (full form)",
-                Icon = new IconInfo("\uecc8"),
-            });
+            searchPages.Add(addSearchListItem);
+            searchPages.Add(addSearchFullFormListItem);
 
             return searchPages.ToArray();
         }
         else
         {
-            return new ListItem[]
-            {
-                new(new SaveSearchPage(new SaveSearchForm(), new StatusMessage(), "Search saved successfully!", "Error in saving search"))
-                {
-                    Title = "Add a search",
-                    Icon = new IconInfo(string.Empty),
-                },
-                new(new SaveSearchPage(new SaveSearchForm(SearchInput.Survey), new StatusMessage(), "Search saved successfully!", "Error in saving search"))
-                {
-                    Title = "Add a search (full form)",
-                    Icon = new IconInfo(string.Empty),
-                },
-            };
+            return [addSearchListItem, addSearchFullFormListItem];
         }
     }
 
