@@ -11,7 +11,7 @@
   <Identity
     Name="GitHubExtension"
     Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
-    Version="0.0.3.0" />
+    Version="0.0.4.0" />
 
   <Properties>
     <DisplayName>GitHub extension for cmdpal</DisplayName>
