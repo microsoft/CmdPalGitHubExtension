@@ -25,6 +25,10 @@ internal sealed partial class IssuesSearchPage(PersistentData.Search search) : S
                 new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), "item number")),
                 new(new IssueContentPage(item)),
             },
+            Tags = new Tag[]
+            {
+                new(item.Labels.First().Name),
+            },
         };
     }
 
