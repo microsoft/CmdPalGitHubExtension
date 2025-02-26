@@ -154,6 +154,26 @@ internal abstract partial class SearchPage<T> : ListPage
         return tags.ToArray();
     }
 
+    protected ITag[] GetTags(DataModel.PullRequest item)
+    {
+        var tags = new List<ITag>();
+        if (item.Labels != null)
+        {
+            foreach (var label in item.Labels)
+            {
+                var color = ColorTranslator.FromHtml($"#{label.Color}");
+                tags.Add(new Tag
+                {
+                    Background = new(true, new Microsoft.CommandPalette.Extensions.Color(color.R, color.G, color.B, color.A)),
+                    Foreground = new(true, label.GetFontColor()),
+                    Text = label.Name,
+                });
+            }
+        }
+
+        return tags.ToArray();
+    }
+
     protected abstract ListItem GetListItem(T item);
 
     protected abstract Task<IEnumerable<T>> LoadContentData(DataModel.Search dsSearch);
