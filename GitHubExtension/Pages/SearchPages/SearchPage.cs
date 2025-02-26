@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Drawing;
 using GitHubExtension.Client;
 using GitHubExtension.DataManager;
 using GitHubExtension.Helpers;
@@ -131,6 +132,25 @@ internal abstract partial class SearchPage<T> : ListPage
         _ = RequestContentData();
 
         return items;
+    }
+
+    protected ITag[] GetTags(DataModel.Issue item)
+    {
+        var tags = new List<ITag>();
+        if (item.Labels != null)
+        {
+            foreach (var label in item.Labels)
+            {
+                var color = ColorTranslator.FromHtml($"#{label.Color}");
+                tags.Add(new Tag
+                {
+                    Background = new(true, new Microsoft.CommandPalette.Extensions.Color(color.R, color.G, color.B, color.A)),
+                    Text = label.Name,
+                });
+            }
+        }
+
+        return tags.ToArray();
     }
 
     protected abstract ListItem GetListItem(T item);
