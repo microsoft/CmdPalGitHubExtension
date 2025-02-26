@@ -9,9 +9,16 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Forms;
 
-internal sealed partial class SignInForm : GitHubForm
+public sealed partial class SignInForm : GitHubForm
 {
     public static event EventHandler<SignInStatusChangedEventArgs>? SignInAction;
+
+    private readonly IDeveloperIdProvider _developerIdProvider;
+
+    public SignInForm(IDeveloperIdProvider developerIdProvider)
+    {
+        _developerIdProvider = developerIdProvider;
+    }
 
     public override Dictionary<string, string> TemplateSubstitutions => new()
     {
@@ -44,13 +51,11 @@ internal sealed partial class SignInForm : GitHubForm
 
     private async Task<bool> HandleSignIn()
     {
-        var authProvider = DeveloperIdProvider.GetInstance();
+        var numPreviousDevIds = _developerIdProvider.GetLoggedInDeveloperIdsInternal().Count();
 
-        var numPreviousDevIds = authProvider.GetLoggedInDeveloperIdsInternal().Count();
+        await _developerIdProvider.LoginNewDeveloperIdAsync();
 
-        await authProvider.LoginNewDeveloperIdAsync();
-
-        var numDevIds = authProvider.GetLoggedInDeveloperIdsInternal().Count();
+        var numDevIds = _developerIdProvider.GetLoggedInDeveloperIdsInternal().Count();
 
         return numDevIds > numPreviousDevIds;
     }

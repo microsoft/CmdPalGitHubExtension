@@ -5,14 +5,14 @@
 using System.Globalization;
 using GitHubExtension.Commands;
 using GitHubExtension.Helpers;
-using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace GitHubExtension;
+namespace GitHubExtension.Pages;
 
-internal sealed partial class IssuesSearchPage(PersistentData.Search search) : SearchPage<DataModel.Issue>(search)
+internal sealed partial class IssuesSearchPage(ISearch search, ICacheDataManager cacheDataManager)
+    : SearchPage<IIssue>(search, cacheDataManager)
 {
-    protected override ListItem GetListItem(DataModel.Issue item)
+    protected override ListItem GetListItem(IIssue item)
     {
         return new ListItem(new LinkCommand(item))
         {
@@ -30,18 +30,8 @@ internal sealed partial class IssuesSearchPage(PersistentData.Search search) : S
         };
     }
 
-    protected async override Task<IEnumerable<DataModel.Issue>> LoadContentData(DataModel.Search dsSearch)
+    protected async override Task<IEnumerable<IIssue>> LoadContentData()
     {
-        return await Task.Run(() =>
-        {
-            var res = new List<DataModel.Issue>();
-
-            if (dsSearch?.Issues != null)
-            {
-                res.AddRange(dsSearch.Issues);
-            }
-
-            return res;
-        });
+        return await CacheDataManager.GetIssues(CurrentSearch);
     }
 }

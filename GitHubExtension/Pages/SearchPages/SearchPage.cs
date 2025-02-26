@@ -10,13 +10,13 @@ using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Serilog;
 
-namespace GitHubExtension;
+namespace GitHubExtension.Pages;
 
 internal abstract partial class SearchPage<T> : ListPage
 {
     protected ILogger Logger { get; }
 
-    public PersistentData.Search CurrentSearch { get; private set; }
+    public ISearch CurrentSearch { get; private set; }
 
     // To avoid race condition between multiple requests
     private readonly object _requestLock = new();
@@ -25,13 +25,16 @@ internal abstract partial class SearchPage<T> : ListPage
 
     private readonly TimeSpan _requestCooldown = TimeSpan.FromMinutes(5);
 
+    protected ICacheDataManager CacheDataManager { get; private set; }
+
     // Search is mandatory for this page to exist
-    protected SearchPage(PersistentData.Search search)
+    protected SearchPage(ISearch search, ICacheDataManager cacheDataManager)
     {
         Icon = new IconInfo(GitHubIcon.IconDictionary[$"{search.Type}"]);
         Name = search.Name;
         CurrentSearch = search;
         Logger = Log.ForContext("SourceContext", $"Pages/{GetType().Name}");
+        CacheDataManager = cacheDataManager;
     }
 
     public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();
@@ -49,8 +52,7 @@ internal abstract partial class SearchPage<T> : ListPage
             LastRequested = DateTime.UtcNow;
         }
 
-        var cacheManager = CacheManager.GetInstance();
-        await cacheManager.Refresh(UpdateType.Search, CurrentSearch);
+        await CacheDataManager.Refresh(UpdateType.Search, CurrentSearch);
     }
 
     protected void CacheManagerUpdateHandler(object? source, CacheManagerUpdateEventArgs e)
@@ -119,13 +121,11 @@ internal abstract partial class SearchPage<T> : ListPage
 
     private async Task<IEnumerable<T>> GetSearchItemsAsync()
     {
-        CacheManager.GetInstance().OnUpdate += CacheManagerUpdateHandler;
+        CacheDataManager.OnUpdate += CacheManagerUpdateHandler;
 
         // To avoid locked database
-        CacheManager.GetInstance().CancelUpdateInProgress();
-        var dataManager = GitHubDataManager.CreateInstance();
-        var dsSearch = dataManager!.GetSearch(CurrentSearch.Name, CurrentSearch!.SearchString);
-        var items = await LoadContentData(dsSearch!);
+        CacheDataManager.CancelUpdateInProgress();
+        var items = await LoadContentData();
 
         Logger.Information($"Found {items.Count()} items matching search query \"{CurrentSearch.Name}\"");
 
@@ -134,7 +134,7 @@ internal abstract partial class SearchPage<T> : ListPage
         return items;
     }
 
-    protected ITag[] GetTags(DataModel.Issue item)
+    protected ITag[] GetTags(IIssue item)
     {
         var tags = new List<ITag>();
         if (item.Labels != null)
@@ -154,7 +154,7 @@ internal abstract partial class SearchPage<T> : ListPage
         return tags.ToArray();
     }
 
-    protected ITag[] GetTags(DataModel.PullRequest item)
+    protected ITag[] GetTags(IPullRequest item)
     {
         var tags = new List<ITag>();
         if (item.Labels != null)
@@ -176,7 +176,7 @@ internal abstract partial class SearchPage<T> : ListPage
 
     protected abstract ListItem GetListItem(T item);
 
-    protected abstract Task<IEnumerable<T>> LoadContentData(DataModel.Search dsSearch);
+    protected abstract Task<IEnumerable<T>> LoadContentData();
 
     protected static string GetOwner(string repositoryUrl) => Validation.ParseOwnerFromGitHubURL(repositoryUrl);
 

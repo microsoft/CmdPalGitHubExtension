@@ -11,62 +11,48 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension;
 
-internal sealed partial class SavedSearchesPage : ListPage
+public sealed partial class SavedSearchesPage : ListPage
 {
-    private readonly ListItem addSearchListItem = new(new SaveSearchPage(new SaveSearchForm(), new StatusMessage(), "Search saved successfully!", "Error in saving search"))
-    {
-        Title = "Add a search",
-        Icon = new IconInfo("\uecc8"),
-    };
+    private readonly ListItem _addSearchListItem;
 
-    private readonly ListItem addSearchFullFormListItem = new(new SaveSearchPage(new SaveSearchForm(SearchInput.Survey), new StatusMessage(), "Search saved successfully!", "Error in saving search"))
-    {
-        Title = "Add a search (full form)",
-        Icon = new IconInfo("\uecc8"),
-    };
+    private readonly ListItem _addSearchFullFormListItem;
 
-    public SavedSearchesPage()
+    private readonly SearchPageFactory _searchPageFactory;
+
+    private readonly ISearchRepository _searchRepository;
+
+    public SavedSearchesPage(
+        SearchPageFactory searchPageFactory,
+        ISearchRepository searchRepository,
+        AddSearchListItem addSearchListItem,
+        AddSearchFullFormListItem addSearchFullFormListItem)
     {
         Icon = new IconInfo("\ue721");
         Name = "Saved GitHub Searches";
         SaveSearchForm.SearchSaved += OnSearchSaved;
         RemoveSavedSearchCommand.SearchRemoved += OnSearchRemoved;
         RemoveSavedSearchCommand.SearchRemoving += OnSearchRemoving;
+        _searchPageFactory = searchPageFactory;
+        _searchRepository = searchRepository;
+        _addSearchListItem = addSearchListItem;
+        _addSearchFullFormListItem = addSearchFullFormListItem;
     }
 
     public override IListItem[] GetItems()
     {
-        var savedSearches = SearchHelper.Instance.GetSavedSearches().Result;
+        var savedSearches = _searchRepository.GetSavedSearches().Result;
         if (savedSearches.Any())
         {
-            var searchPages = savedSearches.Select(savedSearch => new ListItem(SearchPageFactory.CreateForSearch(savedSearch))
-            {
-                Title = savedSearch.Name,
-                Subtitle = savedSearch.SearchString,
-                Icon = new IconInfo(GitHubIcon.IconDictionary[$"{savedSearch.Type}"]),
-                MoreCommands = new CommandContextItem[]
-                {
-                    new(new RemoveSavedSearchCommand(savedSearch))
-                    {
-                        Title = "Remove",
-                        Icon = new IconInfo("\uecc9"),
-                    },
-                    new(new EditSearchPage(savedSearch, new SaveSearchForm(savedSearch), new StatusMessage(), "Search edited successfully!", "Error in editing search"))
-                    {
-                        Title = "Edit",
-                        Icon = new IconInfo("\ue70f"),
-                    },
-                },
-            }).ToList();
+            var searchPages = savedSearches.Select(savedSearch => _searchPageFactory.CreateItemForSearch(savedSearch)).ToList();
 
-            searchPages.Add(addSearchListItem);
-            searchPages.Add(addSearchFullFormListItem);
+            searchPages.Add(_addSearchListItem);
+            searchPages.Add(_addSearchFullFormListItem);
 
             return searchPages.ToArray();
         }
         else
         {
-            return [addSearchListItem, addSearchFullFormListItem];
+            return [_addSearchListItem, _addSearchFullFormListItem];
         }
     }
 
@@ -76,7 +62,7 @@ internal sealed partial class SavedSearchesPage : ListPage
 
         if (args != null && args is SearchCandidate)
         {
-            RaiseItemsChanged(SearchHelper.Instance.GetSavedSearches().Result.Count());
+            RaiseItemsChanged(_searchRepository.GetSavedSearches().Result.Count());
         }
 
         // errors are handled in SaveSearchPage
@@ -98,7 +84,7 @@ internal sealed partial class SavedSearchesPage : ListPage
         }
         else if (args is true)
         {
-            RaiseItemsChanged(SearchHelper.Instance.GetSavedSearches().Result.Count());
+            RaiseItemsChanged(_searchRepository.GetSavedSearches().Result.Count());
         }
         else if (args is false)
         {

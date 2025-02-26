@@ -7,7 +7,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Pages;
 
-internal sealed partial class SignInPage : GitHubAuthPage
+public sealed partial class SignInPage : GitHubAuthPage
 {
     public SignInPage(SignInForm gitHubAuthForm, StatusMessage statusMessage, string successMessage, string errorMessage)
         : base(gitHubAuthForm, statusMessage, successMessage, errorMessage)

@@ -4,25 +4,17 @@
 
 using System.Globalization;
 using GitHubExtension.Commands;
-using GitHubExtension.DataModel;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace GitHubExtension;
+namespace GitHubExtension.Pages;
 
 internal sealed partial class PullRequestContentPage : ContentPage
 {
-    private readonly PullRequest _pullRequest;
+    private readonly IPullRequest _pullRequest;
 
-    public PullRequestContentPage()
-    {
-        Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]);
-        Name = "View";
-        _pullRequest = new PullRequest();
-    }
-
-    public PullRequestContentPage(PullRequest pullRequest)
+    public PullRequestContentPage(IPullRequest pullRequest)
     {
         Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]);
         Name = "View pull request in Command Palette";

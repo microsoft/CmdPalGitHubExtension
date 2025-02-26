@@ -7,11 +7,12 @@ using GitHubExtension.Commands;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace GitHubExtension;
+namespace GitHubExtension.Pages;
 
-internal sealed partial class PullRequestsSearchPage(PersistentData.Search search) : SearchPage<DataModel.PullRequest>(search)
+internal sealed partial class PullRequestsSearchPage(ISearch search, ICacheDataManager cacheDataManager)
+    : SearchPage<IPullRequest>(search, cacheDataManager)
 {
-    protected override ListItem GetListItem(DataModel.PullRequest item)
+    protected override ListItem GetListItem(IPullRequest item)
     {
         return new ListItem(new LinkCommand(item))
         {
@@ -31,18 +32,8 @@ internal sealed partial class PullRequestsSearchPage(PersistentData.Search searc
         };
     }
 
-    protected async override Task<IEnumerable<DataModel.PullRequest>> LoadContentData(DataModel.Search dsSearch)
+    protected async override Task<IEnumerable<IPullRequest>> LoadContentData()
     {
-        return await Task.Run(() =>
-        {
-            var res = new List<DataModel.PullRequest>();
-
-            if (dsSearch?.PullRequests != null)
-            {
-                res.AddRange(dsSearch.PullRequests);
-            }
-
-            return res;
-        });
+        return await CacheDataManager.GetPullRequests(CurrentSearch);
     }
 }

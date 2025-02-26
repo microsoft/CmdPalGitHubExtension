@@ -8,7 +8,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Pages;
 
-internal abstract partial class GitHubContentPage : ContentPage, IGitHubPage
+public abstract partial class GitHubContentPage : ContentPage, IGitHubPage
 {
     public abstract StatusMessage StatusMessage { get; set; }
 

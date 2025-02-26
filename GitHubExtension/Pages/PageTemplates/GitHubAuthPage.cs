@@ -7,7 +7,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Pages;
 
-internal partial class GitHubAuthPage : GitHubContentPage
+public partial class GitHubAuthPage : GitHubContentPage
 {
     private StatusMessage _statusMessage;
 

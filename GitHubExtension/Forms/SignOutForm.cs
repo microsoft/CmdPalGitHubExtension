@@ -8,8 +8,19 @@ using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-internal sealed partial class SignOutForm : GitHubForm
+namespace GitHubExtension.Forms;
+
+public sealed partial class SignOutForm : GitHubForm
 {
+    public static event EventHandler<SignInStatusChangedEventArgs>? SignOutAction;
+
+    private readonly IDeveloperIdProvider _developerIdProvider;
+
+    public SignOutForm(IDeveloperIdProvider developerIdProvider)
+    {
+        _developerIdProvider = developerIdProvider;
+    }
+
     public override Dictionary<string, string> TemplateSubstitutions => new()
     {
         { "{{AuthTitle}}", "Are you sure you want to sign out?" },
@@ -20,23 +31,20 @@ internal sealed partial class SignOutForm : GitHubForm
 
     public override ICommandResult DefaultSubmitFormCommand => CommandResult.GoHome();
 
-    public static event EventHandler<SignInStatusChangedEventArgs>? SignOutAction;
-
     public override string TemplateJson => LoadTemplateJsonFromFile("AuthTemplate");
 
     public override void HandleSubmit(string payload)
     {
         try
         {
-            var authProvider = DeveloperIdProvider.GetInstance();
-            var devIds = authProvider.GetLoggedInDeveloperIdsInternal();
+            var devIds = _developerIdProvider.GetLoggedInDeveloperIdsInternal();
 
             foreach (var devId in devIds)
             {
-                authProvider.LogoutDeveloperId(devId);
+                _developerIdProvider.LogoutDeveloperId(devId);
             }
 
-            var signOutSucceeded = !authProvider.GetLoggedInDeveloperIdsInternal().Any();
+            var signOutSucceeded = !_developerIdProvider.GetLoggedInDeveloperIdsInternal().Any();
 
             RaiseLoadingStateChanged(false);
             SignOutAction?.Invoke(this, new SignInStatusChangedEventArgs(!signOutSucceeded, null));

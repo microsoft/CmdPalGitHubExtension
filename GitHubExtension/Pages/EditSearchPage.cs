@@ -3,14 +3,13 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Forms;
-using GitHubExtension.PersistentData;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Pages;
 
 internal sealed partial class EditSearchPage : GitHubContentPage
 {
-    private readonly Search _searchToEdit;
+    private readonly ISearch _searchToEdit;
 
     private SaveSearchForm _saveSearchForm;
 
@@ -28,7 +27,7 @@ internal sealed partial class EditSearchPage : GitHubContentPage
 
     public override GitHubForm PageForm { get => _saveSearchForm; set => _saveSearchForm = (SaveSearchForm)value; }
 
-    public EditSearchPage(Search searchToEdit, SaveSearchForm saveSearchForm, StatusMessage statusMessage, string successMessage, string errorMessage)
+    public EditSearchPage(ISearch searchToEdit, SaveSearchForm saveSearchForm, StatusMessage statusMessage, string successMessage, string errorMessage)
     {
         _searchToEdit = searchToEdit;
         _saveSearchForm = saveSearchForm;
@@ -40,5 +39,7 @@ internal sealed partial class EditSearchPage : GitHubContentPage
         StatusMessage = statusMessage;
         SuccessMessage = successMessage;
         ErrorMessage = errorMessage;
-    }
+        Title = "Edit";
+        Icon = new IconInfo("\ue70f");
+     }
 }

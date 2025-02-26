@@ -4,25 +4,17 @@
 
 using System.Globalization;
 using GitHubExtension.Commands;
-using GitHubExtension.DataModel;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace GitHubExtension;
+namespace GitHubExtension.Pages;
 
 internal sealed partial class IssueContentPage : ContentPage
 {
-    private readonly Issue _issue;
+    private readonly IIssue _issue;
 
-    public IssueContentPage()
-    {
-        Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
-        Name = "View";
-        _issue = new Issue();
-    }
-
-    public IssueContentPage(Issue issue)
+    public IssueContentPage(IIssue issue)
     {
         Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
         Name = "View issue in Command Palette";

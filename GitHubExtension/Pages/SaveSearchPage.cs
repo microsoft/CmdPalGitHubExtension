@@ -3,12 +3,11 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Forms;
-using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Pages;
 
-internal sealed partial class SaveSearchPage : GitHubContentPage
+public sealed partial class SaveSearchPage : GitHubContentPage
 {
     private SaveSearchForm _saveSearchForm;
 

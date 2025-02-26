@@ -10,7 +10,7 @@ using Windows.Foundation;
 
 namespace GitHubExtension;
 
-internal abstract partial class GitHubForm : FormContent
+public abstract partial class GitHubForm : FormContent
 {
     private readonly Dictionary<string, string> templateSubstitutions = new();
 
@@ -22,10 +22,10 @@ internal abstract partial class GitHubForm : FormContent
 
     public event TypedEventHandler<object, FormSubmitEventArgs>? FormSubmitted;
 
-    public override ICommandResult SubmitForm(string payload)
+    public override ICommandResult SubmitForm(string inputs)
     {
         LoadingStateChanged?.Invoke(this, true);
-        Task.Run(() => HandleSubmit(payload));
+        Task.Run(() => HandleSubmit(inputs));
         return DefaultSubmitFormCommand;
     }
 
@@ -44,14 +44,14 @@ internal abstract partial class GitHubForm : FormContent
         return template;
     }
 
-    public virtual string FillInTemplate(string template, Dictionary<string, string> substitutions)
+    public virtual string FillInTemplate(string jsonTemplate, Dictionary<string, string> substitutions)
     {
         foreach (var substitution in substitutions)
         {
-            template = template.Replace(substitution.Key, substitution.Value);
+            jsonTemplate = jsonTemplate.Replace(substitution.Key, substitution.Value);
         }
 
-        return template;
+        return jsonTemplate;
     }
 
     protected void RaiseLoadingStateChanged(bool isLoading)

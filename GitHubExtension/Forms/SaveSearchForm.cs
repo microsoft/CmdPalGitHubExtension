@@ -5,6 +5,7 @@
 using System.Text;
 using System.Text.Json.Nodes;
 using GitHubExtension.Helpers;
+using GitHubExtension.Pages;
 using GitHubExtension.PersistentData;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -13,13 +14,15 @@ using Windows.Foundation;
 
 namespace GitHubExtension.Forms;
 
-internal sealed partial class SaveSearchForm : GitHubForm
+public sealed partial class SaveSearchForm : GitHubForm
 {
     public static event TypedEventHandler<object, object?>? SearchSaved;
 
     private readonly SearchInput _searchInput;
 
-    private readonly Search _savedSearch;
+    private readonly ISearch _savedSearch;
+
+    private readonly ISearchRepository _searchRepository;
 
     public override ICommandResult DefaultSubmitFormCommand => CommandResult.KeepOpen();
 
@@ -30,22 +33,18 @@ internal sealed partial class SaveSearchForm : GitHubForm
         { "{{SavedSearchName}}", _savedSearch.Name },
     };
 
-    public SaveSearchForm()
-    : this(SearchInput.SearchString)
-    {
-        _savedSearch = new Search();
-    }
-
-    public SaveSearchForm(SearchInput input)
+    public SaveSearchForm(SearchInput input, ISearchRepository searchRepository)
     {
         _searchInput = input;
-        _savedSearch = new Search();
+        _savedSearch = new SearchCandidate();
+        _searchRepository = searchRepository;
     }
 
-    public SaveSearchForm(Search savedSearch)
+    public SaveSearchForm(ISearch savedSearch, ISearchRepository searchRepository)
     {
         _searchInput = SearchInput.SearchString;
         _savedSearch = savedSearch;
+        _searchRepository = searchRepository;
     }
 
     public override string DataJson => LoadDataJson(_searchInput);
@@ -85,14 +84,14 @@ internal sealed partial class SaveSearchForm : GitHubForm
                 _ => throw new NotImplementedException(),
             };
 
-            searchHelper.ValidateSearch(search).Wait();
-            searchHelper.AddSavedSearch(search).Wait();
+            _searchRepository.ValidateSearch(search).Wait();
+            _searchRepository.AddSavedSearch(search).Wait();
 
             // if editing the search, delete the old one
             if (_savedSearch.SearchString != string.Empty)
             {
                 Log.Information($"Removing outdated search {_savedSearch.Name}, {_savedSearch.SearchString}");
-                searchHelper.RemoveSavedSearch(_savedSearch).Wait();
+                _searchRepository.RemoveSavedSearch(_savedSearch).Wait();
             }
 
             RaiseLoadingStateChanged(false);

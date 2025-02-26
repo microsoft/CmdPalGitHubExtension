@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Helpers;
+using GitHubExtension.Pages;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.Foundation;
 
@@ -23,7 +24,7 @@ public partial class RemoveSavedSearchCommand : InvokableCommand
         Icon = new IconInfo("\uecc9");
     }
 
-    public RemoveSavedSearchCommand(PersistentData.Search search)
+    public RemoveSavedSearchCommand(ISearch search)
     {
         savedSearch = new SearchCandidate(search.SearchString, search.Name);
         Name = "Remove";
