@@ -5,6 +5,7 @@
 using System.Globalization;
 using GitHubExtension.Commands;
 using GitHubExtension.Helpers;
+using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension;
@@ -25,6 +26,7 @@ internal sealed partial class IssuesSearchPage(PersistentData.Search search) : S
                 new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), "item number")),
                 new(new IssueContentPage(item)),
             },
+            Tags = GetTags(item),
         };
     }
 
