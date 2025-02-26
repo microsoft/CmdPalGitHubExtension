@@ -145,6 +145,7 @@ internal abstract partial class SearchPage<T> : ListPage
                 tags.Add(new Tag
                 {
                     Background = new(true, new Microsoft.CommandPalette.Extensions.Color(color.R, color.G, color.B, color.A)),
+                    Foreground = new(true, label.GetFontColor()),
                     Text = label.Name,
                 });
             }
