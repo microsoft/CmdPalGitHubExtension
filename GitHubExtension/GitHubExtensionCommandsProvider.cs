@@ -13,10 +13,25 @@ namespace GitHubExtension;
 
 public partial class GitHubExtensionCommandsProvider : CommandProvider
 {
-    public GitHubExtensionCommandsProvider()
+    private readonly SavedSearchesPage _savedSearchesPage;
+    private readonly SignOutPage _signOutPage;
+    private readonly SignInPage _signInPage;
+    private readonly IDeveloperIdProvider _developerIdProvider;
+
+    public GitHubExtensionCommandsProvider(
+        SavedSearchesPage savedSearchesPage,
+        SignOutPage signOutPage,
+        SignInPage signInPage,
+        IDeveloperIdProvider developerIdProvider)
     {
         DisplayName = "GitHub Extension";
 
+        _savedSearchesPage = savedSearchesPage;
+        _signOutPage = signOutPage;
+        _signInPage = signInPage;
+        _developerIdProvider = developerIdProvider;
+
+        // Static events here. Hard dependency. But maybe it is ok in this case
         SignInForm.SignInAction += OnSignInStatusChanged;
         SignOutForm.SignOutAction += OnSignInStatusChanged;
 
@@ -31,12 +46,14 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
     {
         return _isSignedIn
         ? [
-            new CommandItem(new SavedSearchesPage())
+            new CommandItem(_savedSearchesPage)
             {
                 Title = "Saved GitHub Searches",
                 Icon = new IconInfo("\ue721"),
             },
-            new CommandItem(new SignOutPage(new SignOutForm(), new StatusMessage(), "Sign out succeeded!", "Sign out failed"))
+
+            // new CommandItem(new SignOutPage(new SignOutForm(developerIdProvider), new StatusMessage(), "Sign out succeeded!", "Sign out failed"))
+            new CommandItem(_signOutPage)
             {
                 Title = "GitHub Extension",
                 Subtitle = "Sign out",
@@ -44,7 +61,9 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             },
         ]
         : [
-            new CommandItem(new SignInPage(new SignInForm(), new StatusMessage(), "Sign in succeeded!", "Sign in failed"))
+
+            // new CommandItem(new SignInPage(new SignInForm(developerIdProvider), new StatusMessage(), "Sign in succeeded!", "Sign in failed"))
+            new CommandItem(_signInPage)
             {
                 Title = "GitHub Extension",
                 Subtitle = "Log in",
@@ -53,10 +72,9 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         ];
     }
 
-    private static bool IsSignedIn()
+    private bool IsSignedIn()
     {
-        var devIdProvider = DeveloperIdProvider.GetInstance();
-        var devIds = devIdProvider.GetLoggedInDeveloperIdsInternal();
+        var devIds = _developerIdProvider.GetLoggedInDeveloperIdsInternal();
         return devIds.Any();
     }
 
@@ -64,13 +82,6 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
     {
         _isSignedIn = isSignedIn;
         var numCommands = _isSignedIn ? 5 : 2;
-
-        if (_isSignedIn)
-        {
-            var devIds = DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal();
-            GitHubRepositoryHelper.Instance.UpdateClient(devIds.First().GitHubClient);
-            SearchHelper.Instance.UpdateClient(devIds.First().GitHubClient);
-        }
 
         UpdateTopLevelCommands(null, numCommands);
     }

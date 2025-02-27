@@ -48,7 +48,7 @@
   </ItemGroup>
 
     <ItemGroup>
-        <Content Include="Templates\*">
+        <Content Include="Controls\Templates\*">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
         <Compile Remove="D:\ghext\\codeAnalysis\GlobalSuppressions.cs" />

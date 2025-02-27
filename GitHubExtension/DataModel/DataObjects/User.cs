@@ -40,10 +40,6 @@ public class User
 
     [Write(false)]
     [Computed]
-    public bool IsDeveloper => IsLoginIdDeveloper(Login);
-
-    [Write(false)]
-    [Computed]
     public IEnumerable<PullRequest> PullRequests
     {
         get
@@ -134,41 +130,5 @@ public class User
     {
         var newUser = CreateFromOctokitUser(user);
         return AddOrUpdateUser(dataStore, newUser);
-    }
-
-    public static List<string> GetDeveloperLoginIds()
-    {
-        var idList = new List<string>();
-        var devIds = DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal();
-        foreach (var devId in devIds)
-        {
-            idList.Add(devId.LoginId);
-        }
-
-        return idList;
-    }
-
-    // Returns list of User records that match the Logged-in Developer IDs.
-    public static IEnumerable<User> GetDeveloperUsers(DataStore dataStore)
-    {
-        var sql = @"SELECT * FROM User WHERE Login IN @DeveloperIds;";
-        var param = new
-        {
-            DeveloperIds = GetDeveloperLoginIds(),
-        };
-
-        _log.Verbose(DataStore.GetSqlLogMessage(sql, param));
-        var users = dataStore.Connection!.Query<User>(sql, param) ?? Enumerable.Empty<User>();
-        foreach (var user in users)
-        {
-            user.DataStore = dataStore;
-        }
-
-        return users;
-    }
-
-    private static bool IsLoginIdDeveloper(string login)
-    {
-        return GetDeveloperLoginIds().Contains(login);
     }
 }

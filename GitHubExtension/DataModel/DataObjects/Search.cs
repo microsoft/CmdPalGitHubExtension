@@ -6,6 +6,7 @@ using Dapper;
 using Dapper.Contrib.Extensions;
 using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Helpers;
+using GitHubExtension.Pages;
 using Serilog;
 
 namespace GitHubExtension.DataModel;
@@ -142,7 +143,7 @@ public class Search
 
     [Write(false)]
     [Computed]
-    public IEnumerable<Issue> Issues
+    public IEnumerable<IIssue> Issues
     {
         get
         {

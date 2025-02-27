@@ -36,10 +36,10 @@ internal sealed class GitHubHelper
     {
         return page switch
         {
-            "AuthTemplate" => "Templates\\AuthTemplate.json",
-            "SaveSearchSurvey" => "Templates\\SaveSearchSurveyTemplate.json",
-            "SaveSearchSurveyData" => "Templates\\SaveSearchSurveyData.json",
-            "SaveSearch" => "Templates\\SaveSearchTemplate.json",
+            "AuthTemplate" => "Controls\\Templates\\AuthTemplate.json",
+            "SaveSearchSurvey" => "Controls\\Templates\\SaveSearchSurveyTemplate.json",
+            "SaveSearchSurveyData" => "Controls\\Templates\\SaveSearchSurveyData.json",
+            "SaveSearch" => "Controls\\Templates\\SaveSearchTemplate.json",
             _ => throw new NotImplementedException(),
         };
     }

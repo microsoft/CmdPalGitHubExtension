@@ -2,8 +2,15 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using GitHubExtension.Client;
 using GitHubExtension.DataManager;
+using GitHubExtension.DeveloperId;
+using GitHubExtension.Forms;
+using GitHubExtension.Helpers;
+using GitHubExtension.Pages;
+using GitHubExtension.PersistentData;
 using Microsoft.CommandPalette.Extensions;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Windows.AppLifecycle;
 using Microsoft.Windows.Storage;
@@ -14,6 +21,8 @@ namespace GitHubExtension;
 
 public class Program
 {
+    private static DeveloperIdProvider? _developerIdProvider;
+
     [MTAThread]
     public static async Task Main(string[] args)
     {
@@ -93,21 +102,48 @@ public class Program
     {
         using ExtensionServer server = new();
         var extensionDisposedEvent = new ManualResetEvent(false);
-        var extensionInstance = new GitHubExtension(extensionDisposedEvent);
+
+        // COMPOSITION ROOT AREA
+        var developerIdProvider = new DeveloperIdProvider();
+        _developerIdProvider = developerIdProvider;
+
+        var gitHubClientProvider = new GitHubClientProvider(developerIdProvider);
+
+        using var gitHubDataManager = new GitHubDataManager(developerIdProvider, gitHubClientProvider);
+
+        using var searchRepository = new PersistentDataManager(developerIdProvider);
+
+        using var cacheManager = new CacheManager(gitHubDataManager, searchRepository)!;
+
+        // Set up cache manager to pre-update data
+        cacheManager.Start();
+
+        ICacheDataManager cacheDataManager = new CacheDataManagerFacade(cacheManager, gitHubDataManager);
+
+        var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository);
+
+        var addSearchListItem = new AddSearchListItem(new SaveSearchPage(new SaveSearchForm(SearchInput.SearchString, searchRepository), new StatusMessage(), "Search saved successfully!", "Error in saving search"));
+        var addSearchFullFormListItem = new AddSearchFullFormListItem(new SaveSearchPage(new SaveSearchForm(SearchInput.Survey, searchRepository), new StatusMessage(), "Search saved successfully!", "Error in saving search"));
+
+        var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, addSearchListItem, addSearchFullFormListItem);
+
+        var signOutPage = new SignOutPage(new SignOutForm(developerIdProvider), new StatusMessage(), "Sign out succeeded!", "Sign out failed");
+        var signInPage = new SignInPage(new SignInForm(developerIdProvider), new StatusMessage(), "Sign in succeeded!", "Sign in failed");
+
+        var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, developerIdProvider);
+        var extensionInstance = new GitHubExtension(extensionDisposedEvent, commandProvider);
 
         // We are instantiating an extension instance once above, and returning it every time the callback in RegisterExtension below is called.
         // This makes sure that only one instance of GitHubExtension is alive, which is returned every time the host asks for the IExtension object.
         // If you want to instantiate a new instance each time the host asks, create the new instance inside the delegate.
         server.RegisterExtension(() => extensionInstance);
 
-        // Set up cache manager to pre-update data
-        using var cacheManager = CacheManager.GetInstance();
-        cacheManager?.Start();
+        // END OF COMPOSITION ROOT AREA
 
         // This will make the main thread wait until the event is signalled by the extension class.
         // Since we have single instance of the extension object, we exit as soon as it is disposed.
         extensionDisposedEvent.WaitOne();
     }
 
-    private static void HandleProtocolActivation(Uri oauthRedirectUri) => DeveloperId.DeveloperIdProvider.GetInstance().HandleOauthRedirection(oauthRedirectUri);
+    private static void HandleProtocolActivation(Uri oauthRedirectUri) => _developerIdProvider?.HandleOauthRedirection(oauthRedirectUri);
 }
