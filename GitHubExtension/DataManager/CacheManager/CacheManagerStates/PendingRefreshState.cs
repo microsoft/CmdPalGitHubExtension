@@ -47,7 +47,7 @@ public class PendingRefreshState : CacheManagerState
                 Logger.Information($"Received data manager cancellation. Refreshing for {CacheManager.PendingSearch?.Name}");
                 lock (CacheManager.GetStateLock())
                 {
-                    CacheManager.SetState(CacheManager.RefreshingState);
+                    CacheManager.State = CacheManager.RefreshingState;
                 }
 
                 await CacheManager.Update(TimeSpan.MinValue, CacheManager.CurrentUpdateType, CacheManager.PendingSearch);
@@ -57,7 +57,7 @@ public class PendingRefreshState : CacheManagerState
 
                 lock (CacheManager.GetStateLock())
                 {
-                    CacheManager.SetState(CacheManager.IdleState);
+                    CacheManager.State = CacheManager.IdleState;
                     CacheManager.PendingSearch = null;
                     CacheManager.CurrentUpdateType = UpdateType.Unknown;
                 }

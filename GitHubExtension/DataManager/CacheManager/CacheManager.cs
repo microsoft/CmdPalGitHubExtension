@@ -23,12 +23,7 @@ public sealed class CacheManager : IDisposable
 
     private readonly ILogger _logger;
 
-    private CacheManagerState _state;
-
-    public void SetState(CacheManagerState state)
-    {
-        _state = state;
-    }
+    public CacheManagerState State { get; set; }
 
     public object GetStateLock()
     {
@@ -47,9 +42,11 @@ public sealed class CacheManager : IDisposable
 
     public IGitHubDataManager DataManager { get; private set; }
 
+    private readonly ISearchRepository _searchRepository;
+
     // Variables to control the state of the CacheManager
     // If there is a current update in progress
-    public ISearch? PendingSearch { get; set; }
+    public ISearch? PendingSearch { get; internal set; }
 
     // The type of update that is currently in progress
     public UpdateType CurrentUpdateType { get; set; }
@@ -86,11 +83,12 @@ public sealed class CacheManager : IDisposable
 
     public DateTime LastUpdateTime { get; set; } = DateTime.MinValue;
 
-    public CacheManager(IGitHubDataManager dataManager)
+    public CacheManager(IGitHubDataManager dataManager, ISearchRepository searchRepository)
     {
         DataManager = dataManager;
+        _searchRepository = searchRepository;
         DataUpdater = new DataUpdater(PeriodicUpdate);
-        GitHubDataManager.OnUpdate += HandleDataManagerUpdate;
+        dataManager.OnUpdate += HandleDataManagerUpdate;
         _cancelSource = new CancellationTokenSource();
         _logger = Log.Logger.ForContext("SourceContext", nameof(CacheManager));
 
@@ -99,7 +97,7 @@ public sealed class CacheManager : IDisposable
         RefreshingState = new RefreshingState(this);
         PeriodicUpdatingState = new PeriodicUpdatingState(this);
         PendingRefreshState = new PendingRefreshState(this);
-        _state = IdleState;
+        State = IdleState;
     }
 
     public void Start()
@@ -128,12 +126,12 @@ public sealed class CacheManager : IDisposable
     // an instant update of its data.
     public async Task Refresh(UpdateType updateType, ISearch? search = null)
     {
-        await _state.Refresh(updateType, search);
+        await State.Refresh(updateType, search);
     }
 
-    private async Task PeriodicUpdate()
+    public async Task PeriodicUpdate()
     {
-        await _state.PeriodicUpdate();
+        await State.PeriodicUpdate();
     }
 
     public async Task Update(TimeSpan? olderThan, UpdateType updateType, ISearch? search = null)
@@ -160,7 +158,7 @@ public sealed class CacheManager : IDisposable
         switch (updateType)
         {
             case UpdateType.All:
-                var searches = new List<ISearch>();
+                var searches = (await _searchRepository.GetSavedSearches()).ToList();
                 await DataManager.RequestAllUpdateAsync(repoCollection, searches, options);
                 break;
             case UpdateType.Issues:
@@ -189,7 +187,7 @@ public sealed class CacheManager : IDisposable
     private void HandleDataManagerUpdate(object? source, DataManagerUpdateEventArgs e)
     {
         _logger.Information($"DataManager update: {e.Kind}, {e.UpdateType}");
-        _state.HandleDataManagerUpdate(source, e);
+        State.HandleDataManagerUpdate(source, e);
 
         switch (e.Kind)
         {
@@ -235,10 +233,10 @@ public sealed class CacheManager : IDisposable
                 try
                 {
                     _logger.Debug("Disposing of all CacheManager resources.");
+                    DataManager.OnUpdate -= HandleDataManagerUpdate;
                     DataUpdater.Dispose();
                     DataManager.Dispose();
                     _cancelSource.Dispose();
-                    GitHubDataManager.OnUpdate -= HandleDataManagerUpdate;
                 }
                 catch (Exception e)
                 {

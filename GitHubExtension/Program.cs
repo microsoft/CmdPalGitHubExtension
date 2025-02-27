@@ -111,12 +111,12 @@ public class Program
 
         using var gitHubDataManager = new GitHubDataManager(developerIdProvider, gitHubClientProvider);
 
-        using var cacheManager = new CacheManager(gitHubDataManager)!;
+        ISearchRepository searchRepository = new PersistentDataManager(developerIdProvider);
+
+        using var cacheManager = new CacheManager(gitHubDataManager, searchRepository)!;
 
         // Set up cache manager to pre-update data
         cacheManager.Start();
-
-        ISearchRepository searchRepository = new PersistentDataManager(developerIdProvider);
 
         ICacheDataManager cacheDataManager = new CacheDataManagerFacade(cacheManager, gitHubDataManager);
 
