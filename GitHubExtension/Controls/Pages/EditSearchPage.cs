@@ -40,6 +40,7 @@ internal sealed partial class EditSearchPage : GitHubContentPage
         SuccessMessage = successMessage;
         ErrorMessage = errorMessage;
         Title = "Edit";
+        Name = "Edit"; // Title is for the Page, Name is for the Command
         Icon = new IconInfo("\ue70f");
      }
 }
