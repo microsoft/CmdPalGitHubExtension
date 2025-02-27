@@ -104,8 +104,8 @@ public class Program
         var extensionDisposedEvent = new ManualResetEvent(false);
 
         // COMPOSITION ROOT AREA
-        var developerIdProvider = new DeveloperId.DeveloperIdProvider();
-        Program._developerIdProvider = developerIdProvider;
+        var developerIdProvider = new DeveloperIdProvider();
+        _developerIdProvider = developerIdProvider;
 
         var gitHubClientProvider = new GitHubClientProvider(developerIdProvider);
 
@@ -123,7 +123,7 @@ public class Program
         var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository);
 
         var addSearchListItem = new AddSearchListItem(new SaveSearchPage(new SaveSearchForm(SearchInput.SearchString, searchRepository), new StatusMessage(), "Search saved successfully!", "Error in saving search"));
-        var addSearchFullFormListItem = new AddSearchFullFormListItem(new SaveSearchPage(new SaveSearchForm(SearchInput.SearchString, searchRepository), new StatusMessage(), "Search saved successfully!", "Error in saving search"));
+        var addSearchFullFormListItem = new AddSearchFullFormListItem(new SaveSearchPage(new SaveSearchForm(SearchInput.Survey, searchRepository), new StatusMessage(), "Search saved successfully!", "Error in saving search"));
 
         var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, addSearchListItem, addSearchFullFormListItem);
 
