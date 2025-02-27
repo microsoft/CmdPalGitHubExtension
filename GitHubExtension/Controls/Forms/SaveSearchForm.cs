@@ -6,7 +6,6 @@ using System.Text;
 using System.Text.Json.Nodes;
 using GitHubExtension.Helpers;
 using GitHubExtension.Pages;
-using GitHubExtension.PersistentData;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Serilog;
@@ -65,11 +64,11 @@ public sealed partial class SaveSearchForm : GitHubForm
 
     public override void HandleSubmit(string payload)
     {
-        var search = GetSearch(payload);
+        var search = GetSearchAsync(payload);
         ExtensionHost.LogMessage(new LogMessage() { Message = $"Search: {search}" });
     }
 
-    private SearchCandidate GetSearch(string payload)
+    private async Task<SearchCandidate> GetSearchAsync(string payload)
     {
         try
         {
@@ -82,8 +81,8 @@ public sealed partial class SaveSearchForm : GitHubForm
                 _ => throw new NotImplementedException(),
             };
 
-            _searchRepository.ValidateSearch(search).Wait();
-            _searchRepository.AddSavedSearch(search).Wait();
+            await _searchRepository.ValidateSearch(search);
+            await _searchRepository.AddSavedSearch(search);
 
             // if editing the search, delete the old one
             if (_savedSearch.SearchString != string.Empty)

@@ -29,18 +29,28 @@ public partial class RemoveSavedSearchCommand : InvokableCommand
 
     public override CommandResult Invoke()
     {
-        try
-        {
-            var numSavedSearchesBeforeRemoval = _searchRepository.GetSavedSearches().Result.Count();
-            SearchRemoving?.Invoke(this, null);
-            _searchRepository.RemoveSavedSearch(savedSearch).Wait();
-            SearchRemoved?.Invoke(this, numSavedSearchesBeforeRemoval > _searchRepository.GetSavedSearches().Result.Count());
-        }
-        catch (Exception ex)
-        {
-            SearchRemoved?.Invoke(this, ex);
-        }
+        SearchRemoving?.Invoke(this, null);
+        Task.Run(async () => await RemoveSavedSearch())
+            .ContinueWith(task =>
+            {
+                if (task.IsFaulted)
+                {
+                    SearchRemoved?.Invoke(this, task.Exception);
+                }
+                else
+                {
+                    SearchRemoved?.Invoke(this, task.Result);
+                }
+            });
 
         return CommandResult.KeepOpen();
+    }
+
+    private async Task<bool> RemoveSavedSearch()
+    {
+        var savedSearches = await _searchRepository.GetSavedSearches();
+        var numSavedSearchesBeforeRemoval = savedSearches.Count();
+        await _searchRepository.RemoveSavedSearch(savedSearch);
+        return numSavedSearchesBeforeRemoval > (await _searchRepository.GetSavedSearches()).Count();
     }
 }
