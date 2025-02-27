@@ -2,15 +2,23 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using GitHubExtension.Client;
+using GitHubExtension.DeveloperId;
+
 namespace GitHubExtension.Test;
 
 public partial class DataStoreTests
 {
+    private DeveloperIdProvider GetDeveloperIdProvider() => new();
+
+    private GitHubClientProvider GetGitHubClientProvider(DeveloperIdProvider developerIdProvider) =>
+        new(developerIdProvider);
+
     [TestMethod]
     [TestCategory("Unit")]
     public void DataManagerCreate()
     {
-        using var dataManager = GitHubDataManager.CreateInstance(TestOptions.DataStoreOptions);
+        using var dataManager = new GitHubDataManager(GetDeveloperIdProvider(), GetGitHubClientProvider(GetDeveloperIdProvider()), TestOptions.DataStoreOptions);
         Assert.IsNotNull(dataManager);
     }
 
@@ -18,7 +26,7 @@ public partial class DataStoreTests
     [TestCategory("Unit")]
     public void DataManagerGetRepositories()
     {
-        using var dataManager = GitHubDataManager.CreateInstance(TestOptions.DataStoreOptions);
+        using var dataManager = new GitHubDataManager(GetDeveloperIdProvider(), GetGitHubClientProvider(GetDeveloperIdProvider()), TestOptions.DataStoreOptions);
         Assert.IsNotNull(dataManager);
 
         var repos = dataManager.GetRepositories();
@@ -35,7 +43,7 @@ public partial class DataStoreTests
     [TestCategory("LiveData")]
     public async Task DataManagerUpdateRepository()
     {
-        using var dataManager = GitHubDataManager.CreateInstance(TestOptions.DataStoreOptions);
+        using var dataManager = new GitHubDataManager(GetDeveloperIdProvider(), GetGitHubClientProvider(GetDeveloperIdProvider()), TestOptions.DataStoreOptions);
         Assert.IsNotNull(dataManager);
 
         // Limit the page size so we don't destroy our rate limit on a busy repo.
@@ -57,7 +65,7 @@ public partial class DataStoreTests
     [TestCategory("LiveData")]
     public async Task DataManagerUpdatePullRequests()
     {
-        using var dataManager = GitHubDataManager.CreateInstance(TestOptions.DataStoreOptions);
+        using var dataManager = new GitHubDataManager(GetDeveloperIdProvider(), GetGitHubClientProvider(GetDeveloperIdProvider()), TestOptions.DataStoreOptions);
         Assert.IsNotNull(dataManager);
 
         // Limit the page size so we don't destroy our rate limit on a busy repo.
@@ -80,7 +88,7 @@ public partial class DataStoreTests
     [TestCategory("LiveData")]
     public async Task DataManagerUpdateIssues()
     {
-        using var dataManager = GitHubDataManager.CreateInstance(TestOptions.DataStoreOptions);
+        using var dataManager = new GitHubDataManager(GetDeveloperIdProvider(), GetGitHubClientProvider(GetDeveloperIdProvider()), TestOptions.DataStoreOptions);
         Assert.IsNotNull(dataManager);
 
         // Limit the page size so we don't destroy our rate limit on a busy repo.

@@ -5,6 +5,7 @@
 using Dapper.Contrib.Extensions;
 using GitHubExtension.Client;
 using GitHubExtension.DataModel;
+using GitHubExtension.DeveloperId;
 using Octokit;
 
 namespace GitHubExtension.Test;
@@ -27,7 +28,7 @@ public partial class DataStoreTests
             "octokit",
         };
 
-        var client = GitHubClientProvider.Instance.GetClient();
+        var client = new GitHubClientProvider(new DeveloperIdProvider()).GetClient();
         using var tx = dataStore.Connection!.BeginTransaction();
         foreach (var item in items)
         {
@@ -79,7 +80,7 @@ public partial class DataStoreTests
             Tuple.Create("microsoft", "WindowsAppSDK"),
         };
 
-        var client = GitHubClientProvider.Instance.GetClient();
+        var client = new GitHubClientProvider(new DeveloperIdProvider()).GetClient();
         using var tx = dataStore.Connection!.BeginTransaction();
         foreach (var item in items)
         {
@@ -151,7 +152,7 @@ public partial class DataStoreTests
             Tuple.Create("microsoft", "WindowsAppSDK", 3482, 2),
         };
 
-        var client = GitHubClientProvider.Instance.GetClient();
+        var client = new GitHubClientProvider(new DeveloperIdProvider()).GetClient();
         using var tx = dataStore.Connection!.BeginTransaction();
 
         foreach (var repo in repositories)
@@ -246,7 +247,7 @@ public partial class DataStoreTests
             Tuple.Create("microsoft", "WindowsAppSDK", 12, 2),
         };
 
-        var client = GitHubClientProvider.Instance.GetClient();
+        var client = new GitHubClientProvider(new DeveloperIdProvider()).GetClient();
         using var tx = dataStore.Connection!.BeginTransaction();
 
         foreach (var repo in repositories)
@@ -323,7 +324,7 @@ public partial class DataStoreTests
         dataStore.Create();
         Assert.IsNotNull(dataStore.Connection);
 
-        var client = GitHubClientProvider.Instance.GetClient();
+        var client = new GitHubClientProvider(new DeveloperIdProvider()).GetClient();
 
         using var tx = dataStore.Connection!.BeginTransaction();
 
@@ -366,7 +367,7 @@ public partial class DataStoreTests
         TestContext?.WriteLine("Labels from PullRequest.Labels");
         foreach (var label in pullRequestLabels)
         {
-            TestContext?.WriteLine($"  Id: {label.Id}  InternalId: {label.InternalId}  Name: {label.Name}  Color: {label.Color}  Default: {label.IsDefault}  Desc: {label.Description}");
+            TestContext?.WriteLine($"Name: {label.Name}  Color: {label.Color}");
         }
     }
 
@@ -379,7 +380,7 @@ public partial class DataStoreTests
         dataStore.Create();
         Assert.IsNotNull(dataStore.Connection);
 
-        var client = GitHubClientProvider.Instance.GetClient();
+        var client = new GitHubClientProvider(new DeveloperIdProvider()).GetClient();
 
         using var tx = dataStore.Connection!.BeginTransaction();
 
@@ -421,7 +422,7 @@ public partial class DataStoreTests
         TestContext?.WriteLine("Labels from GetLabelsForIssue: ");
         foreach (var label in issueLabels)
         {
-            TestContext?.WriteLine($"  Id: {label.Id}  InternalId: {label.InternalId}  Name: {label.Name}  Color: {label.Color}  Default: {label.IsDefault}  Desc: {label.Description}");
+            TestContext?.WriteLine($"Name:  {label.Name}   Color:  {label.Color}");
         }
     }
 }
