@@ -3,11 +3,13 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.DataManager.CacheManagerStates;
+using GitHubExtension.Pages;
+using Octokit;
 using Serilog;
 
 namespace GitHubExtension.DataManager;
 
-public class CacheManager : IDisposable
+public sealed class CacheManager : IDisposable
 {
     public static readonly TimeSpan UpdateInterval = TimeSpan.FromMinutes(10);
 
@@ -18,8 +20,6 @@ public class CacheManager : IDisposable
     // Lock to be used everytime we want to check or update the state of
     // the CacheManager.
     private static readonly object _stateLock = new();
-
-    private static CacheManager? _singletonInstance;
 
     private readonly ILogger _logger;
 
@@ -45,13 +45,11 @@ public class CacheManager : IDisposable
 
     private CancellationTokenSource _cancelSource;
 
-    private IGitHubDataManager DataManager { get; set; }
-
-    private GitHubRepositoryHelper RepositoryHelper { get; set; }
+    public IGitHubDataManager DataManager { get; private set; }
 
     // Variables to control the state of the CacheManager
     // If there is a current update in progress
-    public PersistentData.Search? PendingSearch { get; set; }
+    public ISearch? PendingSearch { get; set; }
 
     // The type of update that is currently in progress
     public UpdateType CurrentUpdateType { get; set; }
@@ -88,29 +86,10 @@ public class CacheManager : IDisposable
 
     public DateTime LastUpdateTime { get; set; } = DateTime.MinValue;
 
-    public static CacheManager GetInstance()
+    public CacheManager(IGitHubDataManager dataManager)
     {
-        try
-        {
-            lock (_instanceLock)
-            {
-                _singletonInstance ??= new CacheManager();
-            }
-
-            return _singletonInstance;
-        }
-        catch (Exception e)
-        {
-            Log.Error(e, "Failed creating CacheManager.");
-            throw;
-        }
-    }
-
-    private CacheManager()
-    {
-        DataManager = GitHubDataManager.CreateInstance() ?? throw new DataStoreInaccessibleException();
+        DataManager = dataManager;
         DataUpdater = new DataUpdater(PeriodicUpdate);
-        RepositoryHelper = GitHubRepositoryHelper.Instance;
         GitHubDataManager.OnUpdate += HandleDataManagerUpdate;
         _cancelSource = new CancellationTokenSource();
         _logger = Log.Logger.ForContext("SourceContext", nameof(CacheManager));
@@ -147,7 +126,7 @@ public class CacheManager : IDisposable
 
     // This method is called by the pages to request
     // an instant update of its data.
-    public async Task Refresh(UpdateType updateType, PersistentData.Search? search = null)
+    public async Task Refresh(UpdateType updateType, ISearch? search = null)
     {
         await _state.Refresh(updateType, search);
     }
@@ -157,7 +136,7 @@ public class CacheManager : IDisposable
         await _state.PeriodicUpdate();
     }
 
-    public async Task Update(TimeSpan? olderThan, UpdateType updateType, PersistentData.Search? search = null)
+    public async Task Update(TimeSpan? olderThan, UpdateType updateType, ISearch? search = null)
     {
         var options = new RequestOptions();
 
@@ -176,11 +155,12 @@ public class CacheManager : IDisposable
         // Do the update for saved queries here
         _logger.Debug($"Starting update of type {updateType}.");
 
-        var repoCollection = RepositoryHelper.GetUserRepositoryCollection();
+        // TODO: remove this.
+        var repoCollection = new RepositoryCollection();
         switch (updateType)
         {
             case UpdateType.All:
-                var searches = new List<PersistentData.Search>();
+                var searches = new List<ISearch>();
                 await DataManager.RequestAllUpdateAsync(repoCollection, searches, options);
                 break;
             case UpdateType.Issues:

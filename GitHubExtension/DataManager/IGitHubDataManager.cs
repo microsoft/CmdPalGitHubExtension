@@ -4,6 +4,7 @@
 
 using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.Enums;
+using GitHubExtension.Pages;
 
 namespace GitHubExtension;
 
@@ -27,8 +28,6 @@ public interface IGitHubDataManager : IDisposable
 
     IEnumerable<Repository> GetRepositories();
 
-    IEnumerable<User> GetDeveloperUsers();
-
     Repository? GetRepository(string owner, string name);
 
     Repository? GetRepository(string fullName);
@@ -41,9 +40,9 @@ public interface IGitHubDataManager : IDisposable
 
     Task UpdateDataForSearchAsync(string name, string searchString, SearchType type, RequestOptions options);
 
-    Task UpdateDataForSearchesAsync(IEnumerable<PersistentData.Search> searches, RequestOptions options);
+    Task UpdateDataForSearchesAsync(IEnumerable<ISearch> searches, RequestOptions options);
 
-    Task RequestAllUpdateAsync(Octokit.RepositoryCollection repoCollection, List<PersistentData.Search> searches, RequestOptions options);
+    Task RequestAllUpdateAsync(Octokit.RepositoryCollection repoCollection, List<ISearch> searches, RequestOptions options);
 
     Task RequestIssuesUpdateAsync(Octokit.RepositoryCollection repoCollection, RequestOptions options);
 

@@ -9,6 +9,4 @@ public interface ILabel
     string Name { get; }
 
     string Color { get; }
-
-    Microsoft.CommandPalette.Extensions.Color GetFontColor();
 }

@@ -83,14 +83,6 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         _isSignedIn = isSignedIn;
         var numCommands = _isSignedIn ? 5 : 2;
 
-        if (_isSignedIn)
-        {
-            var devIds = _developerIdProvider.GetLoggedInDeveloperIdsInternal();
-
-            // GitHubRepositoryHelper.Instance.UpdateClient(devIds.First().GitHubClient);
-            SearchHelper.Instance.UpdateClient(devIds.First().GitHubClient);
-        }
-
         UpdateTopLevelCommands(null, numCommands);
     }
 

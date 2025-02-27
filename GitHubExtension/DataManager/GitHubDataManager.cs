@@ -6,7 +6,9 @@ using GitHubExtension.Client;
 using GitHubExtension.DataManager;
 using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.Enums;
+using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
+using GitHubExtension.Pages;
 using Serilog;
 using Windows.Storage;
 
@@ -37,32 +39,24 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
 
     private DataStore DataStore { get; set; }
 
+    private readonly IDeveloperIdProvider _developerIdProvider;
+    private readonly GitHubClientProvider _gitHubClientProvider;
+
     public DataStoreOptions DataStoreOptions { get; private set; }
 
-    public static IGitHubDataManager? CreateInstance(DataStoreOptions? options = null)
+    public GitHubDataManager(IDeveloperIdProvider developerIdProvider, GitHubClientProvider gitHubClientProvider, DataStoreOptions? dataStoreOptions = null)
     {
-        options ??= DefaultOptions;
+        dataStoreOptions ??= DefaultOptions;
 
-        try
-        {
-            return new GitHubDataManager(options);
-        }
-        catch (Exception e)
-        {
-            _log.Error(e, "Failed creating GitHubDataManager");
-            Environment.FailFast(e.Message, e);
-            return null;
-        }
-    }
-
-    public GitHubDataManager(DataStoreOptions dataStoreOptions)
-    {
         if (dataStoreOptions.DataStoreSchema == null)
         {
             throw new ArgumentNullException(nameof(dataStoreOptions), "DataStoreSchema cannot be null.");
         }
 
         DataStoreOptions = dataStoreOptions;
+
+        _developerIdProvider = developerIdProvider;
+        _gitHubClientProvider = gitHubClientProvider;
 
         DataStore = new DataStore(
             "DataStore",
@@ -221,18 +215,12 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         return Repository.Get(DataStore, fullName);
     }
 
-    public IEnumerable<User> GetDeveloperUsers()
-    {
-        ValidateDataStore();
-        return User.GetDeveloperUsers(DataStore);
-    }
-
     // Wrapper for the targeted repository update pattern.
     // This is where we are querying specific data.
     private async Task UpdateDataForRepositoryAsync(DataStoreOperationParameters parameters, Func<DataStoreOperationParameters, DeveloperId.DeveloperId, Task> asyncAction)
     {
         parameters.RequestOptions ??= RequestOptions.RequestOptionsDefault();
-        parameters.DeveloperIds = DeveloperId.DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal();
+        parameters.DeveloperIds = _developerIdProvider.GetLoggedInDeveloperIdsInternal();
 
         ValidateRepositoryOwnerAndName(parameters.Owner!, parameters.RepositoryName!);
         if (parameters.RequestOptions.UsePublicClientAsFallback)
@@ -254,7 +242,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
                 cancellationToken.ThrowIfCancellationRequested();
 
                 // Try the action for the passed in developer Id.
-                await asyncAction(parameters, DeveloperId.DeveloperIdProvider.GetInstance().GetDeveloperIdInternal(devId));
+                await asyncAction(parameters, _developerIdProvider.GetDeveloperIdInternal(devId));
 
                 // We can stop when the action is executed without exceptions.
                 found = true;
@@ -301,7 +289,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
     // DataStore transaction is assumed to be wrapped around this in the public method.
     private async Task<Repository> UpdateRepositoryAsync(string owner, string repositoryName, Octokit.GitHubClient? client = null)
     {
-        client ??= await GitHubClientProvider.Instance.GetClientForLoggedInDeveloper(true);
+        client ??= await _gitHubClientProvider.GetClientForLoggedInDeveloper(true);
         _log.Information($"Updating repository: {owner}/{repositoryName}");
         var octokitRepository = await client.Repository.Get(owner, repositoryName);
         return Repository.GetOrCreateByOctokitRepository(DataStore, octokitRepository);
@@ -312,7 +300,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
     private async Task UpdatePullRequestsAsync(Repository repository, Octokit.GitHubClient? client = null, RequestOptions? options = null)
     {
         options ??= RequestOptions.RequestOptionsDefault();
-        client ??= await GitHubClientProvider.Instance.GetClientForLoggedInDeveloper(true);
+        client ??= await _gitHubClientProvider.GetClientForLoggedInDeveloper(true);
         var user = await client.User.Current();
         _log.Information($"Updating pull requests for: {repository.FullName} and user: {user.Login}");
         var octoPulls = await client.PullRequest.GetAllForRepository(repository.InternalId, options.PullRequestRequest, options.ApiOptions);
@@ -336,7 +324,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
     private async Task UpdateIssuesAsync(Repository repository, Octokit.GitHubClient? client = null, RequestOptions? options = null)
     {
         options ??= RequestOptions.RequestOptionsDefault();
-        client ??= await GitHubClientProvider.Instance.GetClientForLoggedInDeveloper(true);
+        client ??= await _gitHubClientProvider.GetClientForLoggedInDeveloper(true);
         _log.Information($"Updating issues for: {repository.FullName}");
 
         // Since we are only interested in issues and for a specific repository, we will override
@@ -376,7 +364,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
             State = Octokit.ItemState.Open,
             Type = Octokit.IssueTypeQualifier.Issue,
         };
-        var issuesResult = await GitHubClientProvider.Instance.GetClient().Search.SearchIssues(searchIssuesRequest);
+        var issuesResult = await _gitHubClientProvider.GetClient().Search.SearchIssues(searchIssuesRequest);
         if (issuesResult == null)
         {
             _log.Information($"No issues found.");
@@ -407,7 +395,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
             Type = Octokit.IssueTypeQualifier.PullRequest,
             PerPage = 10,
         };
-        var issuesResult = await GitHubClientProvider.Instance.GetClient().Search.SearchIssues(searchIssuesRequest);
+        var issuesResult = await _gitHubClientProvider.GetClient().Search.SearchIssues(searchIssuesRequest);
         if (issuesResult == null)
         {
             _log.Information($"No pull requests found.");
@@ -428,7 +416,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
             var owner = issueUrl.Split('/')[4];
             var repoName = issueUrl.Split('/')[5];
 
-            var pullRequest = await GitHubClientProvider.Instance.GetClient().PullRequest.Get(owner, repoName, issue.Number);
+            var pullRequest = await _gitHubClientProvider.GetClient().PullRequest.Get(owner, repoName, issue.Number);
             var dsPullRequest = PullRequest.GetOrCreateByOctokitPullRequest(DataStore, pullRequest);
             SearchPullRequest.AddPullRequestToSearch(DataStore, dsPullRequest, dsSearch);
         }
@@ -439,7 +427,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         _log.Information($"Updating repositories for: {name}");
         options ??= RequestOptions.RequestOptionsDefault();
         var searchRepoRequest = new Octokit.SearchRepositoriesRequest(searchString);
-        var reposResult = await GitHubClientProvider.Instance.GetClient().Search.SearchRepo(searchRepoRequest);
+        var reposResult = await _gitHubClientProvider.GetClient().Search.SearchRepo(searchRepoRequest);
 
         if (reposResult == null)
         {
@@ -480,7 +468,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         }
     }
 
-    public async Task UpdateDataForSearchesAsync(IEnumerable<PersistentData.Search> searches, RequestOptions options)
+    public async Task UpdateDataForSearchesAsync(IEnumerable<ISearch> searches, RequestOptions options)
     {
         foreach (var search in searches)
         {

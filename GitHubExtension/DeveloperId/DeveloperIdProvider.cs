@@ -15,10 +15,8 @@ public class DeveloperIdProvider : IDeveloperIdProvider
     private static readonly Lock _oAuthRequestsLock = new();
 
     // DeveloperIdProvider uses singleton pattern.
-    private static readonly Lazy<DeveloperIdProvider> _singletonDeveloperIdProvider = new(() => new DeveloperIdProvider());
-
-    public static DeveloperIdProvider GetInstance() => _singletonDeveloperIdProvider.Value;
-
+    // private static readonly Lazy<DeveloperIdProvider> _singletonDeveloperIdProvider = new(() => new DeveloperIdProvider());
+    // public static DeveloperIdProvider GetInstance() => _singletonDeveloperIdProvider.Value;
     private static readonly Lazy<ILogger> _logger = new(() => Serilog.Log.ForContext("SourceContext", nameof(DeveloperIdProvider)));
 
     private static readonly ILogger _log = _logger.Value;
@@ -41,7 +39,7 @@ public class DeveloperIdProvider : IDeveloperIdProvider
     private readonly Lazy<CredentialVault> _credentialVault;
 
     // Private constructor for Singleton class.
-    private DeveloperIdProvider()
+    public DeveloperIdProvider()
     {
         _credentialVault = new(() => new CredentialVault());
 
@@ -200,7 +198,7 @@ public class DeveloperIdProvider : IDeveloperIdProvider
     // Convert devID to internal devID.
     public DeveloperId GetDeveloperIdInternal(IDeveloperId devId)
     {
-        var devIds = GetInstance().GetLoggedInDeveloperIdsInternal();
+        var devIds = GetLoggedInDeveloperIdsInternal();
         var devIdInternal = devIds.Where(i => i.LoginId.Equals(devId.LoginId, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
 
         return devIdInternal ?? throw new ArgumentException(devId.LoginId);

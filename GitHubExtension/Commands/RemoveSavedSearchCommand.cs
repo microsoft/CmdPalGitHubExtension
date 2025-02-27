@@ -11,34 +11,30 @@ namespace GitHubExtension.Commands;
 
 public partial class RemoveSavedSearchCommand : InvokableCommand
 {
-    private readonly SearchCandidate savedSearch;
+    private readonly ISearch savedSearch;
+
+    private readonly ISearchRepository _searchRepository;
 
     public static event TypedEventHandler<object, object?>? SearchRemoving;
 
     public static event TypedEventHandler<object, object>? SearchRemoved;
 
-    public RemoveSavedSearchCommand(SearchCandidate search)
-    {
-        savedSearch = search;
-        Name = "Remove";
-        Icon = new IconInfo("\uecc9");
-    }
-
-    public RemoveSavedSearchCommand(ISearch search)
+    public RemoveSavedSearchCommand(ISearch search, ISearchRepository searchRepository)
     {
         savedSearch = new SearchCandidate(search.SearchString, search.Name);
         Name = "Remove";
         Icon = new IconInfo("\uecc9");
+        _searchRepository = searchRepository;
     }
 
     public override CommandResult Invoke()
     {
         try
         {
-            var numSavedSearchesBeforeRemoval = SearchHelper.Instance.GetSavedSearches().Result.Count();
+            var numSavedSearchesBeforeRemoval = _searchRepository.GetSavedSearches().Result.Count();
             SearchRemoving?.Invoke(this, null);
-            SearchHelper.Instance.RemoveSavedSearch(savedSearch).Wait();
-            SearchRemoved?.Invoke(this, numSavedSearchesBeforeRemoval > SearchHelper.Instance.GetSavedSearches().Result.Count());
+            _searchRepository.RemoveSavedSearch(savedSearch).Wait();
+            SearchRemoved?.Invoke(this, numSavedSearchesBeforeRemoval > _searchRepository.GetSavedSearches().Result.Count());
         }
         catch (Exception ex)
         {

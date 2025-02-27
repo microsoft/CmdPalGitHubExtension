@@ -11,7 +11,7 @@ public interface ICacheDataManager
     Task Refresh(UpdateType updateType, ISearch search);
 
     // Not sure about this yet. Exposing event from another layer.
-    public event CacheManagerUpdateEventHandler? OnUpdate;
+    event CacheManagerUpdateEventHandler? OnUpdate;
 
     Task<IEnumerable<IIssue>> GetIssues(ISearch search);
 

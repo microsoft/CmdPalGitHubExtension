@@ -73,8 +73,6 @@ public sealed partial class SaveSearchForm : GitHubForm
     {
         try
         {
-            var searchHelper = SearchHelper.Instance;
-
             var payloadJson = JsonNode.Parse(payload) ?? throw new InvalidOperationException("No search found");
 
             var search = _searchInput switch

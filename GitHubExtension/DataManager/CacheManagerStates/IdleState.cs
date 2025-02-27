@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using GitHubExtension.Pages;
 using GitHubExtension.PersistentData;
 
 namespace GitHubExtension.DataManager.CacheManagerStates;
@@ -13,7 +14,7 @@ public class IdleState : CacheManagerState
     {
     }
 
-    public async override Task Refresh(UpdateType updateType, Search? search = null)
+    public async override Task Refresh(UpdateType updateType, ISearch? search = null)
     {
         lock (CacheManager.GetStateLock())
         {

@@ -2,7 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using GitHubExtension.PersistentData;
+using GitHubExtension.Pages;
 
 namespace GitHubExtension.DataManager.CacheManagerStates;
 
@@ -13,7 +13,7 @@ public class PeriodicUpdatingState : CacheManagerState
     {
     }
 
-    public async override Task Refresh(UpdateType updateType, Search? search)
+    public async override Task Refresh(UpdateType updateType, ISearch? search)
     {
         await Task.Run(() =>
         {

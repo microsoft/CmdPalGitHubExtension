@@ -40,7 +40,7 @@ public class SearchPageFactory
             Icon = new IconInfo(GitHubIcon.IconDictionary[$"{search.Type}"]),
             MoreCommands = new CommandContextItem[]
             {
-                new(new RemoveSavedSearchCommand(search)),
+                new(new RemoveSavedSearchCommand(search, _searchRepository)),
                 new(new EditSearchPage(search, new SaveSearchForm(search, _searchRepository), new StatusMessage(), "Search edited successfully!", "Error in editing search")),
             },
         };

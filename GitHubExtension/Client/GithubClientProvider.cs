@@ -18,38 +18,23 @@ public class GitHubClientProvider
 
     private static readonly Lock _instanceLock = new();
 
-    private static GitHubClientProvider? _instance;
+    private readonly IDeveloperIdProvider _developerIdProvider;
 
-    public static GitHubClientProvider Instance
+    public GitHubClientProvider(IDeveloperIdProvider developerIdProvider)
     {
-        get
-        {
-            if (_instance == null)
-            {
-                lock (_instanceLock)
-                {
-                    _instance = new GitHubClientProvider();
-                }
-            }
-
-            return _instance;
-        }
-    }
-
-    public GitHubClientProvider()
-    {
+        _developerIdProvider = developerIdProvider;
         _publicRepoClient = new GitHubClient(new ProductHeaderValue(Constants.CMDPAL_APPLICATION_NAME));
     }
 
     public GitHubClient? GetClient(IDeveloperId devId)
     {
-        var devIdInternal = DeveloperIdProvider.GetInstance().GetDeveloperIdInternal(devId) ?? throw new ArgumentException(devId.LoginId);
+        var devIdInternal = _developerIdProvider.GetDeveloperIdInternal(devId) ?? throw new ArgumentException(devId.LoginId);
         return devIdInternal.GitHubClient;
     }
 
     public GitHubClient GetClient(string url)
     {
-        var devIdInternal = DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal().Where(i => i.Url.Equals(url, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+        var devIdInternal = _developerIdProvider.GetLoggedInDeveloperIdsInternal().Where(i => i.Url.Equals(url, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
         return devIdInternal == null ? _publicRepoClient : devIdInternal.GitHubClient;
     }
 
@@ -62,13 +47,12 @@ public class GitHubClientProvider
 
     public async Task<GitHubClient> GetClientForLoggedInDeveloper(bool logRateLimit = false)
     {
-        var authProvider = DeveloperIdProvider.GetInstance();
-        var devIds = authProvider.GetLoggedInDeveloperIdsInternal();
+        var devIds = _developerIdProvider.GetLoggedInDeveloperIdsInternal();
         GitHubClient client;
         if (devIds == null || !devIds.Any())
         {
             _log.Information($"No logged in developer, using public GitHub client.");
-            client = Instance.GetClient();
+            client = GetClient();
         }
         else
         {

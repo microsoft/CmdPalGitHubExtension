@@ -5,12 +5,13 @@
 using Dapper;
 using Dapper.Contrib.Extensions;
 using GitHubExtension.Helpers;
+using GitHubExtension.Pages;
 using Serilog;
 
 namespace GitHubExtension.DataModel;
 
 [Table("PullRequest")]
-public class PullRequest
+public class PullRequest : IPullRequest
 {
     private static readonly Lazy<ILogger> _logger = new(() => Serilog.Log.ForContext("SourceContext", $"DataModel/{nameof(PullRequest)}"));
 
@@ -98,7 +99,7 @@ public class PullRequest
     // need to do further queries of the datastore.
     [Write(false)]
     [Computed]
-    public IEnumerable<Label> Labels
+    public IEnumerable<ILabel> Labels
     {
         get
         {
@@ -414,30 +415,5 @@ public class PullRequest
         _log.Verbose(DataStore.GetCommandLogMessage(sql, command));
         var rowsDeleted = command.ExecuteNonQuery();
         _log.Verbose(DataStore.GetDeletedLogMessage(rowsDeleted));
-    }
-
-    // Delete all records from a particular user before the specified date.
-    // This is for removing developer pull requests across any repository that were not updated
-    // recently. This should remove non-open pull requests from the developer across all repositories.
-    public static void DeleteAllByDeveloperLoginAndLastObservedBefore(DataStore dataStore, string loginId, DateTime date)
-    {
-        var developerUsers = User.GetDeveloperUsers(dataStore);
-        foreach (var user in developerUsers)
-        {
-            if (user.Login != loginId)
-            {
-                continue;
-            }
-
-            var sql = @"DELETE FROM PullRequest WHERE AuthorId = $UserId AND TimeLastObserved < $Time;";
-            var command = dataStore.Connection!.CreateCommand();
-            command.CommandText = sql;
-            command.Parameters.AddWithValue("$Time", date.ToDataStoreInteger());
-            command.Parameters.AddWithValue("$UserId", user.Id);
-            _log.Verbose(DataStore.GetCommandLogMessage(sql, command));
-            var rowsDeleted = command.ExecuteNonQuery();
-            _log.Verbose(DataStore.GetDeletedLogMessage(rowsDeleted));
-            break;
-        }
     }
 }

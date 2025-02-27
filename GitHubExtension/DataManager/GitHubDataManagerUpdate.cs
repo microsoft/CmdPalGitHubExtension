@@ -5,6 +5,7 @@
 using GitHubExtension.DataManager;
 using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.Enums;
+using GitHubExtension.Pages;
 
 namespace GitHubExtension;
 
@@ -63,7 +64,7 @@ public partial class GitHubDataManager
         _log.Information($"Update complete: {parameters}");
     }
 
-    public async Task RequestAllUpdateAsync(Octokit.RepositoryCollection repoCollection, List<PersistentData.Search> searches, RequestOptions options)
+    public async Task RequestAllUpdateAsync(Octokit.RepositoryCollection repoCollection, List<ISearch> searches, RequestOptions options)
     {
         _log.Information("Updating all data");
         var parameters = new DataStoreOperationParameters

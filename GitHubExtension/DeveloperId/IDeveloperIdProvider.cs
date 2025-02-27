@@ -15,4 +15,6 @@ public interface IDeveloperIdProvider
     IAsyncOperation<IDeveloperId> LoginNewDeveloperIdAsync();
 
     bool LogoutDeveloperId(IDeveloperId developerId);
+
+    void HandleOauthRedirection(Uri authorizationResponse);
 }

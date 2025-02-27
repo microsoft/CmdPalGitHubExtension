@@ -134,6 +134,20 @@ internal abstract partial class SearchPage<T> : ListPage
         return items;
     }
 
+    private Microsoft.CommandPalette.Extensions.Color GetFontColor(string colorStr)
+    {
+        var color = ColorTranslator.FromHtml($"#{colorStr}");
+
+        // Luminance is a measure of the brightness of a color. It is a weighted sum of its RGB components.
+        var luminance = (0.2126 * color.R) + (0.7152 * color.G) + (0.0722 * color.B);
+
+        // If the luminance is greater than 128, the color is light, so use black font color.
+        // Otherwise, use white font color.
+        var fontColor = luminance > 128 ? System.Drawing.Color.Black : System.Drawing.Color.White;
+
+        return new Microsoft.CommandPalette.Extensions.Color(fontColor.R, fontColor.G, fontColor.B, fontColor.A);
+    }
+
     protected ITag[] GetTags(IIssue item)
     {
         var tags = new List<ITag>();
@@ -145,7 +159,7 @@ internal abstract partial class SearchPage<T> : ListPage
                 tags.Add(new Tag
                 {
                     Background = new(true, new Microsoft.CommandPalette.Extensions.Color(color.R, color.G, color.B, color.A)),
-                    Foreground = new(true, label.GetFontColor()),
+                    Foreground = new(true, GetFontColor(label.Color)),
                     Text = label.Name,
                 });
             }
@@ -165,7 +179,7 @@ internal abstract partial class SearchPage<T> : ListPage
                 tags.Add(new Tag
                 {
                     Background = new(true, new Microsoft.CommandPalette.Extensions.Color(color.R, color.G, color.B, color.A)),
-                    Foreground = new(true, label.GetFontColor()),
+                    Foreground = new(true, GetFontColor(label.Color)),
                     Text = label.Name,
                 });
             }
