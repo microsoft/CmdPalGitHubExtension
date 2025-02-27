@@ -111,7 +111,7 @@ public class Program
 
         using var gitHubDataManager = new GitHubDataManager(developerIdProvider, gitHubClientProvider);
 
-        ISearchRepository searchRepository = new PersistentDataManager(developerIdProvider);
+        using var searchRepository = new PersistentDataManager(developerIdProvider);
 
         using var cacheManager = new CacheManager(gitHubDataManager, searchRepository)!;
 

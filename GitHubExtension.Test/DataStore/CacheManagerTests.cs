@@ -50,7 +50,6 @@ public partial class DataStoreTests
         Assert.AreEqual(cacheManager.RefreshingState, cacheManager.State);
         mockGitHubDataManager.Raise(x => x.OnUpdate += null, this, new DataManagerUpdateEventArgs(DataManagerUpdateKind.Success, UpdateType.All, string.Empty, Array.Empty<string>()));
 
-        Thread.Sleep(1000);
         Assert.AreEqual(cacheManager.IdleState, cacheManager.State);
     }
 
@@ -76,12 +75,10 @@ public partial class DataStoreTests
 
         mockGitHubDataManager.Raise(x => x.OnUpdate += null, this, new DataManagerUpdateEventArgs(DataManagerUpdateKind.Cancel, UpdateType.All, string.Empty, Array.Empty<string>()));
 
-        Thread.Sleep(1000);
         Assert.AreEqual(cacheManager.RefreshingState, cacheManager.State);
 
         mockGitHubDataManager.Raise(x => x.OnUpdate += null, this, new DataManagerUpdateEventArgs(DataManagerUpdateKind.Success, UpdateType.Search, string.Empty, Array.Empty<string>()));
 
-        Thread.Sleep(1000);
         Assert.AreEqual(cacheManager.IdleState, cacheManager.State);
     }
 
@@ -110,7 +107,6 @@ public partial class DataStoreTests
 
         mockGitHubDataManager.Raise(x => x.OnUpdate += null, this, new DataManagerUpdateEventArgs(DataManagerUpdateKind.Success, UpdateType.Search, string.Empty, Array.Empty<string>()));
 
-        Thread.Sleep(1000);
         Assert.AreEqual(cacheManager.IdleState, cacheManager.State);
     }
 
@@ -146,13 +142,11 @@ public partial class DataStoreTests
 
         mockGitHubDataManager.Raise(x => x.OnUpdate += null, this, new DataManagerUpdateEventArgs(DataManagerUpdateKind.Cancel, UpdateType.Search, string.Empty, Array.Empty<string>()));
 
-        Thread.Sleep(1000);
         Assert.AreEqual(cacheManager.RefreshingState, cacheManager.State);
         mockGitHubDataManager.Verify(x => x.RequestSearchUpdateAsync(It.IsAny<string>(), "Test2", It.IsAny<SearchType>(), It.IsAny<RequestOptions>()), Times.Once);
 
         mockGitHubDataManager.Raise(x => x.OnUpdate += null, this, new DataManagerUpdateEventArgs(DataManagerUpdateKind.Success, UpdateType.Search, string.Empty, Array.Empty<string>()));
 
-        Thread.Sleep(1000);
         Assert.AreEqual(cacheManager.IdleState, cacheManager.State);
     }
 
@@ -174,7 +168,6 @@ public partial class DataStoreTests
 
         mockGitHubDataManager.Raise(x => x.OnUpdate += null, this, new DataManagerUpdateEventArgs(DataManagerUpdateKind.Cancel, UpdateType.All, string.Empty, Array.Empty<string>()));
 
-        Thread.Sleep(1000);
         Assert.AreEqual(cacheManager.IdleState, cacheManager.State);
     }
 
@@ -193,7 +186,6 @@ public partial class DataStoreTests
 
         mockGitHubDataManager.Raise(x => x.OnUpdate += null, this, new DataManagerUpdateEventArgs(DataManagerUpdateKind.Cancel, UpdateType.All, string.Empty, Array.Empty<string>()));
 
-        Thread.Sleep(1000);
         Assert.AreEqual(cacheManager.IdleState, cacheManager.State);
     }
 }
