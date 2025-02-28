@@ -18,13 +18,6 @@ internal abstract partial class SearchPage<T> : ListPage
 
     public ISearch CurrentSearch { get; private set; }
 
-    // To avoid race condition between multiple requests
-    private readonly object _requestLock = new();
-
-    private DateTime LastRequested { get; set; } = DateTime.MinValue;
-
-    private readonly TimeSpan _requestCooldown = TimeSpan.FromMinutes(5);
-
     protected ICacheDataManager CacheDataManager { get; private set; }
 
     // Search is mandatory for this page to exist
@@ -107,7 +100,6 @@ internal abstract partial class SearchPage<T> : ListPage
     {
         CacheDataManager.OnUpdate += CacheManagerUpdateHandler;
 
-        // To avoid locked database
         var items = await LoadContentData();
 
         Logger.Information($"Found {items.Count()} items matching search query \"{CurrentSearch.Name}\"");

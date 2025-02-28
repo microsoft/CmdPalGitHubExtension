@@ -124,9 +124,9 @@ public sealed class CacheManager : IDisposable
         }
     }
 
-    public void RequestRefresh(UpdateType updateType, ISearch? search = null)
+    public void RequestRefresh(UpdateType updateType, ISearch search)
     {
-        var dsSearch = _dataManager.GetSearch(search!.Name, search!.SearchString);
+        var dsSearch = _dataManager.GetSearch(search.Name, search.SearchString);
 
         if (dsSearch == null || DateTime.Now - dsSearch.UpdatedAt > RefreshCooldown)
         {
