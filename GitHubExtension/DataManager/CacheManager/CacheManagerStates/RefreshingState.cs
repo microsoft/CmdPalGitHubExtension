@@ -6,7 +6,7 @@ using GitHubExtension.Controls.Pages;
 using GitHubExtension.DataManager.Enums;
 using GitHubExtension.DataManager.GitHubDataManager;
 
-namespace GitHubExtension.DataManager.CacheManager.CacheManagerStates;
+namespace GitHubExtension.DataManager.CacheManager;
 
 public class RefreshingState : CacheManagerState
 {

@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Controls.Pages;
-using GitHubExtension.DataManager.CacheManager.CacheManagerStates;
 using GitHubExtension.DataManager.Enums;
 using GitHubExtension.DataManager.GitHubDataManager;
 using Octokit;

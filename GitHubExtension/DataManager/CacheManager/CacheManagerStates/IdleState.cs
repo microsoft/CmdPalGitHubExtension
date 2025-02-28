@@ -5,7 +5,7 @@
 using GitHubExtension.Controls.Pages;
 using GitHubExtension.DataManager.Enums;
 
-namespace GitHubExtension.DataManager.CacheManager.CacheManagerStates;
+namespace GitHubExtension.DataManager.CacheManager;
 
 public class IdleState : CacheManagerState
 {
