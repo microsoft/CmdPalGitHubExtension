@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using Dapper;
 using GitHubExtension.Pages;
 
 namespace GitHubExtension.DataManager;
@@ -45,17 +46,17 @@ public class CacheDataManagerFacade : ICacheDataManager
         {
             _cacheManager.CancelUpdateInProgress();
 
-            var res = _gitHubDataManager.GetPullRequestsForSearch(search.Name, search.SearchString);
+            var intermediateRes = _gitHubDataManager.GetPullRequestsForSearch(search.Name, search.SearchString);
             _cacheManager.RequestRefresh(UpdateType.Search, search);
 
             var res = new List<IPullRequest>();
 
-            foreach (var pr in dsSearch.PullRequests)
+            foreach (var pr in intermediateRes)
             {
                 res.Add(new PullRequestSourceBranchDecorator(pr, _gitHubDataManager));
             }
 
-            return res;
+            return res as IEnumerable<IPullRequest>;
         });
     }
 }
