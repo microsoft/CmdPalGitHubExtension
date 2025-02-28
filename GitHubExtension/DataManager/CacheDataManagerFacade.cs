@@ -9,9 +9,9 @@ namespace GitHubExtension.DataManager;
 public class CacheDataManagerFacade : ICacheDataManager
 {
     private readonly CacheManager _cacheManager;
-    private readonly IGitHubDataManager _gitHubDataManager;
+    private readonly GitHubDataManager _gitHubDataManager;
 
-    public CacheDataManagerFacade(CacheManager cacheManager, IGitHubDataManager gitHubDataManager)
+    public CacheDataManagerFacade(CacheManager cacheManager, GitHubDataManager gitHubDataManager)
     {
         _cacheManager = cacheManager;
         _gitHubDataManager = gitHubDataManager;
@@ -61,7 +61,14 @@ public class CacheDataManagerFacade : ICacheDataManager
                 return Enumerable.Empty<IPullRequest>();
             }
 
-            return dsSearch.PullRequests;
+            var res = new List<IPullRequest>();
+
+            foreach (var pr in dsSearch.PullRequests)
+            {
+                res.Add(new PullRequestSourceBranchDecorator(pr, _gitHubDataManager));
+            }
+
+            return res;
         });
     }
 }

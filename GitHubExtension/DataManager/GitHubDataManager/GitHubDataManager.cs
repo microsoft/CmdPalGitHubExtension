@@ -14,7 +14,7 @@ using Windows.Storage;
 
 namespace GitHubExtension;
 
-public partial class GitHubDataManager : IGitHubDataManager, IDisposable
+public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater, IDisposable
 {
     private static readonly Lazy<ILogger> _logger = new(() => Serilog.Log.ForContext("SourceContext", nameof(GitHubDataManager)));
 
@@ -391,7 +391,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         {
             State = Octokit.ItemState.Open,
             Type = Octokit.IssueTypeQualifier.PullRequest,
-            PerPage = 10,
+            PerPage = 100,
         };
         var issuesResult = await _gitHubClientProvider.GetClient().Search.SearchIssues(searchIssuesRequest);
         if (issuesResult == null)
@@ -409,13 +409,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var issueUrl = issue.Url;
-
-            var owner = issueUrl.Split('/')[4];
-            var repoName = issueUrl.Split('/')[5];
-
-            var pullRequest = await _gitHubClientProvider.GetClient().PullRequest.Get(owner, repoName, issue.Number);
-            var dsPullRequest = PullRequest.GetOrCreateByOctokitPullRequest(DataStore, pullRequest);
+            var dsPullRequest = PullRequest.GetOrCreateByOctokitIssue(DataStore, issue);
             SearchPullRequest.AddPullRequestToSearch(DataStore, dsPullRequest, dsSearch);
         }
     }
@@ -472,6 +466,20 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         {
             await UpdateDataForSearchAsync(search.Name, search.SearchString, search.Type, options);
         }
+    }
+
+    // Updates a Pull Request using the Pull Request API. This is intended to update the
+    // data of a pull request that was created using the Search Issues API.
+    public async Task<IPullRequest> UpdatePullRequestFromPullRequestAPIAsync(IPullRequest pullRequest)
+    {
+        var url = pullRequest.HtmlUrl;
+
+        var owner = url.Split('/')[3];
+        var repoName = url.Split('/')[4];
+
+        var client = await _gitHubClientProvider.GetClientForLoggedInDeveloper(true);
+        var octokitPullRequest = await client.PullRequest.Get(owner, repoName, (int)pullRequest.Number);
+        return PullRequest.GetOrCreateByOctokitPullRequest(DataStore, octokitPullRequest);
     }
 
     public Search? GetSearch(string name, string searchString)
