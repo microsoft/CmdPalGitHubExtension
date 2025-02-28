@@ -4,7 +4,7 @@
 
 using System.Drawing;
 using GitHubExtension.Client;
-using GitHubExtension.DataManager.CacheManager;
+using GitHubExtension.DataManager.Cache;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;

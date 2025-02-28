@@ -4,7 +4,7 @@
 
 using Serilog;
 
-namespace GitHubExtension.DataManager.CacheManager;
+namespace GitHubExtension.DataManager.Cache;
 
 public class DataUpdater : IDisposable
 {
