@@ -150,7 +150,7 @@ public class PersistentDataManager : IDisposable, ISearchRepository
     // Search methods
     private async Task ValidateSearch(string searchString, SearchType searchType)
     {
-        // TODO: Change this request depending on the search type in cade we add Repositories.
+        // TODO: Change this request depending on the search type in case we add Repositories.
         GitHubClient? client = _developerIdProvider.GetLoggedInDeveloperIdsInternal().First().GitHubClient;
         var issuesOptions = new SearchIssuesRequest(searchString)
         {
