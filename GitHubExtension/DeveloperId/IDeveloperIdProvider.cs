@@ -8,9 +8,9 @@ namespace GitHubExtension.DeveloperId;
 
 public interface IDeveloperIdProvider
 {
-    IEnumerable<DeveloperId> GetLoggedInDeveloperIdsInternal();
+    IEnumerable<IDeveloperId> GetLoggedInDeveloperIdsInternal();
 
-    DeveloperId GetDeveloperIdInternal(IDeveloperId devId);
+    IDeveloperId GetDeveloperIdInternal(IDeveloperId devId);
 
     IAsyncOperation<IDeveloperId> LoginNewDeveloperIdAsync();
 

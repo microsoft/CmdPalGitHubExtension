@@ -215,7 +215,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
 
     // Wrapper for the targeted repository update pattern.
     // This is where we are querying specific data.
-    private async Task UpdateDataForRepositoryAsync(DataStoreOperationParameters parameters, Func<DataStoreOperationParameters, DeveloperId.DeveloperId, Task> asyncAction)
+    private async Task UpdateDataForRepositoryAsync(DataStoreOperationParameters parameters, Func<DataStoreOperationParameters, IDeveloperId, Task> asyncAction)
     {
         parameters.RequestOptions ??= RequestOptions.RequestOptionsDefault();
         parameters.DeveloperIds = _developerIdProvider.GetLoggedInDeveloperIdsInternal();
