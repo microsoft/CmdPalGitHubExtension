@@ -18,13 +18,6 @@ internal abstract partial class SearchPage<T> : ListPage
 
     public ISearch CurrentSearch { get; private set; }
 
-    // To avoid race condition between multiple requests
-    private readonly object _requestLock = new();
-
-    private DateTime LastRequested { get; set; } = DateTime.MinValue;
-
-    private readonly TimeSpan _requestCooldown = TimeSpan.FromMinutes(5);
-
     protected ICacheDataManager CacheDataManager { get; private set; }
 
     // Search is mandatory for this page to exist
@@ -38,22 +31,6 @@ internal abstract partial class SearchPage<T> : ListPage
     }
 
     public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();
-
-    protected async Task RequestContentData()
-    {
-        lock (_requestLock)
-        {
-            if (DateTime.UtcNow - LastRequested < _requestCooldown)
-            {
-                Logger.Information($"Too soon to request an update.");
-                return;
-            }
-
-            LastRequested = DateTime.UtcNow;
-        }
-
-        await CacheDataManager.Refresh(UpdateType.Search, CurrentSearch);
-    }
 
     protected void CacheManagerUpdateHandler(object? source, CacheManagerUpdateEventArgs e)
     {
@@ -123,13 +100,9 @@ internal abstract partial class SearchPage<T> : ListPage
     {
         CacheDataManager.OnUpdate += CacheManagerUpdateHandler;
 
-        // To avoid locked database
-        CacheDataManager.CancelUpdateInProgress();
         var items = await LoadContentData();
 
         Logger.Information($"Found {items.Count()} items matching search query \"{CurrentSearch.Name}\"");
-
-        _ = RequestContentData();
 
         return items;
     }

@@ -26,28 +26,16 @@ public class CacheDataManagerFacade : ICacheDataManager
         OnUpdate?.Invoke(source, e);
     }
 
-    public void CancelUpdateInProgress()
-    {
-        _cacheManager.CancelUpdateInProgress();
-    }
-
-    public async Task Refresh(UpdateType updateType, ISearch search)
-    {
-        await _cacheManager.Refresh(updateType, search);
-    }
-
     public Task<IEnumerable<IIssue>> GetIssues(ISearch search)
     {
         return Task.Run(() =>
         {
-            var dsSearch = _gitHubDataManager.GetSearch(search.Name, search.SearchString);
+            _cacheManager.CancelUpdateInProgress();
 
-            if (dsSearch is null)
-            {
-                return Enumerable.Empty<IIssue>();
-            }
+            var res = _gitHubDataManager.GetIssuesForSearch(search.Name, search.SearchString);
 
-            return dsSearch.Issues;
+            _cacheManager.RequestRefresh(UpdateType.Search, search);
+            return res;
         });
     }
 
@@ -55,11 +43,10 @@ public class CacheDataManagerFacade : ICacheDataManager
     {
         return Task.Run(() =>
         {
-            var dsSearch = _gitHubDataManager.GetSearch(search.Name, search.SearchString);
-            if (dsSearch is null)
-            {
-                return Enumerable.Empty<IPullRequest>();
-            }
+            _cacheManager.CancelUpdateInProgress();
+
+            var res = _gitHubDataManager.GetPullRequestsForSearch(search.Name, search.SearchString);
+            _cacheManager.RequestRefresh(UpdateType.Search, search);
 
             var res = new List<IPullRequest>();
 
