@@ -6,7 +6,7 @@ using GitHubExtension.Controls;
 using GitHubExtension.DataManager.CacheManager;
 using GitHubExtension.DataManager.Enums;
 
-namespace GitHubExtension.DataManager.DataManager;
+namespace GitHubExtension.DataManager;
 
 public class CacheDataManagerFacade : ICacheDataManager
 {
