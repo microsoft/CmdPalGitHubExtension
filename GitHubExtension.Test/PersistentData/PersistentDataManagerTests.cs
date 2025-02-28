@@ -2,10 +2,9 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using GitHubExtension.DataModel;
+using GitHubExtension.Controls;
 using GitHubExtension.DataModel.Enums;
 using GitHubExtension.DeveloperId;
-using GitHubExtension.Pages;
 using GitHubExtension.PersistentData;
 using Moq;
 using Search = GitHubExtension.PersistentData.Search;
