@@ -21,7 +21,7 @@ public partial class PersistentDataManagerTests
 
     [TestMethod]
     [TestCategory("Unit")]
-    public void PeristentDataManagerCreate()
+    public void Create()
     {
         var dataStoreOptions = GetDataStoreOptions();
         using var dataManager = new PersistentDataManager(GetDeveloperIdProvider(), dataStoreOptions);
@@ -32,7 +32,7 @@ public partial class PersistentDataManagerTests
 
     [TestMethod]
     [TestCategory("Unit")]
-    public async Task PersistentDataManagerAddAndRemoveSearch()
+    public async Task AddAndRemoveSearch()
     {
         var dataStoreOptions = GetDataStoreOptions();
         using var dataManager = new PersistentDataManager(GetDeveloperIdProvider(), dataStoreOptions);
@@ -61,7 +61,7 @@ public partial class PersistentDataManagerTests
 
     [TestMethod]
     [TestCategory("Unit")]
-    public async Task PersistentDataManagerAddRepeatedSearch()
+    public async Task AddRepeatedSearch()
     {
         var dataStoreOptions = GetDataStoreOptions();
         using var dataManager = new PersistentDataManager(GetDeveloperIdProvider(), dataStoreOptions);
