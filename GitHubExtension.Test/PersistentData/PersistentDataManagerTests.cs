@@ -7,23 +7,19 @@ using GitHubExtension.DataModel.Enums;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.PersistentData;
 using Moq;
-using Search = GitHubExtension.PersistentData.Search;
 
 namespace GitHubExtension.Test.PersistentData;
 
 [TestClass]
 public partial class PersistentDataManagerTests
 {
-    // We can mock this.
-    // This is used for validating a search.
-    private DeveloperIdProvider GetDeveloperIdProvider() => new();
-
     [TestMethod]
     [TestCategory("Unit")]
     public void Create()
     {
+        var stubValidator = new Mock<IGitHubValidator>().Object;
         var dataStoreOptions = GetDataStoreOptions();
-        using var dataManager = new PersistentDataManager(GetDeveloperIdProvider(), dataStoreOptions);
+        using var dataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
         Assert.IsNotNull(dataManager);
         dataManager.Dispose();
         Cleanup(dataStoreOptions.DataStoreFolderPath);
@@ -34,7 +30,9 @@ public partial class PersistentDataManagerTests
     public async Task AddAndRemoveSearch()
     {
         var dataStoreOptions = GetDataStoreOptions();
-        using var dataManager = new PersistentDataManager(GetDeveloperIdProvider(), dataStoreOptions);
+        var stubValidator = new Mock<IGitHubValidator>().Object;
+
+        using var dataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
 
         var stubSearch = new Mock<ISearch>();
         stubSearch.SetupGet(x => x.Name).Returns("TestSearch");
@@ -63,7 +61,9 @@ public partial class PersistentDataManagerTests
     public async Task AddRepeatedSearch()
     {
         var dataStoreOptions = GetDataStoreOptions();
-        using var dataManager = new PersistentDataManager(GetDeveloperIdProvider(), dataStoreOptions);
+        var stubValidator = new Mock<IGitHubValidator>().Object;
+
+        using var dataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
 
         var stubSearch = new Mock<ISearch>();
         stubSearch.SetupGet(x => x.Name).Returns("TestSearch");

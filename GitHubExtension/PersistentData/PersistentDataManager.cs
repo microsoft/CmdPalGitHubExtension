@@ -6,8 +6,6 @@ using GitHubExtension.Controls;
 using GitHubExtension.DataManager.GitHubDataManager;
 using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.Enums;
-using GitHubExtension.DeveloperId;
-using Octokit;
 using Serilog;
 using Windows.Storage;
 
@@ -21,7 +19,7 @@ public class PersistentDataManager : IDisposable, ISearchRepository
 
     private const string DataStoreFileName = "PersistentGitHubData.db";
 
-    private readonly IDeveloperIdProvider _developerIdProvider;
+    private readonly IGitHubValidator _gitHubValidator;
 
     private DataStore DataStore { get; set; }
 
@@ -32,19 +30,6 @@ public class PersistentDataManager : IDisposable, ISearchRepository
         if (DataStore == null || !DataStore.IsConnected)
         {
             throw new DataStoreInaccessibleException("DataStore is not available.");
-        }
-    }
-
-    private void ValidateRepositoryOwnerAndName(string owner, string repositoryName)
-    {
-        if (string.IsNullOrEmpty(owner))
-        {
-            throw new ArgumentNullException(nameof(owner));
-        }
-
-        if (string.IsNullOrEmpty(repositoryName))
-        {
-            throw new ArgumentNullException(nameof(repositoryName));
         }
     }
 
@@ -61,9 +46,9 @@ public class PersistentDataManager : IDisposable, ISearchRepository
         };
     }
 
-    public PersistentDataManager(IDeveloperIdProvider developerIdProvider, DataStoreOptions? dataStoreOptions = null)
+    public PersistentDataManager(IGitHubValidator gitHubValidator, DataStoreOptions? dataStoreOptions = null)
     {
-        _developerIdProvider = developerIdProvider;
+        _gitHubValidator = gitHubValidator;
 
         dataStoreOptions ??= DefaultOptions;
 
@@ -104,41 +89,6 @@ public class PersistentDataManager : IDisposable, ISearchRepository
         GC.SuppressFinalize(this);
     }
 
-    // Repository methods
-    private async Task ValidateRepository(string owner, string name)
-    {
-        ValidateRepositoryOwnerAndName(owner, name);
-        GitHubClient? client = _developerIdProvider.GetLoggedInDeveloperIdsInternal().First().GitHubClient;
-        _ = await client.Repository.Get(owner, name);
-    }
-
-    // Management code goes here
-    public async Task AddRepositoryAsync(string owner, string name, GitHubClient? client = null)
-    {
-        await ValidateRepository(owner, name);
-        ValidateDataStore();
-        _log.Information($"Adding repository {owner}/{name}.");
-
-        if (Repository.Get(DataStore, owner, name) != null)
-        {
-            throw new InvalidOperationException($"Repository {owner}/{name} already exists.");
-        }
-
-        Repository.Add(DataStore, owner, name);
-    }
-
-    public async void RemoveRepositoryAsync(string owner, string name)
-    {
-        await Task.Run(() =>
-        {
-            // No need to validate repository here as it was already
-            // validated when added.
-            ValidateDataStore();
-            _log.Information($"Removing repository {owner}/{name}.");
-            Repository.Remove(DataStore, owner, name);
-        });
-    }
-
     public async Task<IEnumerable<Repository>> GetAllRepositoriesAsync()
     {
         return await Task.Run(() =>
@@ -148,34 +98,24 @@ public class PersistentDataManager : IDisposable, ISearchRepository
         });
     }
 
-    // Search methods
-    private async Task ValidateSearch(string searchString, SearchType searchType)
+    private Task AddSearchAsync(ISearch search)
     {
-        // TODO: Change this request depending on the search type in case we add Repositories.
-        GitHubClient? client = _developerIdProvider.GetLoggedInDeveloperIdsInternal().First().GitHubClient;
-        var issuesOptions = new SearchIssuesRequest(searchString)
+        return Task.Run(() =>
         {
-            State = ItemState.Open,
-            Type = searchType == SearchType.Issues ? IssueTypeQualifier.Issue : IssueTypeQualifier.PullRequest,
-            SortField = IssueSearchSort.Updated,
-            Order = SortDirection.Descending,
-        };
+            ValidateDataStore();
 
-        _ = await client.Search.SearchIssues(issuesOptions);
-    }
+            var name = search.Name;
+            var searchString = search.SearchString;
+            var searchType = search.Type;
 
-    private async Task AddSearchAsync(string name, string searchString, SearchType searchType, Octokit.GitHubClient? client = null)
-    {
-        await ValidateSearch(searchString, searchType);
-        ValidateDataStore();
+            _log.Information($"Adding search: {name} - {searchString} - {searchType}.");
+            if (Search.Get(DataStore, name, searchString) != null)
+            {
+                throw new InvalidOperationException($"Search {name} - {searchString} - {searchType} already exists.");
+            }
 
-        _log.Information($"Adding search: {name} - {searchString} - {searchType}.");
-        if (Search.Get(DataStore, name, searchString) != null)
-        {
-            throw new InvalidOperationException($"Search {name} - {searchString} - {searchType} already exists.");
-        }
-
-        Search.Add(DataStore, name, searchString);
+            Search.Add(DataStore, name, searchString);
+        });
     }
 
     private async Task RemoveSearchAsync(string name, string searchString, SearchType searchType)
@@ -214,13 +154,14 @@ public class PersistentDataManager : IDisposable, ISearchRepository
         return RemoveSearchAsync(search.Name, search.SearchString, search.Type);
     }
 
-    public Task ValidateSearch(ISearch search)
+    public async Task ValidateSearch(ISearch search)
     {
-        return ValidateSearch(search.SearchString, search.Type);
+        await _gitHubValidator.ValidateSearch(search);
     }
 
-    public Task AddSavedSearch(ISearch search)
+    public async Task AddSavedSearch(ISearch search)
     {
-        return AddSearchAsync(search.Name, search.SearchString, search.Type);
+        await ValidateSearch(search);
+        await AddSearchAsync(search);
     }
 }
