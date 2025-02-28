@@ -3,8 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Client;
-using GitHubExtension.Controls.Pages;
-using GitHubExtension.DataManager;
+using GitHubExtension.Controls;
 using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.DataModel.Enums;

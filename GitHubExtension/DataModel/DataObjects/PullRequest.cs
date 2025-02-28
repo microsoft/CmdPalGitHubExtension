@@ -4,7 +4,7 @@
 
 using Dapper;
 using Dapper.Contrib.Extensions;
-using GitHubExtension.Controls.Pages;
+using GitHubExtension.Controls;
 using GitHubExtension.Helpers;
 using Serilog;
 

@@ -7,7 +7,7 @@ using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace GitHubExtension.Controls.Pages.PageTemplates;
+namespace GitHubExtension.Controls.PageTemplates;
 
 public abstract partial class GitHubContentPage : ContentPage, IGitHubPage
 {

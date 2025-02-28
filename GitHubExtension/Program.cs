@@ -3,9 +3,9 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Client;
+using GitHubExtension.Controls;
 using GitHubExtension.Controls.Forms;
 using GitHubExtension.Controls.ListItems;
-using GitHubExtension.Controls.Pages;
 using GitHubExtension.Controls.Pages;
 using GitHubExtension.DataManager.CacheManager;
 using GitHubExtension.DataManager.DataManager;

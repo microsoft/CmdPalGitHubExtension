@@ -6,7 +6,7 @@ using GitHubExtension.Controls.Forms;
 using GitHubExtension.Forms.Templates;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace GitHubExtension.Controls.Pages.PageTemplates;
+namespace GitHubExtension.Controls.PageTemplates;
 
 public partial class GitHubAuthPage : GitHubContentPage
 {

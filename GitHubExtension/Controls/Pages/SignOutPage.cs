@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Controls.Forms;
-using GitHubExtension.Controls.Pages.PageTemplates;
+using GitHubExtension.Controls.PageTemplates;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Controls.Pages;

@@ -2,10 +2,9 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Drawing;
 using Dapper;
 using Dapper.Contrib.Extensions;
-using GitHubExtension.Controls.Pages;
+using GitHubExtension.Controls;
 using GitHubExtension.Helpers;
 using Serilog;
 
