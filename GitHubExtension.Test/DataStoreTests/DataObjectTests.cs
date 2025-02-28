@@ -4,9 +4,11 @@
 
 using Dapper.Contrib.Extensions;
 using GitHubExtension.DataModel;
+using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.Helpers;
+using GitHubExtension.Test.Helpers;
 
-namespace GitHubExtension.Test;
+namespace GitHubExtension.Test.DataStoreTests;
 
 public partial class DataStoreTests
 {

@@ -2,12 +2,12 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using GitHubExtension.DataManager;
+using GitHubExtension.Controls;
+using GitHubExtension.DataManager.Enums;
 using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.Enums;
-using GitHubExtension.Pages;
 
-namespace GitHubExtension;
+namespace GitHubExtension.DataManager.GitHubDataManager;
 
 public partial class GitHubDataManager
 {

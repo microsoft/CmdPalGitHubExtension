@@ -4,10 +4,10 @@
 
 using Dapper;
 using Dapper.Contrib.Extensions;
+using GitHubExtension.Controls;
 using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Helpers;
-using GitHubExtension.Pages;
 using Serilog;
 
 namespace GitHubExtension.PersistentData;

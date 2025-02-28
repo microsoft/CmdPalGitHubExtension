@@ -5,10 +5,12 @@
 using Dapper.Contrib.Extensions;
 using GitHubExtension.Client;
 using GitHubExtension.DataModel;
+using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.DeveloperId;
+using GitHubExtension.Test.Helpers;
 using Octokit;
 
-namespace GitHubExtension.Test;
+namespace GitHubExtension.Test.DataStoreTests;
 
 public partial class DataStoreTests
 {
@@ -33,14 +35,14 @@ public partial class DataStoreTests
         foreach (var item in items)
         {
             var toInsert = client.User.Get(item).Result;
-            var inserted = DataModel.User.GetOrCreateByOctokitUser(dataStore, toInsert);
+            var inserted = DataModel.DataObjects.User.GetOrCreateByOctokitUser(dataStore, toInsert);
             Assert.AreNotEqual(DataStore.NoForeignKey, inserted.Id);
         }
 
         tx.Commit();
 
         // Verify retrieval and input into data objects.
-        var dataStoreUsers = dataStore.Connection.GetAll<DataModel.User>().ToList();
+        var dataStoreUsers = dataStore.Connection.GetAll<DataModel.DataObjects.User>().ToList();
         Assert.AreEqual(items.Count, dataStoreUsers.Count);
         foreach (var user in dataStoreUsers)
         {
@@ -52,10 +54,10 @@ public partial class DataStoreTests
         }
 
         // Test Update
-        var updatedUser = DataModel.User.GetById(dataStore, 1);
+        var updatedUser = DataModel.DataObjects.User.GetById(dataStore, 1);
         Assert.IsNotNull(updatedUser);
         updatedUser.AvatarUrl = "https://some.new.url";
-        var afterUpdate = DataModel.User.AddOrUpdateUser(dataStore, updatedUser);
+        var afterUpdate = DataModel.DataObjects.User.AddOrUpdateUser(dataStore, updatedUser);
         Assert.IsNotNull(afterUpdate);
         Assert.AreEqual(1, afterUpdate.Id);
 
@@ -85,21 +87,21 @@ public partial class DataStoreTests
         foreach (var item in items)
         {
             var toInsert = client.Repository.Get(item.Item1, item.Item2).Result;
-            var inserted = DataModel.Repository.GetOrCreateByOctokitRepository(dataStore, toInsert);
+            var inserted = DataModel.DataObjects.Repository.GetOrCreateByOctokitRepository(dataStore, toInsert);
             Assert.AreNotEqual(DataStore.NoForeignKey, inserted.Id);
         }
 
         tx.Commit();
 
         // Verify correct number of entries was added.
-        var dataStoreRepos = dataStore.Connection.GetAll<DataModel.Repository>().ToList();
+        var dataStoreRepos = dataStore.Connection.GetAll<DataModel.DataObjects.Repository>().ToList();
         Assert.AreEqual(items.Count, dataStoreRepos.Count);
 
         // Verify E2E Issue object works.
         TestContext?.WriteLine($"Repository Data from Data Object only:");
         for (var i = 1; i <= items.Count; i++)
         {
-            var repoObj = DataModel.Repository.GetById(dataStore, i);
+            var repoObj = DataModel.DataObjects.Repository.GetById(dataStore, i);
             Assert.IsNotNull(repoObj);
 
             // Ids are inserted in order starting at 1, so they should match the list index - 1.
@@ -113,7 +115,7 @@ public partial class DataStoreTests
 
         // Verify other repository accessors.
         TestContext?.WriteLine($"List of all repositories:");
-        var allRepositories = DataModel.Repository.GetAll(dataStore);
+        var allRepositories = DataModel.DataObjects.Repository.GetAll(dataStore);
         foreach (var repoObj in allRepositories)
         {
             TestContext?.WriteLine($"  FullName: {repoObj.FullName}  User: {repoObj.Owner.Login}  Repo: {repoObj.Name} - {repoObj.InternalId} - {repoObj.Description}");
@@ -122,9 +124,9 @@ public partial class DataStoreTests
         TestContext?.WriteLine($"Verifying Repository.Get");
         foreach (var item in items)
         {
-            var repo1 = DataModel.Repository.Get(dataStore, item.Item1, item.Item2);
+            var repo1 = DataModel.DataObjects.Repository.Get(dataStore, item.Item1, item.Item2);
             Assert.IsNotNull(repo1);
-            var repo2 = DataModel.Repository.Get(dataStore, item.Item1 + '/' + item.Item2);
+            var repo2 = DataModel.DataObjects.Repository.Get(dataStore, item.Item1 + '/' + item.Item2);
             Assert.IsNotNull(repo2);
             Assert.AreEqual(repo1.Id, repo2.Id);
             TestContext?.WriteLine($"  FullName: {repo1.FullName}  User: {repo1.Owner.Login}  Repo: {repo1.Name}");
@@ -158,28 +160,28 @@ public partial class DataStoreTests
         foreach (var repo in repositories)
         {
             var toInsert = client.Repository.Get(repo.Item1, repo.Item2).Result;
-            var inserted = DataModel.Repository.GetOrCreateByOctokitRepository(dataStore, toInsert);
+            var inserted = DataModel.DataObjects.Repository.GetOrCreateByOctokitRepository(dataStore, toInsert);
             Assert.AreNotEqual(DataStore.NoForeignKey, inserted.Id);
         }
 
         foreach (var item in items)
         {
             var toInsert = client.PullRequest.Get(item.Item1, item.Item2, item.Item3).Result;
-            var inserted = DataModel.PullRequest.GetOrCreateByOctokitPullRequest(dataStore, toInsert, item.Item4);
+            var inserted = DataModel.DataObjects.PullRequest.GetOrCreateByOctokitPullRequest(dataStore, toInsert, item.Item4);
             Assert.AreNotEqual(DataStore.NoForeignKey, inserted.Id);
         }
 
         tx.Commit();
 
         // Verify all entries were added.
-        var dataStorePullRequests = dataStore.Connection.GetAll<DataModel.PullRequest>().ToList();
+        var dataStorePullRequests = dataStore.Connection.GetAll<DataModel.DataObjects.PullRequest>().ToList();
         Assert.AreEqual(items.Count, dataStorePullRequests.Count);
 
         // Verify E2E Issue object works.
         TestContext?.WriteLine($"Pull Request data from Data Object only:");
         for (var i = 1; i <= items.Count; i++)
         {
-            var pullObj = DataModel.PullRequest.GetById(dataStore, i);
+            var pullObj = DataModel.DataObjects.PullRequest.GetById(dataStore, i);
             Assert.IsNotNull(pullObj);
             Assert.AreNotEqual(DataStore.NoForeignKey, pullObj.Author.Id);
             Assert.AreNotEqual(DataStore.NoForeignKey, pullObj.Repository.Id);
@@ -208,7 +210,7 @@ public partial class DataStoreTests
         TestContext?.WriteLine($"Pull Request data from Repositories:");
         for (var i = 1; i <= repositories.Count; i++)
         {
-            var repoObj = DataModel.Repository.GetById(dataStore, i);
+            var repoObj = DataModel.DataObjects.Repository.GetById(dataStore, i);
             Assert.IsNotNull(repoObj);
             var index = (int)repoObj.Id - 1;
             Assert.AreEqual(repositories[index].Item1, repoObj.Owner.Login);
@@ -253,21 +255,21 @@ public partial class DataStoreTests
         foreach (var repo in repositories)
         {
             var toInsert = client.Repository.Get(repo.Item1, repo.Item2).Result;
-            var inserted = DataModel.Repository.GetOrCreateByOctokitRepository(dataStore, toInsert);
+            var inserted = DataModel.DataObjects.Repository.GetOrCreateByOctokitRepository(dataStore, toInsert);
             Assert.AreNotEqual(DataStore.NoForeignKey, inserted.Id);
         }
 
         foreach (var item in items)
         {
             var toInsert = client.Issue.Get(item.Item1, item.Item2, item.Item3).Result;
-            var inserted = DataModel.Issue.GetOrCreateByOctokitIssue(dataStore, toInsert, item.Item4);
+            var inserted = DataModel.DataObjects.Issue.GetOrCreateByOctokitIssue(dataStore, toInsert, item.Item4);
             Assert.AreNotEqual(DataStore.NoForeignKey, inserted.Id);
         }
 
         tx.Commit();
 
         // Verify all entries were added.
-        var dataStoreItems = dataStore.Connection.GetAll<DataModel.Issue>().ToList();
+        var dataStoreItems = dataStore.Connection.GetAll<DataModel.DataObjects.Issue>().ToList();
         Assert.AreEqual(items.Count, dataStoreItems.Count);
 
         // Verify E2E Issue object works.
@@ -275,7 +277,7 @@ public partial class DataStoreTests
         for (var i = 1; i <= items.Count; i++)
         {
             // The item should have been added in order, so validate what we specified.
-            var issueObj = DataModel.Issue.GetById(dataStore, i);
+            var issueObj = DataModel.DataObjects.Issue.GetById(dataStore, i);
             Assert.IsNotNull(issueObj);
             Assert.AreNotEqual(DataStore.NoForeignKey, issueObj.Author.Id);
             var index = (int)issueObj.Id - 1;
@@ -300,7 +302,7 @@ public partial class DataStoreTests
         TestContext?.WriteLine($"Issue data from Repositories:");
         for (var i = 1; i <= repositories.Count; i++)
         {
-            var repoObj = DataModel.Repository.GetById(dataStore, i);
+            var repoObj = DataModel.DataObjects.Repository.GetById(dataStore, i);
             Assert.IsNotNull(repoObj);
             var index = (int)repoObj.Id - 1;
             Assert.AreEqual(repositories[index].Item1, repoObj.Owner.Login);
@@ -331,12 +333,12 @@ public partial class DataStoreTests
         // Labels are on issues and pull requests and cannot be queried directly, get them from a pull.
         // Add pull so we can verify label associations
         var pull = client.PullRequest.Get("microsoft", "WindowsAppSDK", 3001).Result;
-        var dataStorePull = DataModel.PullRequest.GetOrCreateByOctokitPullRequest(dataStore, pull);
+        var dataStorePull = DataModel.DataObjects.PullRequest.GetOrCreateByOctokitPullRequest(dataStore, pull);
 
         // Add all labels in the pull.
         foreach (var label in pull.Labels)
         {
-            var inserted = DataModel.Label.GetOrCreateByOctokitLabel(dataStore, label);
+            var inserted = DataModel.DataObjects.Label.GetOrCreateByOctokitLabel(dataStore, label);
             Assert.AreNotEqual(DataStore.NoForeignKey, inserted.Id);
 
             // Associate label with the pull request
@@ -346,7 +348,7 @@ public partial class DataStoreTests
         tx.Commit();
 
         // Verify retrieval and input into data objects.
-        var dataStoreItems = dataStore.Connection.GetAll<DataModel.Label>().ToList();
+        var dataStoreItems = dataStore.Connection.GetAll<DataModel.DataObjects.Label>().ToList();
         Assert.AreEqual(pull.Labels.Count, dataStoreItems.Count);
         TestContext?.WriteLine("Labels from DB Label Table");
         foreach (var label in dataStoreItems)
@@ -360,7 +362,7 @@ public partial class DataStoreTests
         }
 
         // Verify the mapping of Pull Request labels to pull request works.
-        var pullFromDataStore = DataModel.PullRequest.GetById(dataStore, dataStorePull.Id);
+        var pullFromDataStore = DataModel.DataObjects.PullRequest.GetById(dataStore, dataStorePull.Id);
         Assert.IsNotNull(pullFromDataStore);
         var pullRequestLabels = pullFromDataStore.Labels;
         Assert.AreEqual(pull.Labels.Count, pullRequestLabels.Count());
@@ -387,12 +389,12 @@ public partial class DataStoreTests
         // Labels are on issues and pull requests and cannot be queried directly, get them from a pull.
         // Add pull so we can verify label associations.
         var issue = client.Issue.Get("microsoft", "WindowsAppSDK", 3096).Result;
-        var dataStoreIssue = DataModel.Issue.GetOrCreateByOctokitIssue(dataStore, issue);
+        var dataStoreIssue = DataModel.DataObjects.Issue.GetOrCreateByOctokitIssue(dataStore, issue);
 
         // Add all labels in the pull.
         foreach (var label in issue.Labels)
         {
-            var inserted = DataModel.Label.GetOrCreateByOctokitLabel(dataStore, label);
+            var inserted = DataModel.DataObjects.Label.GetOrCreateByOctokitLabel(dataStore, label);
             Assert.AreNotEqual(DataStore.NoForeignKey, inserted.Id);
 
             // Associate label with the pull request.
@@ -402,7 +404,7 @@ public partial class DataStoreTests
         tx.Commit();
 
         // Verify retrieval and input into data objects.
-        var dataStoreItems = dataStore.Connection.GetAll<DataModel.Label>().ToList();
+        var dataStoreItems = dataStore.Connection.GetAll<DataModel.DataObjects.Label>().ToList();
         Assert.AreEqual(issue.Labels.Count, dataStoreItems.Count);
         foreach (var label in dataStoreItems)
         {
@@ -415,7 +417,7 @@ public partial class DataStoreTests
         }
 
         // Verify the mapping of Pull Request labels to pull request works.
-        var issueFromDataStore = DataModel.Issue.GetById(dataStore, dataStoreIssue.Id);
+        var issueFromDataStore = DataModel.DataObjects.Issue.GetById(dataStore, dataStoreIssue.Id);
         Assert.IsNotNull(issueFromDataStore);
         var issueLabels = issueFromDataStore.Labels;
         Assert.AreEqual(issue.Labels.Count, issueLabels.Count());

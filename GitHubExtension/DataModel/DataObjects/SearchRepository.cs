@@ -7,7 +7,7 @@ using Dapper.Contrib.Extensions;
 using GitHubExtension.Helpers;
 using Serilog;
 
-namespace GitHubExtension.DataModel;
+namespace GitHubExtension.DataModel.DataObjects;
 
 [Table("SearchRepository")]
 public class SearchRepository

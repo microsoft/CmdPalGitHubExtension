@@ -2,10 +2,10 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using GitHubExtension.Controls.Forms;
+using GitHubExtension.Controls.Pages;
 using GitHubExtension.DeveloperId;
-using GitHubExtension.Forms;
 using GitHubExtension.Helpers;
-using GitHubExtension.Pages;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 

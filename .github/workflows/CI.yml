@@ -1,0 +1,69 @@
+#
+# This workflow will build and run all unit tests.
+#
+
+name: GitHubExt-CI
+on:
+  pull_request:
+  push:
+    branches: [ "main", "dev" ]
+
+jobs:
+  build-and-test:
+    strategy:
+      matrix:
+        configuration: [Release, Debug]
+        platform: [x64, arm64]
+        os: [windows-latest]
+        dotnet-version: ['8.0.x']
+        exclude:
+        - configuration: Debug
+          platform: x64
+        - configuration: Release
+          platform: x86
+        - configuration: Debug
+          platform: arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        clean: true
+
+    - name: Setup .NET SDK ${{ matrix.dotnet-version }}
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ matrix.dotnet-version }}
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v2
+      with:
+        vs-version: '17.5'
+
+    - name: Download nuget
+      run: |
+        mkdir ".\.nuget"
+        Invoke-WebRequest "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe" -OutFile ".\.nuget\nuget.exe"
+
+    - name: Find VsDevCmd.bat
+      run: |
+        $VSDevCmd = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere" -latest -find Common7\tools\VSDevCmd.bat
+        if (!$VSDevCmd) { exit 1 }
+        echo "Using VSDevCmd: ${VSDevCmd}"
+        Add-Content $env:GITHUB_ENV "VSDevCmd=$VSDevCmd"
+
+    - name: Restore dependencies
+      run: dotnet restore GitHubExtension.sln -p:PublishReadyToRun=true
+
+    - name: Build_CmdPalGitHubExtension
+      run: cmd /c "$env:VSDevCmd" "&" msbuild /p:Configuration=${{ matrix.configuration }},Platform=${{ matrix.platform }} /restore GitHubExtension.sln
+
+    - name: Find vstest.console.exe
+      if: ${{ matrix.platform != 'arm64' }}
+      run: |
+        $VSDevTestCmd = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere" -latest -prerelease -products * -find **\TestPlatform\vstest.console.exe
+        if (!$VSDevTestCmd) { exit 1 }
+        echo "Using VSDevTestCmd: ${VSDevTestCmd}"
+        Add-Content $env:GITHUB_ENV "VSDevTestCmd=$VSDevTestCmd"
+
+    - name: UnitTests
+      if: ${{ matrix.platform != 'arm64' }}
+      run: cmd /c "$env:VSDevTestCmd" /Platform:${{ matrix.platform }} /TestCaseFilter:"TestCategory!=LiveData" BuildOutput\\${{ matrix.configuration }}\\${{ matrix.platform }}\\GitHubExtension.Test\\GitHubExtension.Test.dll

@@ -4,7 +4,7 @@
 
 using GitHubExtension.DataModel.Enums;
 
-namespace GitHubExtension.Pages;
+namespace GitHubExtension.Controls;
 
 public interface ISearch
 {
