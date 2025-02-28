@@ -10,7 +10,7 @@ using GitHubExtension.DataModel.Enums;
 using Moq;
 using Octokit;
 
-namespace GitHubExtension.Test.DataStore;
+namespace GitHubExtension.Test.DataStoreTests;
 
 public partial class DataStoreTests
 {

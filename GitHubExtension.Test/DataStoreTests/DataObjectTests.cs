@@ -3,11 +3,12 @@
 // See the LICENSE file in the project root for more information.
 
 using Dapper.Contrib.Extensions;
+using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.Helpers;
 using GitHubExtension.Test.Helpers;
 
-namespace GitHubExtension.Test.DataStore;
+namespace GitHubExtension.Test.DataStoreTests;
 
 public partial class DataStoreTests
 {
@@ -45,7 +46,7 @@ public partial class DataStoreTests
         Assert.AreEqual(thirtyDays, thirtyDays.ToDataStoreString().ToTimeSpan());
 
         // Test adding metadata time as string to the datastore.
-        using var dataStore = new DataModel.DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
+        using var dataStore = new DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
         Assert.IsNotNull(dataStore);
         dataStore.Create();
         Assert.IsNotNull(dataStore.Connection);
@@ -63,7 +64,7 @@ public partial class DataStoreTests
     [TestCategory("Unit")]
     public void ReadAndWriteMetaData()
     {
-        using var dataStore = new DataModel.DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
+        using var dataStore = new DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
         Assert.IsNotNull(dataStore);
         dataStore.Create();
         Assert.IsNotNull(dataStore.Connection);
@@ -118,7 +119,7 @@ public partial class DataStoreTests
     [TestCategory("Unit")]
     public void ReadAndWriteUser()
     {
-        using var dataStore = new DataModel.DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
+        using var dataStore = new DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
         Assert.IsNotNull(dataStore);
         dataStore.Create();
         Assert.IsNotNull(dataStore.Connection);
@@ -165,7 +166,7 @@ public partial class DataStoreTests
     [TestCategory("Unit")]
     public void ReadAndWriteRepository()
     {
-        using var dataStore = new DataModel.DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
+        using var dataStore = new DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
         Assert.IsNotNull(dataStore);
         dataStore.Create();
         Assert.IsNotNull(dataStore.Connection);
@@ -218,7 +219,7 @@ public partial class DataStoreTests
     [TestCategory("Unit")]
     public void ReadAndWriteIssue()
     {
-        using var dataStore = new DataModel.DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
+        using var dataStore = new DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
         Assert.IsNotNull(dataStore);
         dataStore.Create();
         Assert.IsNotNull(dataStore.Connection);
@@ -276,7 +277,7 @@ public partial class DataStoreTests
     [TestCategory("Unit")]
     public void ReadAndWritePullRequest()
     {
-        using var dataStore = new DataModel.DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
+        using var dataStore = new DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
         Assert.IsNotNull(dataStore);
         dataStore.Create();
         Assert.IsNotNull(dataStore.Connection);

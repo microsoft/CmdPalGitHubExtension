@@ -7,7 +7,7 @@ using GitHubExtension.DataManager.CacheManager;
 using GitHubExtension.DataManager.GitHubDataManager;
 using GitHubExtension.DeveloperId;
 
-namespace GitHubExtension.Test.DataStore;
+namespace GitHubExtension.Test.DataStoreTests;
 
 public partial class DataStoreTests
 {

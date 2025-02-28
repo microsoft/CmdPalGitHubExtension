@@ -4,7 +4,7 @@
 
 using GitHubExtension.Test.Helpers;
 
-namespace GitHubExtension.Test.DataStore;
+namespace GitHubExtension.Test.DataStoreTests;
 
 [TestClass]
 public partial class DataStoreTests

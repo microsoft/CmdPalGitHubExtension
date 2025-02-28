@@ -4,12 +4,13 @@
 
 using Dapper.Contrib.Extensions;
 using GitHubExtension.Client;
+using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Test.Helpers;
 using Octokit;
 
-namespace GitHubExtension.Test.DataStore;
+namespace GitHubExtension.Test.DataStoreTests;
 
 public partial class DataStoreTests
 {
@@ -17,7 +18,7 @@ public partial class DataStoreTests
     [TestCategory("LiveData")]
     public void AddUserFromOctokit()
     {
-        using var dataStore = new DataModel.DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
+        using var dataStore = new DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
         Assert.IsNotNull(dataStore);
         dataStore.Create();
         Assert.IsNotNull(dataStore.Connection);
@@ -35,7 +36,7 @@ public partial class DataStoreTests
         {
             var toInsert = client.User.Get(item).Result;
             var inserted = DataModel.DataObjects.User.GetOrCreateByOctokitUser(dataStore, toInsert);
-            Assert.AreNotEqual(DataModel.DataStore.NoForeignKey, inserted.Id);
+            Assert.AreNotEqual(DataStore.NoForeignKey, inserted.Id);
         }
 
         tx.Commit();
@@ -69,7 +70,7 @@ public partial class DataStoreTests
     [TestCategory("LiveData")]
     public void AddRepositoryFromOctokit()
     {
-        using var dataStore = new DataModel.DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
+        using var dataStore = new DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
         Assert.IsNotNull(dataStore);
         dataStore.Create();
         Assert.IsNotNull(dataStore.Connection);
@@ -87,7 +88,7 @@ public partial class DataStoreTests
         {
             var toInsert = client.Repository.Get(item.Item1, item.Item2).Result;
             var inserted = DataModel.DataObjects.Repository.GetOrCreateByOctokitRepository(dataStore, toInsert);
-            Assert.AreNotEqual(DataModel.DataStore.NoForeignKey, inserted.Id);
+            Assert.AreNotEqual(DataStore.NoForeignKey, inserted.Id);
         }
 
         tx.Commit();
@@ -136,7 +137,7 @@ public partial class DataStoreTests
     [TestCategory("LiveData")]
     public void AddPullRequestFromOctokit()
     {
-        using var dataStore = new DataModel.DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
+        using var dataStore = new DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
         Assert.IsNotNull(dataStore);
         dataStore.Create();
         Assert.IsNotNull(dataStore.Connection);
@@ -160,14 +161,14 @@ public partial class DataStoreTests
         {
             var toInsert = client.Repository.Get(repo.Item1, repo.Item2).Result;
             var inserted = DataModel.DataObjects.Repository.GetOrCreateByOctokitRepository(dataStore, toInsert);
-            Assert.AreNotEqual(DataModel.DataStore.NoForeignKey, inserted.Id);
+            Assert.AreNotEqual(DataStore.NoForeignKey, inserted.Id);
         }
 
         foreach (var item in items)
         {
             var toInsert = client.PullRequest.Get(item.Item1, item.Item2, item.Item3).Result;
             var inserted = DataModel.DataObjects.PullRequest.GetOrCreateByOctokitPullRequest(dataStore, toInsert, item.Item4);
-            Assert.AreNotEqual(DataModel.DataStore.NoForeignKey, inserted.Id);
+            Assert.AreNotEqual(DataStore.NoForeignKey, inserted.Id);
         }
 
         tx.Commit();
@@ -182,8 +183,8 @@ public partial class DataStoreTests
         {
             var pullObj = DataModel.DataObjects.PullRequest.GetById(dataStore, i);
             Assert.IsNotNull(pullObj);
-            Assert.AreNotEqual(DataModel.DataStore.NoForeignKey, pullObj.Author.Id);
-            Assert.AreNotEqual(DataModel.DataStore.NoForeignKey, pullObj.Repository.Id);
+            Assert.AreNotEqual(DataStore.NoForeignKey, pullObj.Author.Id);
+            Assert.AreNotEqual(DataStore.NoForeignKey, pullObj.Repository.Id);
 
             var index = (int)pullObj.Id - 1;
             Assert.AreEqual(items[index].Item1, pullObj.Repository.Owner.Login);
@@ -228,7 +229,7 @@ public partial class DataStoreTests
     [TestCategory("LiveData")]
     public void AddIssueFromOctokit()
     {
-        using var dataStore = new DataModel.DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
+        using var dataStore = new DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
         Assert.IsNotNull(dataStore);
         dataStore.Create();
         Assert.IsNotNull(dataStore.Connection);
@@ -255,14 +256,14 @@ public partial class DataStoreTests
         {
             var toInsert = client.Repository.Get(repo.Item1, repo.Item2).Result;
             var inserted = DataModel.DataObjects.Repository.GetOrCreateByOctokitRepository(dataStore, toInsert);
-            Assert.AreNotEqual(DataModel.DataStore.NoForeignKey, inserted.Id);
+            Assert.AreNotEqual(DataStore.NoForeignKey, inserted.Id);
         }
 
         foreach (var item in items)
         {
             var toInsert = client.Issue.Get(item.Item1, item.Item2, item.Item3).Result;
             var inserted = DataModel.DataObjects.Issue.GetOrCreateByOctokitIssue(dataStore, toInsert, item.Item4);
-            Assert.AreNotEqual(DataModel.DataStore.NoForeignKey, inserted.Id);
+            Assert.AreNotEqual(DataStore.NoForeignKey, inserted.Id);
         }
 
         tx.Commit();
@@ -278,7 +279,7 @@ public partial class DataStoreTests
             // The item should have been added in order, so validate what we specified.
             var issueObj = DataModel.DataObjects.Issue.GetById(dataStore, i);
             Assert.IsNotNull(issueObj);
-            Assert.AreNotEqual(DataModel.DataStore.NoForeignKey, issueObj.Author.Id);
+            Assert.AreNotEqual(DataStore.NoForeignKey, issueObj.Author.Id);
             var index = (int)issueObj.Id - 1;
             Assert.AreEqual(items[index].Item3, issueObj.Number);
 
@@ -320,7 +321,7 @@ public partial class DataStoreTests
     [TestCategory("LiveData")]
     public void AddPullRequestLabelFromOctokit()
     {
-        using var dataStore = new DataModel.DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
+        using var dataStore = new DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
         Assert.IsNotNull(dataStore);
         dataStore.Create();
         Assert.IsNotNull(dataStore.Connection);
@@ -338,7 +339,7 @@ public partial class DataStoreTests
         foreach (var label in pull.Labels)
         {
             var inserted = DataModel.DataObjects.Label.GetOrCreateByOctokitLabel(dataStore, label);
-            Assert.AreNotEqual(DataModel.DataStore.NoForeignKey, inserted.Id);
+            Assert.AreNotEqual(DataStore.NoForeignKey, inserted.Id);
 
             // Associate label with the pull request
             PullRequestLabel.AddLabelToPullRequest(dataStore, dataStorePull, inserted);
@@ -376,7 +377,7 @@ public partial class DataStoreTests
     [TestCategory("LiveData")]
     public void AddIssueLabelFromOctokit()
     {
-        using var dataStore = new DataModel.DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
+        using var dataStore = new DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
         Assert.IsNotNull(dataStore);
         dataStore.Create();
         Assert.IsNotNull(dataStore.Connection);
@@ -394,7 +395,7 @@ public partial class DataStoreTests
         foreach (var label in issue.Labels)
         {
             var inserted = DataModel.DataObjects.Label.GetOrCreateByOctokitLabel(dataStore, label);
-            Assert.AreNotEqual(DataModel.DataStore.NoForeignKey, inserted.Id);
+            Assert.AreNotEqual(DataStore.NoForeignKey, inserted.Id);
 
             // Associate label with the pull request.
             IssueLabel.AddLabelToIssue(dataStore, dataStoreIssue, inserted);
