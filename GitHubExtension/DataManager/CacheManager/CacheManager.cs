@@ -2,12 +2,13 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using GitHubExtension.DataManager.CacheManagerStates;
-using GitHubExtension.Pages;
+using GitHubExtension.Controls;
+using GitHubExtension.DataManager.Enums;
+using GitHubExtension.DataManager.GitHubDataManager;
 using Octokit;
 using Serilog;
 
-namespace GitHubExtension.DataManager;
+namespace GitHubExtension.DataManager.CacheManager;
 
 public sealed class CacheManager : IDisposable
 {

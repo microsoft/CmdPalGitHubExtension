@@ -2,11 +2,10 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using GitHubExtension.Helpers;
-using GitHubExtension.Pages;
+using GitHubExtension.Controls.Pages;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace GitHubExtension.Forms;
+namespace GitHubExtension.Controls.ListItems;
 
 public partial class AddSearchFullFormListItem : ListItem
 {

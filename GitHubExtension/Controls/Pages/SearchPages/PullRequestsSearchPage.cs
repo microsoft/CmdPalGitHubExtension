@@ -3,11 +3,11 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Globalization;
-using GitHubExtension.Commands;
+using GitHubExtension.Controls.Commands;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace GitHubExtension.Pages;
+namespace GitHubExtension.Controls.Pages;
 
 internal sealed partial class PullRequestsSearchPage(ISearch search, ICacheDataManager cacheDataManager)
     : SearchPage<IPullRequest>(search, cacheDataManager)

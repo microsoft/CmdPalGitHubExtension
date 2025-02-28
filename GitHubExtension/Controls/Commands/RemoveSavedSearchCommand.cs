@@ -2,12 +2,12 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using GitHubExtension.Controls.Pages;
 using GitHubExtension.Helpers;
-using GitHubExtension.Pages;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.Foundation;
 
-namespace GitHubExtension.Commands;
+namespace GitHubExtension.Controls.Commands;
 
 public partial class RemoveSavedSearchCommand : InvokableCommand
 {

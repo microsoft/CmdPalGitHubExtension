@@ -3,16 +3,16 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Client;
-using GitHubExtension.DataManager;
+using GitHubExtension.Controls;
 using GitHubExtension.DataModel;
+using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.DataModel.Enums;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
-using GitHubExtension.Pages;
 using Serilog;
 using Windows.Storage;
 
-namespace GitHubExtension;
+namespace GitHubExtension.DataManager.GitHubDataManager;
 
 public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater, IDisposable
 {

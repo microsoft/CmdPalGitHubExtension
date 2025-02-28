@@ -2,17 +2,18 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using Dapper;
-using GitHubExtension.Pages;
+using GitHubExtension.Controls;
+using GitHubExtension.DataManager.CacheManager;
+using GitHubExtension.DataManager.Enums;
 
 namespace GitHubExtension.DataManager;
 
 public class CacheDataManagerFacade : ICacheDataManager
 {
-    private readonly CacheManager _cacheManager;
-    private readonly GitHubDataManager _gitHubDataManager;
+    private readonly CacheManager.CacheManager _cacheManager;
+    private readonly GitHubDataManager.GitHubDataManager _gitHubDataManager;
 
-    public CacheDataManagerFacade(CacheManager cacheManager, GitHubDataManager gitHubDataManager)
+    public CacheDataManagerFacade(CacheManager.CacheManager cacheManager, GitHubDataManager.GitHubDataManager gitHubDataManager)
     {
         _cacheManager = cacheManager;
         _gitHubDataManager = gitHubDataManager;

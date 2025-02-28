@@ -8,7 +8,7 @@ using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Serilog;
 
-namespace GitHubExtension.DataModel;
+namespace GitHubExtension.DataModel.DataObjects;
 
 [Table("User")]
 public class User

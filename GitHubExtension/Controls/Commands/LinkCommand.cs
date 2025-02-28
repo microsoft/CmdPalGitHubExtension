@@ -3,11 +3,11 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Diagnostics;
+using GitHubExtension.Controls.Pages;
 using GitHubExtension.DataModel;
-using GitHubExtension.Pages;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace GitHubExtension.Commands;
+namespace GitHubExtension.Controls.Commands;
 
 internal sealed partial class LinkCommand : InvokableCommand
 {
