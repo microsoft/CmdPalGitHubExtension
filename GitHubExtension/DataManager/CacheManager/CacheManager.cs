@@ -15,6 +15,8 @@ public sealed class CacheManager : IDisposable
 
     public static readonly TimeSpan UpdateFrequency = TimeSpan.FromMinutes(5);
 
+    public static readonly TimeSpan RefreshCooldown = TimeSpan.FromMinutes(3);
+
     private static readonly object _instanceLock = new();
 
     // Lock to be used everytime we want to check or update the state of
@@ -38,11 +40,11 @@ public sealed class CacheManager : IDisposable
 
     public CacheManagerState PendingRefreshState { get; private set; }
 
-    private CancellationTokenSource _cancelSource;
-
-    public IGitHubDataManager DataManager { get; private set; }
+    private readonly IGitHubDataManager _dataManager;
 
     private readonly ISearchRepository _searchRepository;
+
+    private CancellationTokenSource _cancelSource;
 
     // Variables to control the state of the CacheManager
     // If there is a current update in progress
@@ -85,7 +87,7 @@ public sealed class CacheManager : IDisposable
 
     public CacheManager(IGitHubDataManager dataManager, ISearchRepository searchRepository)
     {
-        DataManager = dataManager;
+        _dataManager = dataManager;
         _searchRepository = searchRepository;
         DataUpdater = new DataUpdater(PeriodicUpdate);
         dataManager.OnUpdate += HandleDataManagerUpdate;
@@ -119,6 +121,16 @@ public sealed class CacheManager : IDisposable
                 _logger.Information("Cancelling update.");
                 _cancelSource.Cancel();
             }
+        }
+    }
+
+    public void RequestRefresh(UpdateType updateType, ISearch? search = null)
+    {
+        var dsSearch = _dataManager.GetSearch(search!.Name, search!.SearchString);
+
+        if (dsSearch == null || DateTime.Now - dsSearch.UpdatedAt > RefreshCooldown)
+        {
+            _ = Refresh(updateType, search);
         }
     }
 
@@ -159,16 +171,16 @@ public sealed class CacheManager : IDisposable
         {
             case UpdateType.All:
                 var searches = (await _searchRepository.GetSavedSearches()).ToList();
-                await DataManager.RequestAllUpdateAsync(repoCollection, searches, options);
+                await _dataManager.RequestAllUpdateAsync(repoCollection, searches, options);
                 break;
             case UpdateType.Issues:
-                await DataManager.RequestIssuesUpdateAsync(repoCollection, options);
+                await _dataManager.RequestIssuesUpdateAsync(repoCollection, options);
                 break;
             case UpdateType.PullRequests:
-                await DataManager.RequestPullRequestsUpdateAsync(repoCollection, options);
+                await _dataManager.RequestPullRequestsUpdateAsync(repoCollection, options);
                 break;
             case UpdateType.Search:
-                await DataManager.RequestSearchUpdateAsync(search!.Name, search!.SearchString, search!.Type, options);
+                await _dataManager.RequestSearchUpdateAsync(search!.Name, search!.SearchString, search!.Type, options);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(updateType), updateType, null);
@@ -205,7 +217,7 @@ public sealed class CacheManager : IDisposable
 
     private DateTime GetLastUpdated()
     {
-        var lastCacheUpdate = DataManager.LastUpdated;
+        var lastCacheUpdate = _dataManager.LastUpdated;
         if (lastCacheUpdate != null)
         {
             return lastCacheUpdate;
@@ -216,7 +228,7 @@ public sealed class CacheManager : IDisposable
 
     private void SetLastUpdated(DateTime time)
     {
-        DataManager.LastUpdated = time;
+        _dataManager.LastUpdated = time;
     }
 
     // Disposing area
@@ -233,9 +245,9 @@ public sealed class CacheManager : IDisposable
                 try
                 {
                     _logger.Debug("Disposing of all CacheManager resources.");
-                    DataManager.OnUpdate -= HandleDataManagerUpdate;
+                    _dataManager.OnUpdate -= HandleDataManagerUpdate;
                     DataUpdater.Dispose();
-                    DataManager.Dispose();
+                    _dataManager.Dispose();
                     _cancelSource.Dispose();
                 }
                 catch (Exception e)

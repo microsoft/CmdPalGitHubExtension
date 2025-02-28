@@ -39,22 +39,6 @@ internal abstract partial class SearchPage<T> : ListPage
 
     public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();
 
-    protected async Task RequestContentData()
-    {
-        lock (_requestLock)
-        {
-            if (DateTime.UtcNow - LastRequested < _requestCooldown)
-            {
-                Logger.Information($"Too soon to request an update.");
-                return;
-            }
-
-            LastRequested = DateTime.UtcNow;
-        }
-
-        await CacheDataManager.Refresh(UpdateType.Search, CurrentSearch);
-    }
-
     protected void CacheManagerUpdateHandler(object? source, CacheManagerUpdateEventArgs e)
     {
         if (e.Kind == CacheManagerUpdateKind.Updated)
@@ -124,12 +108,9 @@ internal abstract partial class SearchPage<T> : ListPage
         CacheDataManager.OnUpdate += CacheManagerUpdateHandler;
 
         // To avoid locked database
-        CacheDataManager.CancelUpdateInProgress();
         var items = await LoadContentData();
 
         Logger.Information($"Found {items.Count()} items matching search query \"{CurrentSearch.Name}\"");
-
-        _ = RequestContentData();
 
         return items;
     }

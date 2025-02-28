@@ -8,14 +8,10 @@ namespace GitHubExtension.Pages;
 
 public interface ICacheDataManager
 {
-    Task Refresh(UpdateType updateType, ISearch search);
-
     // Not sure about this yet. Exposing event from another layer.
     event CacheManagerUpdateEventHandler? OnUpdate;
 
     Task<IEnumerable<IIssue>> GetIssues(ISearch search);
 
     Task<IEnumerable<IPullRequest>> GetPullRequests(ISearch search);
-
-    void CancelUpdateInProgress();
 }

@@ -480,6 +480,18 @@ public partial class GitHubDataManager : IGitHubDataManager, IDisposable
         return Search.Get(DataStore, name, searchString);
     }
 
+    public IEnumerable<IIssue> GetIssuesForSearch(string name, string searchString)
+    {
+        ValidateDataStore();
+        return GetSearch(name, searchString)?.Issues ?? [];
+    }
+
+    public IEnumerable<IPullRequest> GetPullRequestsForSearch(string name, string searchString)
+    {
+        ValidateDataStore();
+        return GetSearch(name, searchString)?.PullRequests ?? [];
+    }
+
     // Removes unused data from the datastore.
     private void PruneObsoleteData()
     {

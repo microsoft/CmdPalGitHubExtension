@@ -9,9 +9,9 @@ namespace GitHubExtension.DataManager;
 public class CacheDataManagerFacade : ICacheDataManager
 {
     private readonly CacheManager _cacheManager;
-    private readonly IGitHubDataManager _gitHubDataManager;
+    private readonly GitHubDataManager _gitHubDataManager;
 
-    public CacheDataManagerFacade(CacheManager cacheManager, IGitHubDataManager gitHubDataManager)
+    public CacheDataManagerFacade(CacheManager cacheManager, GitHubDataManager gitHubDataManager)
     {
         _cacheManager = cacheManager;
         _gitHubDataManager = gitHubDataManager;
@@ -26,28 +26,16 @@ public class CacheDataManagerFacade : ICacheDataManager
         OnUpdate?.Invoke(source, e);
     }
 
-    public void CancelUpdateInProgress()
-    {
-        _cacheManager.CancelUpdateInProgress();
-    }
-
-    public async Task Refresh(UpdateType updateType, ISearch search)
-    {
-        await _cacheManager.Refresh(updateType, search);
-    }
-
     public Task<IEnumerable<IIssue>> GetIssues(ISearch search)
     {
         return Task.Run(() =>
         {
-            var dsSearch = _gitHubDataManager.GetSearch(search.Name, search.SearchString);
+            _cacheManager.CancelUpdateInProgress();
 
-            if (dsSearch is null)
-            {
-                return Enumerable.Empty<IIssue>();
-            }
+            var res = _gitHubDataManager.GetIssuesForSearch(search.Name, search.SearchString);
 
-            return dsSearch.Issues;
+            _cacheManager.RequestRefresh(UpdateType.Search, search);
+            return res;
         });
     }
 
@@ -55,13 +43,12 @@ public class CacheDataManagerFacade : ICacheDataManager
     {
         return Task.Run(() =>
         {
-            var dsSearch = _gitHubDataManager.GetSearch(search.Name, search.SearchString);
-            if (dsSearch is null)
-            {
-                return Enumerable.Empty<IPullRequest>();
-            }
+            _cacheManager.CancelUpdateInProgress();
 
-            return dsSearch.PullRequests;
+            var res = _gitHubDataManager.GetPullRequestsForSearch(search.Name, search.SearchString);
+
+            _cacheManager.RequestRefresh(UpdateType.Search, search);
+            return res;
         });
     }
 }
