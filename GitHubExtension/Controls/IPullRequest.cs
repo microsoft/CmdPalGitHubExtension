@@ -4,17 +4,7 @@
 
 namespace GitHubExtension.Pages;
 
-public interface IPullRequest
+public interface IPullRequest : IIssue
 {
-    string Title { get; }
-
-    long Number { get; }
-
     string SourceBranch { get; }
-
-    string Body { get; }
-
-    string HtmlUrl { get; }
-
-    IEnumerable<ILabel> Labels { get; }
 }
