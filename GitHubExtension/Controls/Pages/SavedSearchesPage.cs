@@ -6,7 +6,6 @@ using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
 using GitHubExtension.Controls.ListItems;
 using GitHubExtension.Controls.Pages;
-using GitHubExtension.Controls.Pages.SearchPages;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;

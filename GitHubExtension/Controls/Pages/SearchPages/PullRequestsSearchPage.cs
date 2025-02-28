@@ -7,7 +7,7 @@ using GitHubExtension.Controls.Commands;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace GitHubExtension.Controls.Pages.SearchPages;
+namespace GitHubExtension.Controls.Pages;
 
 internal sealed partial class PullRequestsSearchPage(ISearch search, ICacheDataManager cacheDataManager)
     : SearchPage<IPullRequest>(search, cacheDataManager)

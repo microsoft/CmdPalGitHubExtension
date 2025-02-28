@@ -10,7 +10,7 @@ using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Serilog;
 
-namespace GitHubExtension.Controls.Pages.SearchPages;
+namespace GitHubExtension.Controls.Pages;
 
 internal abstract partial class SearchPage<T> : ListPage
 {

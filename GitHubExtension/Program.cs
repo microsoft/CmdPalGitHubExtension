@@ -6,7 +6,7 @@ using GitHubExtension.Client;
 using GitHubExtension.Controls.Forms;
 using GitHubExtension.Controls.ListItems;
 using GitHubExtension.Controls.Pages;
-using GitHubExtension.Controls.Pages.SearchPages;
+using GitHubExtension.Controls.Pages;
 using GitHubExtension.DataManager.CacheManager;
 using GitHubExtension.DataManager.DataManager;
 using GitHubExtension.DataManager.GitHubDataManager;

@@ -8,7 +8,7 @@ using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace GitHubExtension.Controls.Pages.SearchPages;
+namespace GitHubExtension.Controls.Pages;
 
 public class SearchPageFactory
 {
