@@ -12,7 +12,8 @@ using Octokit;
 
 namespace GitHubExtension.Test.DataStoreTests;
 
-public partial class DataStoreTests
+[TestClass]
+public partial class CacheManagerTests
 {
     [TestMethod]
     [TestCategory("Unit")]
@@ -27,7 +28,7 @@ public partial class DataStoreTests
     private Mock<ISearchRepository> MockSearchRepository()
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
-        mockSearchRepository.Setup(x => x.GetSavedSearches()).ReturnsAsync(new List<PersistentData.Search>());
+        mockSearchRepository.Setup(x => x.GetSavedSearches()).ReturnsAsync(new List<ISearch>());
         return mockSearchRepository;
     }
 
@@ -67,7 +68,7 @@ public partial class DataStoreTests
         await cacheManager.PeriodicUpdate();
         Assert.AreEqual(cacheManager.PeriodicUpdatingState, cacheManager.State);
 
-        var stubSearch = new Mock<PersistentData.Search>();
+        var stubSearch = new Mock<ISearch>();
         stubSearch.SetupAllProperties();
 
         await cacheManager.Refresh(UpdateType.Search, stubSearch.Object);
@@ -94,7 +95,7 @@ public partial class DataStoreTests
 
         Assert.AreEqual(cacheManager.IdleState, cacheManager.State);
 
-        var stubSearch = new Mock<PersistentData.Search>();
+        var stubSearch = new Mock<ISearch>();
         stubSearch.SetupAllProperties();
 
         await cacheManager.Refresh(UpdateType.Search, stubSearch.Object);
@@ -122,13 +123,11 @@ public partial class DataStoreTests
 
         Assert.AreEqual(cacheManager.IdleState, cacheManager.State);
 
-        var stubSearch1 = new Mock<PersistentData.Search>();
-        stubSearch1.SetupAllProperties();
-        stubSearch1.Object.SearchString = "Test1";
+        var stubSearch1 = new Mock<ISearch>();
+        stubSearch1.SetupGet(x => x.SearchString).Returns("Test1");
 
-        var stubSearch2 = new Mock<PersistentData.Search>();
-        stubSearch2.SetupAllProperties();
-        stubSearch2.Object.SearchString = "Test2";
+        var stubSearch2 = new Mock<ISearch>();
+        stubSearch2.SetupGet(x => x.SearchString).Returns("Test2");
 
         await cacheManager.Refresh(UpdateType.Search, stubSearch1.Object);
 
@@ -162,7 +161,7 @@ public partial class DataStoreTests
 
         Assert.AreEqual(cacheManager.IdleState, cacheManager.State);
 
-        var stubSearch = new Mock<PersistentData.Search>();
+        var stubSearch = new Mock<ISearch>();
         stubSearch.SetupAllProperties();
         await cacheManager.Refresh(UpdateType.Search, stubSearch.Object);
 
