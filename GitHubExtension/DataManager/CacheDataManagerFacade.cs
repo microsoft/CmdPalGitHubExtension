@@ -46,8 +46,15 @@ public class CacheDataManagerFacade : ICacheDataManager
             _cacheManager.CancelUpdateInProgress();
 
             var res = _gitHubDataManager.GetPullRequestsForSearch(search.Name, search.SearchString);
-
             _cacheManager.RequestRefresh(UpdateType.Search, search);
+
+            var res = new List<IPullRequest>();
+
+            foreach (var pr in dsSearch.PullRequests)
+            {
+                res.Add(new PullRequestSourceBranchDecorator(pr, _gitHubDataManager));
+            }
+
             return res;
         });
     }

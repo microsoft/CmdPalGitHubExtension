@@ -21,8 +21,8 @@ internal sealed partial class PullRequestsSearchPage(ISearch search, ICacheDataM
             Subtitle = $"{GetOwner(item.HtmlUrl)}/{GetRepo(item.HtmlUrl)}/#{item.Number}",
             MoreCommands = new CommandContextItem[]
             {
-                new(new CopyCommand($"git checkout {item.SourceBranch}", "checkout command")),
-                new(new CopyCommand(item.SourceBranch, "source branch")),
+                new(new CopyGitCheckoutCommand(item, "checkout command")),
+                new(new CopySourceBranchCommand(item, "source branch")),
                 new(new CopyCommand(item.HtmlUrl, "URL")),
                 new(new CopyCommand(item.Title, "pull request title")),
                 new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), "pull request number")),

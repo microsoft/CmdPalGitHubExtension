@@ -184,7 +184,7 @@ public class DeveloperIdProvider : IDeveloperIdProvider
         oAuthRequest.CompleteOAuthAsync(authorizationResponse).Wait();
     }
 
-    public IEnumerable<DeveloperId> GetLoggedInDeveloperIdsInternal()
+    public IEnumerable<IDeveloperId> GetLoggedInDeveloperIdsInternal()
     {
         List<DeveloperId> iDeveloperIds = [];
         lock (_developerIdsLock)
@@ -196,7 +196,7 @@ public class DeveloperIdProvider : IDeveloperIdProvider
     }
 
     // Convert devID to internal devID.
-    public DeveloperId GetDeveloperIdInternal(IDeveloperId devId)
+    public IDeveloperId GetDeveloperIdInternal(IDeveloperId devId)
     {
         var devIds = GetLoggedInDeveloperIdsInternal();
         var devIdInternal = devIds.Where(i => i.LoginId.Equals(devId.LoginId, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();

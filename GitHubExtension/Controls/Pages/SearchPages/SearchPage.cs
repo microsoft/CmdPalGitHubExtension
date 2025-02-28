@@ -121,27 +121,8 @@ internal abstract partial class SearchPage<T> : ListPage
         return new Microsoft.CommandPalette.Extensions.Color(fontColor.R, fontColor.G, fontColor.B, fontColor.A);
     }
 
+    // IPullRequest implements IIssue
     protected ITag[] GetTags(IIssue item)
-    {
-        var tags = new List<ITag>();
-        if (item.Labels != null)
-        {
-            foreach (var label in item.Labels)
-            {
-                var color = ColorTranslator.FromHtml($"#{label.Color}");
-                tags.Add(new Tag
-                {
-                    Background = new(true, new Microsoft.CommandPalette.Extensions.Color(color.R, color.G, color.B, color.A)),
-                    Foreground = new(true, GetFontColor(label.Color)),
-                    Text = label.Name,
-                });
-            }
-        }
-
-        return tags.ToArray();
-    }
-
-    protected ITag[] GetTags(IPullRequest item)
     {
         var tags = new List<ITag>();
         if (item.Labels != null)

@@ -9,4 +9,6 @@ public interface IDeveloperId
     string LoginId { get; }
 
     string Url { get; }
+
+    Octokit.GitHubClient GitHubClient { get; }
 }
