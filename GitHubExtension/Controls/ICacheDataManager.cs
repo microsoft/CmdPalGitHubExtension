@@ -4,7 +4,7 @@
 
 using GitHubExtension.DataManager.CacheManager;
 
-namespace GitHubExtension.Controls.Pages;
+namespace GitHubExtension.Controls;
 
 public interface ICacheDataManager
 {
