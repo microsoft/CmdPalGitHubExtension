@@ -4,14 +4,15 @@
 
 using System.Text;
 using System.Text.Json.Nodes;
+using GitHubExtension.Controls.Pages;
+using GitHubExtension.Forms.Templates;
 using GitHubExtension.Helpers;
-using GitHubExtension.Pages;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Serilog;
 using Windows.Foundation;
 
-namespace GitHubExtension.Forms;
+namespace GitHubExtension.Controls.Forms;
 
 public sealed partial class SaveSearchForm : GitHubForm
 {

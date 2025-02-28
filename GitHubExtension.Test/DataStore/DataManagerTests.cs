@@ -3,9 +3,11 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Client;
+using GitHubExtension.DataManager.CacheManager;
+using GitHubExtension.DataManager.GitHubDataManager;
 using GitHubExtension.DeveloperId;
 
-namespace GitHubExtension.Test;
+namespace GitHubExtension.Test.DataStore;
 
 public partial class DataStoreTests
 {
@@ -113,7 +115,7 @@ public partial class DataStoreTests
         var countingDoneEvent = new ManualResetEvent(false);
         var count = 0;
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        using var dataUpdater = new DataManager.DataUpdater(
+        using var dataUpdater = new DataUpdater(
             TimeSpan.FromSeconds(1),
             async () =>
             {

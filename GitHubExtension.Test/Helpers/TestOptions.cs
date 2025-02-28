@@ -4,7 +4,7 @@
 
 using GitHubExtension.DataModel;
 
-namespace GitHubExtension.Test;
+namespace GitHubExtension.Test.Helpers;
 
 public partial class TestOptions
 {

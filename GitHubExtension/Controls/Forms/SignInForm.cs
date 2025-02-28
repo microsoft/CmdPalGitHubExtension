@@ -3,11 +3,12 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.DeveloperId;
+using GitHubExtension.Forms.Templates;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace GitHubExtension.Forms;
+namespace GitHubExtension.Controls.Forms;
 
 public sealed partial class SignInForm : GitHubForm
 {

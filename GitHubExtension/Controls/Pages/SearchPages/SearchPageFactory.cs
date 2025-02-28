@@ -2,13 +2,13 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using GitHubExtension.Commands;
+using GitHubExtension.Controls.Commands;
+using GitHubExtension.Controls.Forms;
 using GitHubExtension.DataModel.Enums;
-using GitHubExtension.Forms;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace GitHubExtension.Pages;
+namespace GitHubExtension.Controls.Pages.SearchPages;
 
 public class SearchPageFactory
 {

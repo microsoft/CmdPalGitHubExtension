@@ -2,10 +2,11 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using GitHubExtension.Forms;
+using GitHubExtension.Controls.Forms;
+using GitHubExtension.Forms.Templates;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace GitHubExtension.Pages;
+namespace GitHubExtension.Controls.Pages.PageTemplates;
 
 public partial class GitHubAuthPage : GitHubContentPage
 {

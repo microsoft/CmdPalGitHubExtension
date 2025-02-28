@@ -4,9 +4,10 @@
 
 using System.Globalization;
 using GitHubExtension.DataModel;
+using GitHubExtension.Test.TestContextSink;
 using Serilog;
 
-namespace GitHubExtension.Test;
+namespace GitHubExtension.Test.Helpers;
 
 public partial class TestHelpers
 {

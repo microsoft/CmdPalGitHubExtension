@@ -5,11 +5,11 @@
 using System.Drawing;
 using Dapper;
 using Dapper.Contrib.Extensions;
+using GitHubExtension.Controls.Pages;
 using GitHubExtension.Helpers;
-using GitHubExtension.Pages;
 using Serilog;
 
-namespace GitHubExtension.DataModel;
+namespace GitHubExtension.DataModel.DataObjects;
 
 [Table("Label")]
 public class Label : ILabel

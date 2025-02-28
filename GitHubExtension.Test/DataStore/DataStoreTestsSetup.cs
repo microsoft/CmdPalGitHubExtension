@@ -2,7 +2,9 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-namespace GitHubExtension.Test;
+using GitHubExtension.Test.Helpers;
+
+namespace GitHubExtension.Test.DataStore;
 
 [TestClass]
 public partial class DataStoreTests

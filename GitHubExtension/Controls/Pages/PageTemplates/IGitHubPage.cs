@@ -5,7 +5,7 @@
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace GitHubExtension.Pages;
+namespace GitHubExtension.Controls.Pages.PageTemplates;
 
 internal partial interface IGitHubPage : IPage
 {

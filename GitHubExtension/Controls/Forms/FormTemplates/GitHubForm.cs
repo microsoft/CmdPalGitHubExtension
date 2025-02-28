@@ -8,7 +8,7 @@ using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.Foundation;
 
-namespace GitHubExtension;
+namespace GitHubExtension.Forms.Templates;
 
 public abstract partial class GitHubForm : FormContent
 {

@@ -4,12 +4,12 @@
 
 using Dapper;
 using Dapper.Contrib.Extensions;
+using GitHubExtension.Controls.Pages;
 using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Helpers;
-using GitHubExtension.Pages;
 using Serilog;
 
-namespace GitHubExtension.DataModel;
+namespace GitHubExtension.DataModel.DataObjects;
 
 [Table("Search")]
 public class Search

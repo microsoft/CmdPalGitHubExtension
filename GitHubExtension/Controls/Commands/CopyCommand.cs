@@ -4,7 +4,7 @@
 
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace GitHubExtension.Commands;
+namespace GitHubExtension.Controls.Commands;
 
 internal sealed partial class CopyCommand : InvokableCommand
 {

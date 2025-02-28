@@ -6,7 +6,7 @@ using Dapper;
 using Dapper.Contrib.Extensions;
 using Serilog;
 
-namespace GitHubExtension.DataModel;
+namespace GitHubExtension.DataModel.DataObjects;
 
 [Table("MetaData")]
 public class MetaData

@@ -2,10 +2,10 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using GitHubExtension.Pages;
-using GitHubExtension.PersistentData;
+using GitHubExtension.Controls.Pages;
+using GitHubExtension.DataManager.Enums;
 
-namespace GitHubExtension.DataManager.CacheManagerStates;
+namespace GitHubExtension.DataManager.CacheManager.CacheManagerStates;
 
 public class IdleState : CacheManagerState
 {

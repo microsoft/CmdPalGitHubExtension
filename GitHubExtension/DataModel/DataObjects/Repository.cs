@@ -8,7 +8,7 @@ using GitHubExtension.Helpers;
 using Octokit;
 using Serilog;
 
-namespace GitHubExtension.DataModel;
+namespace GitHubExtension.DataModel.DataObjects;
 
 [Table("Repository")]
 public class Repository

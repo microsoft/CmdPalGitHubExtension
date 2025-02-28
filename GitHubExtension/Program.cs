@@ -3,11 +3,15 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Client;
+using GitHubExtension.Controls.Forms;
+using GitHubExtension.Controls.ListItems;
+using GitHubExtension.Controls.Pages;
+using GitHubExtension.Controls.Pages.SearchPages;
 using GitHubExtension.DataManager;
+using GitHubExtension.DataManager.CacheManager;
+using GitHubExtension.DataManager.GitHubDataManager;
 using GitHubExtension.DeveloperId;
-using GitHubExtension.Forms;
 using GitHubExtension.Helpers;
-using GitHubExtension.Pages;
 using GitHubExtension.PersistentData;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;

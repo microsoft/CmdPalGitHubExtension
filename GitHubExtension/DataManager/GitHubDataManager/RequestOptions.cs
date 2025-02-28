@@ -4,7 +4,7 @@
 
 using Octokit;
 
-namespace GitHubExtension;
+namespace GitHubExtension.DataManager.GitHubDataManager;
 
 public class RequestOptions
 {

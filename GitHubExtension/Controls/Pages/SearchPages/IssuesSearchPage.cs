@@ -3,11 +3,11 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Globalization;
-using GitHubExtension.Commands;
+using GitHubExtension.Controls.Commands;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace GitHubExtension.Pages;
+namespace GitHubExtension.Controls.Pages.SearchPages;
 
 internal sealed partial class IssuesSearchPage(ISearch search, ICacheDataManager cacheDataManager)
     : SearchPage<IIssue>(search, cacheDataManager)

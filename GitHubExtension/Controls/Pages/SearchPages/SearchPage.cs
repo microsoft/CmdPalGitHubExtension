@@ -4,13 +4,13 @@
 
 using System.Drawing;
 using GitHubExtension.Client;
-using GitHubExtension.DataManager;
+using GitHubExtension.DataManager.CacheManager;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Serilog;
 
-namespace GitHubExtension.Pages;
+namespace GitHubExtension.Controls.Pages.SearchPages;
 
 internal abstract partial class SearchPage<T> : ListPage
 {
