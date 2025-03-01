@@ -82,7 +82,7 @@ public partial class DataStoreTests
 
         // Verify retrieval and input into data objects.
         var dataStoreMetaData = dataStore.Connection.GetAll<MetaData>().ToList();
-        Assert.AreEqual(dataStoreMetaData.Count, 2);
+        Assert.AreEqual(2, dataStoreMetaData.Count);
         foreach (var metaData in dataStoreMetaData)
         {
             TestContext?.WriteLine($"  Id: {metaData.Id}  Key: {metaData.Key}  Value: {metaData.Value}");
@@ -137,7 +137,7 @@ public partial class DataStoreTests
 
         // Verify retrieval and input into data objects.
         var dataStoreUsers = dataStore.Connection.GetAll<User>().ToList();
-        Assert.AreEqual(dataStoreUsers.Count, 2);
+        Assert.AreEqual(2, dataStoreUsers.Count);
         foreach (var user in dataStoreUsers)
         {
             TestContext?.WriteLine($"  User: {user.Id}: {user.Login} - {user.InternalId} - {user.AvatarUrl} - {user.Type}");
@@ -188,7 +188,7 @@ public partial class DataStoreTests
 
         // Verify retrieval and input into data objects.
         var dataStoreRepositories = dataStore.Connection.GetAll<Repository>().ToList();
-        Assert.AreEqual(dataStoreRepositories.Count, 2);
+        Assert.AreEqual(2, dataStoreRepositories.Count);
         foreach (var repo in dataStoreRepositories)
         {
             // Get User for the repo
@@ -243,7 +243,7 @@ public partial class DataStoreTests
 
         // Verify retrieval and input into data objects.
         var dataStoreIssues = dataStore.Connection.GetAll<Issue>().ToList();
-        Assert.AreEqual(dataStoreIssues.Count, 2);
+        Assert.AreEqual(2, dataStoreIssues.Count);
         foreach (var issue in dataStoreIssues)
         {
             // Get User  and Repo info
@@ -301,7 +301,7 @@ public partial class DataStoreTests
 
         // Verify retrieval and input into data objects.
         var dataStorePulls = dataStore.Connection.GetAll<PullRequest>().ToList();
-        Assert.AreEqual(dataStorePulls.Count, 2);
+        Assert.AreEqual(2, dataStorePulls.Count);
         foreach (var pull in dataStorePulls)
         {
             // Get User  and Repo info
@@ -355,7 +355,7 @@ public partial class DataStoreTests
 
         // Verify retrieval and input into data objects.
         var dataStoreSearches = dataStore.Connection.GetAll<Search>().ToList();
-        Assert.AreEqual(dataStoreSearches.Count, 2);
+        Assert.AreEqual(2, dataStoreSearches.Count);
 
         foreach (var search in dataStoreSearches)
         {
