@@ -330,4 +330,48 @@ public partial class DataStoreTests
             }
         }
     }
+
+    [TestMethod]
+    [TestCategory("Unit")]
+    public void ReadAndWriteSearch()
+    {
+        using var dataStore = new DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
+        Assert.IsNotNull(dataStore);
+        dataStore.Create();
+        Assert.IsNotNull(dataStore.Connection);
+
+        using var tx = dataStore.Connection!.BeginTransaction();
+
+        var searches = new List<Search>
+        {
+            { new Search { Name = "Test 0", SearchString = "is:issue lets hope" } },
+            { new Search { Name = "Test 1", SearchString = "is:pr for the best" } },
+        };
+
+        dataStore.Connection.Insert(searches[0]);
+        dataStore.Connection.Insert(searches[1]);
+
+        tx.Commit();
+
+        // Verify retrieval and input into data objects.
+        var dataStoreSearches = dataStore.Connection.GetAll<Search>().ToList();
+        Assert.AreEqual(dataStoreSearches.Count, 2);
+
+        foreach (var search in dataStoreSearches)
+        {
+            TestContext?.WriteLine($"  Search: {search.Name} - {search.SearchString}");
+            Assert.IsTrue(search.Id == 1 || search.Id == 2);
+            if (search.Id == 1)
+            {
+                Assert.AreEqual("Test 0", search.Name);
+                Assert.AreEqual("is:issue lets hope", search.SearchString);
+            }
+
+            if (search.Id == 2)
+            {
+                Assert.AreEqual("Test 1", search.Name);
+                Assert.AreEqual("is:pr for the best", search.SearchString);
+            }
+        }
+    }
 }
