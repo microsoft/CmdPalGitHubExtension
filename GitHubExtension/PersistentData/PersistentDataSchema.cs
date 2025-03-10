@@ -8,7 +8,7 @@ namespace GitHubExtension.PersistentData;
 
 public sealed class PersistentDataSchema : IDataStoreSchema
 {
-    public long SchemaVersion => 0;
+    public long SchemaVersion => 1;
 
     public List<string> SchemaSqls => _schemaSqlsValue;
 
