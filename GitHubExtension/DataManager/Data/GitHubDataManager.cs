@@ -14,7 +14,7 @@ using Windows.Storage;
 
 namespace GitHubExtension.DataManager.Data;
 
-public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater, IDisposable
+public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater, IDataRequester, IDisposable
 {
     private static readonly Lazy<ILogger> _logger = new(() => Serilog.Log.ForContext("SourceContext", nameof(GitHubDataManager)));
 

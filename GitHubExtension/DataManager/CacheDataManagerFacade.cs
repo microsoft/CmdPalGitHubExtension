@@ -12,13 +12,13 @@ namespace GitHubExtension.DataManager;
 
 public class CacheDataManagerFacade : ICacheDataManager
 {
-    private readonly CacheManager _cacheManager;
-    private readonly GitHubDataManager _gitHubDataManager;
+    private readonly ICacheManager _cacheManager;
+    private readonly IDataRequester _dataRequester;
 
-    public CacheDataManagerFacade(CacheManager cacheManager, GitHubDataManager gitHubDataManager)
+    public CacheDataManagerFacade(ICacheManager cacheManager, IDataRequester dataRequester)
     {
         _cacheManager = cacheManager;
-        _gitHubDataManager = gitHubDataManager;
+        _dataRequester = dataRequester;
 
         _cacheManager.OnUpdate += CacheManagerOnOnUpdate;
     }
@@ -36,7 +36,7 @@ public class CacheDataManagerFacade : ICacheDataManager
         {
             _cacheManager.CancelUpdateInProgress();
 
-            var res = _gitHubDataManager.GetIssuesForSearch(search.Name, search.SearchString);
+            var res = _dataRequester.GetIssuesForSearch(search.Name, search.SearchString);
 
             _cacheManager.RequestRefresh(UpdateType.Search, search);
             return res as IEnumerable<IIssue>;
@@ -49,14 +49,14 @@ public class CacheDataManagerFacade : ICacheDataManager
         {
             _cacheManager.CancelUpdateInProgress();
 
-            var intermediateRes = _gitHubDataManager.GetPullRequestsForSearch(search.Name, search.SearchString);
+            var intermediateRes = _dataRequester.GetPullRequestsForSearch(search.Name, search.SearchString);
             _cacheManager.RequestRefresh(UpdateType.Search, search);
 
             var res = new List<IPullRequest>();
 
             foreach (var pr in intermediateRes)
             {
-                res.Add(new PullRequestSourceBranchDecorator(pr, _gitHubDataManager));
+                res.Add(new PullRequestSourceBranchDecorator(pr, (IPullRequestUpdater)_dataRequester));
             }
 
             return res as IEnumerable<IPullRequest>;
@@ -95,8 +95,8 @@ public class CacheDataManagerFacade : ICacheDataManager
         {
             _cacheManager.CancelUpdateInProgress();
 
-            var issues = _gitHubDataManager.GetIssuesForSearch(search.Name, search.SearchString);
-            var pullRequests = _gitHubDataManager.GetPullRequestsForSearch(search.Name, search.SearchString);
+            var issues = _dataRequester.GetIssuesForSearch(search.Name, search.SearchString);
+            var pullRequests = _dataRequester.GetPullRequestsForSearch(search.Name, search.SearchString);
 
             _cacheManager.RequestRefresh(UpdateType.Search, search);
 

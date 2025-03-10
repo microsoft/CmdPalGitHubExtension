@@ -10,7 +10,7 @@ using Serilog;
 
 namespace GitHubExtension.DataManager.Cache;
 
-public sealed class CacheManager : IDisposable
+public sealed class CacheManager : IDisposable, ICacheManager
 {
     public static readonly TimeSpan UpdateInterval = TimeSpan.FromMinutes(10);
 
