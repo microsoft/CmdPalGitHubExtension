@@ -7,7 +7,7 @@ using GitHubExtension.DataManager.Enums;
 using GitHubExtension.DataManager.GitHubDataManager;
 using Serilog;
 
-namespace GitHubExtension.DataManager.CacheManager;
+namespace GitHubExtension.DataManager.Cache;
 
 public abstract class CacheManagerState
 {
