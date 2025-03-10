@@ -5,6 +5,7 @@
 using GitHubExtension.Controls;
 using GitHubExtension.Controls.ListItems;
 using GitHubExtension.Controls.Pages;
+using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Moq;
@@ -83,8 +84,13 @@ public class SavedSearchedPageTest
         var stubAddSearchFullFormListItem = new Mock<IListItem>();
         var savedSearchesPage = new SavedSearchesPage(stubSearchPageFactory.Object, stubSearchRepository.Object, stubAddSearchListItem.Object, stubAddSearchFullFormListItem.Object);
         var search = new Mock<ISearch>().Object;
+        var savedSearchesPostRemove = new List<ISearch>();
 
         savedSearchesPage.OnSearchRemoved(this, true);
         stubSearchRepository.Verify(x => x.GetSavedSearches(), Times.Once);
+        stubSearchRepository.Setup(x => x.GetSavedSearches()).ReturnsAsync(savedSearchesPostRemove);
+
+        var items = savedSearchesPage.GetItems();
+        Assert.AreEqual(savedSearchesPostRemove.Count + 2, items.Length); // +2 for the add search items
     }
 }
