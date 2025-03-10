@@ -17,8 +17,6 @@ public sealed partial class SavedSearchesPage : ListPage
 {
     private readonly ListItem _addSearchListItem;
 
-    private readonly ListItem _addSearchFullFormListItem;
-
     private readonly SearchPageFactory _searchPageFactory;
 
     private readonly ISearchRepository _searchRepository;
@@ -26,8 +24,7 @@ public sealed partial class SavedSearchesPage : ListPage
     public SavedSearchesPage(
         SearchPageFactory searchPageFactory,
         ISearchRepository searchRepository,
-        AddSearchListItem addSearchListItem,
-        AddSearchFullFormListItem addSearchFullFormListItem)
+        AddSearchListItem addSearchListItem)
     {
         Icon = new IconInfo("\ue721");
         Name = "Saved GitHub Searches";
@@ -37,7 +34,6 @@ public sealed partial class SavedSearchesPage : ListPage
         _searchPageFactory = searchPageFactory;
         _searchRepository = searchRepository;
         _addSearchListItem = addSearchListItem;
-        _addSearchFullFormListItem = addSearchFullFormListItem;
     }
 
     public override IListItem[] GetItems()
@@ -48,13 +44,12 @@ public sealed partial class SavedSearchesPage : ListPage
             var searchPages = savedSearches.Select(savedSearch => _searchPageFactory.CreateItemForSearch(savedSearch)).ToList();
 
             searchPages.Add(_addSearchListItem);
-            searchPages.Add(_addSearchFullFormListItem);
 
             return searchPages.ToArray();
         }
         else
         {
-            return [_addSearchListItem, _addSearchFullFormListItem];
+            return [_addSearchListItem];
         }
     }
 
