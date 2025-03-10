@@ -5,7 +5,7 @@
 using GitHubExtension.Controls;
 using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
-using GitHubExtension.Controls.ListItems;
+
 using GitHubExtension.Controls.Pages;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
@@ -15,16 +15,16 @@ namespace GitHubExtension;
 
 public sealed partial class SavedSearchesPage : ListPage
 {
-    private readonly ListItem _addSearchListItem;
+    private readonly IListItem _addSearchListItem;
 
-    private readonly SearchPageFactory _searchPageFactory;
+    private readonly ISearchPageFactory _searchPageFactory;
 
     private readonly ISearchRepository _searchRepository;
 
     public SavedSearchesPage(
-        SearchPageFactory searchPageFactory,
-        ISearchRepository searchRepository,
-        AddSearchListItem addSearchListItem)
+       ISearchPageFactory searchPageFactory,
+       ISearchRepository searchRepository,
+       IListItem addSearchListItem)
     {
         Icon = new IconInfo("\ue721");
         Name = "Saved GitHub Searches";
@@ -53,7 +53,9 @@ public sealed partial class SavedSearchesPage : ListPage
         }
     }
 
-    private void OnSearchSaved(object sender, object? args)
+    // Change this to public to facilitate tests. As the event handler is
+    // listening to a static event, it is not possible to mock the event.
+    public void OnSearchSaved(object sender, object? args)
     {
         IsLoading = false;
 
@@ -65,7 +67,7 @@ public sealed partial class SavedSearchesPage : ListPage
         // errors are handled in SaveSearchPage
     }
 
-    private void OnSearchRemoved(object sender, object? args)
+    public void OnSearchRemoved(object sender, object? args)
     {
         IsLoading = false;
 

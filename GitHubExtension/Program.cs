@@ -8,7 +8,7 @@ using GitHubExtension.Controls.Forms;
 using GitHubExtension.Controls.ListItems;
 using GitHubExtension.Controls.Pages;
 using GitHubExtension.DataManager;
-using GitHubExtension.DataManager.CacheManager;
+using GitHubExtension.DataManager.Cache;
 using GitHubExtension.DataManager.GitHubDataManager;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.PersistentData;
@@ -116,7 +116,7 @@ public class Program
 
         using var searchRepository = new PersistentDataManager(new GitHubValidatorAdapter(developerIdProvider));
 
-        using var cacheManager = new CacheManager(gitHubDataManager, searchRepository)!;
+        using var cacheManager = new CacheManager(new GitHubCacheAdapter(gitHubDataManager), searchRepository)!;
 
         // Set up cache manager to pre-update data
         cacheManager.Start();

@@ -4,7 +4,7 @@
 
 using System.Drawing;
 using GitHubExtension.Client;
-using GitHubExtension.DataManager.CacheManager;
+using GitHubExtension.DataManager.Cache;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -12,7 +12,7 @@ using Serilog;
 
 namespace GitHubExtension.Controls.Pages;
 
-internal abstract partial class SearchPage<T> : ListPage
+public abstract partial class SearchPage<T> : ListPage
 {
     protected ILogger Logger { get; }
 

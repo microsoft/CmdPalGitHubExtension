@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation
+// Copyright (c) Microsoft Corporation
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
@@ -8,7 +8,7 @@ using GitHubExtension.DataManager.GitHubDataManager;
 using Octokit;
 using Serilog;
 
-namespace GitHubExtension.DataManager.CacheManager;
+namespace GitHubExtension.DataManager.Cache;
 
 public sealed class CacheManager : IDisposable
 {
@@ -41,7 +41,7 @@ public sealed class CacheManager : IDisposable
 
     public CacheManagerState PendingRefreshState { get; private set; }
 
-    private readonly IGitHubDataManager _dataManager;
+    private readonly IGitHubCacheDataManager _dataManager;
 
     private readonly ISearchRepository _searchRepository;
 
@@ -86,7 +86,7 @@ public sealed class CacheManager : IDisposable
 
     public DateTime LastUpdateTime { get; set; } = DateTime.MinValue;
 
-    public CacheManager(IGitHubDataManager dataManager, ISearchRepository searchRepository)
+    public CacheManager(IGitHubCacheDataManager dataManager, ISearchRepository searchRepository)
     {
         _dataManager = dataManager;
         _searchRepository = searchRepository;
@@ -127,9 +127,7 @@ public sealed class CacheManager : IDisposable
 
     public void RequestRefresh(UpdateType updateType, ISearch search)
     {
-        var dsSearch = _dataManager.GetSearch(search.Name, search.SearchString);
-
-        if (dsSearch == null || DateTime.Now - dsSearch.UpdatedAt > RefreshCooldown)
+        if (_dataManager.IsSearchNewOrStale(search, RefreshCooldown))
         {
             _ = Refresh(updateType, search);
         }
@@ -248,7 +246,6 @@ public sealed class CacheManager : IDisposable
                     _logger.Debug("Disposing of all CacheManager resources.");
                     _dataManager.OnUpdate -= HandleDataManagerUpdate;
                     DataUpdater.Dispose();
-                    _dataManager.Dispose();
                     _cancelSource.Dispose();
                 }
                 catch (Exception e)

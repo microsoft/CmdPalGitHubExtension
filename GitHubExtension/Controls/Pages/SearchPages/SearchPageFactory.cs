@@ -6,11 +6,12 @@ using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
 using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Helpers;
+using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Controls.Pages;
 
-public class SearchPageFactory
+public class SearchPageFactory : ISearchPageFactory
 {
     private readonly ICacheDataManager _cacheDataManager;
     private readonly ISearchRepository _searchRepository;
@@ -31,7 +32,7 @@ public class SearchPageFactory
         };
     }
 
-    public ListItem CreateItemForSearch(ISearch search)
+    public IListItem CreateItemForSearch(ISearch search)
     {
         return new ListItem(CreatePageForSearch(search))
         {

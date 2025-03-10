@@ -9,7 +9,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Controls.Pages;
 
-internal sealed partial class PullRequestsSearchPage(ISearch search, ICacheDataManager cacheDataManager)
+public sealed partial class PullRequestsSearchPage(ISearch search, ICacheDataManager cacheDataManager)
     : SearchPage<IPullRequest>(search, cacheDataManager)
 {
     protected override ListItem GetListItem(IPullRequest item)
