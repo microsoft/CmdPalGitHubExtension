@@ -12,7 +12,7 @@ using Serilog;
 
 namespace GitHubExtension.Controls.Pages;
 
-internal abstract partial class SearchPage<T> : ListPage
+public abstract partial class SearchPage<T> : ListPage
 {
     protected ILogger Logger { get; }
 

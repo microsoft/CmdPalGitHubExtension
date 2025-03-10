@@ -4,13 +4,12 @@
 
 using System.Globalization;
 using GitHubExtension.Controls.Commands;
-using GitHubExtension.Controls.Pages;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace GitHubExtension.Controls;
+namespace GitHubExtension.Controls.Pages;
 
-internal sealed partial class IssuesSearchPage(ISearch search, ICacheDataManager cacheDataManager)
+public sealed partial class IssuesSearchPage(ISearch search, ICacheDataManager cacheDataManager)
     : SearchPage<IIssue>(search, cacheDataManager)
 {
     protected override ListItem GetListItem(IIssue item)
