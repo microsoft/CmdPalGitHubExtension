@@ -441,8 +441,8 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
 
     public async Task UpdateDataForSearchAsync(string name, string searchString, SearchType type, RequestOptions options)
     {
-        var cancellaTionToken = options?.CancellationToken.GetValueOrDefault() ?? default;
-        cancellaTionToken.ThrowIfCancellationRequested();
+        var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
+        cancellationToken.ThrowIfCancellationRequested();
 
         switch (type)
         {
