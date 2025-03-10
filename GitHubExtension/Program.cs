@@ -11,7 +11,6 @@ using GitHubExtension.DataManager;
 using GitHubExtension.DataManager.Cache;
 using GitHubExtension.DataManager.GitHubDataManager;
 using GitHubExtension.DeveloperId;
-using GitHubExtension.Helpers;
 using GitHubExtension.PersistentData;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -126,10 +125,9 @@ public class Program
 
         var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository);
 
-        var addSearchListItem = new AddSearchListItem(new SaveSearchPage(new SaveSearchForm(SearchInput.SearchString, searchRepository), new StatusMessage(), "Search saved successfully!", "Error in saving search"));
-        var addSearchFullFormListItem = new AddSearchFullFormListItem(new SaveSearchPage(new SaveSearchForm(SearchInput.Survey, searchRepository), new StatusMessage(), "Search saved successfully!", "Error in saving search"));
+        var addSearchListItem = new AddSearchListItem(new SaveSearchPage(new SaveSearchForm(searchRepository), new StatusMessage(), "Search saved successfully!", "Error in saving search"));
 
-        var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, addSearchListItem, addSearchFullFormListItem);
+        var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, addSearchListItem);
 
         var signOutPage = new SignOutPage(new SignOutForm(developerIdProvider), new StatusMessage(), "Sign out succeeded!", "Sign out failed");
         var signInPage = new SignInPage(new SignInForm(developerIdProvider), new StatusMessage(), "Sign in succeeded!", "Sign in failed");

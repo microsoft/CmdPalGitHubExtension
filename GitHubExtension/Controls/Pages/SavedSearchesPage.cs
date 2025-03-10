@@ -5,7 +5,6 @@
 using GitHubExtension.Controls;
 using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
-using GitHubExtension.Controls.ListItems;
 using GitHubExtension.Controls.Pages;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
@@ -17,17 +16,14 @@ public sealed partial class SavedSearchesPage : ListPage
 {
     private readonly IListItem _addSearchListItem;
 
-    private readonly IListItem _addSearchFullFormListItem;
-
     private readonly ISearchPageFactory _searchPageFactory;
 
     private readonly ISearchRepository _searchRepository;
 
     public SavedSearchesPage(
-        ISearchPageFactory searchPageFactory,
-        ISearchRepository searchRepository,
-        IListItem addSearchListItem,
-        IListItem addSearchFullFormListItem)
+       ISearchPageFactory searchPageFactory,
+       ISearchRepository searchRepository,
+       IListItem addSearchListItem)
     {
         Icon = new IconInfo("\ue721");
         Name = "Saved GitHub Searches";
@@ -37,7 +33,6 @@ public sealed partial class SavedSearchesPage : ListPage
         _searchPageFactory = searchPageFactory;
         _searchRepository = searchRepository;
         _addSearchListItem = addSearchListItem;
-        _addSearchFullFormListItem = addSearchFullFormListItem;
     }
 
     public override IListItem[] GetItems()
@@ -48,13 +43,12 @@ public sealed partial class SavedSearchesPage : ListPage
             var searchPages = savedSearches.Select(savedSearch => _searchPageFactory.CreateItemForSearch(savedSearch)).ToList();
 
             searchPages.Add(_addSearchListItem);
-            searchPages.Add(_addSearchFullFormListItem);
 
             return searchPages.ToArray();
         }
         else
         {
-            return [_addSearchListItem, _addSearchFullFormListItem];
+            return [_addSearchListItem];
         }
     }
 

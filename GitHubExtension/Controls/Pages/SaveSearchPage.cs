@@ -35,6 +35,5 @@ public sealed partial class SaveSearchPage : GitHubContentPage
         _statusMessage = statusMessage;
         _successMessage = successMessage;
         _errorMessage = errorMessage;
-        _errorMessage = errorMessage;
     }
 }

@@ -6,18 +6,6 @@ namespace GitHubExtension.Helpers;
 
 internal sealed class GitHubHelper
 {
-    internal static string StateJsonPath()
-    {
-        // Get the path to our exe
-        var path = System.Reflection.Assembly.GetExecutingAssembly().Location;
-
-        // Get the directory of the exe
-        var directory = Path.GetDirectoryName(path) ?? string.Empty;
-
-        // now, the state is just next to the exe
-        return Path.Combine(directory, "state.json");
-    }
-
     internal static string StateTemplateJsonPath(string templateName)
     {
         // Get the path to our exe
@@ -37,8 +25,6 @@ internal sealed class GitHubHelper
         return page switch
         {
             "AuthTemplate" => "Controls\\Templates\\AuthTemplate.json",
-            "SaveSearchSurvey" => "Controls\\Templates\\SaveSearchSurveyTemplate.json",
-            "SaveSearchSurveyData" => "Controls\\Templates\\SaveSearchSurveyData.json",
             "SaveSearch" => "Controls\\Templates\\SaveSearchTemplate.json",
             _ => throw new NotImplementedException(),
         };
