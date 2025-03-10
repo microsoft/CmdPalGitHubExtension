@@ -63,7 +63,7 @@ public class CacheDataManagerFacade : ICacheDataManager
         });
     }
 
-    private List<IIssue> MergeIssuesAndPulLRequests(IEnumerable<Issue> issues, IEnumerable<PullRequest> pullRequests)
+    private List<IIssue> MergeIssuesAndPullRequests(IEnumerable<Issue> issues, IEnumerable<PullRequest> pullRequests)
     {
         var res = new List<IIssue>();
 
@@ -100,7 +100,7 @@ public class CacheDataManagerFacade : ICacheDataManager
 
             _cacheManager.RequestRefresh(UpdateType.Search, search);
 
-            var res = MergeIssuesAndPulLRequests(issues, pullRequests);
+            var res = MergeIssuesAndPullRequests(issues, pullRequests);
 
             return res as IEnumerable<IIssue>;
         });
