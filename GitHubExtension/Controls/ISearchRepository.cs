@@ -15,4 +15,8 @@ public interface ISearchRepository
     Task ValidateSearch(ISearch search);
 
     Task AddSavedSearch(ISearch search);
+
+    Task<IEnumerable<ISearch>> GetTopLevelSearches();
+
+    Task UpdateSearchTopLevelStatus(ISearch search, bool isTopLevel);
 }

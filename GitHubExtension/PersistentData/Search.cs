@@ -8,6 +8,7 @@ using GitHubExtension.Controls;
 using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Helpers;
+using Octokit;
 using Serilog;
 
 namespace GitHubExtension.PersistentData;
@@ -25,6 +26,8 @@ public class Search : ISearch
     public string Name { get; set; } = string.Empty;
 
     public string SearchString { get; set; } = string.Empty;
+
+    public bool IsTopLevel { get; set; }
 
     private SearchType _searchType = SearchType.Unkown;
 
@@ -77,5 +80,20 @@ public class Search : ISearch
     public static IEnumerable<Search> GetAll(DataStore datastore)
     {
         return datastore.Connection.GetAll<Search>() ?? Enumerable.Empty<Search>();
+    }
+
+    public static void AddOrUpdate(DataStore datastore, string name, string searchString, bool isTopLevel)
+    {
+        var search = Get(datastore, name, searchString);
+
+        search ??= Add(datastore, name, searchString);
+
+        search.IsTopLevel = isTopLevel;
+        datastore.Connection.Update<Search>(search);
+    }
+
+    public static IEnumerable<Search> GetAllTopLevel(DataStore datastore)
+    {
+        return datastore.Connection.Query<Search>("SELECT * FROM Search WHERE IsTopLevel");
     }
 }
