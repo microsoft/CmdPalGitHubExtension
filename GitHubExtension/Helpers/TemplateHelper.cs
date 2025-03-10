@@ -14,7 +14,7 @@ internal sealed class TemplateHelper : ITemplateHelper
         {
             "AuthTemplate" => "Controls\\Templates\\AuthTemplate.json",
             "SaveSearch" => "Controls\\Templates\\SaveSearchTemplate.json",
-            _ => throw new NotImplementedException(),
+            _ => throw new NotImplementedException($"Template for page '{page}' is not implemented."),
         };
     }
 
