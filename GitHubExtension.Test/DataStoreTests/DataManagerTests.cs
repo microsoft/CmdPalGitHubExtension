@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Client;
-using GitHubExtension.DataManager.CacheManager;
+using GitHubExtension.DataManager.Cache;
 using GitHubExtension.DataManager.GitHubDataManager;
 using GitHubExtension.DeveloperId;
 
