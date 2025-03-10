@@ -9,7 +9,7 @@ using GitHubExtension.Controls.ListItems;
 using GitHubExtension.Controls.Pages;
 using GitHubExtension.DataManager;
 using GitHubExtension.DataManager.Cache;
-using GitHubExtension.DataManager.GitHubDataManager;
+using GitHubExtension.DataManager.Data;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using GitHubExtension.PersistentData;

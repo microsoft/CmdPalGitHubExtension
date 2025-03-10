@@ -6,7 +6,7 @@ using GitHubExtension.DataManager.Enums;
 using GitHubExtension.DataModel.Enums;
 using GitHubExtension.DeveloperId;
 
-namespace GitHubExtension.DataManager.GitHubDataManager;
+namespace GitHubExtension.DataManager.Data;
 
 public class DataStoreOperationParameters
 {

@@ -9,5 +9,6 @@ public enum SearchType
     Unkown = 0,
     Issues = 1,
     PullRequests = 2,
-    Repositories = 3,
+    IssuesAndPullRequests = 3,
+    Repositories = 4,
 }

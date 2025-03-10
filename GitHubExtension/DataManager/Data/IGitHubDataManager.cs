@@ -7,7 +7,7 @@ using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.DataModel.Enums;
 
-namespace GitHubExtension.DataManager.GitHubDataManager;
+namespace GitHubExtension.DataManager.Data;
 
 public interface IGitHubDataManager : IDisposable
 {

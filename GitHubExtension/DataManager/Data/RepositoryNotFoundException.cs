@@ -2,15 +2,15 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-namespace GitHubExtension.DataManager.GitHubDataManager;
+namespace GitHubExtension.DataManager.Data;
 
-public class DataStoreInaccessibleException : ApplicationException
+public class RepositoryNotFoundException : ApplicationException
 {
-    public DataStoreInaccessibleException()
+    public RepositoryNotFoundException()
     {
     }
 
-    public DataStoreInaccessibleException(string message)
+    public RepositoryNotFoundException(string message)
         : base(message)
     {
     }

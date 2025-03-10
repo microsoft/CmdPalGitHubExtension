@@ -3,10 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Globalization;
-using GitHubExtension.Client;
 using GitHubExtension.DataModel.Enums;
-using GitHubExtension.PersistentData;
-using Octokit;
 
 namespace GitHubExtension.Helpers;
 
@@ -40,7 +37,7 @@ public static class SearchHelper
             return (SearchType)Enum.Parse(typeof(SearchType), typeName, true);
         }
 
-        return SearchType.Unkown;
+        return SearchType.IssuesAndPullRequests;
     }
 
     private static readonly Dictionary<string, SearchType> SearchTypeMappings = new()

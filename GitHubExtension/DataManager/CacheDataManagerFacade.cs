@@ -4,16 +4,18 @@
 
 using GitHubExtension.Controls;
 using GitHubExtension.DataManager.Cache;
+using GitHubExtension.DataManager.Data;
 using GitHubExtension.DataManager.Enums;
+using GitHubExtension.DataModel.DataObjects;
 
 namespace GitHubExtension.DataManager;
 
 public class CacheDataManagerFacade : ICacheDataManager
 {
     private readonly CacheManager _cacheManager;
-    private readonly GitHubDataManager.GitHubDataManager _gitHubDataManager;
+    private readonly GitHubDataManager _gitHubDataManager;
 
-    public CacheDataManagerFacade(CacheManager cacheManager, GitHubDataManager.GitHubDataManager gitHubDataManager)
+    public CacheDataManagerFacade(CacheManager cacheManager, GitHubDataManager gitHubDataManager)
     {
         _cacheManager = cacheManager;
         _gitHubDataManager = gitHubDataManager;
@@ -37,7 +39,7 @@ public class CacheDataManagerFacade : ICacheDataManager
             var res = _gitHubDataManager.GetIssuesForSearch(search.Name, search.SearchString);
 
             _cacheManager.RequestRefresh(UpdateType.Search, search);
-            return res;
+            return res as IEnumerable<IIssue>;
         });
     }
 
@@ -58,6 +60,49 @@ public class CacheDataManagerFacade : ICacheDataManager
             }
 
             return res as IEnumerable<IPullRequest>;
+        });
+    }
+
+    private List<IIssue> MergeIssuesAndPulLRequests(IEnumerable<Issue> issues, IEnumerable<PullRequest> pullRequests)
+    {
+        var res = new List<IIssue>();
+
+        int i = 0, j = 0;
+
+        while (i < issues.Count() && j < pullRequests.Count())
+        {
+            if (issues.ElementAt(i).TimeUpdated < pullRequests.ElementAt(j).TimeUpdated)
+            {
+                res.Add(issues.ElementAt(i));
+                i++;
+            }
+            else
+            {
+                res.Add(pullRequests.ElementAt(j));
+                j++;
+            }
+        }
+
+        res.AddRange(issues.Skip(i));
+        res.AddRange(pullRequests.Skip(j));
+
+        return res;
+    }
+
+    public Task<IEnumerable<IIssue>> GetIssuesAndPullRequests(ISearch search)
+    {
+        return Task.Run(() =>
+        {
+            _cacheManager.CancelUpdateInProgress();
+
+            var issues = _gitHubDataManager.GetIssuesForSearch(search.Name, search.SearchString);
+            var pullRequests = _gitHubDataManager.GetPullRequestsForSearch(search.Name, search.SearchString);
+
+            _cacheManager.RequestRefresh(UpdateType.Search, search);
+
+            var res = MergeIssuesAndPulLRequests(issues, pullRequests);
+
+            return res as IEnumerable<IIssue>;
         });
     }
 }

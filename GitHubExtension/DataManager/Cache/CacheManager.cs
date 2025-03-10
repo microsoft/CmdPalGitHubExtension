@@ -3,8 +3,8 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Controls;
+using GitHubExtension.DataManager.Data;
 using GitHubExtension.DataManager.Enums;
-using GitHubExtension.DataManager.GitHubDataManager;
 using Octokit;
 using Serilog;
 
@@ -171,12 +171,6 @@ public sealed class CacheManager : IDisposable
             case UpdateType.All:
                 var searches = (await _searchRepository.GetSavedSearches()).ToList();
                 await _dataManager.RequestAllUpdateAsync(repoCollection, searches, options);
-                break;
-            case UpdateType.Issues:
-                await _dataManager.RequestIssuesUpdateAsync(repoCollection, options);
-                break;
-            case UpdateType.PullRequests:
-                await _dataManager.RequestPullRequestsUpdateAsync(repoCollection, options);
                 break;
             case UpdateType.Search:
                 await _dataManager.RequestSearchUpdateAsync(search!.Name, search!.SearchString, search!.Type, options);
