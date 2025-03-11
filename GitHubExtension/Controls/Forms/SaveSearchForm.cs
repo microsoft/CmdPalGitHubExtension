@@ -48,14 +48,13 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
     public override ICommandResult SubmitForm(string? inputs, string data)
     {
         LoadingStateChanged?.Invoke(this, true);
-        Task.Run(() => HandleSubmit(inputs));
-        return CommandResult.KeepOpen();
-    }
+        Task.Run(() =>
+        {
+            var search = GetSearchAsync(inputs);
+            ExtensionHost.LogMessage(new LogMessage() { Message = $"Search: {search}" });
+        });
 
-    public void HandleSubmit(string? payload)
-    {
-        var search = GetSearchAsync(payload);
-        ExtensionHost.LogMessage(new LogMessage() { Message = $"Search: {search}" });
+        return CommandResult.KeepOpen();
     }
 
     private async Task<SearchCandidate> GetSearchAsync(string? payload)

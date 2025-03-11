@@ -15,7 +15,7 @@ namespace GitHubExtension.Test.Controls;
 public class SaveSearchFormTest
 {
     [TestMethod]
-    public void HandleSubmit_ShouldRetainIsTopLevel_WhenSearchIsSaved()
+    public void SubmitForm_ShouldRetainIsTopLevel_WhenSearchIsSaved()
     {
         // Arrange
         var mockSearchRepository = new Mock<ISearchRepository>();
@@ -40,7 +40,7 @@ public class SaveSearchFormTest
             }")?.ToString();
 
         // Act
-        saveSearchForm.HandleSubmit(jsonPayload);
+        saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
         // Wait for async operations
         Thread.Sleep(100);
@@ -53,7 +53,7 @@ public class SaveSearchFormTest
     }
 
     [TestMethod]
-    public void HandleSubmit_ShouldSaveIssueSearch_WhenIssueSearchIsProvided()
+    public void SubmitForm_ShouldSaveIssueSearch_WhenIssueSearchIsProvided()
     {
         // Arrange
         var mockSearchRepository = new Mock<ISearchRepository>();
@@ -81,7 +81,7 @@ public class SaveSearchFormTest
             }")?.ToString();
 
         // Act
-        saveSearchForm.HandleSubmit(jsonPayload);
+        saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
         // Wait for async operations
         Thread.Sleep(100);
@@ -94,7 +94,7 @@ public class SaveSearchFormTest
     }
 
     [TestMethod]
-    public void HandleSubmit_ShouldSavePullRequestSearch_WhenPRSearchIsProvided()
+    public void SubmitForm_ShouldSavePullRequestSearch_WhenPRSearchIsProvided()
     {
         // Arrange
         var mockSearchRepository = new Mock<ISearchRepository>();
@@ -122,7 +122,7 @@ public class SaveSearchFormTest
             }")?.ToString();
 
         // Act
-        saveSearchForm.HandleSubmit(jsonPayload);
+        saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
         // Wait for async operations
         Thread.Sleep(100);
@@ -134,7 +134,7 @@ public class SaveSearchFormTest
     }
 
     [TestMethod]
-    public void HandleSubmit_ShouldSaveCombinedSearch_WhenNoTypeIsProvided()
+    public void SubmitForm_ShouldSaveCombinedSearch_WhenNoTypeIsProvided()
     {
         // Arrange
         var mockSearchRepository = new Mock<ISearchRepository>();
@@ -162,7 +162,7 @@ public class SaveSearchFormTest
             }")?.ToString();
 
         // Act
-        saveSearchForm.HandleSubmit(jsonPayload);
+        saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
         // Wait for async operations
         Thread.Sleep(100);
@@ -174,7 +174,7 @@ public class SaveSearchFormTest
     }
 
     [TestMethod]
-    public void HandleSubmit_ShouldEditSearchString_WhenUpdatingExistingSearch()
+    public void SubmitForm_ShouldEditSearchString_WhenUpdatingExistingSearch()
     {
         // Arrange
         var mockSearchRepository = new Mock<ISearchRepository>();
@@ -199,7 +199,7 @@ public class SaveSearchFormTest
             }")?.ToString();
 
         // Act
-        saveSearchForm.HandleSubmit(jsonPayload);
+        saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
         // Wait for async operations
         Thread.Sleep(100);
@@ -221,7 +221,7 @@ public class SaveSearchFormTest
     }
 
     [TestMethod]
-    public void HandleSubmit_ShouldEditSearchName_WhenUpdatingExistingSearch()
+    public void SubmitForm_ShouldEditSearchName_WhenUpdatingExistingSearch()
     {
         // Arrange
         var mockSearchRepository = new Mock<ISearchRepository>();
@@ -246,7 +246,7 @@ public class SaveSearchFormTest
             }")?.ToString();
 
         // Act
-        saveSearchForm.HandleSubmit(jsonPayload);
+        saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
         // Wait for async operations
         Thread.Sleep(100);
@@ -268,7 +268,7 @@ public class SaveSearchFormTest
     }
 
     [TestMethod]
-    public void HandleSubmit_ShouldEditBothNameAndString_WhenUpdatingExistingSearch()
+    public void SubmitForm_ShouldEditBothNameAndString_WhenUpdatingExistingSearch()
     {
         // Arrange
         var mockSearchRepository = new Mock<ISearchRepository>();
@@ -293,7 +293,7 @@ public class SaveSearchFormTest
             }")?.ToString();
 
         // Act
-        saveSearchForm.HandleSubmit(jsonPayload);
+        saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
         // Wait for async operations
         Thread.Sleep(100);
@@ -315,7 +315,7 @@ public class SaveSearchFormTest
     }
 
     [TestMethod]
-    public void HandleSubmit_ShouldOnlyUpdateTopLevel_WhenNothingElseChanges()
+    public void SubmitForm_ShouldOnlyUpdateTopLevel_WhenNothingElseChanges()
     {
         // Arrange
         var mockSearchRepository = new Mock<ISearchRepository>();
@@ -340,7 +340,7 @@ public class SaveSearchFormTest
             }")?.ToString();
 
         // Act
-        saveSearchForm.HandleSubmit(jsonPayload);
+        saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
         // Wait for async operations
         Thread.Sleep(100);
