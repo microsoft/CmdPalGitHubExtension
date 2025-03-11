@@ -4,7 +4,7 @@
 
 using GitHubExtension.DataManager.Enums;
 
-namespace GitHubExtension.DataManager.GitHubDataManager;
+namespace GitHubExtension.DataManager.Data;
 
 public delegate void DataManagerUpdateEventHandler(object? source, DataManagerUpdateEventArgs e);
 

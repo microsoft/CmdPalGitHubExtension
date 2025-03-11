@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Controls;
-using GitHubExtension.DataManager.GitHubDataManager;
+using GitHubExtension.DataManager.Data;
 using GitHubExtension.DataModel.Enums;
 using Octokit;
 

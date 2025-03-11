@@ -12,7 +12,7 @@ using Serilog;
 namespace GitHubExtension.DataModel.DataObjects;
 
 [Table("Search")]
-public class Search
+public class Search : ISearch
 {
     private static readonly Lazy<ILogger> _logger = new(() => Log.ForContext("SourceContext", $"DataModel/{nameof(Search)}"));
 
@@ -143,7 +143,7 @@ public class Search
 
     [Write(false)]
     [Computed]
-    public IEnumerable<IIssue> Issues
+    public IEnumerable<Issue> Issues
     {
         get
         {

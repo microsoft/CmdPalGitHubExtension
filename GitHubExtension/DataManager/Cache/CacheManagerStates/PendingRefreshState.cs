@@ -3,8 +3,8 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Controls;
+using GitHubExtension.DataManager.Data;
 using GitHubExtension.DataManager.Enums;
-using GitHubExtension.DataManager.GitHubDataManager;
 
 namespace GitHubExtension.DataManager.Cache;
 
