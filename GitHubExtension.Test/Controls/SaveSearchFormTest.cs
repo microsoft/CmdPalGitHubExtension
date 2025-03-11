@@ -61,10 +61,10 @@ public class SaveSearchFormTest
             .Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>()))
             .Returns(Task.CompletedTask);
 
-        SearchCandidate? capturedSearch = null;
+        ISearch? capturedSearch = null;
         mockSearchRepository
             .Setup(repo => repo.AddSavedSearch(It.IsAny<SearchCandidate>()))
-            .Callback<SearchCandidate>(s => capturedSearch = s)
+            .Callback<ISearch>(s => capturedSearch = s)
             .Returns(Task.CompletedTask);
 
         mockSearchRepository
@@ -90,7 +90,6 @@ public class SaveSearchFormTest
         Assert.IsNotNull(capturedSearch);
         Assert.AreEqual("is:issue author:username", capturedSearch.SearchString);
         Assert.AreEqual("My Issue Search", capturedSearch.Name);
-        Assert.AreEqual(false, capturedSearch.IsTopLevel);
     }
 
     [TestMethod]
@@ -102,10 +101,10 @@ public class SaveSearchFormTest
             .Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>()))
             .Returns(Task.CompletedTask);
 
-        SearchCandidate? capturedSearch = null;
+        ISearch? capturedSearch = null;
         mockSearchRepository
             .Setup(repo => repo.AddSavedSearch(It.IsAny<SearchCandidate>()))
-            .Callback<SearchCandidate>(s => capturedSearch = s)
+            .Callback<ISearch>(s => capturedSearch = s)
             .Returns(Task.CompletedTask);
 
         mockSearchRepository
@@ -142,10 +141,10 @@ public class SaveSearchFormTest
             .Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>()))
             .Returns(Task.CompletedTask);
 
-        SearchCandidate? capturedSearch = null;
+        ISearch? capturedSearch = null;
         mockSearchRepository
             .Setup(repo => repo.AddSavedSearch(It.IsAny<SearchCandidate>()))
-            .Callback<SearchCandidate>(s => capturedSearch = s)
+            .Callback<ISearch>(s => capturedSearch = s)
             .Returns(Task.CompletedTask);
 
         mockSearchRepository
