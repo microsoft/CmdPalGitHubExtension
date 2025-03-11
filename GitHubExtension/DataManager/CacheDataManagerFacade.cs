@@ -100,7 +100,15 @@ public class CacheDataManagerFacade : ICacheDataManager
 
             _cacheManager.RequestRefresh(UpdateType.Search, search);
 
-            var res = MergeIssuesAndPullRequests(issues, pullRequests);
+            var res = MergeIssuesAndPullRequests(issues, pullRequests).Select(item =>
+            {
+                if (item is IPullRequest)
+                {
+                    return new PullRequestSourceBranchDecorator((IPullRequest)item, (IPullRequestUpdater)_dataRequester);
+                }
+
+                return item;
+            });
 
             return res as IEnumerable<IIssue>;
         });
