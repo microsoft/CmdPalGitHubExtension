@@ -18,7 +18,7 @@ public static class GitHubIcon
                 { "logo", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "gh_logo.jpg") },
                 { "Issues", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "issues.png") },
                 { "PullRequests", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "pulls.png") },
-                { "IssuesAndPullRequests", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "issues.png") },
+                { "IssuesAndPullRequests", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "gh_logo.jpg") },
             };
     }
 
