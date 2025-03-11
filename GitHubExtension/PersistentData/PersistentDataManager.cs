@@ -159,6 +159,13 @@ public class PersistentDataManager : IDisposable, ISearchRepository
         return GetAllSearchesAsync(true);
     }
 
+    public Task<bool> IsTopLevel(ISearch search)
+    {
+        ValidateDataStore();
+        var dsSearch = Search.Get(DataStore, search.Name, search.SearchString);
+        return dsSearch != null ? Task.FromResult(dsSearch.IsTopLevel) : Task.FromResult(false);
+    }
+
     public async Task UpdateSearchTopLevelStatus(ISearch search, bool isTopLevel)
     {
         await ValidateSearch(search);

@@ -18,5 +18,7 @@ public interface ISearchRepository
 
     Task<IEnumerable<ISearch>> GetTopLevelSearches();
 
+    Task<bool> IsTopLevel(ISearch search);
+
     Task UpdateSearchTopLevelStatus(ISearch search, bool isTopLevel);
 }
