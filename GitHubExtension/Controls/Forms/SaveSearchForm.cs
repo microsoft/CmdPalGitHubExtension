@@ -82,12 +82,13 @@ public sealed partial class SaveSearchForm : GitHubForm
         return new SearchCandidate();
     }
 
-    public static SearchCandidate CreateSearchFromJson(JsonNode jsonNode)
+    public static SearchCandidate CreateSearchFromJson(JsonNode? jsonNode)
     {
-        var searchStr = jsonNode["EnteredSearch"]?.ToString() ?? string.Empty;
-        var name = jsonNode["Name"]?.ToString() ?? string.Empty;
+        var searchStr = jsonNode?["EnteredSearch"]?.ToString() ?? string.Empty;
+        var name = jsonNode?["Name"]?.ToString() ?? string.Empty;
+        var isTopLevel = jsonNode?["IsTopLevel"]?.ToString() == "true";
 
-        var search = new SearchCandidate(searchStr, name);
+        var search = new SearchCandidate(searchStr, name, isTopLevel);
 
         return search;
     }

@@ -50,7 +50,7 @@
           "items": [
             {
               "type": "Input.Toggle",
-              "id": "PinToTopLevel",
+              "id": "IsTopLevel",
               "title": "",
               "valueOn": "true",
               "valueOff": "false"
