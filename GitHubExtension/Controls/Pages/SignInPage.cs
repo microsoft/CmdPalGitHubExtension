@@ -9,7 +9,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Controls.Pages;
 
-public sealed partial class SignInPage : ContentPage
+public partial class SignInPage : ContentPage
 {
     private readonly SignInForm _signInForm;
     private readonly StatusMessage _statusMessage;

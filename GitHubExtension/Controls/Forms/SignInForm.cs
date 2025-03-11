@@ -10,7 +10,7 @@ using Windows.Foundation;
 
 namespace GitHubExtension.Controls.Forms;
 
-public sealed partial class SignInForm : FormContent, IGitHubForm
+public partial class SignInForm : FormContent, IGitHubForm
 {
     public static event EventHandler<SignInStatusChangedEventArgs>? SignInAction;
 
