@@ -28,7 +28,7 @@ public class SearchPageFactory : ISearchPageFactory
         {
             SearchType.PullRequests => new PullRequestsSearchPage(search, _cacheDataManager),
             SearchType.Issues => new IssuesSearchPage(search, _cacheDataManager),
-            _ => throw new NotImplementedException(),
+            _ => new CombinedSearchPage(search, _cacheDataManager),
         };
     }
 
