@@ -24,8 +24,6 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
 
     public event TypedEventHandler<object, FormSubmitEventArgs>? FormSubmitted;
 
-    public ICommandResult DefaultSubmitFormCommand => CommandResult.KeepOpen();
-
     public Dictionary<string, string> TemplateSubstitutions => new()
             {
                 { "{{SaveSearchFormTitle}}", string.IsNullOrEmpty(_savedSearch.Name) ? "Save Search" : "Edit Search" },
@@ -51,7 +49,7 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
     {
         LoadingStateChanged?.Invoke(this, true);
         Task.Run(() => HandleSubmit(inputs));
-        return DefaultSubmitFormCommand;
+        return CommandResult.KeepOpen();
     }
 
     public void HandleSubmit(string? payload)
