@@ -2,10 +2,15 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using GitHubExtension.Controls;
 using GitHubExtension.Controls.Forms;
+using GitHubExtension.Controls.ListItems;
 using GitHubExtension.Controls.Pages;
+using GitHubExtension.DataManager.Data;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
+using GitHubExtension.PersistentData;
+using LibGit2Sharp;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
@@ -17,12 +22,18 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
     private readonly SignOutPage _signOutPage;
     private readonly SignInPage _signInPage;
     private readonly IDeveloperIdProvider _developerIdProvider;
+    private readonly ISearchRepository _persistentDataManager;
+    private readonly ISearchPageFactory _searchPageFactory;
+    private readonly IListItem _addSearchListItem;
 
     public GitHubExtensionCommandsProvider(
         SavedSearchesPage savedSearchesPage,
         SignOutPage signOutPage,
         SignInPage signInPage,
-        IDeveloperIdProvider developerIdProvider)
+        IDeveloperIdProvider developerIdProvider,
+        ISearchRepository persistentDataManager,
+        ISearchPageFactory searchPageFactory,
+        IListItem addSearchListItem)
     {
         DisplayName = "GitHub Extension";
 
@@ -30,6 +41,9 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         _signOutPage = signOutPage;
         _signInPage = signInPage;
         _developerIdProvider = developerIdProvider;
+        _persistentDataManager = persistentDataManager;
+        _searchPageFactory = searchPageFactory;
+        _addSearchListItem = addSearchListItem;
 
         // Static events here. Hard dependency. But maybe it is ok in this case
         SignInForm.SignInAction += OnSignInStatusChanged;
@@ -44,32 +58,39 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
 
     public override ICommandItem[] TopLevelCommands()
     {
-        return _isSignedIn
-        ? [
-            new CommandItem(_savedSearchesPage)
+        if (!_isSignedIn)
+        {
+            return new[]
+            {
+                new CommandItem(_signInPage)
+                {
+                    Title = "GitHub Extension",
+                    Subtitle = "Log in",
+                    Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
+                },
+            };
+        }
+
+        List<CommandItem> commands;
+        commands = Task.Run(async () => await GetTopLevelSearchCommands()).Result;
+
+        var defaultCommands = new List<CommandItem>
+        {
+            new(_savedSearchesPage)
             {
                 Title = "Saved GitHub Searches",
                 Icon = new IconInfo("\ue721"),
             },
-
-            // new CommandItem(new SignOutPage(new SignOutForm(developerIdProvider), new StatusMessage(), "Sign out succeeded!", "Sign out failed"))
-            new CommandItem(_signOutPage)
+            new(_signOutPage)
             {
                 Title = "GitHub Extension",
                 Subtitle = "Sign out",
                 Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
             },
-        ]
-        : [
+        };
 
-            // new CommandItem(new SignInPage(new SignInForm(developerIdProvider), new StatusMessage(), "Sign in succeeded!", "Sign in failed"))
-            new CommandItem(_signInPage)
-            {
-                Title = "GitHub Extension",
-                Subtitle = "Log in",
-                Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
-            }
-        ];
+        commands.AddRange(defaultCommands);
+        return commands.ToArray();
     }
 
     private bool IsSignedIn()
@@ -89,5 +110,24 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
     private void OnSignInStatusChanged(object? sender, SignInStatusChangedEventArgs e)
     {
         UpdateSignInStatus(e.IsSignedIn);
+    }
+
+    private async Task<List<CommandItem>> GetTopLevelSearchCommands()
+    {
+        var topLevelSearches = await _persistentDataManager.GetTopLevelSearches();
+        List<CommandItem> topLevelSearchCommands = new List<CommandItem>();
+        if (topLevelSearches.Any())
+        {
+            var topLevelSearchPages = topLevelSearches.Select(savedSearch => _searchPageFactory.CreateItemForSearch(savedSearch)).ToList();
+
+            topLevelSearchPages.Add(_addSearchListItem);
+
+            foreach (var searchPage in topLevelSearchPages)
+            {
+                topLevelSearchCommands.Add(new CommandItem(searchPage));
+            }
+        }
+
+        return topLevelSearchCommands;
     }
 }

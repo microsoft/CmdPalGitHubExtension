@@ -84,14 +84,14 @@ public class CacheDataManagerFacadeTests
 
         mockGitHubDataManager.Setup(x => x.GetIssuesForSearch(It.IsAny<string>(), It.IsAny<string>())).Returns(mockIssues);
         mockGitHubDataManager.Setup(x => x.GetPullRequestsForSearch(It.IsAny<string>(), It.IsAny<string>())).Returns(mockPullRequests);
-        var issuesAndPullRequests = (List<IIssue>)await cacheDataManagerFacade.GetIssuesAndPullRequests(search);
+        var issuesAndPullRequests = await cacheDataManagerFacade.GetIssuesAndPullRequests(search);
 
-        Assert.AreEqual(6, issuesAndPullRequests.Count);
-        Assert.AreEqual("Issue1", issuesAndPullRequests[0].Title);
-        Assert.AreEqual("PullRequest1", issuesAndPullRequests[1].Title);
-        Assert.AreEqual("PullRequest2", issuesAndPullRequests[2].Title);
-        Assert.AreEqual("Issue2", issuesAndPullRequests[3].Title);
-        Assert.AreEqual("Issue3", issuesAndPullRequests[4].Title);
-        Assert.AreEqual("PullRequest3", issuesAndPullRequests[5].Title);
+        Assert.AreEqual(6, issuesAndPullRequests.Count());
+        Assert.AreEqual("Issue1", issuesAndPullRequests.ElementAt(0).Title);
+        Assert.AreEqual("PullRequest1", issuesAndPullRequests.ElementAt(1).Title);
+        Assert.AreEqual("PullRequest2", issuesAndPullRequests.ElementAt(2).Title);
+        Assert.AreEqual("Issue2", issuesAndPullRequests.ElementAt(3).Title);
+        Assert.AreEqual("Issue3", issuesAndPullRequests.ElementAt(4).Title);
+        Assert.AreEqual("PullRequest3", issuesAndPullRequests.ElementAt(5).Title);
     }
 }
