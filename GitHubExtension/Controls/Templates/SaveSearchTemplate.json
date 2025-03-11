@@ -27,6 +27,37 @@
       "isRequired": true,
       "errorMessage": "Search is required",
       "value": "{{SavedSearchString}}"
+    },
+    {
+      "type": "ColumnSet",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Center",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Pin search to top-level commands",
+              "wrap": true
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Center",
+          "items": [
+            {
+              "type": "Input.Toggle",
+              "id": "PinToTopLevel",
+              "title": "",
+              "valueOn": "true",
+              "valueOff": "false"
+            }
+          ]
+        }
+      ]
     }
   ],
   "actions": [
