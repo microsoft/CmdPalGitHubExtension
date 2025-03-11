@@ -20,7 +20,8 @@ public class CacheDataManagerFacadeTests
     {
         var stubCacheManager = new Mock<ICacheManager>().Object;
         var stubGitHubDataManager = new Mock<IDataRequester>().Object;
-        var cacheDataManagerFacade = new CacheDataManagerFacade(stubCacheManager, stubGitHubDataManager);
+        var stubDecoratorFactory = new Mock<IDecoratorFactory>().Object;
+        var cacheDataManagerFacade = new CacheDataManagerFacade(stubCacheManager, stubGitHubDataManager, stubDecoratorFactory);
         Assert.IsNotNull(cacheDataManagerFacade);
     }
 
@@ -30,7 +31,8 @@ public class CacheDataManagerFacadeTests
     {
         var stubCacheManager = new Mock<ICacheManager>().Object;
         var mockGitHubDataManager = new Mock<IDataRequester>();
-        var cacheDataManagerFacade = new CacheDataManagerFacade(stubCacheManager, mockGitHubDataManager.Object);
+        var stubDecoratorFactory = new Mock<IDecoratorFactory>().Object;
+        var cacheDataManagerFacade = new CacheDataManagerFacade(stubCacheManager, mockGitHubDataManager.Object, stubDecoratorFactory);
         Assert.IsNotNull(cacheDataManagerFacade);
 
         var search = new Mock<ISearch>().Object;
@@ -48,8 +50,12 @@ public class CacheDataManagerFacadeTests
     {
         var stubCacheManager = new Mock<ICacheManager>().Object;
         var mockGitHubDataManager = new Mock<IDataRequester>();
-        var cacheDataManagerFacade = new CacheDataManagerFacade(stubCacheManager, mockGitHubDataManager.Object);
+        var mockDecoratorFactory = new Mock<IDecoratorFactory>();
+        var cacheDataManagerFacade = new CacheDataManagerFacade(stubCacheManager, mockGitHubDataManager.Object, mockDecoratorFactory.Object);
         Assert.IsNotNull(cacheDataManagerFacade);
+
+        mockDecoratorFactory.Setup(x => x.DecorateSearchBranch(It.IsAny<IPullRequest>()))
+                            .Returns((IPullRequest pr) => pr);
 
         var search = new Mock<ISearch>().Object;
         var mockPullRequests = new Mock<IEnumerable<PullRequest>>();
@@ -66,7 +72,13 @@ public class CacheDataManagerFacadeTests
     {
         var stubCacheManager = new Mock<ICacheManager>().Object;
         var mockGitHubDataManager = new Mock<IDataRequester>();
-        var cacheDataManagerFacade = new CacheDataManagerFacade(stubCacheManager, mockGitHubDataManager.Object);
+        var mockDecoratorFactory = new Mock<IDecoratorFactory>();
+        var cacheDataManagerFacade = new CacheDataManagerFacade(stubCacheManager, mockGitHubDataManager.Object, mockDecoratorFactory.Object);
+        Assert.IsNotNull(cacheDataManagerFacade);
+
+        mockDecoratorFactory.Setup(x => x.DecorateSearchBranch(It.IsAny<IPullRequest>()))
+                            .Returns((IPullRequest pr) => pr);
+
         Assert.IsNotNull(cacheDataManagerFacade);
 
         var search = new Mock<ISearch>().Object;

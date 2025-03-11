@@ -6,7 +6,7 @@ using GitHubExtension.Controls;
 
 namespace GitHubExtension.DataManager;
 
-internal sealed class PullRequestSourceBranchDecorator : IPullRequest
+public sealed class PullRequestSourceBranchDecorator : IPullRequest
 {
     private readonly IPullRequestUpdater _pullRequestUpdater;
     private IPullRequest _source;
