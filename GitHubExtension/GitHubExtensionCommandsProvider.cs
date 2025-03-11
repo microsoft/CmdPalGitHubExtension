@@ -48,8 +48,17 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         // Static events here. Hard dependency. But maybe it is ok in this case
         SignInForm.SignInAction += OnSignInStatusChanged;
         SignOutForm.SignOutAction += OnSignInStatusChanged;
+        SaveSearchForm.SearchSaved += OnSearchSaved;
 
         UpdateSignInStatus(IsSignedIn());
+    }
+
+    private void OnSearchSaved(object sender, object? args)
+    {
+        if (args is SearchCandidate s && s.IsTopLevel)
+        {
+            RaiseItemsChanged(0);
+        }
     }
 
     private void UpdateTopLevelCommands(object? sender, int items) => RaiseItemsChanged(items);
@@ -119,8 +128,6 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         if (topLevelSearches.Any())
         {
             var topLevelSearchPages = topLevelSearches.Select(savedSearch => _searchPageFactory.CreateItemForSearch(savedSearch)).ToList();
-
-            topLevelSearchPages.Add(_addSearchListItem);
 
             foreach (var searchPage in topLevelSearchPages)
             {
