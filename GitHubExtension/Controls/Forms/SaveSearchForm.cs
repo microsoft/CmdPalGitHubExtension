@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Text.Json.Nodes;
+using System.Threading.Tasks;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -25,11 +26,12 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
     public event TypedEventHandler<object, FormSubmitEventArgs>? FormSubmitted;
 
     public Dictionary<string, string> TemplateSubstitutions => new()
-            {
-                { "{{SaveSearchFormTitle}}", string.IsNullOrEmpty(_savedSearch.Name) ? "Save Search" : "Edit Search" },
-                { "{{SavedSearchString}}", _savedSearch.SearchString },
-                { "{{SavedSearchName}}", _savedSearch.Name },
-            };
+    {
+        { "{{SaveSearchFormTitle}}", string.IsNullOrEmpty(_savedSearch.Name) ? "Save Search" : "Edit Search" },
+        { "{{SavedSearchString}}", _savedSearch.SearchString },
+        { "{{SavedSearchName}}", _savedSearch.Name },
+        { "{{IsTopLevel}}", GetIsTopLevel().Result.ToString() },
+    };
 
     public SaveSearchForm(ISearchRepository searchRepository)
     {
@@ -72,7 +74,7 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
 
             await _searchRepository.ValidateSearch(search);
             await _searchRepository.AddSavedSearch(search);
-            await _searchRepository.UpdateSearchTopLevelStatus(search, search.IsTopLevel);
+            _searchRepository.UpdateSearchTopLevelStatus(search, search.IsTopLevel).Wait();
 
             // if editing the search, delete the old one
             if (_savedSearch.SearchString != string.Empty)
@@ -105,5 +107,10 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
         var search = new SearchCandidate(searchStr, name, isTopLevel);
 
         return search;
+    }
+
+    public async Task<bool> GetIsTopLevel()
+    {
+        return await _searchRepository.IsTopLevel(_savedSearch);
     }
 }

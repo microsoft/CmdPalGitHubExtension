@@ -15,22 +15,62 @@ namespace GitHubExtension.Test.Controls;
 public class SaveSearchFormTest
 {
     [TestMethod]
-    public void SubmitForm_ShouldRetainIsTopLevel_WhenSearchIsSaved()
+    public void CreateSearchFromJson_ShouldReturnCorrectSearchCandidate()
     {
         // Arrange
+        var jsonPayload = JsonNode.Parse(@"
+        {
+            ""EnteredSearch"": ""author:username"",
+            ""Name"": ""My Combined Search"",
+            ""IsTopLevel"": ""true""
+        }");
+
+        // Act
+        var searchCandidate = SaveSearchForm.CreateSearchFromJson(jsonPayload);
+
+        // Assert
+        Assert.IsNotNull(searchCandidate);
+        Assert.AreEqual("author:username", searchCandidate.SearchString);
+        Assert.AreEqual("My Combined Search", searchCandidate.Name);
+        Assert.IsTrue(searchCandidate.IsTopLevel);
+    }
+
+    [TestMethod]
+    public void SubmitForm_ShouldRetainIsTopLevel_WhenSearchIsSaved()
+    {
         var mockSearchRepository = new Mock<ISearchRepository>();
         mockSearchRepository
             .Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>()))
             .Returns(Task.CompletedTask);
+
+        ISearch? capturedSearch = null;
         mockSearchRepository
-            .Setup(repo => repo.AddSavedSearch(It.IsAny<ISearch>()))
+            .Setup(repo => repo.AddSavedSearch(It.IsAny<SearchCandidate>()))
+            .Callback<ISearch>((s) =>
+            {
+                capturedSearch = s;
+            })
             .Returns(Task.CompletedTask);
+
         mockSearchRepository
             .Setup(repo => repo.RemoveSavedSearch(It.IsAny<ISearch>()))
             .Returns(Task.CompletedTask);
 
-        var savedSearch = new SearchCandidate("test search", "test name", true);
-        var saveSearchForm = new SaveSearchForm(savedSearch, mockSearchRepository.Object);
+        SearchCandidate? capturedSearchCandidate = null;
+        mockSearchRepository
+            .Setup(repo => repo.UpdateSearchTopLevelStatus(It.IsAny<ISearch>(), It.IsAny<bool>()))
+            .Callback<ISearch, bool>((s, isTopLevel) =>
+            {
+                if (s is SearchCandidate searchCandidate)
+                {
+                    capturedSearchCandidate = searchCandidate;
+                    capturedSearchCandidate.SearchString = s.SearchString;
+                    capturedSearchCandidate.Name = s.Name;
+                    capturedSearchCandidate.IsTopLevel = isTopLevel;
+                }
+            });
+
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object);
 
         var jsonPayload = JsonNode.Parse(@"
             {
@@ -39,17 +79,47 @@ public class SaveSearchFormTest
                 ""IsTopLevel"": ""true""
             }")?.ToString();
 
-        // Act
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-        // Wait for async operations
-        Thread.Sleep(100);
+        Thread.Sleep(1000);
 
-        // Assert
         mockSearchRepository.Verify(
             repo =>
             repo.AddSavedSearch(It.Is<SearchCandidate>(s => s.IsTopLevel == true)),
             Times.Once);
+
+        mockSearchRepository.Verify(
+            repo =>
+            repo.UpdateSearchTopLevelStatus(It.IsAny<ISearch>(), It.IsAny<bool>()),
+            Times.Once);
+
+        mockSearchRepository.Verify(
+            repo =>
+            repo.RemoveSavedSearch(It.IsAny<ISearch>()),
+            Times.Never);
+
+        Task.Delay(2000).Wait();
+
+        // Verify the SearchCandidate was correct
+        Assert.IsNotNull(capturedSearchCandidate);
+        Assert.AreEqual("test name", capturedSearchCandidate.Name);
+        Assert.AreEqual("test search", capturedSearchCandidate.SearchString);
+        Assert.IsTrue(capturedSearchCandidate.IsTopLevel);
+
+        // Verify that the search was captured correctly
+        Assert.IsNotNull(capturedSearch);
+        Assert.AreEqual("test name", capturedSearch.Name);
+        Assert.AreEqual("test search", capturedSearch.SearchString);
+
+        Assert.IsTrue(mockSearchRepository.Object.IsTopLevel(capturedSearch).Result);
+
+        // Verify that the search was added to TopLevelCommands
+        var items = mockSearchRepository.Object.GetTopLevelSearches().Result;
+        Assert.IsTrue(items.Any(s => s.Name == "test name" && s.SearchString == "test search"));
+
+        // Open page again
+        var saveSearchForm2 = new SaveSearchForm(capturedSearch, mockSearchRepository.Object);
+        Assert.IsTrue(saveSearchForm2.GetIsTopLevel().Result);
     }
 
     [TestMethod]
