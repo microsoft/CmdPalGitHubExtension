@@ -72,6 +72,7 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
 
             await _searchRepository.ValidateSearch(search);
             await _searchRepository.AddSavedSearch(search);
+            await _searchRepository.UpdateSearchTopLevelStatus(search, search.IsTopLevel);
 
             // if editing the search, delete the old one
             if (_savedSearch.SearchString != string.Empty)
