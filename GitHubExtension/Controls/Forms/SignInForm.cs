@@ -3,16 +3,20 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.DeveloperId;
-using GitHubExtension.Forms.Templates;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using Windows.Foundation;
 
 namespace GitHubExtension.Controls.Forms;
 
-public sealed partial class SignInForm : GitHubForm
+public sealed partial class SignInForm : FormContent, IGitHubForm
 {
     public static event EventHandler<SignInStatusChangedEventArgs>? SignInAction;
+
+    public event TypedEventHandler<object, bool>? LoadingStateChanged;
+
+    public event TypedEventHandler<object, FormSubmitEventArgs>? FormSubmitted;
 
     private readonly IDeveloperIdProvider _developerIdProvider;
 
@@ -21,7 +25,7 @@ public sealed partial class SignInForm : GitHubForm
         _developerIdProvider = developerIdProvider;
     }
 
-    public override Dictionary<string, string> TemplateSubstitutions => new()
+    public Dictionary<string, string> TemplateSubstitutions => new()
     {
         { "{{AuthTitle}}", "Sign In" },
         { "{{AuthButtonTitle}}", "Sign In" },
@@ -29,25 +33,28 @@ public sealed partial class SignInForm : GitHubForm
         { "{{AuthButtonTooltip}}", "Sign in to GitHub" },
     };
 
-    public override ICommandResult DefaultSubmitFormCommand => CommandResult.KeepOpen();
+    public override string TemplateJson => TemplateHelper.LoadTemplateJsonFromTemplateName("AuthTemplate", TemplateSubstitutions);
 
-    public override string TemplateJson => LoadTemplateJsonFromFile("AuthTemplate");
-
-    public override void HandleSubmit(string payload)
+    public override ICommandResult SubmitForm(string inputs, string data)
     {
-        try
+        LoadingStateChanged?.Invoke(this, true);
+        Task.Run(() =>
         {
-            var signInSucceeded = HandleSignIn().Result;
-            RaiseLoadingStateChanged(false);
-            SignInAction?.Invoke(this, new SignInStatusChangedEventArgs(signInSucceeded, null));
-            RaiseFormSubmitted(new FormSubmitEventArgs(signInSucceeded, null));
-        }
-        catch (Exception ex)
-        {
-            RaiseLoadingStateChanged(false);
-            SignInAction?.Invoke(this, new SignInStatusChangedEventArgs(false, ex));
-            RaiseFormSubmitted(new FormSubmitEventArgs(false, ex));
-        }
+            try
+            {
+                var signInSucceeded = HandleSignIn().Result;
+                LoadingStateChanged?.Invoke(this, false);
+                SignInAction?.Invoke(this, new SignInStatusChangedEventArgs(signInSucceeded, null));
+                FormSubmitted?.Invoke(this, new FormSubmitEventArgs(signInSucceeded, null));
+            }
+            catch (Exception ex)
+            {
+                LoadingStateChanged?.Invoke(this, false);
+                SignInAction?.Invoke(this, new SignInStatusChangedEventArgs(false, ex));
+                FormSubmitted?.Invoke(this, new FormSubmitEventArgs(false, ex));
+            }
+        });
+        return CommandResult.KeepOpen();
     }
 
     private async Task<bool> HandleSignIn()

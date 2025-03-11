@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Text.Json.Nodes;
-using GitHubExtension.Forms.Templates;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -12,7 +11,7 @@ using Windows.Foundation;
 
 namespace GitHubExtension.Controls.Forms;
 
-public sealed partial class SaveSearchForm : GitHubForm
+public sealed partial class SaveSearchForm : FormContent, IGitHubForm
 {
     public static event TypedEventHandler<object, object?>? SearchSaved;
 
@@ -20,14 +19,19 @@ public sealed partial class SaveSearchForm : GitHubForm
 
     private readonly ISearchRepository _searchRepository;
 
-    public override ICommandResult DefaultSubmitFormCommand => CommandResult.KeepOpen();
+    // IFormWithEvents implementation
+    public event TypedEventHandler<object, bool>? LoadingStateChanged;
 
-    public override Dictionary<string, string> TemplateSubstitutions => new()
-    {
-        { "{{SaveSearchFormTitle}}", string.IsNullOrEmpty(_savedSearch.Name) ? "Save Search" : "Edit Search" },
-        { "{{SavedSearchString}}", _savedSearch.SearchString },
-        { "{{SavedSearchName}}", _savedSearch.Name },
-    };
+    public event TypedEventHandler<object, FormSubmitEventArgs>? FormSubmitted;
+
+    public ICommandResult DefaultSubmitFormCommand => CommandResult.KeepOpen();
+
+    public Dictionary<string, string> TemplateSubstitutions => new()
+            {
+                { "{{SaveSearchFormTitle}}", string.IsNullOrEmpty(_savedSearch.Name) ? "Save Search" : "Edit Search" },
+                { "{{SavedSearchString}}", _savedSearch.SearchString },
+                { "{{SavedSearchName}}", _savedSearch.Name },
+            };
 
     public SaveSearchForm(ISearchRepository searchRepository)
     {
@@ -41,18 +45,30 @@ public sealed partial class SaveSearchForm : GitHubForm
         _searchRepository = searchRepository;
     }
 
-    public override string TemplateJson => LoadTemplateJsonFromFile("SaveSearch");
+    public override string TemplateJson => TemplateHelper.LoadTemplateJsonFromTemplateName("SaveSearch", TemplateSubstitutions);
 
-    public override void HandleSubmit(string payload)
+    public override ICommandResult SubmitForm(string? inputs, string data)
+    {
+        LoadingStateChanged?.Invoke(this, true);
+        Task.Run(() => HandleSubmit(inputs));
+        return DefaultSubmitFormCommand;
+    }
+
+    public void HandleSubmit(string? payload)
     {
         var search = GetSearchAsync(payload);
         ExtensionHost.LogMessage(new LogMessage() { Message = $"Search: {search}" });
     }
 
-    private async Task<SearchCandidate> GetSearchAsync(string payload)
+    private async Task<SearchCandidate> GetSearchAsync(string? payload)
     {
         try
         {
+            if (string.IsNullOrEmpty(payload))
+            {
+                return new SearchCandidate();
+            }
+
             var payloadJson = JsonNode.Parse(payload) ?? throw new InvalidOperationException("No search found");
 
             var search = CreateSearchFromJson(payloadJson);
@@ -67,16 +83,16 @@ public sealed partial class SaveSearchForm : GitHubForm
                 _searchRepository.RemoveSavedSearch(_savedSearch).Wait();
             }
 
-            RaiseLoadingStateChanged(false);
+            LoadingStateChanged?.Invoke(this, false);
             SearchSaved?.Invoke(this, search);
-            RaiseFormSubmitted(new FormSubmitEventArgs(true, null));
+            FormSubmitted?.Invoke(this, new FormSubmitEventArgs(true, null));
             return search;
         }
         catch (Exception ex)
         {
-            RaiseLoadingStateChanged(false);
+            LoadingStateChanged?.Invoke(this, false);
             SearchSaved?.Invoke(this, ex);
-            RaiseFormSubmitted(new FormSubmitEventArgs(false, ex));
+            FormSubmitted?.Invoke(this, new FormSubmitEventArgs(false, ex));
         }
 
         return new SearchCandidate();

@@ -6,9 +6,9 @@ using System.Text;
 
 namespace GitHubExtension.Helpers;
 
-internal sealed class TemplateHelper : ITemplateHelper
+public static class TemplateHelper
 {
-    public string GetTemplatePath(string page)
+    public static string GetTemplatePath(string page)
     {
         return page switch
         {
@@ -18,7 +18,7 @@ internal sealed class TemplateHelper : ITemplateHelper
         };
     }
 
-    public string LoadTemplateJsonFromTemplateName(string templateName, Dictionary<string, string> substitutions)
+    public static string LoadTemplateJsonFromTemplateName(string templateName, Dictionary<string, string> substitutions)
     {
         var path = Path.Combine(AppContext.BaseDirectory, GetTemplatePath(templateName));
         var template = File.ReadAllText(path, Encoding.Default) ?? throw new FileNotFoundException(path);
@@ -31,7 +31,7 @@ internal sealed class TemplateHelper : ITemplateHelper
         return template;
     }
 
-    public string FillInTemplate(string jsonTemplate, Dictionary<string, string> substitutions)
+    public static string FillInTemplate(string jsonTemplate, Dictionary<string, string> substitutions)
     {
         foreach (var substitution in substitutions)
         {
@@ -40,13 +40,4 @@ internal sealed class TemplateHelper : ITemplateHelper
 
         return jsonTemplate;
     }
-}
-
-public interface ITemplateHelper
-{
-    string GetTemplatePath(string page);
-
-    string LoadTemplateJsonFromTemplateName(string templateName, Dictionary<string, string> substitutions);
-
-    string FillInTemplate(string jsonTemplate, Dictionary<string, string> substitutions);
 }
