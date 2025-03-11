@@ -117,6 +117,7 @@ public partial class PersistentDataManagerTests
         topLevelSearches = await dataManager.GetTopLevelSearches();
         Assert.IsTrue(topLevelSearches.Any());
         Assert.AreEqual("TestSearch", topLevelSearches.ToList()[0].Name);
+        Assert.IsTrue(await dataManager.IsTopLevel(stubSearch.Object));
 
         await dataManager.UpdateSearchTopLevelStatus(stubSearch.Object, false);
         topLevelSearches = await dataManager.GetTopLevelSearches();
@@ -144,6 +145,8 @@ public partial class PersistentDataManagerTests
         var topLevelSearches = await dataManager.GetTopLevelSearches();
         Assert.IsTrue(topLevelSearches.Any());
         Assert.AreEqual("TestSearch", topLevelSearches.ToList()[0].Name);
+
+        Assert.IsTrue(await dataManager.IsTopLevel(stubSearch.Object));
 
         await dataManager.UpdateSearchTopLevelStatus(stubSearch.Object, false);
         topLevelSearches = await dataManager.GetTopLevelSearches();
