@@ -121,7 +121,8 @@ public class Program
         // Set up cache manager to pre-update data
         cacheManager.Start();
 
-        ICacheDataManager cacheDataManager = new CacheDataManagerFacade(cacheManager, gitHubDataManager);
+        var decoratorFactory = new DecoratorFactory(gitHubDataManager);
+        var cacheDataManager = new CacheDataManagerFacade(cacheManager, gitHubDataManager, decoratorFactory);
 
         var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository);
 

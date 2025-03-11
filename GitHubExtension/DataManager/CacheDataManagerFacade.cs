@@ -14,11 +14,13 @@ public class CacheDataManagerFacade : ICacheDataManager
 {
     private readonly ICacheManager _cacheManager;
     private readonly IDataRequester _dataRequester;
+    private readonly IDecoratorFactory _decoratorFactory;
 
-    public CacheDataManagerFacade(ICacheManager cacheManager, IDataRequester dataRequester)
+    public CacheDataManagerFacade(ICacheManager cacheManager, IDataRequester dataRequester, IDecoratorFactory decoratorFactory)
     {
         _cacheManager = cacheManager;
         _dataRequester = dataRequester;
+        _decoratorFactory = decoratorFactory;
 
         _cacheManager.OnUpdate += CacheManagerOnOnUpdate;
     }
@@ -56,7 +58,7 @@ public class CacheDataManagerFacade : ICacheDataManager
 
             foreach (var pr in intermediateRes)
             {
-                res.Add(new PullRequestSourceBranchDecorator(pr, (IPullRequestUpdater)_dataRequester));
+                res.Add(_decoratorFactory.DecorateSearchBranch(pr));
             }
 
             return res as IEnumerable<IPullRequest>;
@@ -104,7 +106,7 @@ public class CacheDataManagerFacade : ICacheDataManager
             {
                 if (item is IPullRequest)
                 {
-                    return new PullRequestSourceBranchDecorator((IPullRequest)item, (IPullRequestUpdater)_dataRequester);
+                    return _decoratorFactory.DecorateSearchBranch((IPullRequest)item);
                 }
 
                 return item;
