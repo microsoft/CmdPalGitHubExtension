@@ -91,4 +91,65 @@ public partial class PersistentDataManagerTests
         dataManager.Dispose();
         Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
+
+    [TestMethod]
+    [TestCategory("Unit")]
+    public async Task UpdateSearchStatus()
+    {
+        var dataStoreOptions = GetDataStoreOptions();
+        var stubValidator = new Mock<IGitHubValidator>().Object;
+
+        using var dataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
+
+        var stubSearch = new Mock<ISearch>();
+        stubSearch.SetupGet(x => x.Name).Returns("TestSearch");
+        stubSearch.SetupGet(x => x.SearchString).Returns("test is:issue");
+        stubSearch.SetupGet(x => x.Type).Returns(SearchType.Issues);
+
+        await dataManager.AddSavedSearch(stubSearch.Object);
+
+        var searches = await dataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Any());
+        var topLevelSearches = await dataManager.GetTopLevelSearches();
+        Assert.IsFalse(topLevelSearches.Any());
+
+        await dataManager.UpdateSearchTopLevelStatus(stubSearch.Object, true);
+        topLevelSearches = await dataManager.GetTopLevelSearches();
+        Assert.IsTrue(topLevelSearches.Any());
+        Assert.AreEqual("TestSearch", topLevelSearches.ToList()[0].Name);
+
+        await dataManager.UpdateSearchTopLevelStatus(stubSearch.Object, false);
+        topLevelSearches = await dataManager.GetTopLevelSearches();
+        Assert.IsFalse(topLevelSearches.Any());
+
+        dataManager.Dispose();
+        Cleanup(dataStoreOptions.DataStoreFolderPath);
+    }
+
+    [TestMethod]
+    [TestCategory("Unit")]
+    public async Task AddTopLevelSearch()
+    {
+        var dataStoreOptions = GetDataStoreOptions();
+        var stubValidator = new Mock<IGitHubValidator>().Object;
+
+        using var dataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
+
+        var stubSearch = new Mock<ISearch>();
+        stubSearch.SetupGet(x => x.Name).Returns("TestSearch");
+        stubSearch.SetupGet(x => x.SearchString).Returns("test is:issue");
+        stubSearch.SetupGet(x => x.Type).Returns(SearchType.Issues);
+
+        await dataManager.UpdateSearchTopLevelStatus(stubSearch.Object, true);
+        var topLevelSearches = await dataManager.GetTopLevelSearches();
+        Assert.IsTrue(topLevelSearches.Any());
+        Assert.AreEqual("TestSearch", topLevelSearches.ToList()[0].Name);
+
+        await dataManager.UpdateSearchTopLevelStatus(stubSearch.Object, false);
+        topLevelSearches = await dataManager.GetTopLevelSearches();
+        Assert.IsFalse(topLevelSearches.Any());
+
+        dataManager.Dispose();
+        Cleanup(dataStoreOptions.DataStoreFolderPath);
+    }
 }

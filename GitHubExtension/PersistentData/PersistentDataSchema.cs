@@ -8,7 +8,7 @@ namespace GitHubExtension.PersistentData;
 
 public sealed class PersistentDataSchema : IDataStoreSchema
 {
-    public long SchemaVersion => 1;
+    public long SchemaVersion => 2;
 
     public List<string> SchemaSqls => _schemaSqlsValue;
 
@@ -23,7 +23,8 @@ public sealed class PersistentDataSchema : IDataStoreSchema
         @"CREATE TABLE IF NOT EXISTS Search (
             Id INTEGER PRIMARY KEY AUTOINCREMENT,
             Name TEXT NOT NULL,
-            SearchString TEXT NOT NULL
+            SearchString TEXT NOT NULL,
+            IsTopLevel INTEGER NOT NULL CHECK (IsTopLevel IN (0, 1))
         )";
 
     private static readonly List<string> _schemaSqlsValue = new()

@@ -128,11 +128,16 @@ public class PersistentDataManager : IDisposable, ISearchRepository
         });
     }
 
-    private async Task<IEnumerable<ISearch>> GetAllSearchesAsync()
+    private async Task<IEnumerable<ISearch>> GetAllSearchesAsync(bool isTopLevel)
     {
         return await Task.Run(() =>
         {
             ValidateDataStore();
+            if (isTopLevel)
+            {
+                return Search.GetAllTopLevel(DataStore);
+            }
+
             return Search.GetAll(DataStore);
         });
     }
@@ -146,7 +151,19 @@ public class PersistentDataManager : IDisposable, ISearchRepository
 
     public Task<IEnumerable<ISearch>> GetSavedSearches()
     {
-        return GetAllSearchesAsync();
+        return GetAllSearchesAsync(false);
+    }
+
+    public Task<IEnumerable<ISearch>> GetTopLevelSearches()
+    {
+        return GetAllSearchesAsync(true);
+    }
+
+    public async Task UpdateSearchTopLevelStatus(ISearch search, bool isTopLevel)
+    {
+        await ValidateSearch(search);
+        ValidateDataStore();
+        Search.AddOrUpdate(DataStore, search.Name, search.SearchString, isTopLevel);
     }
 
     public Task RemoveSavedSearch(ISearch search)
