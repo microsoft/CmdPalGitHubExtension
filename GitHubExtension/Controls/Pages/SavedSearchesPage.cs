@@ -12,7 +12,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension;
 
-public sealed partial class SavedSearchesPage : ListPage
+public partial class SavedSearchesPage : ListPage
 {
     private readonly IListItem _addSearchListItem;
 
@@ -54,7 +54,7 @@ public sealed partial class SavedSearchesPage : ListPage
 
     // Change this to public to facilitate tests. As the event handler is
     // listening to a static event, it is not possible to mock the event.
-    public void OnSearchSaved(object sender, object? args)
+    public virtual void OnSearchSaved(object sender, object? args)
     {
         IsLoading = false;
 
