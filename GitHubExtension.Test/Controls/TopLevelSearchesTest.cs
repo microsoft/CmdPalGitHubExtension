@@ -7,9 +7,9 @@ using GitHubExtension.Controls;
 using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
 using GitHubExtension.Controls.Pages;
-using GitHubExtension.DataModel;
 using GitHubExtension.Helpers;
 using GitHubExtension.PersistentData;
+using GitHubExtension.Test.PersistentData;
 using Microsoft.CommandPalette.Extensions;
 using Moq;
 
@@ -94,12 +94,9 @@ public class TopLevelSearchesTest
             .Setup(validator => validator.ValidateSearch(It.IsAny<ISearch>()))
             .Returns(Task.CompletedTask);
 
-        var mockDataStoreOptions = new Mock<DataStoreOptions>();
-        mockDataStoreOptions.SetupAllProperties();
-        mockDataStoreOptions.Object.DataStoreFolderPath = Path.GetTempPath();
-        mockDataStoreOptions.Object.DataStoreSchema = new PersistentDataSchema();
-
-        using var persistentDataManager = new PersistentDataManager(mockGitHubValidator.Object, mockDataStoreOptions.Object);
+        var stubValidator = new Mock<IGitHubValidator>().Object;
+        var dataStoreOptions = new PersistentDataManagerTests().GetDataStoreOptions();
+        using var persistentDataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
 
         var dummySearch = new SearchCandidate("dummy search 2", "Dummy Search", true);
         await persistentDataManager.UpdateSearchTopLevelStatus(dummySearch, true);
@@ -148,12 +145,9 @@ public class TopLevelSearchesTest
         var mockAddSearchListItem = new Mock<IListItem>();
         mockAddSearchListItem.Setup(item => item.Title).Returns("Add Saved Search");
 
-        var mockDataStoreOptions = new Mock<DataStoreOptions>();
-        mockDataStoreOptions.SetupAllProperties();
-        mockDataStoreOptions.Object.DataStoreFolderPath = Path.GetTempPath();
-        mockDataStoreOptions.Object.DataStoreSchema = new PersistentDataSchema();
-
-        using var persistentDataManager = new PersistentDataManager(mockGitHubValidator.Object, mockDataStoreOptions.Object);
+        var stubValidator = new Mock<IGitHubValidator>().Object;
+        var dataStoreOptions = new PersistentDataManagerTests().GetDataStoreOptions();
+        using var persistentDataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
 
         var saveSearchForm = new SaveSearchForm(persistentDataManager);
 
@@ -204,12 +198,9 @@ public class TopLevelSearchesTest
         var mockAddSearchListItem = new Mock<IListItem>();
         mockAddSearchListItem.Setup(item => item.Title).Returns("Add Saved Search");
 
-        var mockDataStoreOptions = new Mock<DataStoreOptions>();
-        mockDataStoreOptions.SetupAllProperties();
-        mockDataStoreOptions.Object.DataStoreFolderPath = Path.GetTempPath();
-        mockDataStoreOptions.Object.DataStoreSchema = new PersistentDataSchema();
-
-        using var persistentDataManager = new PersistentDataManager(mockGitHubValidator.Object, mockDataStoreOptions.Object);
+        var stubValidator = new Mock<IGitHubValidator>().Object;
+        var dataStoreOptions = new PersistentDataManagerTests().GetDataStoreOptions();
+        using var persistentDataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
 
         var savedSearchesPage = new SavedSearchesPage(
             mockSearchPageFactory.Object,
@@ -287,12 +278,9 @@ public class TopLevelSearchesTest
         var mockAddSearchListItem = new Mock<IListItem>();
         mockAddSearchListItem.Setup(item => item.Title).Returns("Add Saved Search");
 
-        var mockDataStoreOptions = new Mock<DataStoreOptions>();
-        mockDataStoreOptions.SetupAllProperties();
-        mockDataStoreOptions.Object.DataStoreFolderPath = Path.GetTempPath();
-        mockDataStoreOptions.Object.DataStoreSchema = new PersistentDataSchema();
-
-        using var persistentDataManager = new PersistentDataManager(mockGitHubValidator.Object, mockDataStoreOptions.Object);
+        var stubValidator = new Mock<IGitHubValidator>().Object;
+        var dataStoreOptions = new PersistentDataManagerTests().GetDataStoreOptions();
+        using var persistentDataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
 
         var topLevelSearch = new SearchCandidate("is:issue author:testuser", "Top Level Search", true);
         await persistentDataManager.UpdateSearchTopLevelStatus(topLevelSearch, true);
@@ -358,12 +346,9 @@ public class TopLevelSearchesTest
         var mockAddSearchListItem = new Mock<IListItem>();
         mockAddSearchListItem.Setup(item => item.Title).Returns("Add Saved Search");
 
-        var mockDataStoreOptions = new Mock<DataStoreOptions>();
-        mockDataStoreOptions.SetupAllProperties();
-        mockDataStoreOptions.Object.DataStoreFolderPath = Path.GetTempPath();
-        mockDataStoreOptions.Object.DataStoreSchema = new PersistentDataSchema();
-
-        using var persistentDataManager = new PersistentDataManager(mockGitHubValidator.Object, mockDataStoreOptions.Object);
+        var stubValidator = new Mock<IGitHubValidator>().Object;
+        var dataStoreOptions = new PersistentDataManagerTests().GetDataStoreOptions();
+        using var persistentDataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
 
         var topLevelSearch = new SearchCandidate("is:issue assignee:me", "Important Issues", true);
         await persistentDataManager.UpdateSearchTopLevelStatus(topLevelSearch, true);
@@ -442,12 +427,9 @@ public class TopLevelSearchesTest
         var mockAddSearchListItem = new Mock<IListItem>();
         mockAddSearchListItem.Setup(item => item.Title).Returns("Add Saved Search");
 
-        var mockDataStoreOptions = new Mock<DataStoreOptions>();
-        mockDataStoreOptions.SetupAllProperties();
-        mockDataStoreOptions.Object.DataStoreFolderPath = Path.GetTempPath();
-        mockDataStoreOptions.Object.DataStoreSchema = new PersistentDataSchema();
-
-        using var persistentDataManager = new PersistentDataManager(mockGitHubValidator.Object, mockDataStoreOptions.Object);
+        var stubValidator = new Mock<IGitHubValidator>().Object;
+        var dataStoreOptions = new PersistentDataManagerTests().GetDataStoreOptions();
+        using var persistentDataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
 
         var regularSearch = new SearchCandidate("is:issue label:bug", "Bug Reports", false);
         await persistentDataManager.UpdateSearchTopLevelStatus(regularSearch, false);
