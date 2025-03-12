@@ -4,7 +4,6 @@
 
 using System.Globalization;
 using System.Text.Json.Nodes;
-using System.Threading.Tasks;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -21,7 +20,8 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
 
     private readonly ISearchRepository _searchRepository;
 
-    // IFormWithEvents implementation
+    private string IsTopLevelChecked => GetIsTopLevel().Result.ToString().ToLower(CultureInfo.InvariantCulture);
+
     public event TypedEventHandler<object, bool>? LoadingStateChanged;
 
     public event TypedEventHandler<object, FormSubmitEventArgs>? FormSubmitted;
@@ -31,7 +31,7 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
         { "{{SaveSearchFormTitle}}", string.IsNullOrEmpty(_savedSearch.Name) ? "Save Search" : "Edit Search" },
         { "{{SavedSearchString}}", _savedSearch.SearchString },
         { "{{SavedSearchName}}", _savedSearch.Name },
-        { "{{IsTopLevel}}", GetIsTopLevel().Result.ToString().ToLower(CultureInfo.InvariantCulture) },
+        { "{{IsTopLevel}}", IsTopLevelChecked },
     };
 
     public SaveSearchForm(ISearchRepository searchRepository)
