@@ -54,7 +54,7 @@ public partial class SavedSearchesPage : ListPage
 
     // Change this to public to facilitate tests. As the event handler is
     // listening to a static event, it is not possible to mock the event.
-    public virtual void OnSearchSaved(object sender, object? args)
+    public void OnSearchSaved(object sender, object? args)
     {
         IsLoading = false;
 
