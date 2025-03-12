@@ -5,7 +5,9 @@
 using System.Text.Json.Nodes;
 using GitHubExtension.Controls;
 using GitHubExtension.Controls.Forms;
+using GitHubExtension.DataModel;
 using GitHubExtension.Helpers;
+using GitHubExtension.PersistentData;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Moq;
 
@@ -119,37 +121,33 @@ public class SaveSearchFormTest
         Assert.IsTrue(await saveSearchForm2.GetIsTopLevel());
     }
 
+    // This test verifies that the SaveSearchForm properly updates the top-level status
+    // of a search in the PersistentDataManager when the "IsTopLevel" checkbox is unchecked.
     [TestMethod]
     public async Task SubmitForm_ShouldRemoveFromTopLevel_WhenIsTopLevelUnchecked()
     {
         // Arrange
-        var mockSearchRepository = new Mock<ISearchRepository>();
+        var mockGitHubValidator = new Mock<IGitHubValidator>();
+        mockGitHubValidator
+            .Setup(validator => validator.ValidateSearch(It.IsAny<ISearch>()))
+            .Returns(Task.CompletedTask);
+
+        var dataStoreOptions = new DataStoreOptions
+        {
+            DataStoreFolderPath = Path.GetTempPath(),
+            DataStoreSchema = new PersistentDataSchema(),
+        };
+
+        using var persistentDataManager = new PersistentDataManager(mockGitHubValidator.Object, dataStoreOptions);
+
         var dummySearch = new SearchCandidate("dummy search", "Dummy Search", true);
+        await persistentDataManager.AddSavedSearch(dummySearch);
+        await persistentDataManager.UpdateSearchTopLevelStatus(dummySearch, true);
 
-        mockSearchRepository
-            .Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>()))
-            .Returns(Task.CompletedTask);
-
-        mockSearchRepository
-            .Setup(repo => repo.AddSavedSearch(It.IsAny<SearchCandidate>()))
-            .Returns(Task.CompletedTask);
-
-        mockSearchRepository
-            .Setup(repo => repo.RemoveSavedSearch(It.IsAny<ISearch>()))
-            .Returns(Task.CompletedTask);
-
-        mockSearchRepository
-            .Setup(repo => repo.GetTopLevelSearches())
-            .ReturnsAsync(new List<ISearch> { dummySearch });
-
-        mockSearchRepository
-            .Setup(repo => repo.IsTopLevel(It.IsAny<ISearch>()))
-            .ReturnsAsync((ISearch search) => search.Name == dummySearch.Name && search.SearchString == dummySearch.SearchString);
-
-        var saveSearchForm = new SaveSearchForm(dummySearch, mockSearchRepository.Object);
+        var saveSearchForm = new SaveSearchForm(dummySearch, persistentDataManager);
 
         // Verify that the dummy search is initially in the top-level commands
-        var initialTopLevelSearches = await mockSearchRepository.Object.GetTopLevelSearches();
+        var initialTopLevelSearches = await persistentDataManager.GetTopLevelSearches();
         Assert.IsTrue(initialTopLevelSearches.Any(s => s.Name == "Dummy Search" && s.SearchString == "dummy search"));
 
         // Act
@@ -160,19 +158,18 @@ public class SaveSearchFormTest
             ""IsTopLevel"": ""false""
         }")?.ToString();
 
-        saveSearchForm.SubmitForm(jsonPayload, string.Empty);
+        await saveSearchForm.GetSearchAsync(jsonPayload);
 
         // Wait for async operations
         Thread.Sleep(1000);
 
         // Verify that the search is no longer in the top-level commands
-        var updatedTopLevelSearches = await mockSearchRepository.Object.GetTopLevelSearches();
+        var updatedTopLevelSearches = await persistentDataManager.GetTopLevelSearches();
         Assert.IsFalse(updatedTopLevelSearches.Any(s => s.Name == "Dummy Search" && s.SearchString == "dummy search"));
 
         // Verify that the search is no longer marked as top-level
-        mockSearchRepository.Verify(
-            repo => repo.UpdateSearchTopLevelStatus(It.IsAny<ISearch>(), false),
-            Times.Once);
+        var isTopLevel = await persistentDataManager.IsTopLevel(dummySearch);
+        Assert.IsFalse(isTopLevel);
     }
 
     [TestMethod]

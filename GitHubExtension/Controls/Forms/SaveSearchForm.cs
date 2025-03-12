@@ -60,7 +60,7 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
         return CommandResult.KeepOpen();
     }
 
-    private async Task<SearchCandidate> GetSearchAsync(string? payload)
+    public async Task<SearchCandidate> GetSearchAsync(string? payload)
     {
         try
         {
@@ -80,6 +80,9 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
             if (_savedSearch.SearchString != string.Empty)
             {
                 Log.Information($"Removing outdated search {_savedSearch.Name}, {_savedSearch.SearchString}");
+
+                // Remove deleted search from top-level commands
+                await _searchRepository.UpdateSearchTopLevelStatus(_savedSearch, false);
                 await _searchRepository.RemoveSavedSearch(_savedSearch);
             }
 
