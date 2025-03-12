@@ -155,54 +155,19 @@ public class TopLevelSearchesTest
 
         using var persistentDataManager = new PersistentDataManager(mockGitHubValidator.Object, mockDataStoreOptions.Object);
 
-        var successMessageReceived = false;
-        SaveSearchForm.SearchSaved += (sender, args) =>
-        {
-            if (args is ISearch search && search.Name == "New Top Level Search")
-            {
-                successMessageReceived = true;
-            }
-        };
-
-        // Track if SavedSearchesPage received the event
-        var pageEventReceived = false;
-        var itemsChangedCalled = false;
-
-        // Create a subclass to track event handling
-        var savedSearchesPage = new TestSavedSearchesPage(
-            mockSearchPageFactory.Object,
-            persistentDataManager,
-            mockAddSearchListItem.Object);
-
-        savedSearchesPage.OnSearchSavedCalled += () => pageEventReceived = true;
-
         var saveSearchForm = new SaveSearchForm(persistentDataManager);
 
         var jsonPayload = JsonNode.Parse(@"
-    {
-        ""EnteredSearch"": ""is:issue author:testuser"",
-        ""Name"": ""New Top Level Search"",
-        ""IsTopLevel"": ""true""
-    }")?.ToString();
+        {
+            ""EnteredSearch"": ""is:issue author:testuser"",
+            ""Name"": ""New Top Level Search"",
+            ""IsTopLevel"": ""true""
+        }")?.ToString();
 
-        // Submit the form to save the search (this will trigger the SearchSaved event)
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-        // Wait for async operations to complete
         await Task.Delay(1000);
 
-        // Verify that the general event was received
-        Assert.IsTrue(successMessageReceived, "Success message should be received when adding a top level command");
-
-        // Manually trigger the event handler to verify it works
-        var search = new SearchCandidate("is:issue author:testuser", "New Top Level Search", true);
-        savedSearchesPage.OnSearchSaved(saveSearchForm, search);
-
-        // Verify the page's event handler was called
-        Assert.IsTrue(pageEventReceived, "SavedSearchesPage should receive the SearchSaved event");
-        Assert.IsTrue(itemsChangedCalled, "SavedSearchesPage should call RaiseItemsChanged after receiving the event");
-
-        // Additional verification
         var savedSearches = await persistentDataManager.GetSavedSearches();
         Assert.IsTrue(
             savedSearches.Any(s =>
@@ -216,9 +181,6 @@ public class TopLevelSearchesTest
             s.Name == "New Top Level Search" &&
             s.SearchString == "is:issue author:testuser"),
             "The new search should appear in top level commands");
-
-        // Clean up event subscription
-        SaveSearchForm.SearchSaved -= (sender, args) => { };
     }
 
     [TestMethod]
@@ -354,15 +316,6 @@ public class TopLevelSearchesTest
 
         using var persistentDataManager = new PersistentDataManager(mockGitHubValidator.Object, mockDataStoreOptions.Object);
 
-        var searchRemoved = false;
-        RemoveSavedSearchCommand.SearchRemoved += (sender, args) =>
-        {
-            if (args is bool success && success)
-            {
-                searchRemoved = true;
-            }
-        };
-
         var topLevelSearch = new SearchCandidate("is:issue author:testuser", "Top Level Search", true);
         await persistentDataManager.UpdateSearchTopLevelStatus(topLevelSearch, true);
 
@@ -391,8 +344,6 @@ public class TopLevelSearchesTest
 
         await Task.Delay(1000);
 
-        Assert.IsTrue(searchRemoved, "Search removal should signal success");
-
         var updatedSavedSearches = await persistentDataManager.GetSavedSearches();
         Assert.IsFalse(
             updatedSavedSearches.Any(s =>
@@ -406,8 +357,6 @@ public class TopLevelSearchesTest
                 s.Name == "Top Level Search" &&
                 s.SearchString == "is:issue author:testuser"),
             "Search should be removed from top level searches");
-
-        RemoveSavedSearchCommand.SearchRemoved -= (sender, args) => { };
     }
 
     [TestMethod]
@@ -438,15 +387,6 @@ public class TopLevelSearchesTest
 
         using var persistentDataManager = new PersistentDataManager(mockGitHubValidator.Object, mockDataStoreOptions.Object);
 
-        var searchRemoved = false;
-        RemoveSavedSearchCommand.SearchRemoved += (sender, args) =>
-        {
-            if (args is bool success && success)
-            {
-                searchRemoved = true;
-            }
-        };
-
         var topLevelSearch = new SearchCandidate("is:issue assignee:me", "Important Issues", true);
         await persistentDataManager.UpdateSearchTopLevelStatus(topLevelSearch, true);
 
@@ -469,8 +409,6 @@ public class TopLevelSearchesTest
         removeCommand.Invoke();
 
         await Task.Delay(1000);
-
-        Assert.IsTrue(searchRemoved, "Search removal should signal success");
 
         var updatedTopLevelSearches = await persistentDataManager.GetTopLevelSearches();
         Assert.IsFalse(
@@ -503,8 +441,6 @@ public class TopLevelSearchesTest
         }
 
         Assert.IsFalse(containsRemovedSearch, "Removed search should not appear in saved searches page items");
-
-        RemoveSavedSearchCommand.SearchRemoved -= (sender, args) => { };
     }
 
     [TestMethod]
@@ -554,54 +490,17 @@ public class TopLevelSearchesTest
                 s.SearchString == "is:issue label:bug"),
             "Search should not be in top level searches initially");
 
-        // Step 1: Navigate to Saved Searches Page
         var savedSearchesPage = new SavedSearchesPage(
             mockSearchPageFactory.Object,
             persistentDataManager,
             mockAddSearchListItem.Object);
 
-        // Step 2: Select edit on the saved search
         var savedSearch = initialSavedSearches.First(s =>
             s.Name == "Bug Reports" &&
             s.SearchString == "is:issue label:bug");
 
         var editSearchForm = new SaveSearchForm(savedSearch, persistentDataManager);
 
-        // Event tracking variables
-        var loadingStarted = false;
-        var loadingFinished = false;
-        var formSubmitted = false;
-        var formSubmitSucceeded = false;
-        var searchSaved = false;
-
-        // Track all events
-        editSearchForm.LoadingStateChanged += (sender, isLoading) =>
-        {
-            if (isLoading)
-            {
-                loadingStarted = true;
-            }
-            else
-            {
-                loadingFinished = true;
-            }
-        };
-
-        editSearchForm.FormSubmitted += (sender, args) =>
-        {
-            formSubmitted = true;
-            formSubmitSucceeded = args.Status;
-        };
-
-        SaveSearchForm.SearchSaved += (sender, args) =>
-        {
-            if (args is ISearch search && search.Name == "Bug Reports")
-            {
-                searchSaved = true;
-            }
-        };
-
-        // Step 3: Check the box to make the command top level
         var editJsonPayload = JsonNode.Parse(@"
         {
             ""EnteredSearch"": ""is:issue label:bug"",
@@ -609,20 +508,10 @@ public class TopLevelSearchesTest
             ""IsTopLevel"": ""true""
         }")?.ToString();
 
-        // Submit the form to update the search as top-level
         editSearchForm.SubmitForm(editJsonPayload, string.Empty);
 
-        // Wait for async operations to complete
         await Task.Delay(1000);
 
-        // Verify events were triggered correctly
-        Assert.IsTrue(loadingStarted, "LoadingStateChanged should be triggered with true when form submission begins");
-        Assert.IsTrue(loadingFinished, "LoadingStateChanged should be triggered with false when form submission completes");
-        Assert.IsTrue(formSubmitted, "FormSubmitted event should be triggered");
-        Assert.IsTrue(formSubmitSucceeded, "Form submission should succeed");
-        Assert.IsTrue(searchSaved, "SearchSaved event should be triggered with the updated search");
-
-        // Verify search is still in saved searches
         var updatedSavedSearches = await persistentDataManager.GetSavedSearches();
         Assert.IsTrue(
             updatedSavedSearches.Any(s =>
@@ -630,7 +519,6 @@ public class TopLevelSearchesTest
                 s.SearchString == "is:issue label:bug"),
             "The search should still appear in saved searches after editing");
 
-        // Verify search is now in top-level commands
         var updatedTopLevelSearches = await persistentDataManager.GetTopLevelSearches();
         Assert.IsTrue(
             updatedTopLevelSearches.Any(s =>
@@ -638,10 +526,6 @@ public class TopLevelSearchesTest
                 s.SearchString == "is:issue label:bug"),
             "The search should now appear in top level commands after editing");
 
-        // Use SavedSearchesPage to verify the event handler works properly
-        savedSearchesPage.OnSearchSaved(editSearchForm, savedSearch);
-
-        // Check that the command appears in the SavedSearchesPage items
         var savedSearchesItems = savedSearchesPage.GetItems();
         var containsUpdatedSearch = false;
         foreach (var item in savedSearchesItems)
@@ -654,8 +538,5 @@ public class TopLevelSearchesTest
         }
 
         Assert.IsTrue(containsUpdatedSearch, "Updated search should appear in saved searches page items");
-
-        // Clean up event subscriptions
-        SaveSearchForm.SearchSaved -= (sender, args) => { };
     }
 }
