@@ -183,6 +183,13 @@ public class PersistentDataManager : IDisposable, ISearchRepository
         await _gitHubValidator.ValidateSearch(search);
     }
 
+    public async Task AddOrUpdateSavedSearch(ISearch search, bool isTopLevel)
+    {
+        await ValidateSearch(search);
+        ValidateDataStore();
+        Search.AddOrUpdate(DataStore, search.Name, search.SearchString, isTopLevel);
+    }
+
     public async Task AddSavedSearch(ISearch search)
     {
         await ValidateSearch(search);
