@@ -45,8 +45,8 @@ public class SaveSearchFormTest
 
         ISearch? capturedSearch = null;
         mockSearchRepository
-            .Setup(repo => repo.AddSavedSearch(It.IsAny<SearchCandidate>()))
-            .Callback<ISearch>(s => capturedSearch = s)
+            .Setup(repo => repo.UpdateSearchTopLevelStatus(It.IsAny<SearchCandidate>(), false))
+            .Callback<ISearch, bool>((s, isTopLevel) => capturedSearch = s)
             .Returns(Task.CompletedTask);
 
         mockSearchRepository
@@ -85,8 +85,8 @@ public class SaveSearchFormTest
 
         ISearch? capturedSearch = null;
         mockSearchRepository
-            .Setup(repo => repo.AddSavedSearch(It.IsAny<SearchCandidate>()))
-            .Callback<ISearch>(s => capturedSearch = s)
+            .Setup(repo => repo.UpdateSearchTopLevelStatus(It.IsAny<SearchCandidate>(), false))
+            .Callback<ISearch, bool>((s, isTopLevel) => capturedSearch = s)
             .Returns(Task.CompletedTask);
 
         mockSearchRepository
@@ -125,8 +125,8 @@ public class SaveSearchFormTest
 
         ISearch? capturedSearch = null;
         mockSearchRepository
-            .Setup(repo => repo.AddSavedSearch(It.IsAny<SearchCandidate>()))
-            .Callback<ISearch>(s => capturedSearch = s)
+            .Setup(repo => repo.UpdateSearchTopLevelStatus(It.IsAny<SearchCandidate>(), false))
+            .Callback<ISearch, bool>((s, isTopLevel) => capturedSearch = s)
             .Returns(Task.CompletedTask);
 
         mockSearchRepository
@@ -163,7 +163,7 @@ public class SaveSearchFormTest
             .Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>()))
             .Returns(Task.CompletedTask);
         mockSearchRepository
-            .Setup(repo => repo.AddSavedSearch(It.IsAny<ISearch>()))
+            .Setup(repo => repo.UpdateSearchTopLevelStatus(It.IsAny<ISearch>(), false))
             .Returns(Task.CompletedTask);
         mockSearchRepository
             .Setup(repo => repo.RemoveSavedSearch(It.IsAny<ISearch>()))
@@ -188,9 +188,11 @@ public class SaveSearchFormTest
         // Assert
         mockSearchRepository.Verify(
             repo =>
-            repo.AddSavedSearch(It.Is<SearchCandidate>(s =>
+            repo.UpdateSearchTopLevelStatus(
+                It.Is<SearchCandidate>(s =>
                 s.SearchString == "new search" &&
-                s.Name == "My Search")),
+                s.Name == "My Search"),
+                false),
             Times.Once);
 
         mockSearchRepository.Verify(
@@ -210,7 +212,7 @@ public class SaveSearchFormTest
             .Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>()))
             .Returns(Task.CompletedTask);
         mockSearchRepository
-            .Setup(repo => repo.AddSavedSearch(It.IsAny<ISearch>()))
+            .Setup(repo => repo.UpdateSearchTopLevelStatus(It.IsAny<ISearch>(), false))
             .Returns(Task.CompletedTask);
         mockSearchRepository
             .Setup(repo => repo.RemoveSavedSearch(It.IsAny<ISearch>()))
@@ -235,9 +237,11 @@ public class SaveSearchFormTest
         // Assert
         mockSearchRepository.Verify(
             repo =>
-            repo.AddSavedSearch(It.Is<SearchCandidate>(s =>
+            repo.UpdateSearchTopLevelStatus(
+                It.Is<SearchCandidate>(s =>
                 s.SearchString == "my search" &&
-                s.Name == "New Name")),
+                s.Name == "New Name"),
+                false),
             Times.Once);
 
         mockSearchRepository.Verify(
@@ -257,7 +261,7 @@ public class SaveSearchFormTest
             .Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>()))
             .Returns(Task.CompletedTask);
         mockSearchRepository
-            .Setup(repo => repo.AddSavedSearch(It.IsAny<ISearch>()))
+            .Setup(repo => repo.UpdateSearchTopLevelStatus(It.IsAny<ISearch>(), false))
             .Returns(Task.CompletedTask);
         mockSearchRepository
             .Setup(repo => repo.RemoveSavedSearch(It.IsAny<ISearch>()))
@@ -282,9 +286,11 @@ public class SaveSearchFormTest
         // Assert
         mockSearchRepository.Verify(
             repo =>
-            repo.AddSavedSearch(It.Is<SearchCandidate>(s =>
+            repo.UpdateSearchTopLevelStatus(
+                It.Is<SearchCandidate>(s =>
                 s.SearchString == "new search" &&
-                s.Name == "New Name")),
+                s.Name == "New Name"),
+                false),
             Times.Once);
 
         mockSearchRepository.Verify(
@@ -304,7 +310,7 @@ public class SaveSearchFormTest
             .Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>()))
             .Returns(Task.CompletedTask);
         mockSearchRepository
-            .Setup(repo => repo.AddSavedSearch(It.IsAny<ISearch>()))
+            .Setup(repo => repo.UpdateSearchTopLevelStatus(It.IsAny<ISearch>(), false))
             .Returns(Task.CompletedTask);
         mockSearchRepository
             .Setup(repo => repo.RemoveSavedSearch(It.IsAny<ISearch>()))
@@ -329,10 +335,12 @@ public class SaveSearchFormTest
         // Assert
         mockSearchRepository.Verify(
             repo =>
-            repo.AddSavedSearch(It.Is<SearchCandidate>(s =>
+            repo.UpdateSearchTopLevelStatus(
+                It.Is<SearchCandidate>(s =>
                 s.SearchString == "my search" &&
                 s.Name == "My Search" &&
-                s.IsTopLevel == true)),
+                s.IsTopLevel == true),
+                true),
             Times.Once);
 
         mockSearchRepository.Verify(

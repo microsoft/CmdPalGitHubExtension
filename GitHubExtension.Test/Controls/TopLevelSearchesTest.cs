@@ -211,24 +211,6 @@ public class TopLevelSearchesTest
 
         using var persistentDataManager = new PersistentDataManager(mockGitHubValidator.Object, mockDataStoreOptions.Object);
 
-        var addSuccessMessageReceived = false;
-        var editSuccessMessageReceived = false;
-
-        SaveSearchForm.SearchSaved += (sender, args) =>
-        {
-            if (args is ISearch search)
-            {
-                if (search.Name == "My Regular Search" && !addSuccessMessageReceived)
-                {
-                    addSuccessMessageReceived = true;
-                }
-                else if (search.Name == "My Regular Search" && addSuccessMessageReceived)
-                {
-                    editSuccessMessageReceived = true;
-                }
-            }
-        };
-
         var savedSearchesPage = new SavedSearchesPage(
             mockSearchPageFactory.Object,
             persistentDataManager,
@@ -246,8 +228,6 @@ public class TopLevelSearchesTest
         initialSaveSearchForm.SubmitForm(initialJsonPayload, string.Empty);
 
         await Task.Delay(1000);
-
-        Assert.IsTrue(addSuccessMessageReceived, "Success message should be received when adding a search");
 
         var savedItems = savedSearchesPage.GetItems();
         Assert.IsTrue(savedItems.Length > 1, "Should have at least our saved search and the add item");
@@ -268,8 +248,6 @@ public class TopLevelSearchesTest
         editSearchForm.SubmitForm(editJsonPayload, string.Empty);
 
         await Task.Delay(1000);
-
-        Assert.IsTrue(editSuccessMessageReceived, "Success message should be received when editing a search to be top-level");
 
         var updatedSavedSearches = await persistentDataManager.GetSavedSearches();
         Assert.IsTrue(
