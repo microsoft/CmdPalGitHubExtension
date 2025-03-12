@@ -86,7 +86,7 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
                 await _searchRepository.RemoveSavedSearch(_savedSearch);
             }
 
-            await _searchRepository.AddSavedSearch(search);
+            // UpdateSearchTopLevelStatus adds the search if it's not already in the datastore
             await _searchRepository.UpdateSearchTopLevelStatus(search, search.IsTopLevel);
 
             LoadingStateChanged?.Invoke(this, false);
