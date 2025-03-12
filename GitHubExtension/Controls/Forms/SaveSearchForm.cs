@@ -2,8 +2,8 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Globalization;
 using System.Text.Json.Nodes;
-using GitHubExtension.Forms.Templates;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -12,7 +12,7 @@ using Windows.Foundation;
 
 namespace GitHubExtension.Controls.Forms;
 
-public sealed partial class SaveSearchForm : GitHubForm
+public sealed partial class SaveSearchForm : FormContent, IGitHubForm
 {
     public static event TypedEventHandler<object, object?>? SearchSaved;
 
@@ -20,13 +20,18 @@ public sealed partial class SaveSearchForm : GitHubForm
 
     private readonly ISearchRepository _searchRepository;
 
-    public override ICommandResult DefaultSubmitFormCommand => CommandResult.KeepOpen();
+    private string IsTopLevelChecked => GetIsTopLevel().Result.ToString().ToLower(CultureInfo.InvariantCulture);
 
-    public override Dictionary<string, string> TemplateSubstitutions => new()
+    public event TypedEventHandler<object, bool>? LoadingStateChanged;
+
+    public event TypedEventHandler<object, FormSubmitEventArgs>? FormSubmitted;
+
+    public Dictionary<string, string> TemplateSubstitutions => new()
     {
         { "{{SaveSearchFormTitle}}", string.IsNullOrEmpty(_savedSearch.Name) ? "Save Search" : "Edit Search" },
         { "{{SavedSearchString}}", _savedSearch.SearchString },
         { "{{SavedSearchName}}", _savedSearch.Name },
+        { "{{IsTopLevel}}", IsTopLevelChecked },
     };
 
     public SaveSearchForm(ISearchRepository searchRepository)
@@ -41,54 +46,77 @@ public sealed partial class SaveSearchForm : GitHubForm
         _searchRepository = searchRepository;
     }
 
-    public override string TemplateJson => LoadTemplateJsonFromFile("SaveSearch");
+    public override string TemplateJson => TemplateHelper.LoadTemplateJsonFromTemplateName("SaveSearch", TemplateSubstitutions);
 
-    public override void HandleSubmit(string payload)
+    public override ICommandResult SubmitForm(string? inputs, string data)
     {
-        var search = GetSearchAsync(payload);
-        ExtensionHost.LogMessage(new LogMessage() { Message = $"Search: {search}" });
+        LoadingStateChanged?.Invoke(this, true);
+        Task.Run(() =>
+        {
+            var search = GetSearchAsync(inputs);
+            ExtensionHost.LogMessage(new LogMessage() { Message = $"Search: {search}" });
+        });
+
+        return CommandResult.KeepOpen();
     }
 
-    private async Task<SearchCandidate> GetSearchAsync(string payload)
+    public async Task<SearchCandidate> GetSearchAsync(string? payload)
     {
         try
         {
+            if (string.IsNullOrEmpty(payload))
+            {
+                return new SearchCandidate();
+            }
+
             var payloadJson = JsonNode.Parse(payload) ?? throw new InvalidOperationException("No search found");
 
             var search = CreateSearchFromJson(payloadJson);
 
             await _searchRepository.ValidateSearch(search);
-            await _searchRepository.AddSavedSearch(search);
 
             // if editing the search, delete the old one
+            // it is safe to do as the new one is already validated
             if (_savedSearch.SearchString != string.Empty)
             {
                 Log.Information($"Removing outdated search {_savedSearch.Name}, {_savedSearch.SearchString}");
-                _searchRepository.RemoveSavedSearch(_savedSearch).Wait();
+
+                // Remove deleted search from top-level commands
+                await _searchRepository.UpdateSearchTopLevelStatus(_savedSearch, false);
+                await _searchRepository.RemoveSavedSearch(_savedSearch);
             }
 
-            RaiseLoadingStateChanged(false);
+            // UpdateSearchTopLevelStatus adds the search if it's not already in the datastore
+            await _searchRepository.UpdateSearchTopLevelStatus(search, search.IsTopLevel);
+
+            LoadingStateChanged?.Invoke(this, false);
             SearchSaved?.Invoke(this, search);
-            RaiseFormSubmitted(new FormSubmitEventArgs(true, null));
+            FormSubmitted?.Invoke(this, new FormSubmitEventArgs(true, null));
             return search;
         }
         catch (Exception ex)
         {
-            RaiseLoadingStateChanged(false);
+            LoadingStateChanged?.Invoke(this, false);
             SearchSaved?.Invoke(this, ex);
-            RaiseFormSubmitted(new FormSubmitEventArgs(false, ex));
+            FormSubmitted?.Invoke(this, new FormSubmitEventArgs(false, ex));
         }
 
         return new SearchCandidate();
     }
 
-    public static SearchCandidate CreateSearchFromJson(JsonNode jsonNode)
+    public static SearchCandidate CreateSearchFromJson(JsonNode? jsonNode)
     {
-        var searchStr = jsonNode["EnteredSearch"]?.ToString() ?? string.Empty;
-        var name = jsonNode["Name"]?.ToString() ?? string.Empty;
+        var searchStr = jsonNode?["EnteredSearch"]?.ToString() ?? string.Empty;
+        var name = jsonNode?["Name"]?.ToString() ?? string.Empty;
+        var isTopLevel = jsonNode?["IsTopLevel"]?.ToString() == "true";
 
-        var search = new SearchCandidate(searchStr, name);
+        var search = new SearchCandidate(searchStr, name, isTopLevel);
 
         return search;
+    }
+
+    public async Task<bool> GetIsTopLevel()
+    {
+        return await _searchRepository.IsTopLevel(_savedSearch);
     }
 }

@@ -2,14 +2,13 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using GitHubExtension.Forms.Templates;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Controls.PageTemplates;
 
-public abstract partial class GitHubContentPage : ContentPage, IGitHubPage
+public abstract partial class GitHubContentPage : ContentPage
 {
     public abstract StatusMessage StatusMessage { get; set; }
 
@@ -17,7 +16,7 @@ public abstract partial class GitHubContentPage : ContentPage, IGitHubPage
 
     public abstract string ErrorMessage { get; set; }
 
-    public abstract GitHubForm PageForm { get; set; }
+    public abstract FormContent Form { get; set; }
 
     public GitHubContentPage()
     {
@@ -27,7 +26,7 @@ public abstract partial class GitHubContentPage : ContentPage, IGitHubPage
     public override IContent[] GetContent()
     {
         ExtensionHost.HideStatus(StatusMessage);
-        return [PageForm];
+        return [Form];
     }
 
     public virtual void OnFormSubmit(object sender, FormSubmitEventArgs? args)

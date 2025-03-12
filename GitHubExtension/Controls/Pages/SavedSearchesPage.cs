@@ -12,7 +12,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension;
 
-public sealed partial class SavedSearchesPage : ListPage
+public partial class SavedSearchesPage : ListPage
 {
     private readonly IListItem _addSearchListItem;
 

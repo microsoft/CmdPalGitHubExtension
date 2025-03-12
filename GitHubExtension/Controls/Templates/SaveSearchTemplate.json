@@ -27,6 +27,26 @@
       "isRequired": true,
       "errorMessage": "Search is required",
       "value": "{{SavedSearchString}}"
+    },
+    {
+      "type": "ColumnSet",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Center",
+          "items": [
+            {
+              "type": "Input.Toggle",
+              "id": "IsTopLevel",
+              "title": "Pin search to top-level commands",
+              "valueOn": "true",
+              "valueOff": "false",
+              "value": "{{IsTopLevel}}"
+            }
+          ]
+        }
+      ]
     }
   ],
   "actions": [
