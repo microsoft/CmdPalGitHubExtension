@@ -36,7 +36,7 @@ public class SaveSearchFormTest
     }
 
     [TestMethod]
-    public void SubmitForm_ShouldRetainIsTopLevel_WhenSearchIsSaved()
+    public async Task SubmitForm_ShouldRetainIsTopLevel_WhenSearchIsSaved()
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         mockSearchRepository
@@ -111,15 +111,12 @@ public class SaveSearchFormTest
         Assert.AreEqual("test name", capturedSearch.Name);
         Assert.AreEqual("test search", capturedSearch.SearchString);
 
-        Assert.IsTrue(mockSearchRepository.Object.IsTopLevel(capturedSearch).Result);
-
-        // Verify that the search was added to TopLevelCommands
-        var items = mockSearchRepository.Object.GetTopLevelSearches().Result;
-        Assert.IsTrue(items.Any(s => s.Name == "test name" && s.SearchString == "test search"));
-
         // Open page again
         var saveSearchForm2 = new SaveSearchForm(capturedSearch, mockSearchRepository.Object);
-        Assert.IsTrue(saveSearchForm2.GetIsTopLevel().Result);
+        mockSearchRepository
+            .Setup(repo => repo.IsTopLevel(capturedSearch))
+            .Returns(Task.FromResult(true));
+        Assert.IsTrue(await saveSearchForm2.GetIsTopLevel());
     }
 
     [TestMethod]

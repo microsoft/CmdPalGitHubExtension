@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Globalization;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using GitHubExtension.Helpers;
@@ -30,7 +31,7 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
         { "{{SaveSearchFormTitle}}", string.IsNullOrEmpty(_savedSearch.Name) ? "Save Search" : "Edit Search" },
         { "{{SavedSearchString}}", _savedSearch.SearchString },
         { "{{SavedSearchName}}", _savedSearch.Name },
-        { "{{IsTopLevel}}", GetIsTopLevel().Result.ToString() },
+        { "{{IsTopLevel}}", GetIsTopLevel().Result.ToString().ToLower(CultureInfo.InvariantCulture) },
     };
 
     public SaveSearchForm(ISearchRepository searchRepository)
@@ -73,15 +74,17 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
             var search = CreateSearchFromJson(payloadJson);
 
             await _searchRepository.ValidateSearch(search);
-            await _searchRepository.AddSavedSearch(search);
-            _searchRepository.UpdateSearchTopLevelStatus(search, search.IsTopLevel).Wait();
 
             // if editing the search, delete the old one
+            // it is safe to do as the new one is already validated
             if (_savedSearch.SearchString != string.Empty)
             {
                 Log.Information($"Removing outdated search {_savedSearch.Name}, {_savedSearch.SearchString}");
-                _searchRepository.RemoveSavedSearch(_savedSearch).Wait();
+                await _searchRepository.RemoveSavedSearch(_savedSearch);
             }
+
+            await _searchRepository.AddSavedSearch(search);
+            await _searchRepository.UpdateSearchTopLevelStatus(search, search.IsTopLevel);
 
             LoadingStateChanged?.Invoke(this, false);
             SearchSaved?.Invoke(this, search);
