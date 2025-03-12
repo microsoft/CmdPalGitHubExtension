@@ -120,6 +120,62 @@ public class SaveSearchFormTest
     }
 
     [TestMethod]
+    public async Task SubmitForm_ShouldRemoveFromTopLevel_WhenIsTopLevelUnchecked()
+    {
+        // Arrange
+        var mockSearchRepository = new Mock<ISearchRepository>();
+        var dummySearch = new SearchCandidate("dummy search", "Dummy Search", true);
+
+        mockSearchRepository
+            .Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>()))
+            .Returns(Task.CompletedTask);
+
+        mockSearchRepository
+            .Setup(repo => repo.AddSavedSearch(It.IsAny<SearchCandidate>()))
+            .Returns(Task.CompletedTask);
+
+        mockSearchRepository
+            .Setup(repo => repo.RemoveSavedSearch(It.IsAny<ISearch>()))
+            .Returns(Task.CompletedTask);
+
+        mockSearchRepository
+            .Setup(repo => repo.GetTopLevelSearches())
+            .ReturnsAsync(new List<ISearch> { dummySearch });
+
+        mockSearchRepository
+            .Setup(repo => repo.IsTopLevel(It.IsAny<ISearch>()))
+            .ReturnsAsync((ISearch search) => search.Name == dummySearch.Name && search.SearchString == dummySearch.SearchString);
+
+        var saveSearchForm = new SaveSearchForm(dummySearch, mockSearchRepository.Object);
+
+        // Verify that the dummy search is initially in the top-level commands
+        var initialTopLevelSearches = await mockSearchRepository.Object.GetTopLevelSearches();
+        Assert.IsTrue(initialTopLevelSearches.Any(s => s.Name == "Dummy Search" && s.SearchString == "dummy search"));
+
+        // Act
+        var jsonPayload = JsonNode.Parse(@"
+        {
+            ""EnteredSearch"": ""dummy search"",
+            ""Name"": ""Dummy Search"",
+            ""IsTopLevel"": ""false""
+        }")?.ToString();
+
+        saveSearchForm.SubmitForm(jsonPayload, string.Empty);
+
+        // Wait for async operations
+        Thread.Sleep(1000);
+
+        // Verify that the search is no longer in the top-level commands
+        var updatedTopLevelSearches = await mockSearchRepository.Object.GetTopLevelSearches();
+        Assert.IsFalse(updatedTopLevelSearches.Any(s => s.Name == "Dummy Search" && s.SearchString == "dummy search"));
+
+        // Verify that the search is no longer marked as top-level
+        mockSearchRepository.Verify(
+            repo => repo.UpdateSearchTopLevelStatus(It.IsAny<ISearch>(), false),
+            Times.Once);
+    }
+
+    [TestMethod]
     public void SubmitForm_ShouldSaveIssueSearch_WhenIssueSearchIsProvided()
     {
         // Arrange
