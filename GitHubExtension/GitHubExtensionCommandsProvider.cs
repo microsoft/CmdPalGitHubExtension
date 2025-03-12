@@ -5,13 +5,9 @@
 using GitHubExtension.Controls;
 using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
-using GitHubExtension.Controls.ListItems;
 using GitHubExtension.Controls.Pages;
-using GitHubExtension.DataManager.Data;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
-using GitHubExtension.PersistentData;
-using LibGit2Sharp;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
@@ -25,7 +21,6 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
     private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly ISearchRepository _persistentDataManager;
     private readonly ISearchPageFactory _searchPageFactory;
-    private readonly IListItem _addSearchListItem;
 
     public GitHubExtensionCommandsProvider(
         SavedSearchesPage savedSearchesPage,
@@ -33,8 +28,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         SignInPage signInPage,
         IDeveloperIdProvider developerIdProvider,
         ISearchRepository persistentDataManager,
-        ISearchPageFactory searchPageFactory,
-        IListItem addSearchListItem)
+        ISearchPageFactory searchPageFactory)
     {
         DisplayName = "GitHub Extension";
 
@@ -44,7 +38,6 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         _developerIdProvider = developerIdProvider;
         _persistentDataManager = persistentDataManager;
         _searchPageFactory = searchPageFactory;
-        _addSearchListItem = addSearchListItem;
 
         // Static events here. Hard dependency. But maybe it is ok in this case
         SignInForm.SignInAction += OnSignInStatusChanged;
@@ -93,7 +86,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         }
 
         List<CommandItem> commands;
-        commands = Task.Run(async () => await GetTopLevelSearchCommands()).Result;
+        commands = GetTopLevelSearchCommands().GetAwaiter().GetResult().ToList();
 
         var defaultCommands = new List<CommandItem>
         {
