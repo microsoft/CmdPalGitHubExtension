@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Client;
-using GitHubExtension.Controls;
 using GitHubExtension.Controls.Forms;
 using GitHubExtension.Controls.ListItems;
 using GitHubExtension.Controls.Pages;
@@ -133,7 +132,7 @@ public class Program
         var signOutPage = new SignOutPage(new SignOutForm(developerIdProvider), new StatusMessage(), "Sign out succeeded!", "Sign out failed");
         var signInPage = new SignInPage(new SignInForm(developerIdProvider), new StatusMessage(), "Sign in succeeded!", "Sign in failed");
 
-        var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, developerIdProvider);
+        var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, developerIdProvider, searchRepository, searchPageFactory);
         var extensionInstance = new GitHubExtension(extensionDisposedEvent, commandProvider);
 
         // We are instantiating an extension instance once above, and returning it every time the callback in RegisterExtension below is called.

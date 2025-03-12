@@ -7,9 +7,9 @@ using GitHubExtension.PersistentData;
 
 namespace GitHubExtension.Test.PersistentData;
 
-public partial class PersistentDataManagerTests
+public static class PersistentDataManagerTestsSetup
 {
-    public DataStoreOptions GetDataStoreOptions()
+    public static DataStoreOptions GetDataStoreOptions()
     {
         var guid = Guid.NewGuid();
         return new()
@@ -21,7 +21,7 @@ public partial class PersistentDataManagerTests
         };
     }
 
-    public void Cleanup(string path)
+    public static void Cleanup(string path)
     {
         if (File.Exists(path))
         {

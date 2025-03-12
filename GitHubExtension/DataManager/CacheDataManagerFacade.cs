@@ -4,7 +4,6 @@
 
 using GitHubExtension.Controls;
 using GitHubExtension.DataManager.Cache;
-using GitHubExtension.DataManager.Data;
 using GitHubExtension.DataManager.Enums;
 using GitHubExtension.DataModel.DataObjects;
 

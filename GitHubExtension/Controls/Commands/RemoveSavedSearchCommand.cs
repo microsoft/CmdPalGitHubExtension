@@ -50,6 +50,7 @@ public partial class RemoveSavedSearchCommand : InvokableCommand
     {
         var savedSearches = await _searchRepository.GetSavedSearches();
         var numSavedSearchesBeforeRemoval = savedSearches.Count();
+        await _searchRepository.UpdateSearchTopLevelStatus(savedSearch, false);
         await _searchRepository.RemoveSavedSearch(savedSearch);
         return numSavedSearchesBeforeRemoval > (await _searchRepository.GetSavedSearches()).Count();
     }

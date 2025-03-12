@@ -3,37 +3,36 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Controls.Forms;
-using GitHubExtension.Controls.PageTemplates;
-using GitHubExtension.Forms.Templates;
+using GitHubExtension.Helpers;
+using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Controls.Pages;
 
-public sealed partial class SaveSearchPage : GitHubContentPage
+public sealed partial class SaveSearchPage : ContentPage
 {
-    private SaveSearchForm _saveSearchForm;
-
-    private StatusMessage _statusMessage;
-
-    private string _successMessage;
-
-    private string _errorMessage;
-
-    public override StatusMessage StatusMessage { get => _statusMessage; set => _statusMessage = value; }
-
-    public override string SuccessMessage { get => _successMessage; set => _successMessage = value; }
-
-    public override string ErrorMessage { get => _errorMessage; set => _errorMessage = value; }
-
-    public override GitHubForm PageForm { get => _saveSearchForm; set => _saveSearchForm = (SaveSearchForm)value; }
+    private readonly SaveSearchForm _saveSearchForm;
+    private readonly StatusMessage _statusMessage;
+    private readonly string _successMessage;
+    private readonly string _errorMessage;
 
     public SaveSearchPage(SaveSearchForm saveSearchForm, StatusMessage statusMessage, string successMessage, string errorMessage)
     {
         _saveSearchForm = saveSearchForm;
-        _saveSearchForm.FormSubmitted += OnFormSubmit;
-        _saveSearchForm.LoadingStateChanged += OnLoadingStateChanged;
         _statusMessage = statusMessage;
         _successMessage = successMessage;
         _errorMessage = errorMessage;
+
+        // Wire up events using the helper
+        FormEventHelper.WireFormEvents(_saveSearchForm, this, _statusMessage, _successMessage, _errorMessage);
+
+        // Hide status message initially
+        ExtensionHost.HideStatus(_statusMessage);
+    }
+
+    public override IContent[] GetContent()
+    {
+        ExtensionHost.HideStatus(_statusMessage);
+        return [_saveSearchForm];
     }
 }

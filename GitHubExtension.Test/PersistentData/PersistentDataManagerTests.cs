@@ -4,7 +4,6 @@
 
 using GitHubExtension.Controls;
 using GitHubExtension.DataModel.Enums;
-using GitHubExtension.DeveloperId;
 using GitHubExtension.PersistentData;
 using Moq;
 
@@ -18,18 +17,18 @@ public partial class PersistentDataManagerTests
     public void Create()
     {
         var stubValidator = new Mock<IGitHubValidator>().Object;
-        var dataStoreOptions = GetDataStoreOptions();
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
         using var dataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
         Assert.IsNotNull(dataManager);
         dataManager.Dispose();
-        Cleanup(dataStoreOptions.DataStoreFolderPath);
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     [TestMethod]
     [TestCategory("Unit")]
     public async Task AddAndRemoveSearch()
     {
-        var dataStoreOptions = GetDataStoreOptions();
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
         var stubValidator = new Mock<IGitHubValidator>().Object;
 
         using var dataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
@@ -53,14 +52,14 @@ public partial class PersistentDataManagerTests
 
         Assert.IsFalse((await dataManager.GetSavedSearches()).Any());
         dataManager.Dispose();
-        Cleanup(dataStoreOptions.DataStoreFolderPath);
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     [TestMethod]
     [TestCategory("Unit")]
     public async Task AddRepeatedSearch()
     {
-        var dataStoreOptions = GetDataStoreOptions();
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
         var stubValidator = new Mock<IGitHubValidator>().Object;
 
         using var dataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
@@ -89,14 +88,14 @@ public partial class PersistentDataManagerTests
         }
 
         dataManager.Dispose();
-        Cleanup(dataStoreOptions.DataStoreFolderPath);
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     [TestMethod]
     [TestCategory("Unit")]
     public async Task UpdateSearchStatus()
     {
-        var dataStoreOptions = GetDataStoreOptions();
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
         var stubValidator = new Mock<IGitHubValidator>().Object;
 
         using var dataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
@@ -124,14 +123,14 @@ public partial class PersistentDataManagerTests
         Assert.IsFalse(topLevelSearches.Any());
 
         dataManager.Dispose();
-        Cleanup(dataStoreOptions.DataStoreFolderPath);
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     [TestMethod]
     [TestCategory("Unit")]
     public async Task AddTopLevelSearch()
     {
-        var dataStoreOptions = GetDataStoreOptions();
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
         var stubValidator = new Mock<IGitHubValidator>().Object;
 
         using var dataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
@@ -153,6 +152,6 @@ public partial class PersistentDataManagerTests
         Assert.IsFalse(topLevelSearches.Any());
 
         dataManager.Dispose();
-        Cleanup(dataStoreOptions.DataStoreFolderPath);
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 }
