@@ -155,4 +155,4 @@ extends:
                   outputs:
                     - output: pipelineArtifact
                       targetPath: '$(Build.ArtifactStagingDirectory)'
-                      artifactName: drop
+                      artifactName: drop_${{ platform }}_${{ configuration }}
