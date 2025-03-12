@@ -82,7 +82,7 @@ extends:
                     msbuildVersion: 'latest'
                     msbuildArchitecture: '${{ platform }}'
                 
-                - template: ./templates/EsrpSigning-Steps.yml@self
+                - template: ./build/templates/EsrpSigning-Steps.yml@self
                   parameters:
                     displayName: Submit *.msix to ESRP for code signing
                     inputs:
