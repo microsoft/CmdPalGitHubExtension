@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Controls;
+using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
 using GitHubExtension.Controls.ListItems;
 using GitHubExtension.Controls.Pages;
@@ -49,8 +50,17 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         SignInForm.SignInAction += OnSignInStatusChanged;
         SignOutForm.SignOutAction += OnSignInStatusChanged;
         SaveSearchForm.SearchSaved += OnSearchSaved;
+        RemoveSavedSearchCommand.SearchRemoved += OnSearchRemoved;
 
         UpdateSignInStatus(IsSignedIn());
+    }
+
+    private void OnSearchRemoved(object sender, object args)
+    {
+        if (args is bool isRemoved && isRemoved)
+        {
+            RaiseItemsChanged(0);
+        }
     }
 
     private void OnSearchSaved(object sender, object? args)
