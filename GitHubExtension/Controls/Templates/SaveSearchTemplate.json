@@ -37,21 +37,9 @@
           "verticalContentAlignment": "Center",
           "items": [
             {
-              "type": "TextBlock",
-              "text": "Pin search to top-level commands",
-              "wrap": true
-            }
-          ]
-        },
-        {
-          "type": "Column",
-          "width": "auto",
-          "verticalContentAlignment": "Center",
-          "items": [
-            {
               "type": "Input.Toggle",
               "id": "IsTopLevel",
-              "title": "",
+              "title": "Pin search to top-level commands",
               "valueOn": "true",
               "valueOff": "false",
               "value": "{{IsTopLevel}}"
