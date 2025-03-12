@@ -28,118 +28,134 @@ resources:
     name: 1ESPipelineTemplates/M365GPT
     ref: refs/tags/release
 
-pool:
-  vmImage: windows-2022
+extends:
+  ${{ if eq(parameters.pipelineType, 'Official') }}:
+    template: v1/M365.Official.PipelineTemplate.yml@m365Pipelines
+  ${{ else }}:
+    template: v1/M365.Unofficial.PipelineTemplate.yml@m365Pipelines
+  parameters:
+    sdl:
+      roslyn:
+        enabled: true
+      binskim:
+        break: false
+        scanOutputDirectoryOnly: true
+      policheck:
+        severity: Note
+        break: false
+    pool:
+      name: Azure-Pipelines-1ESPT-ExDShared
+      image: windows-2022
+      os: windows
 
-stages:
-- stage: build
-  displayName: Build
-  jobs:
-  - ${{ each configuration in parameters.Configurations }}:
-        - ${{ each platform in parameters.Platforms }}:
-          - job: Build_${{ platform }}_${{ configuration }}
-            steps:
-            - task: PowerShell@2
-              displayName: Running script to update OAuth secrets
-              inputs:
-                filePath: './build/scripts/OAuthSecrets.ps1'
-                arguments: -ClientId $(GitHubOAuthClientId) -ClientSecret $(GitHubOAuthClientSecret)
-            - task: MSBuild@1
-              displayName: Restoring packages
-              inputs:
-                solution: '$(solution)'
-                msbuildArchitecture: '${{ platform }}'
-                platform: '${{ platform }}'
-                configuration: '${{ configuration }}'
-                msbuildArguments: '/t:Restore'
+    stages:
+    - stage: build
+      displayName: Build
+      jobs:
+      - ${{ each configuration in parameters.Configurations }}:
+            - ${{ each platform in parameters.Platforms }}:
+              - job: Build_${{ platform }}_${{ configuration }}
+                steps:
+                - task: PowerShell@2
+                  displayName: Running script to update OAuth secrets
+                  inputs:
+                    filePath: './build/scripts/OAuthSecrets.ps1'
+                    arguments: -ClientId $(GitHubOAuthClientId) -ClientSecret $(GitHubOAuthClientSecret)
+                - task: MSBuild@1
+                  displayName: Restoring packages
+                  inputs:
+                    solution: '$(solution)'
+                    msbuildArchitecture: '${{ platform }}'
+                    platform: '${{ platform }}'
+                    configuration: '${{ configuration }}'
+                    msbuildArguments: '/t:Restore'
 
-            - task: MsixPackaging@1
-              displayName: Building MSIX
-              inputs:
-                outputPath: 'BuildOutput\GitHubExtension_${{ configuration }}_${{ platform }}.msix'
-                solution: '$(solution)'
-                clean: false
-                generateBundle: false
-                buildConfiguration: '${{ configuration }}'
-                buildPlatform: '${{ platform }}'
-                updateAppVersion: false
-                appPackageDistributionMode: 'SideloadOnly'
-                msbuildLocationMethod: 'version'
-                msbuildVersion: 'latest'
-                msbuildArchitecture: '${{ platform }}'
-            
-            - template: ./templates/EsrpSigning-Steps.yml@self
-              parameters:
-                displayName: Submit *.msix to ESRP for code signing
-                inputs:
-                  FolderPath: 'BuildOutput'
-                  Pattern: '*.msix'
-                  UseMinimatch: true
-                  signConfigType: inlineSignParams
-                  inlineOperation: |
-                    [
-                      {
-                        "keycode": "CP-230012",
-                        "operationSetCode": "SigntoolSign",
-                        "parameters": [
-                          {
-                            "parameterName": "OpusName",
-                            "parameterValue": "Microsoft"
-                          },
-                          {
-                            "parameterName": "OpusInfo",
-                            "parameterValue": "http://www.microsoft.com"
-                          },
-                          {
-                            "parameterName": "PageHash",
-                            "parameterValue": "/NPH"
-                          },
-                          {
-                            "parameterName": "FileDigest",
-                            "parameterValue": "/fd sha256"
-                          },
-                          {
-                            "parameterName": "TimeStamp",
-                            "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
-                          }
-                        ],
-                        "toolName": "signtool.exe",
-                        "toolVersion": "6.2.9304.0"
-                      }
-                    ]
-                    
-            - task: PowerShell@2
-              displayName: 'Run Unittests'
-              condition: ne('${{ platform}}', 'arm64')
-              retryCountOnTaskFailure: 2
-              inputs:
-                filePath: 'build/scripts/Test.ps1'
-                arguments: -Platform "${{ platform }}" -Configuration "${{ configuration }}" -IsAzurePipelineBuild
+                - task: MsixPackaging@1
+                  displayName: Building MSIX
+                  inputs:
+                    outputPath: 'BuildOutput\GitHubExtension_${{ configuration }}_${{ platform }}.msix'
+                    solution: '$(solution)'
+                    clean: false
+                    generateBundle: false
+                    buildConfiguration: '${{ configuration }}'
+                    buildPlatform: '${{ platform }}'
+                    updateAppVersion: false
+                    appPackageDistributionMode: 'SideloadOnly'
+                    msbuildLocationMethod: 'version'
+                    msbuildVersion: 'latest'
+                    msbuildArchitecture: '${{ platform }}'
                 
-            - task: PublishTestResults@2
-              displayName: 'Add Test Results to ADO'
-              condition: and(always(), ne('${{ platform}}', 'arm64'))
-              inputs:
-                testResultsFormat: 'VSTest'
-                testResultsFiles: '*.trx'
-                searchFolder: '$(testOutputArtifactDir)'
-                mergeTestResults: true
-                failTaskOnFailedTests: true 
-                testRunTitle: '$(Agent.JobName)'
-                buildPlatform: '${{ platform }}'
-                buildConfiguration: '${{ configuration }}'
+                - template: ./templates/EsrpSigning-Steps.yml@self
+                  parameters:
+                    displayName: Submit *.msix to ESRP for code signing
+                    inputs:
+                      FolderPath: 'BuildOutput'
+                      Pattern: '*.msix'
+                      UseMinimatch: true
+                      signConfigType: inlineSignParams
+                      inlineOperation: |
+                        [
+                          {
+                            "keycode": "CP-230012",
+                            "operationSetCode": "SigntoolSign",
+                            "parameters": [
+                              {
+                                "parameterName": "OpusName",
+                                "parameterValue": "Microsoft"
+                              },
+                              {
+                                "parameterName": "OpusInfo",
+                                "parameterValue": "http://www.microsoft.com"
+                              },
+                              {
+                                "parameterName": "PageHash",
+                                "parameterValue": "/NPH"
+                              },
+                              {
+                                "parameterName": "FileDigest",
+                                "parameterValue": "/fd sha256"
+                              },
+                              {
+                                "parameterName": "TimeStamp",
+                                "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+                              }
+                            ],
+                            "toolName": "signtool.exe",
+                            "toolVersion": "6.2.9304.0"
+                          }
+                        ]
+                        
+                - task: PowerShell@2
+                  displayName: 'Run Unittests'
+                  condition: ne('${{ platform}}', 'arm64')
+                  retryCountOnTaskFailure: 2
+                  inputs:
+                    filePath: 'build/scripts/Test.ps1'
+                    arguments: -Platform "${{ platform }}" -Configuration "${{ configuration }}" -IsAzurePipelineBuild
+                    
+                - task: PublishTestResults@2
+                  displayName: 'Add Test Results to ADO'
+                  condition: and(always(), ne('${{ platform}}', 'arm64'))
+                  inputs:
+                    testResultsFormat: 'VSTest'
+                    testResultsFiles: '*.trx'
+                    searchFolder: '$(testOutputArtifactDir)'
+                    mergeTestResults: true
+                    failTaskOnFailedTests: true 
+                    testRunTitle: '$(Agent.JobName)'
+                    buildPlatform: '${{ platform }}'
+                    buildConfiguration: '${{ configuration }}'
 
 
-            - task: CopyFiles@2
-              displayName: Copying files to Artifact Staging directory
-              inputs:
-                SourceFolder: './BuildOutput'
-                Contents: '**'
-                TargetFolder: '$(Build.ArtifactStagingDirectory)'
+                - task: CopyFiles@2
+                  displayName: Copying files to Artifact Staging directory
+                  inputs:
+                    SourceFolder: './BuildOutput'
+                    Contents: '**'
+                    TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-            - task: PublishBuildArtifacts@1
-              displayName: Publishing artifacts
-              inputs:
-                PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-                ArtifactName: 'drop'
-                publishLocation: 'Container'
+                templateContext:
+                  outputs:
+                    - output: pipelineArtifact
+                      targetPath: '$(Build.ArtifactStagingDirectory)'
+                      artifactName: drop
