@@ -133,8 +133,11 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
 
             foreach (var search in defaultSearches)
             {
-                _persistentDataManager.ValidateSearch(search);
-                _persistentDataManager.UpdateSearchTopLevelStatus(search, true);
+                _ = Task.Run(async () =>
+                {
+                    await _persistentDataManager.ValidateSearch(search);
+                    await _persistentDataManager.UpdateSearchTopLevelStatus(search, true);
+                });
             }
         }
 
