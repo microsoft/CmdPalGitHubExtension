@@ -92,7 +92,7 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
             FormSubmitted?.Invoke(this, new FormSubmitEventArgs(true, null));
             return search;
         }
-        catch (SaveSearchException ex)
+        catch (Exception ex)
         {
             LoadingStateChanged?.Invoke(this, false);
             SearchSaved?.Invoke(this, ex);

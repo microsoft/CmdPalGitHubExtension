@@ -30,7 +30,7 @@ internal static class GitHubHelper
         };
     }
 
-    public static string[] ParseOwnerAndRepoFromSearchString(string searchString)
+    public static Dictionary<string, string> ParseOwnerAndRepoFromSearchString(string searchString)
     {
         const string repoPrefix = "repo:";
         var parts = searchString.Split(' ');
@@ -42,11 +42,15 @@ internal static class GitHubHelper
                 var repoInfo = part.Substring(repoPrefix.Length).Split('/');
                 if (repoInfo.Length == 2)
                 {
-                    return [repoInfo[0], repoInfo[1]];
+                    return new Dictionary<string, string>
+                    {
+                        { "owner", repoInfo[0] },
+                        { "repo", repoInfo[1] },
+                    };
                 }
             }
         }
 
-        throw new ArgumentException("Invalid search string format. Expected format: 'repo:owner/repo'.");
+        return new Dictionary<string, string>();
     }
 }

@@ -25,54 +25,36 @@ public class GitHubValidatorAdapter : IGitHubValidator
 
     public async Task ValidateSearch(ISearch search)
     {
-        GitHubClient? client = _developerIdProvider.GetLoggedInDeveloperIdsInternal().First().GitHubClient;
-
-        if (!_developerIdProvider.GetLoggedInDeveloperIdsInternal().Any() || client == null)
+        if (!_developerIdProvider.GetLoggedInDeveloperIdsInternal().Any())
         {
-            // No client available, cannot validate the search.
-            throw new InvalidOperationException("No GitHub client available for validation. User needs to sign in.");
+            // No users are signed in, cannot validate the search
+            throw new NoSignedInUsersException("No GitHub client available for validation. User needs to sign in.");
         }
 
+        var client = _developerIdProvider.GetLoggedInDeveloperIdsInternal().First().GitHubClient;
+
+        // Type is set here so we can search issues and PRs by default
         var issuesOptions = new SearchIssuesRequest(search.SearchString)
         {
             Type = IssueTypeQualifier.Issue,
         };
 
-        // code is UnprocessableContent
         try
         {
             _ = await client.Search.SearchIssues(issuesOptions);
         }
-        catch (Exception ex) when (ex is Octokit.ApiValidationException)
+        catch (Octokit.ApiException)
         {
-            // Parse the owner and repo name from the search string
             var repoInfo = GitHubHelper.ParseOwnerAndRepoFromSearchString(search.SearchString);
 
-            // TODO: Check message for SAML
-            if (repoInfo.Length == 2)
+            var isSAMLException = await IsSAMLException(search, client, repoInfo);
+            if (isSAMLException)
             {
-                try
-                {
-                    var repo = await client.Repository.Get(repoInfo[0], repoInfo[1]);
-                }
-                catch (Exception ex2) when (ex2 is Octokit.ForbiddenException)
-                {
-                    var browserLaunchSucceeded = await LaunchSAMLLogin(repoInfo[0]);
-                    if (browserLaunchSucceeded)
-                    {
-                        // Wait for user to complete SSO login
-                        var authenticated = await WaitForAuthentication(search, repoInfo[0]);
-                        if (authenticated)
-                        {
-                            return;
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
+                await LaunchSAMLLogin(repoInfo["owner"]);
+                throw new InvalidOperationException("SAML authentication required. Please authenticate in the browser and try again.");
             }
+
+            throw;
         }
     }
 
@@ -96,36 +78,24 @@ public class GitHubValidatorAdapter : IGitHubValidator
         }
     }
 
-    private async Task<bool> WaitForAuthentication(ISearch search, string org)
+    private async Task<bool> IsSAMLException(ISearch search, GitHubClient client, Dictionary<string, string> repoInfo)
     {
-        const int pollingInterval = 5000; // 5 seconds
-        const int timeout = 60000; // 1 minute
-        var elapsedTime = 0;
-
-        while (elapsedTime < timeout)
+        if (repoInfo.Count == 0)
         {
-            // try to search with client again
-            try
-            {
-                var client = _developerIdProvider.GetLoggedInDeveloperIdsInternal().First().GitHubClient;
-                var searchOptions = new SearchIssuesRequest(search.SearchString)
-                {
-                    Type = IssueTypeQualifier.Issue,
-                };
-                var searchSucceeded = await client.Search.SearchIssues(searchOptions);
-                _developerIdProvider.GetLoggedInDeveloperIdsInternal().First().SSOAuthenticated.Add(org, searchSucceeded != null);
-                return searchSucceeded != null;
-            }
-            catch (Exception ex) when (ex is Octokit.ApiValidationException || ex is Octokit.ForbiddenException)
-            {
-                // Ignore and continue polling
-            }
-
-            await Task.Delay(pollingInterval);
-            elapsedTime += pollingInterval;
+            // no repo info provided
+            return false;
         }
 
-        _log.Error("Authentication timeout.");
-        return false;
+        try
+        {
+            var repo = await client.Repository.Get(repoInfo["owner"], repoInfo["repo"]);
+
+            // repo can be accessed without error
+            return false;
+        }
+        catch (Octokit.ForbiddenException ex)
+        {
+            return ex.Message.Contains("SAML");
+        }
     }
 }
