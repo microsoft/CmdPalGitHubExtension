@@ -38,6 +38,7 @@ public class GitHubValidatorAdapter : IGitHubValidator
             Type = IssueTypeQualifier.Issue,
         };
 
+        // code is UnprocessableContent
         try
         {
             _ = await client.Search.SearchIssues(issuesOptions);
@@ -47,6 +48,7 @@ public class GitHubValidatorAdapter : IGitHubValidator
             // Parse the owner and repo name from the search string
             var repoInfo = GitHubHelper.ParseOwnerAndRepoFromSearchString(search.SearchString);
 
+            // TODO: Check message for SAML
             if (repoInfo.Length == 2)
             {
                 try
@@ -59,12 +61,16 @@ public class GitHubValidatorAdapter : IGitHubValidator
                     if (browserLaunchSucceeded)
                     {
                         // Wait for user to complete SSO login
-                        var authenticated = await WaitForAuthentication(repoInfo[0]);
+                        var authenticated = await WaitForAuthentication(search, repoInfo[0]);
                         if (authenticated)
                         {
                             return;
                         }
                     }
+                }
+                catch (Exception)
+                {
+                    throw;
                 }
             }
         }
@@ -90,7 +96,7 @@ public class GitHubValidatorAdapter : IGitHubValidator
         }
     }
 
-    private async Task<bool> WaitForAuthentication(string org)
+    private async Task<bool> WaitForAuthentication(ISearch search, string org)
     {
         const int pollingInterval = 5000; // 5 seconds
         const int timeout = 60000; // 1 minute
@@ -102,7 +108,7 @@ public class GitHubValidatorAdapter : IGitHubValidator
             try
             {
                 var client = _developerIdProvider.GetLoggedInDeveloperIdsInternal().First().GitHubClient;
-                var searchOptions = new SearchIssuesRequest("test")
+                var searchOptions = new SearchIssuesRequest(search.SearchString)
                 {
                     Type = IssueTypeQualifier.Issue,
                 };
