@@ -299,4 +299,18 @@ public class DeveloperIdProvider : IDeveloperIdProvider
             _credentialVault.Value.SaveCredentials(newDeveloperId.Url, accessToken);
         }
     }
+
+    public bool IsSSOAuthenticated(string org)
+    {
+        var developerIds = GetLoggedInDeveloperIdsInternal();
+        foreach (var developerId in developerIds)
+        {
+            if (developerId.SSOAuthenticated.TryGetValue(org, out var isAuthenticated))
+            {
+                return isAuthenticated;
+            }
+        }
+
+        return false;
+    }
 }

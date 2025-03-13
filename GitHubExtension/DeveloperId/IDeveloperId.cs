@@ -11,4 +11,6 @@ public interface IDeveloperId
     string Url { get; }
 
     Octokit.GitHubClient GitHubClient { get; }
+
+    Dictionary<string, bool> SSOAuthenticated { get; }
 }

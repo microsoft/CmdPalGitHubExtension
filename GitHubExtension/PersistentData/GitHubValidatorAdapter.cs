@@ -25,7 +25,6 @@ public class GitHubValidatorAdapter : IGitHubValidator
 
     public async Task ValidateSearch(ISearch search)
     {
-        // TODO: Change this request depending on the search type.
         GitHubClient? client = _developerIdProvider.GetLoggedInDeveloperIdsInternal().First().GitHubClient;
 
         if (!_developerIdProvider.GetLoggedInDeveloperIdsInternal().Any() || client == null)
@@ -45,7 +44,7 @@ public class GitHubValidatorAdapter : IGitHubValidator
         }
         catch (Exception ex) when (ex is Octokit.ApiValidationException)
         {
-            // check if the repo owner is an organization
+            // Parse the owner and repo name from the search string
             var repoInfo = GitHubHelper.ParseOwnerAndRepoFromSearchString(search.SearchString);
 
             if (repoInfo.Length == 2)
@@ -56,10 +55,15 @@ public class GitHubValidatorAdapter : IGitHubValidator
                 }
                 catch (Exception ex2) when (ex2 is Octokit.ForbiddenException)
                 {
-                    var succeeded = await LaunchSAMLLogin(repoInfo[0]);
-                    if (succeeded)
+                    var browserLaunchSucceeded = await LaunchSAMLLogin(repoInfo[0]);
+                    if (browserLaunchSucceeded)
                     {
-                        await ValidateSearch(search);
+                        // Wait for user to complete SSO login
+                        var authenticated = await WaitForAuthentication(repoInfo[0]);
+                        if (authenticated)
+                        {
+                            return;
+                        }
                     }
                 }
             }
@@ -84,5 +88,38 @@ public class GitHubValidatorAdapter : IGitHubValidator
             _log.Error($"Uri Launch failed");
             return false;
         }
+    }
+
+    private async Task<bool> WaitForAuthentication(string org)
+    {
+        const int pollingInterval = 5000; // 5 seconds
+        const int timeout = 60000; // 1 minute
+        var elapsedTime = 0;
+
+        while (elapsedTime < timeout)
+        {
+            // try to search with client again
+            try
+            {
+                var client = _developerIdProvider.GetLoggedInDeveloperIdsInternal().First().GitHubClient;
+                var searchOptions = new SearchIssuesRequest("test")
+                {
+                    Type = IssueTypeQualifier.Issue,
+                };
+                var searchSucceeded = await client.Search.SearchIssues(searchOptions);
+                _developerIdProvider.GetLoggedInDeveloperIdsInternal().First().SSOAuthenticated.Add(org, searchSucceeded != null);
+                return searchSucceeded != null;
+            }
+            catch (Exception ex) when (ex is Octokit.ApiValidationException || ex is Octokit.ForbiddenException)
+            {
+                // Ignore and continue polling
+            }
+
+            await Task.Delay(pollingInterval);
+            elapsedTime += pollingInterval;
+        }
+
+        _log.Error("Authentication timeout.");
+        return false;
     }
 }

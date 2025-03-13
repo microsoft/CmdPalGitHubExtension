@@ -6,6 +6,7 @@ using GitHubExtension.Controls;
 using GitHubExtension.DataManager.Data;
 using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.Enums;
+using GitHubExtension.Helpers;
 using Serilog;
 using Windows.Storage;
 
@@ -29,7 +30,7 @@ public class PersistentDataManager : IDisposable, ISearchRepository
     {
         if (DataStore == null || !DataStore.IsConnected)
         {
-            throw new DataStoreInaccessibleException("DataStore is not available.");
+            throw new SaveSearchException(new DataStoreInaccessibleException("DataStore is not available."));
         }
     }
 
@@ -54,7 +55,7 @@ public class PersistentDataManager : IDisposable, ISearchRepository
 
         if (dataStoreOptions.DataStoreSchema is null)
         {
-            throw new ArgumentNullException(nameof(dataStoreOptions), "DataStoreSchema cannot be null.");
+            throw new SaveSearchException(new ArgumentNullException(nameof(dataStoreOptions), "DataStoreSchema cannot be null."));
         }
 
         DataStoreOpions = dataStoreOptions;
@@ -111,7 +112,7 @@ public class PersistentDataManager : IDisposable, ISearchRepository
             _log.Information($"Adding search: {name} - {searchString} - {searchType}.");
             if (Search.Get(DataStore, name, searchString) != null)
             {
-                throw new InvalidOperationException($"Search {name} - {searchString} - {searchType} already exists.");
+                throw new SaveSearchException(new InvalidOperationException($"Search {name} - {searchString} - {searchType} already exists."));
             }
 
             Search.Add(DataStore, name, searchString);
@@ -146,7 +147,7 @@ public class PersistentDataManager : IDisposable, ISearchRepository
     public ISearch GetSearch(string name, string searchString)
     {
         ValidateDataStore();
-        return Search.Get(DataStore, name, searchString) ?? throw new InvalidOperationException($"Search {name} - {searchString} not found.");
+        return Search.Get(DataStore, name, searchString) ?? throw new SaveSearchException(new InvalidOperationException($"Search {name} - {searchString} not found."));
     }
 
     public Task<IEnumerable<ISearch>> GetSavedSearches()
