@@ -135,8 +135,15 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             {
                 _ = Task.Run(async () =>
                 {
-                    await _persistentDataManager.ValidateSearch(search);
-                    await _persistentDataManager.UpdateSearchTopLevelStatus(search, true);
+                    try
+                    {
+                        // UpdateSearchTopLevelStatus validates search internally
+                        await _persistentDataManager.UpdateSearchTopLevelStatus(search, true);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // User isn't signed in, skip
+                    }
                 });
             }
         }

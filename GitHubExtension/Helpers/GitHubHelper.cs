@@ -4,7 +4,7 @@
 
 namespace GitHubExtension.Helpers;
 
-internal sealed class GitHubHelper
+internal static class GitHubHelper
 {
     internal static string StateTemplateJsonPath(string templateName)
     {
@@ -28,5 +28,25 @@ internal sealed class GitHubHelper
             "SaveSearch" => "Controls\\Templates\\SaveSearchTemplate.json",
             _ => throw new NotImplementedException(),
         };
+    }
+
+    public static string[] ParseOwnerAndRepoFromSearchString(string searchString)
+    {
+        const string repoPrefix = "repo:";
+        var parts = searchString.Split(' ');
+
+        foreach (var part in parts)
+        {
+            if (part.StartsWith(repoPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                var repoInfo = part.Substring(repoPrefix.Length).Split('/');
+                if (repoInfo.Length == 2)
+                {
+                    return [repoInfo[0], repoInfo[1]];
+                }
+            }
+        }
+
+        throw new ArgumentException("Invalid search string format. Expected format: 'repo:owner/repo'.");
     }
 }
