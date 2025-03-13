@@ -285,4 +285,16 @@
     <value>issue number</value>
     <comment>Tooltip for command to copy issue number</comment>
   </data>
+  <data name="Pages_PullRequest_SourceBranch" xml:space="preserve">
+    <value>source branch</value>
+    <comment>Tooltip for copy source branch command</comment>
+  </data>
+  <data name="Pages_Item_URL" xml:space="preserve">
+    <value>URL</value>
+    <comment>Tooltip for copying an issue or PR URL</comment>
+  </data>
+  <data name="Pages_PullRequest_Checkout" xml:space="preserve">
+    <value>checkout command</value>
+    <comment>Tooltip for command to copy checkout command of a PR</comment>
+  </data>
 </root>

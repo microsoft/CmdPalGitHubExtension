@@ -23,18 +23,18 @@ public sealed partial class CombinedSearchPage(ISearch search, ICacheDataManager
             MoreCommands = item is IPullRequest prItem
                 ? new CommandContextItem[]
                 {
-                    new(new CopyGitCheckoutCommand(prItem, "checkout command")),
-                    new(new CopySourceBranchCommand(prItem, "source branch")),
-                    new(new CopyCommand(prItem.HtmlUrl, "URL")),
+                    new(new CopyGitCheckoutCommand(prItem, Resources.GetResource("Pages_PullRequest_Checkout"))),
+                    new(new CopySourceBranchCommand(prItem, Resources.GetResource("Pages_PullRequest_SourceBranch"))),
+                    new(new CopyCommand(prItem.HtmlUrl, Resources.GetResource("Pages_Item_URL"))),
                     new(new CopyCommand(prItem.Title, Resources.GetResource("Pages_PullRequest_Title"))),
                     new(new CopyCommand(prItem.Number.ToString(CultureInfo.InvariantCulture), Resources.GetResource("Pages_PullRequest_Number"))),
                     new(new PullRequestContentPage(prItem)),
                 }
                 : new CommandContextItem[]
                 {
-                    new(new CopyCommand(item.HtmlUrl, "URL")),
-                    new(new CopyCommand(item.Title, "item title")),
-                    new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), "item number")),
+                    new(new CopyCommand(item.HtmlUrl, Resources.GetResource("Pages_Item_URL"))),
+                    new(new CopyCommand(item.Title, Resources.GetResource("Pages_Issue_Title"))),
+                    new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), Resources.GetResource("Pages_Issue_Number"))),
                     new(new IssueContentPage(item)),
                 },
             Tags = GetTags(item),
