@@ -133,7 +133,8 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
 
             foreach (var search in defaultSearches)
             {
-                _persistentDataManager.UpdateSearchTopLevelStatus(search, true).GetAwaiter().GetResult();
+                _persistentDataManager.ValidateSearch(search);
+                _persistentDataManager.UpdateSearchTopLevelStatus(search, true);
             }
         }
 
