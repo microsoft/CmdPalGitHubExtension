@@ -111,7 +111,7 @@ public class Program
 
         var gitHubClientProvider = new GitHubClientProvider(developerIdProvider);
 
-        using var gitHubDataManager = new GitHubDataManager(developerIdProvider, gitHubClientProvider);
+        using var gitHubDataManager = new GitHubDataManager(gitHubClientProvider);
 
         using var searchRepository = new PersistentDataManager(new GitHubValidatorAdapter(developerIdProvider));
 

@@ -22,7 +22,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
 
     private const string LastUpdatedKeyName = "LastUpdated";
     private static readonly TimeSpan _searchRetentionTime = TimeSpan.FromDays(7);
-    private static readonly TimeSpan _pullRequestStaleTime = TimeSpan.FromDays(1);
 
     // It is possible different widgets have queries which touch the same pull requests.
     // We want to keep this window large enough that we don't delete data being used by
@@ -33,12 +32,11 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
 
     private DataStore DataStore { get; set; }
 
-    private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly GitHubClientProvider _gitHubClientProvider;
 
     public DataStoreOptions DataStoreOptions { get; private set; }
 
-    public GitHubDataManager(IDeveloperIdProvider developerIdProvider, GitHubClientProvider gitHubClientProvider, DataStoreOptions? dataStoreOptions = null)
+    public GitHubDataManager(GitHubClientProvider gitHubClientProvider, DataStoreOptions? dataStoreOptions = null)
     {
         dataStoreOptions ??= DefaultOptions;
 
@@ -49,7 +47,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
 
         DataStoreOptions = dataStoreOptions;
 
-        _developerIdProvider = developerIdProvider;
         _gitHubClientProvider = gitHubClientProvider;
 
         DataStore = new DataStore(
@@ -98,86 +95,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
         return Repository.Get(DataStore, fullName);
     }
 
-    // Wrapper for the targeted repository update pattern.
-    // This is where we are querying specific data.
-    private async Task UpdateDataForRepositoryAsync(DataStoreOperationParameters parameters, Func<DataStoreOperationParameters, IDeveloperId, Task> asyncAction)
-    {
-        parameters.RequestOptions ??= RequestOptions.RequestOptionsDefault();
-        parameters.DeveloperIds = _developerIdProvider.GetLoggedInDeveloperIdsInternal();
-
-        ValidateRepositoryOwnerAndName(parameters.Owner!, parameters.RepositoryName!);
-        if (parameters.RequestOptions.UsePublicClientAsFallback)
-        {
-            // Append the public client to the list of developer accounts. This will have us try the public client as a fallback.
-            parameters.DeveloperIds = parameters.DeveloperIds.Concat(new[] { new DeveloperId.DeveloperId() });
-        }
-
-        var cancellationToken = parameters.RequestOptions?.CancellationToken.GetValueOrDefault() ?? default;
-
-        cancellationToken.ThrowIfCancellationRequested();
-        var found = false;
-
-        // We only need to get the information from one account which has access.
-        foreach (var devId in parameters.DeveloperIds)
-        {
-            try
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                // Try the action for the passed in developer Id.
-                await asyncAction(parameters, _developerIdProvider.GetDeveloperIdInternal(devId));
-
-                // We can stop when the action is executed without exceptions.
-                found = true;
-                break;
-            }
-            catch (Exception ex) when (ex is Octokit.ApiException)
-            {
-                switch (ex)
-                {
-                    case Octokit.NotFoundException:
-                        // A private repository will come back as "not found" by the GitHub API when an unauthorized account cannot even view it.
-                        _log.Debug($"DeveloperId {devId.LoginId} did not find {parameters.Owner}/{parameters.RepositoryName}");
-                        continue;
-
-                    case Octokit.RateLimitExceededException:
-                        _log.Debug($"DeveloperId {devId.LoginId} rate limit exceeded.");
-                        throw;
-
-                    case Octokit.ForbiddenException:
-                        // This can happen most commonly with SAML-enabled organizations.
-                        // The user may have access but the org blocked the application.
-                        _log.Debug($"DeveloperId {devId.LoginId} was forbidden access to {parameters.Owner}/{parameters.RepositoryName}");
-                        continue;
-
-                    default:
-                        // If it's some other error like abuse detection, abort and do not continue.
-                        _log.Debug($"Unhandled Octokit API error for {devId.LoginId} and {parameters.Owner} / {parameters.RepositoryName}");
-                        continue;
-                }
-            }
-        }
-
-        if (!found)
-        {
-            // We choose to not throw here so we can
-            // get the other repositories.
-            _log.Error($"The repository {parameters.Owner}/{parameters.RepositoryName} could not be accessed by any available developer accounts.");
-        }
-
-        _log.Information($"Updated datastore: {parameters}");
-    }
-
-    // Internal method to update a repository.
-    // DataStore transaction is assumed to be wrapped around this in the public method.
-    private async Task<Repository> UpdateRepositoryAsync(string owner, string repositoryName, Octokit.GitHubClient? client = null)
-    {
-        client ??= await _gitHubClientProvider.GetClientForLoggedInDeveloper(true);
-        _log.Information($"Updating repository: {owner}/{repositoryName}");
-        var octokitRepository = await client.Repository.Get(owner, repositoryName);
-        return Repository.GetOrCreateByOctokitRepository(DataStore, octokitRepository);
-    }
-
     // Search area
     // Methods to update Search items
     private async Task UpdateIssuesForSearchAsync(string name, string searchString, RequestOptions? options = null)
@@ -208,6 +125,8 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
             var dsIssue = Issue.GetOrCreateByOctokitIssue(DataStore, issue);
             SearchIssue.AddIssueToSearch(DataStore, dsIssue, dsSearch);
         }
+
+        Issue.DeleteLastObservedBefore(DataStore, dsSearch.Id, DateTime.UtcNow - _lastObservedDeleteSpan);
     }
 
     private async Task UpdatePullRequestsForSearchAsync(string name, string searchString, RequestOptions? options = null)
@@ -239,6 +158,8 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
             var dsPullRequest = PullRequest.GetOrCreateByOctokitIssue(DataStore, issue);
             SearchPullRequest.AddPullRequestToSearch(DataStore, dsPullRequest, dsSearch);
         }
+
+        PullRequest.DeleteLastObservedBefore(DataStore, dsSearch.Id, DateTime.UtcNow - _lastObservedDeleteSpan);
     }
 
     private async Task UpdateRepositoriesForSearchAsync(string name, string searchString, RequestOptions? options = null)
@@ -344,37 +265,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
     private void SetLastUpdatedInMetaData()
     {
         MetaData.AddOrUpdate(DataStore, LastUpdatedKeyName, DateTime.Now.ToDataStoreString());
-    }
-
-    // Converts fullName -> owner, name.
-    private string[] GetOwnerAndRepositoryNameFromFullName(string fullName)
-    {
-        var nameSplit = fullName.Split(['/']);
-        if (nameSplit.Length != 2 || string.IsNullOrEmpty(nameSplit[0]) || string.IsNullOrEmpty(nameSplit[1]))
-        {
-            _log.Error($"Invalid repository full name: {fullName}");
-            throw new ArgumentException($"Invalid repository full name: {fullName}");
-        }
-
-        return nameSplit;
-    }
-
-    private string GetFullNameFromOwnerAndRepository(string owner, string repository)
-    {
-        return $"{owner}/{repository}";
-    }
-
-    private void ValidateRepositoryOwnerAndName(string owner, string repositoryName)
-    {
-        if (string.IsNullOrEmpty(owner))
-        {
-            throw new ArgumentNullException(nameof(owner));
-        }
-
-        if (string.IsNullOrEmpty(repositoryName))
-        {
-            throw new ArgumentNullException(nameof(repositoryName));
-        }
     }
 
     private void ValidateDataStore()
