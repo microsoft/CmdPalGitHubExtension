@@ -17,11 +17,7 @@ public interface IGitHubDataManager : IDisposable
 
     event DataManagerUpdateEventHandler? OnUpdate;
 
-    Task RequestAllUpdateAsync(Octokit.RepositoryCollection repoCollection, List<ISearch> searches, RequestOptions options);
-
-    Task RequestIssuesUpdateAsync(Octokit.RepositoryCollection repoCollection, RequestOptions options);
-
-    Task RequestPullRequestsUpdateAsync(Octokit.RepositoryCollection repoCollection, RequestOptions options);
+    Task RequestAllUpdateAsync(List<ISearch> searches, RequestOptions options);
 
     Task RequestSearchUpdateAsync(string name, string searchString, SearchType type, RequestOptions options);
 

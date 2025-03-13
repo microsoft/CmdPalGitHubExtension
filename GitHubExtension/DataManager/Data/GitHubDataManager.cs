@@ -21,11 +21,8 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
     private static readonly ILogger _log = _logger.Value;
 
     private const string LastUpdatedKeyName = "LastUpdated";
-    private static readonly TimeSpan _notificationRetentionTime = TimeSpan.FromDays(7);
     private static readonly TimeSpan _searchRetentionTime = TimeSpan.FromDays(7);
     private static readonly TimeSpan _pullRequestStaleTime = TimeSpan.FromDays(1);
-    private static readonly TimeSpan _reviewStaleTime = TimeSpan.FromDays(7);
-    private static readonly TimeSpan _releaseRetentionTime = TimeSpan.FromDays(7);
 
     // It is possible different widgets have queries which touch the same pull requests.
     // We want to keep this window large enough that we don't delete data being used by
@@ -33,7 +30,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
     // This is a conservative time period to check for pruning and give time for other
     // consumers using the data to update its freshness before we remove it.
     private static readonly TimeSpan _lastObservedDeleteSpan = TimeSpan.FromMinutes(6);
-    private const long CheckSuiteIdDependabot = 29110;
 
     private DataStore DataStore { get; set; }
 
@@ -81,117 +77,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
         {
             ValidateDataStore();
             MetaData.AddOrUpdate(DataStore, LastUpdatedKeyName, value.ToDataStoreString());
-        }
-    }
-
-    public async Task UpdateAllDataForRepositoryAsync(string owner, string name, RequestOptions? options = null)
-    {
-        ValidateDataStore();
-        var parameters = new DataStoreOperationParameters
-        {
-            Owner = owner,
-            RepositoryName = name,
-            RequestOptions = options,
-            OperationName = "UpdateAllDataForRepositoryAsync",
-        };
-
-        await UpdateDataForRepositoryAsync(
-            parameters,
-            async (parameters, devId) =>
-            {
-                var repository = await UpdateRepositoryAsync(parameters.Owner!, parameters.RepositoryName!, devId.GitHubClient);
-                await UpdateIssuesAsync(repository, devId.GitHubClient, parameters.RequestOptions);
-                await UpdatePullRequestsAsync(repository, devId.GitHubClient, parameters.RequestOptions);
-            });
-    }
-
-    public async Task UpdateAllDataForRepositoryAsync(string fullName, RequestOptions? options = null)
-    {
-        ValidateDataStore();
-        var nameSplit = GetOwnerAndRepositoryNameFromFullName(fullName);
-        await UpdateAllDataForRepositoryAsync(nameSplit[0], nameSplit[1], options);
-    }
-
-    public async Task UpdateAllDataForRepositoriesAsync(Octokit.RepositoryCollection repoCollection, RequestOptions requestOptions)
-    {
-        ValidateDataStore();
-        var cancellationToken = requestOptions?.CancellationToken.GetValueOrDefault() ?? default;
-        foreach (var repo in repoCollection)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            await UpdateAllDataForRepositoryAsync(repo, requestOptions);
-        }
-    }
-
-    public async Task UpdatePullRequestsForRepositoryAsync(string owner, string name, RequestOptions? options = null)
-    {
-        ValidateDataStore();
-        var parameters = new DataStoreOperationParameters
-        {
-            Owner = owner,
-            RepositoryName = name,
-            RequestOptions = options,
-            OperationName = "UpdatePullRequestsForRepositoryAsync",
-        };
-
-        await UpdateDataForRepositoryAsync(
-            parameters,
-            async (parameters, devId) =>
-            {
-                var repository = await UpdateRepositoryAsync(parameters.Owner!, parameters.RepositoryName!, devId.GitHubClient);
-                await UpdatePullRequestsAsync(repository, devId.GitHubClient, parameters.RequestOptions);
-            });
-    }
-
-    public async Task UpdatePullRequestsForRepositoryAsync(string fullName, RequestOptions? options = null)
-    {
-        ValidateDataStore();
-        var nameSplit = GetOwnerAndRepositoryNameFromFullName(fullName);
-        await UpdatePullRequestsForRepositoryAsync(nameSplit[0], nameSplit[1], options);
-    }
-
-    public async Task UpdatePullRequestsForRepositoriesAsync(Octokit.RepositoryCollection repoCollection, RequestOptions requestOptions)
-    {
-        ValidateDataStore();
-        foreach (var repo in repoCollection)
-        {
-            await UpdatePullRequestsForRepositoryAsync(repo, requestOptions);
-        }
-    }
-
-    public async Task UpdateIssuesForRepositoryAsync(string owner, string name, RequestOptions? options = null)
-    {
-        ValidateDataStore();
-        var parameters = new DataStoreOperationParameters
-        {
-            Owner = owner,
-            RepositoryName = name,
-            RequestOptions = options,
-            OperationName = "UpdateIssuesForRepositoryAsync",
-        };
-
-        await UpdateDataForRepositoryAsync(
-            parameters,
-            async (parameters, devId) =>
-            {
-                var repository = await UpdateRepositoryAsync(parameters.Owner!, parameters.RepositoryName!, devId.GitHubClient);
-                await UpdateIssuesAsync(repository, devId.GitHubClient, parameters.RequestOptions);
-            });
-    }
-
-    public async Task UpdateIssuesForRepositoryAsync(string fullName, RequestOptions? options = null)
-    {
-        ValidateDataStore();
-        var nameSplit = GetOwnerAndRepositoryNameFromFullName(fullName);
-        await UpdateIssuesForRepositoryAsync(nameSplit[0], nameSplit[1], options);
-    }
-
-    public async Task UpdateIssuesForRepositoriesAsync(Octokit.RepositoryCollection repoCollection, RequestOptions requestOptions)
-    {
-        ValidateDataStore();
-        foreach (var repo in repoCollection)
-        {
-            await UpdateIssuesForRepositoryAsync(repo, requestOptions);
         }
     }
 
@@ -291,64 +176,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
         _log.Information($"Updating repository: {owner}/{repositoryName}");
         var octokitRepository = await client.Repository.Get(owner, repositoryName);
         return Repository.GetOrCreateByOctokitRepository(DataStore, octokitRepository);
-    }
-
-    // Internal method to update pull requests. Assumes Repository has already been populated and
-    // created. DataStore transaction is assumed to be wrapped around this in the public method.
-    private async Task UpdatePullRequestsAsync(Repository repository, Octokit.GitHubClient? client = null, RequestOptions? options = null)
-    {
-        options ??= RequestOptions.RequestOptionsDefault();
-        client ??= await _gitHubClientProvider.GetClientForLoggedInDeveloper(true);
-        var user = await client.User.Current();
-        _log.Information($"Updating pull requests for: {repository.FullName} and user: {user.Login}");
-        var octoPulls = await client.PullRequest.GetAllForRepository(repository.InternalId, options.PullRequestRequest, options.ApiOptions);
-        _log.Information($"Got {octoPulls.Count} pull requests.");
-
-        var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
-
-        foreach (var pull in octoPulls)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            PullRequest.GetOrCreateByOctokitPullRequest(DataStore, pull, repository.Id);
-        }
-
-        // Remove unobserved pull requests from this repository.
-        PullRequest.DeleteLastObservedBefore(DataStore, repository.Id, DateTime.UtcNow - _lastObservedDeleteSpan);
-    }
-
-    // Internal method to update issues. Assumes Repository has already been populated and created.
-    // DataStore transaction is assumed to be wrapped around this in the public method.
-    private async Task UpdateIssuesAsync(Repository repository, Octokit.GitHubClient? client = null, RequestOptions? options = null)
-    {
-        options ??= RequestOptions.RequestOptionsDefault();
-        client ??= await _gitHubClientProvider.GetClientForLoggedInDeveloper(true);
-        _log.Information($"Updating issues for: {repository.FullName}");
-
-        // Since we are only interested in issues and for a specific repository, we will override
-        // these two properties. All other properties the caller can specify however they see fit.
-        options.SearchIssuesRequest.Type = Octokit.IssueTypeQualifier.Issue;
-        options.SearchIssuesRequest.Repos = new Octokit.RepositoryCollection { repository.FullName };
-
-        var issuesResult = await client.Search.SearchIssues(options.SearchIssuesRequest);
-
-        if (issuesResult == null)
-        {
-            _log.Debug($"No issues found.");
-            return;
-        }
-
-        var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
-
-        _log.Debug($"Results contain {issuesResult.Items.Count} issues.");
-        foreach (var issue in issuesResult.Items)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            Issue.GetOrCreateByOctokitIssue(DataStore, issue, repository.Id);
-        }
-
-        // Remove issues from this repository that were not observed recently.
-        Issue.DeleteLastObservedBefore(DataStore, repository.Id, DateTime.UtcNow - _lastObservedDeleteSpan);
     }
 
     // Search area
@@ -507,8 +334,9 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
     // Removes unused data from the datastore.
     private void PruneObsoleteData()
     {
-        Search.DeleteBefore(DataStore, DateTime.Now - _searchRetentionTime);
+        Search.DeleteBefore(DataStore, DateTime.UtcNow - _searchRetentionTime);
         SearchIssue.DeleteUnreferenced(DataStore);
+        SearchPullRequest.DeleteUnreferenced(DataStore);
         SearchRepository.DeleteUnreferenced(DataStore);
     }
 

@@ -16,7 +16,7 @@ public sealed class CacheManager : IDisposable, ICacheManager
 
     public static readonly TimeSpan UpdateFrequency = TimeSpan.FromMinutes(5);
 
-    public static readonly TimeSpan RefreshCooldown = TimeSpan.FromMinutes(3);
+    public static readonly TimeSpan RefreshCooldown = TimeSpan.FromMinutes(2);
 
     private static readonly object _instanceLock = new();
 
@@ -164,13 +164,11 @@ public sealed class CacheManager : IDisposable, ICacheManager
         // Do the update for saved queries here
         _logger.Debug($"Starting update of type {updateType}.");
 
-        // TODO: remove this.
-        var repoCollection = new RepositoryCollection();
         switch (updateType)
         {
             case UpdateType.All:
                 var searches = (await _searchRepository.GetSavedSearches()).ToList();
-                await _dataManager.RequestAllUpdateAsync(repoCollection, searches, options);
+                await _dataManager.RequestAllUpdateAsync(searches, options);
                 break;
             case UpdateType.Search:
                 await _dataManager.RequestSearchUpdateAsync(search!.Name, search!.SearchString, search!.Type, options);

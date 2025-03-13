@@ -361,17 +361,16 @@ public class Issue : IIssue
         }
     }
 
-    // Delete records in a repository not observed before the specified date.
-    public static void DeleteLastObservedBefore(DataStore dataStore, long repositoryId, DateTime date)
+    public static void DeleteLastObservedBefore(DataStore dataStore, long searchId, DateTime date)
     {
-        // Delete issues older than the time specified for the given repository.
-        // This is intended to be run after updating a repository's issues so that non-observed
+        // Delete issues older than the time specified for the given search.
+        // This is intended to be run after updating a search's issues so that non-observed
         // records will be removed.
-        var sql = @"DELETE FROM Issue WHERE RepositoryId = $RepositoryId AND TimeLastObserved < $Time;";
+        var sql = @"DELETE FROM Issue WHERE Id IN (SELECT Issue FROM SearchIssue WHERE Search = $SearchId) AND TimeLastObserved < $Time;";
         var command = dataStore.Connection!.CreateCommand();
         command.CommandText = sql;
         command.Parameters.AddWithValue("$Time", date.ToDataStoreInteger());
-        command.Parameters.AddWithValue("$RepositoryId", repositoryId);
+        command.Parameters.AddWithValue("$SearchId", searchId);
         _log.Verbose(DataStore.GetCommandLogMessage(sql, command));
         var rowsDeleted = command.ExecuteNonQuery();
         _log.Verbose(DataStore.GetDeletedLogMessage(rowsDeleted));
