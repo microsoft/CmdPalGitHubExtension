@@ -117,6 +117,29 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
     {
         _isSignedIn = isSignedIn;
         var numCommands = _isSignedIn ? 5 : 2;
+        var devId = _developerIdProvider.GetLoggedInDeveloperIdsInternal().FirstOrDefault();
+
+        if (_isSignedIn && devId != null)
+        {
+            var login = devId.LoginId;
+            List<ISearch> defaultSearches = new List<ISearch>
+            {
+                new SearchCandidate($"state:open assignee:{login} archived:false", "Assigned to Me"),
+                new SearchCandidate($"state:open is:pr review-requested:{login} archived:false", "Review Requested"),
+                new SearchCandidate($"state:open mentions:{login} archived:false", "Mentions Me"),
+                new SearchCandidate($"state:open is:issue author:{login} archived:false", "Created Issues"),
+                new SearchCandidate($"state:open is:pr author:{login} archived:false", "My PRs"),
+            };
+
+            foreach (var search in defaultSearches)
+            {
+                _ = Task.Run(async () =>
+                {
+                    await _persistentDataManager.ValidateSearch(search);
+                    await _persistentDataManager.UpdateSearchTopLevelStatus(search, true);
+                });
+            }
+        }
 
         UpdateTopLevelCommands(null, numCommands);
     }
