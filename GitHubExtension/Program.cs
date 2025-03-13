@@ -131,14 +131,14 @@ public class Program
 
         var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository, resources);
 
-        var addSearchListItem = new AddSearchListItem(new SaveSearchPage(new SaveSearchForm(searchRepository), new StatusMessage(), resources.GetResource("Message_Search_Saved"), resources.GetResource("Message_Search_Saved_Error")));
+        var addSearchListItem = new AddSearchListItem(new SaveSearchPage(new SaveSearchForm(searchRepository, resources), new StatusMessage(), resources.GetResource("Message_Search_Saved"), resources.GetResource("Message_Search_Saved_Error")), resources);
 
-        var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, addSearchListItem);
+        var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, resources, addSearchListItem);
 
-        var signOutPage = new SignOutPage(new SignOutForm(developerIdProvider), new StatusMessage(), resources.GetResource("Message_Sign_Out_Success"), resources.GetResource("Message_Sign_Out_Fail"));
-        var signInPage = new SignInPage(new SignInForm(developerIdProvider), new StatusMessage(), resources.GetResource("Message_Sign_In_Success"), resources.GetResource("Message_Sign_In_Fail"));
+        var signOutPage = new SignOutPage(new SignOutForm(developerIdProvider, resources), new StatusMessage(), resources.GetResource("Message_Sign_Out_Success"), resources.GetResource("Message_Sign_Out_Fail"));
+        var signInPage = new SignInPage(new SignInForm(developerIdProvider, resources), new StatusMessage(), resources.GetResource("Message_Sign_In_Success"), resources.GetResource("Message_Sign_In_Fail"));
 
-        var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, developerIdProvider, searchRepository, searchPageFactory);
+        var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, developerIdProvider, searchRepository, resources, searchPageFactory);
         var extensionInstance = new GitHubExtension(extensionDisposedEvent, commandProvider);
 
         // We are instantiating an extension instance once above, and returning it every time the callback in RegisterExtension below is called.

@@ -45,8 +45,8 @@ public class SearchPageFactory : ISearchPageFactory
             {
                 new(new RemoveSavedSearchCommand(search, _searchRepository, _resources)),
                 new(new EditSearchPage(
-                    search,
-                    new SaveSearchForm(search, _searchRepository),
+                    _resources,
+                    new SaveSearchForm(_searchRepository, _resources),
                     new StatusMessage(),
                     _resources.GetResource("Pages_Search_Edited_Success"),
                     _resources.GetResource("Pages_Search_Edited_Failed"))),

@@ -21,6 +21,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
     private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly ISearchRepository _persistentDataManager;
     private readonly ISearchPageFactory _searchPageFactory;
+    private readonly IResources _resources;
 
     public GitHubExtensionCommandsProvider(
         SavedSearchesPage savedSearchesPage,
@@ -28,6 +29,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         SignInPage signInPage,
         IDeveloperIdProvider developerIdProvider,
         ISearchRepository persistentDataManager,
+        IResources resources,
         ISearchPageFactory searchPageFactory)
     {
         DisplayName = "GitHub Extension";
@@ -37,6 +39,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         _signInPage = signInPage;
         _developerIdProvider = developerIdProvider;
         _persistentDataManager = persistentDataManager;
+        _resources = resources;
         _searchPageFactory = searchPageFactory;
 
         // Static events here. Hard dependency. But maybe it is ok in this case
@@ -79,7 +82,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
                 new CommandItem(_signInPage)
                 {
                     Title = "GitHub Extension",
-                    Subtitle = "Log in",
+                    Subtitle = _resources.GetResource("Forms_Sign_In"),
                     Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
                 },
             };
@@ -98,7 +101,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             new(_signOutPage)
             {
                 Title = "GitHub Extension",
-                Subtitle = "Sign out",
+                Subtitle = _resources.GetResource("Forms_Sign_Out_Button_Title"),
                 Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
             },
         };

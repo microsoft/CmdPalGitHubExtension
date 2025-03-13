@@ -19,18 +19,20 @@ public partial class SignInForm : FormContent, IGitHubForm
     public event TypedEventHandler<object, FormSubmitEventArgs>? FormSubmitted;
 
     private readonly IDeveloperIdProvider _developerIdProvider;
+    private readonly IResources _resources;
 
-    public SignInForm(IDeveloperIdProvider developerIdProvider)
+    public SignInForm(IDeveloperIdProvider developerIdProvider, IResources resources)
     {
+        _resources = resources;
         _developerIdProvider = developerIdProvider;
     }
 
     public Dictionary<string, string> TemplateSubstitutions => new()
     {
-        { "{{AuthTitle}}", "Sign In" },
-        { "{{AuthButtonTitle}}", "Sign In" },
+        { "{{AuthTitle}}", _resources.GetResource("Forms_Sign_In") },
+        { "{{AuthButtonTitle}}", _resources.GetResource("Forms_Sign_In") },
         { "{{AuthIcon}}", $"data:image/png;base64,{GitHubIcon.GetBase64Icon("logo")}" },
-        { "{{AuthButtonTooltip}}", "Sign in to GitHub" },
+        { "{{AuthButtonTooltip}}", _resources.GetResource("Forms_Sign_In_Tooltip") },
     };
 
     public override string TemplateJson => TemplateHelper.LoadTemplateJsonFromTemplateName("AuthTemplate", TemplateSubstitutions);

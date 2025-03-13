@@ -53,7 +53,8 @@ public class SaveSearchFormTest
             .Setup(repo => repo.RemoveSavedSearch(It.IsAny<ISearch>()))
             .Returns(Task.CompletedTask);
 
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object);
+        var stubResources = new Mock<IResources>().Object;
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, stubResources);
 
         var jsonPayload = JsonNode.Parse(@"
             {
@@ -93,7 +94,8 @@ public class SaveSearchFormTest
             .Setup(repo => repo.RemoveSavedSearch(It.IsAny<ISearch>()))
             .Returns(Task.CompletedTask);
 
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object);
+        var stubResources = new Mock<IResources>().Object;
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, stubResources);
 
         var jsonPayload = JsonNode.Parse(@"
             {
@@ -133,7 +135,8 @@ public class SaveSearchFormTest
             .Setup(repo => repo.RemoveSavedSearch(It.IsAny<ISearch>()))
             .Returns(Task.CompletedTask);
 
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object);
+        var stubResources = new Mock<IResources>().Object;
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, stubResources);
 
         var jsonPayload = JsonNode.Parse(@"
             {
@@ -170,7 +173,8 @@ public class SaveSearchFormTest
             .Returns(Task.CompletedTask);
 
         var existingSearch = new SearchCandidate("old search", "My Search", false);
-        var saveSearchForm = new SaveSearchForm(existingSearch, mockSearchRepository.Object);
+        var stubResources = new Mock<IResources>().Object;
+        var saveSearchForm = new SaveSearchForm(existingSearch, mockSearchRepository.Object, stubResources);
 
         var jsonPayload = JsonNode.Parse(@"
             {
@@ -219,7 +223,8 @@ public class SaveSearchFormTest
             .Returns(Task.CompletedTask);
 
         var existingSearch = new SearchCandidate("my search", "Old Name", false);
-        var saveSearchForm = new SaveSearchForm(existingSearch, mockSearchRepository.Object);
+        var stubResources = new Mock<IResources>().Object;
+        var saveSearchForm = new SaveSearchForm(existingSearch, mockSearchRepository.Object, stubResources);
 
         var jsonPayload = JsonNode.Parse(@"
             {
@@ -268,7 +273,8 @@ public class SaveSearchFormTest
             .Returns(Task.CompletedTask);
 
         var existingSearch = new SearchCandidate("old search", "Old Name", false);
-        var saveSearchForm = new SaveSearchForm(existingSearch, mockSearchRepository.Object);
+        var stubResources = new Mock<IResources>().Object;
+        var saveSearchForm = new SaveSearchForm(existingSearch, mockSearchRepository.Object, stubResources);
 
         var jsonPayload = JsonNode.Parse(@"
             {
@@ -317,7 +323,8 @@ public class SaveSearchFormTest
             .Returns(Task.CompletedTask);
 
         var existingSearch = new SearchCandidate("my search", "My Search", false);
-        var saveSearchForm = new SaveSearchForm(existingSearch, mockSearchRepository.Object);
+        var stubResources = new Mock<IResources>().Object;
+        var saveSearchForm = new SaveSearchForm(existingSearch, mockSearchRepository.Object, stubResources);
 
         var jsonPayload = JsonNode.Parse(@"
             {

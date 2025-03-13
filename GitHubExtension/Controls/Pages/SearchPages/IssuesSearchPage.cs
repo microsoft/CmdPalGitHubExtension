@@ -14,7 +14,7 @@ public sealed partial class IssuesSearchPage(ISearch search, ICacheDataManager c
 {
     protected override ListItem GetListItem(IIssue item)
     {
-        return new ListItem(new LinkCommand(item))
+        return new ListItem(new LinkCommand(item, Resources))
         {
             Title = item.Title,
             Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
@@ -24,7 +24,7 @@ public sealed partial class IssuesSearchPage(ISearch search, ICacheDataManager c
                 new(new CopyCommand(item.HtmlUrl, Resources.GetResource("Pages_Item_URL"))),
                 new(new CopyCommand(item.Title, Resources.GetResource("Pages_Issue_Title"))),
                 new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), Resources.GetResource("Pages_Issue_Number"))),
-                new(new IssueContentPage(item)),
+                new(new IssueContentPage(item, Resources)),
             },
             Tags = GetTags(item),
         };

@@ -14,7 +14,7 @@ public sealed partial class PullRequestsSearchPage(ISearch search, ICacheDataMan
 {
     protected override ListItem GetListItem(IPullRequest item)
     {
-        return new ListItem(new LinkCommand(item))
+        return new ListItem(new LinkCommand(item, Resources))
         {
             Title = item.Title,
             Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]),
@@ -26,7 +26,7 @@ public sealed partial class PullRequestsSearchPage(ISearch search, ICacheDataMan
                 new(new CopyCommand(item.HtmlUrl, Resources.GetResource("Pages_Item_URL"))),
                 new(new CopyCommand(item.Title, Resources.GetResource("Pages_PullRequest_Title"))),
                 new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), Resources.GetResource("Pages_PullRequest_Number"))),
-                new(new PullRequestContentPage(item)),
+                new(new PullRequestContentPage(item, Resources)),
             },
             Tags = GetTags(item),
         };

@@ -19,18 +19,20 @@ public sealed partial class SignOutForm : FormContent, IGitHubForm
     public event TypedEventHandler<object, FormSubmitEventArgs>? FormSubmitted;
 
     private readonly IDeveloperIdProvider _developerIdProvider;
+    private readonly IResources _resources;
 
-    public SignOutForm(IDeveloperIdProvider developerIdProvider)
+    public SignOutForm(IDeveloperIdProvider developerIdProvider, IResources resources)
     {
         _developerIdProvider = developerIdProvider;
+        _resources = resources;
     }
 
     public Dictionary<string, string> TemplateSubstitutions => new()
     {
-        { "{{AuthTitle}}", "Are you sure you want to sign out?" },
-        { "{{AuthButtonTitle}}", "Sign out" },
+        { "{{AuthTitle}}", _resources.GetResource("Forms_Sign_Out_Title") },
+        { "{{AuthButtonTitle}}", _resources.GetResource("Forms_Sign_Out_Button_Title") },
         { "{{AuthIcon}}", $"data:image/png;base64,{GitHubIcon.GetBase64Icon("logo")}" },
-        { "{{AuthButtonTooltip}}", "Sign out GitHub extension" },
+        { "{{AuthButtonTooltip}}", _resources.GetResource("Forms_Sign_Out_Tooltip") },
     };
 
     public override string TemplateJson => TemplateHelper.LoadTemplateJsonFromTemplateName("AuthTemplate", TemplateSubstitutions);

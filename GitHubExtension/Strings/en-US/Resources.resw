@@ -154,7 +154,7 @@
     <comment>Shown in form's sign in button tooltip</comment>
   </data>
   <data name="Forms_Sign_Out_Title" xml:space="preserve">
-    <value>Are you sue you want to sign out?</value>
+    <value>Are you sure you want to sign out?</value>
     <comment>Title for sign out form page</comment>
   </data>
   <data name="Forms_Sign_Out_Button_Title" xml:space="preserve">
