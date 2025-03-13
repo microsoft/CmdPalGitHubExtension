@@ -296,7 +296,9 @@ public class TopLevelSearchesTest
             dataManager,
             mockAddSearchListItem.Object);
 
-        var removeCommand = new RemoveSavedSearchCommand(topLevelSearch, dataManager);
+        var stubResources = new Mock<IResources>().Object;
+
+        var removeCommand = new RemoveSavedSearchCommand(topLevelSearch, dataManager, stubResources);
         removeCommand.Invoke();
 
         await Task.Delay(1000);
@@ -358,7 +360,9 @@ public class TopLevelSearchesTest
                 s.SearchString == "is:issue assignee:me"),
             "Search should be in top level searches initially");
 
-        var removeCommand = new RemoveSavedSearchCommand(topLevelSearch, dataManager);
+        var stubResources = new Mock<IResources>().Object;
+
+        var removeCommand = new RemoveSavedSearchCommand(topLevelSearch, dataManager, stubResources);
         removeCommand.Invoke();
 
         await Task.Delay(1000);

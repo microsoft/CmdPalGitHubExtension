@@ -117,7 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Commands_Copu_Source_Branch" xml:space="preserve">
+  <data name="Commands_Copy_Source_Branch" xml:space="preserve">
     <value>Copy source branch</value>
     <comment>Title for command to copy source branch of a pull request</comment>
   </data>
@@ -245,7 +245,7 @@
     <value>{seconds, plural, =1{# second ago} other{# seconds ago}}</value>
     <comment>Seconds ago format</comment>
   </data>
-  <data name="Message_Search_saved" xml:space="preserve">
+  <data name="Message_Search_Saved" xml:space="preserve">
     <value>Search saved successfully!</value>
     <comment>Shown in a toast when search is saved</comment>
   </data>
@@ -268,5 +268,21 @@
   <data name="Message_Sign_In_Fail" xml:space="preserve">
     <value>Sign in failed</value>
     <comment>Message shown in a toast when sign in proccess fails</comment>
+  </data>
+  <data name="Pages_Search_Edited_Success" xml:space="preserve">
+    <value>Search edited successfully!</value>
+    <comment>Shown as a toast when a search is edited successfully</comment>
+  </data>
+  <data name="Pages_Search_Edited_Failed" xml:space="preserve">
+    <value>Error in editing search</value>
+    <comment>Shown in a toast when there is an error editing a search</comment>
+  </data>
+  <data name="Pages_PullRequest_Number" xml:space="preserve">
+    <value>pull request number</value>
+    <comment>Tooltip for command to copy pull request number</comment>
+  </data>
+  <data name="Pages_Issue_Number" xml:space="preserve">
+    <value>issue number</value>
+    <comment>Tooltip for command to copy issue number</comment>
   </data>
 </root>

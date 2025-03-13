@@ -9,8 +9,8 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Controls.Pages;
 
-public sealed partial class PullRequestsSearchPage(ISearch search, ICacheDataManager cacheDataManager)
-    : SearchPage<IPullRequest>(search, cacheDataManager)
+public sealed partial class PullRequestsSearchPage(ISearch search, ICacheDataManager cacheDataManager, IResources resources)
+    : SearchPage<IPullRequest>(search, cacheDataManager, resources)
 {
     protected override ListItem GetListItem(IPullRequest item)
     {
@@ -24,8 +24,8 @@ public sealed partial class PullRequestsSearchPage(ISearch search, ICacheDataMan
                 new(new CopyGitCheckoutCommand(item, "checkout command")),
                 new(new CopySourceBranchCommand(item, "source branch")),
                 new(new CopyCommand(item.HtmlUrl, "URL")),
-                new(new CopyCommand(item.Title, "pull request title")),
-                new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), "pull request number")),
+                new(new CopyCommand(item.Title, Resources.GetResource("Pages_PullRequest_Title"))),
+                new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), Resources.GetResource("Pages_PullRequest_Number"))),
                 new(new PullRequestContentPage(item)),
             },
             Tags = GetTags(item),
