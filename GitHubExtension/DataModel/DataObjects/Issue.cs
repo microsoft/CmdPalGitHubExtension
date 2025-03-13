@@ -4,13 +4,14 @@
 
 using Dapper;
 using Dapper.Contrib.Extensions;
+using GitHubExtension.Controls;
 using GitHubExtension.Helpers;
 using Serilog;
 
-namespace GitHubExtension.DataModel;
+namespace GitHubExtension.DataModel.DataObjects;
 
 [Table("Issue")]
-public class Issue
+public class Issue : IIssue
 {
     private static readonly Lazy<ILogger> _logger = new(() => Serilog.Log.ForContext("SourceContext", $"DataModel/{nameof(Issue)}"));
 
@@ -81,7 +82,7 @@ public class Issue
     // need to do further queries of the datastore.
     [Write(false)]
     [Computed]
-    public IEnumerable<Label> Labels
+    public IEnumerable<ILabel> Labels
     {
         get
         {

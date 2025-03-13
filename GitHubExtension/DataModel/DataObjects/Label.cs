@@ -1,18 +1,17 @@
-﻿// Copyright (c) Microsoft Corporation
+// Copyright (c) Microsoft Corporation
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Drawing;
-using System.Reflection.Metadata.Ecma335;
 using Dapper;
 using Dapper.Contrib.Extensions;
+using GitHubExtension.Controls;
 using GitHubExtension.Helpers;
 using Serilog;
 
-namespace GitHubExtension.DataModel;
+namespace GitHubExtension.DataModel.DataObjects;
 
 [Table("Label")]
-public class Label
+public class Label : ILabel
 {
     private static readonly Lazy<ILogger> _logger = new(() => Serilog.Log.ForContext("SourceContext", $"DataModel/{nameof(Label)}"));
 
@@ -22,8 +21,6 @@ public class Label
     // This value / 2 is the average time between label changing on GitHub and having
     // it reflected in the datastore.
     private static readonly long _updateThreshold = TimeSpan.FromHours(4).Ticks;
-
-    private Microsoft.CommandPalette.Extensions.Color _fontColor = new(0, 0, 0, 0);
 
     [Key]
     public long Id { get; set; } = DataStore.NoForeignKey;
@@ -52,7 +49,6 @@ public class Label
             IsDefault = label.Default ? 1 : 0,
             Color = label.Color is not null ? label.Color : string.Empty,
             TimeUpdated = DateTime.Now.ToDataStoreInteger(),
-            _fontColor = AddOrUpdateFontColor($"#{label.Color}"),
         };
     }
 
@@ -70,7 +66,6 @@ public class Label
             {
                 label.Id = existing.Id;
                 dataStore.Connection!.Update(label);
-                label._fontColor = AddOrUpdateFontColor(GetColorHexString(label));
                 return label;
             }
             else
@@ -105,35 +100,4 @@ public class Label
         var newUser = CreateFromOctokitLabel(label);
         return AddOrUpdateLabel(dataStore, newUser);
     }
-
-    private static Microsoft.CommandPalette.Extensions.Color AddOrUpdateFontColor(string hexColor)
-    {
-        var color = ColorTranslator.FromHtml(hexColor);
-
-        // Luminance is a measure of the brightness of a color. It is a weighted sum of its RGB components.
-        var luminance = (0.2126 * color.R) + (0.7152 * color.G) + (0.0722 * color.B);
-
-        // If the luminance is greater than 128, the color is light, so use black font color.
-        // Otherwise, use white font color.
-        var fontColor = luminance > 128 ? System.Drawing.Color.Black : System.Drawing.Color.White;
-
-        return new Microsoft.CommandPalette.Extensions.Color(fontColor.R, fontColor.G, fontColor.B, fontColor.A);
-    }
-
-    public Microsoft.CommandPalette.Extensions.Color GetFontColor()
-    {
-        if (_fontColor.A == 0)
-        {
-            _fontColor = AddOrUpdateFontColor($"#{Color}");
-        }
-
-        return _fontColor;
-    }
-
-    protected void SetFontColor(string hexColor)
-    {
-        _fontColor = AddOrUpdateFontColor(hexColor);
-    }
-
-    private static string GetColorHexString(Label label) => $"#{label.Color}";
 }

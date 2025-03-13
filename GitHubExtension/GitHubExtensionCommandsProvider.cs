@@ -2,10 +2,12 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using GitHubExtension.Controls;
+using GitHubExtension.Controls.Commands;
+using GitHubExtension.Controls.Forms;
+using GitHubExtension.Controls.Pages;
 using GitHubExtension.DeveloperId;
-using GitHubExtension.Forms;
 using GitHubExtension.Helpers;
-using GitHubExtension.Pages;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
@@ -13,14 +15,55 @@ namespace GitHubExtension;
 
 public partial class GitHubExtensionCommandsProvider : CommandProvider
 {
-    public GitHubExtensionCommandsProvider()
+    private readonly SavedSearchesPage _savedSearchesPage;
+    private readonly SignOutPage _signOutPage;
+    private readonly SignInPage _signInPage;
+    private readonly IDeveloperIdProvider _developerIdProvider;
+    private readonly ISearchRepository _persistentDataManager;
+    private readonly ISearchPageFactory _searchPageFactory;
+
+    public GitHubExtensionCommandsProvider(
+        SavedSearchesPage savedSearchesPage,
+        SignOutPage signOutPage,
+        SignInPage signInPage,
+        IDeveloperIdProvider developerIdProvider,
+        ISearchRepository persistentDataManager,
+        ISearchPageFactory searchPageFactory)
     {
         DisplayName = "GitHub Extension";
 
+        _savedSearchesPage = savedSearchesPage;
+        _signOutPage = signOutPage;
+        _signInPage = signInPage;
+        _developerIdProvider = developerIdProvider;
+        _persistentDataManager = persistentDataManager;
+        _searchPageFactory = searchPageFactory;
+
+        // Static events here. Hard dependency. But maybe it is ok in this case
         SignInForm.SignInAction += OnSignInStatusChanged;
         SignOutForm.SignOutAction += OnSignInStatusChanged;
+        SaveSearchForm.SearchSaved += OnSearchSaved;
+        RemoveSavedSearchCommand.SearchRemoved += OnSearchRemoved;
 
         UpdateSignInStatus(IsSignedIn());
+    }
+
+    private void OnSearchRemoved(object sender, object args)
+    {
+        if (args is bool isRemoved && isRemoved)
+        {
+            RaiseItemsChanged(0);
+        }
+    }
+
+    private void OnSearchSaved(object sender, object? args)
+    {
+        // Calling RaiseItemsChanged whenever a search is saved ensures the
+        // top-level commands are updated.
+        if (args is SearchCandidate)
+        {
+            RaiseItemsChanged(0);
+        }
     }
 
     private void UpdateTopLevelCommands(object? sender, int items) => RaiseItemsChanged(items);
@@ -29,34 +72,44 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
 
     public override ICommandItem[] TopLevelCommands()
     {
-        return _isSignedIn
-        ? [
-            new CommandItem(new SavedSearchesPage())
+        if (!_isSignedIn)
+        {
+            return new[]
+            {
+                new CommandItem(_signInPage)
+                {
+                    Title = "GitHub Extension",
+                    Subtitle = "Log in",
+                    Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
+                },
+            };
+        }
+
+        List<CommandItem> commands;
+        commands = GetTopLevelSearchCommands().GetAwaiter().GetResult().ToList();
+
+        var defaultCommands = new List<CommandItem>
+        {
+            new(_savedSearchesPage)
             {
                 Title = "Saved GitHub Searches",
                 Icon = new IconInfo("\ue721"),
             },
-            new CommandItem(new SignOutPage(new SignOutForm(), new StatusMessage(), "Sign out succeeded!", "Sign out failed"))
+            new(_signOutPage)
             {
                 Title = "GitHub Extension",
                 Subtitle = "Sign out",
                 Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
             },
-        ]
-        : [
-            new CommandItem(new SignInPage(new SignInForm(), new StatusMessage(), "Sign in succeeded!", "Sign in failed"))
-            {
-                Title = "GitHub Extension",
-                Subtitle = "Log in",
-                Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
-            }
-        ];
+        };
+
+        commands.AddRange(defaultCommands);
+        return commands.ToArray();
     }
 
-    private static bool IsSignedIn()
+    private bool IsSignedIn()
     {
-        var devIdProvider = DeveloperIdProvider.GetInstance();
-        var devIds = devIdProvider.GetLoggedInDeveloperIdsInternal();
+        var devIds = _developerIdProvider.GetLoggedInDeveloperIdsInternal();
         return devIds.Any();
     }
 
@@ -64,12 +117,28 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
     {
         _isSignedIn = isSignedIn;
         var numCommands = _isSignedIn ? 5 : 2;
+        var devId = _developerIdProvider.GetLoggedInDeveloperIdsInternal().FirstOrDefault();
 
-        if (_isSignedIn)
+        if (_isSignedIn && devId != null)
         {
-            var devIds = DeveloperIdProvider.GetInstance().GetLoggedInDeveloperIdsInternal();
-            GitHubRepositoryHelper.Instance.UpdateClient(devIds.First().GitHubClient);
-            SearchHelper.Instance.UpdateClient(devIds.First().GitHubClient);
+            var login = devId.LoginId;
+            List<ISearch> defaultSearches = new List<ISearch>
+            {
+                new SearchCandidate($"state:open assignee:{login} archived:false", "Assigned to Me"),
+                new SearchCandidate($"state:open is:pr review-requested:{login} archived:false", "Review Requested"),
+                new SearchCandidate($"state:open mentions:{login} archived:false", "Mentions Me"),
+                new SearchCandidate($"state:open is:issue author:{login} archived:false", "Created Issues"),
+                new SearchCandidate($"state:open is:pr author:{login} archived:false", "My PRs"),
+            };
+
+            foreach (var search in defaultSearches)
+            {
+                _ = Task.Run(async () =>
+                {
+                    await _persistentDataManager.ValidateSearch(search);
+                    await _persistentDataManager.UpdateSearchTopLevelStatus(search, true);
+                });
+            }
         }
 
         UpdateTopLevelCommands(null, numCommands);
@@ -78,5 +147,22 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
     private void OnSignInStatusChanged(object? sender, SignInStatusChangedEventArgs e)
     {
         UpdateSignInStatus(e.IsSignedIn);
+    }
+
+    private async Task<List<CommandItem>> GetTopLevelSearchCommands()
+    {
+        var topLevelSearches = await _persistentDataManager.GetTopLevelSearches();
+        List<CommandItem> topLevelSearchCommands = new List<CommandItem>();
+        if (topLevelSearches.Any())
+        {
+            var topLevelSearchPages = topLevelSearches.Select(savedSearch => _searchPageFactory.CreateItemForSearch(savedSearch)).ToList();
+
+            foreach (var searchPage in topLevelSearchPages)
+            {
+                topLevelSearchCommands.Add(new CommandItem(searchPage));
+            }
+        }
+
+        return topLevelSearchCommands;
     }
 }

@@ -4,14 +4,15 @@
 
 using Dapper;
 using Dapper.Contrib.Extensions;
+using GitHubExtension.Controls;
 using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Helpers;
 using Serilog;
 
-namespace GitHubExtension.DataModel;
+namespace GitHubExtension.DataModel.DataObjects;
 
 [Table("Search")]
-public class Search
+public class Search : ISearch
 {
     private static readonly Lazy<ILogger> _logger = new(() => Log.ForContext("SourceContext", $"DataModel/{nameof(Search)}"));
 

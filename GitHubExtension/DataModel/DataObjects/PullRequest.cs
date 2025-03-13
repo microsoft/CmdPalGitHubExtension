@@ -4,13 +4,14 @@
 
 using Dapper;
 using Dapper.Contrib.Extensions;
+using GitHubExtension.Controls;
 using GitHubExtension.Helpers;
 using Serilog;
 
-namespace GitHubExtension.DataModel;
+namespace GitHubExtension.DataModel.DataObjects;
 
 [Table("PullRequest")]
-public class PullRequest
+public class PullRequest : IPullRequest
 {
     private static readonly Lazy<ILogger> _logger = new(() => Serilog.Log.ForContext("SourceContext", $"DataModel/{nameof(PullRequest)}"));
 
@@ -98,7 +99,7 @@ public class PullRequest
     // need to do further queries of the datastore.
     [Write(false)]
     [Computed]
-    public IEnumerable<Label> Labels
+    public IEnumerable<ILabel> Labels
     {
         get
         {
@@ -234,6 +235,72 @@ public class PullRequest
         return pull;
     }
 
+    // For getting pull request for a search, the only API available is the issues API.
+    // This means we have to create a pull request from an issue to be efficient on our
+    // API calls. That way, if we need other types of data for a pull request, we can
+    // use the Pull Requests API to update the data individually later.
+    public static PullRequest CreateFromOctokitIssue(DataStore dataStore, Octokit.Issue okitIssue, long repositoryId)
+    {
+        var pull = new PullRequest
+        {
+            DataStore = dataStore,
+            InternalId = okitIssue.Id,                      // Cannot be null.
+            Number = okitIssue.Number,                      // Cannot be null.
+            Title = okitIssue.Title ?? string.Empty,
+            Body = okitIssue.Body ?? string.Empty,
+            State = okitIssue.State.Value.ToString(),
+            HtmlUrl = okitIssue.HtmlUrl ?? string.Empty,
+            Locked = okitIssue.Locked ? 1 : 0,
+            TimeCreated = okitIssue.CreatedAt.DateTime.ToDataStoreInteger(),
+            TimeUpdated = okitIssue.UpdatedAt.HasValue ? okitIssue.UpdatedAt.Value.DateTime.ToDataStoreInteger() : 0,
+            TimeClosed = okitIssue.ClosedAt.HasValue ? okitIssue.ClosedAt.Value.DateTime.ToDataStoreInteger() : 0,
+            TimeLastObserved = DateTime.UtcNow.ToDataStoreInteger(),
+        };
+
+        // Labels are a string concat of label internal ids.
+        var labels = new List<string>();
+        foreach (var label in okitIssue.Labels)
+        {
+            // Add label to the list of this issue, and add it to the datastore.
+            // We cannot associate label to this issue until this issue is actually
+            // inserted into the datastore.
+            labels.Add(label.Id.ToStringInvariant());
+            Label.GetOrCreateByOctokitLabel(dataStore, label);
+        }
+
+        pull.LabelIds = string.Join(",", labels);
+
+        // Assignees are a string concat of User internal ids.
+        var assignees = new List<string>();
+        foreach (var user in okitIssue.Assignees)
+        {
+            assignees.Add(user.Id.ToStringInvariant());
+            User.GetOrCreateByOctokitUser(dataStore, user);
+        }
+
+        pull.AssigneeIds = string.Join(",", assignees);
+
+        // Owner is a row id in the User table
+        var author = User.GetOrCreateByOctokitUser(dataStore, okitIssue.User);
+        pull.AuthorId = author.Id;
+
+        // Repo is a row id in the Repository table.
+        // It is likely the case that we already know the repository id (such as when querying issues for a repository).
+        // In addition, the Octokit Issue data object may not contain repository information. To work around this null
+        // data, we have an optional repositoryId that can be supplied that saves us the lookup time.
+        if (repositoryId != DataStore.NoForeignKey)
+        {
+            pull.RepositoryId = repositoryId;
+        }
+        else if (okitIssue.Repository is not null)
+        {
+            var repo = Repository.GetOrCreateByOctokitRepository(dataStore, okitIssue.Repository);
+            pull.RepositoryId = repo.Id;
+        }
+
+        return pull;
+    }
+
     private static PullRequest AddOrUpdatePullRequest(DataStore dataStore, PullRequest pull)
     {
         // Check for existing pull request data.
@@ -303,6 +370,12 @@ public class PullRequest
     public static PullRequest GetOrCreateByOctokitPullRequest(DataStore dataStore, Octokit.PullRequest octokitPullRequest, long repositoryId = DataStore.NoForeignKey)
     {
         var newPull = CreateFromOctokitPullRequest(dataStore, octokitPullRequest, repositoryId);
+        return AddOrUpdatePullRequest(dataStore, newPull);
+    }
+
+    public static PullRequest GetOrCreateByOctokitIssue(DataStore dataStore, Octokit.Issue octokitIssue, long repositoryId = DataStore.NoForeignKey)
+    {
+        var newPull = CreateFromOctokitIssue(dataStore, octokitIssue, repositoryId);
         return AddOrUpdatePullRequest(dataStore, newPull);
     }
 
@@ -414,30 +487,5 @@ public class PullRequest
         _log.Verbose(DataStore.GetCommandLogMessage(sql, command));
         var rowsDeleted = command.ExecuteNonQuery();
         _log.Verbose(DataStore.GetDeletedLogMessage(rowsDeleted));
-    }
-
-    // Delete all records from a particular user before the specified date.
-    // This is for removing developer pull requests across any repository that were not updated
-    // recently. This should remove non-open pull requests from the developer across all repositories.
-    public static void DeleteAllByDeveloperLoginAndLastObservedBefore(DataStore dataStore, string loginId, DateTime date)
-    {
-        var developerUsers = User.GetDeveloperUsers(dataStore);
-        foreach (var user in developerUsers)
-        {
-            if (user.Login != loginId)
-            {
-                continue;
-            }
-
-            var sql = @"DELETE FROM PullRequest WHERE AuthorId = $UserId AND TimeLastObserved < $Time;";
-            var command = dataStore.Connection!.CreateCommand();
-            command.CommandText = sql;
-            command.Parameters.AddWithValue("$Time", date.ToDataStoreInteger());
-            command.Parameters.AddWithValue("$UserId", user.Id);
-            _log.Verbose(DataStore.GetCommandLogMessage(sql, command));
-            var rowsDeleted = command.ExecuteNonQuery();
-            _log.Verbose(DataStore.GetDeletedLogMessage(rowsDeleted));
-            break;
-        }
     }
 }

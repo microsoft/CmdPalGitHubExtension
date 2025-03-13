@@ -117,415 +117,156 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Extension_Name.GitHub" xml:space="preserve">
-    <value>GitHub</value>
-    <comment>Shown in various places, is GitHub even localized as a product name?</comment>
+  <data name="Commands_Copu_Source_Branch" xml:space="preserve">
+    <value>Copy source branch</value>
+    <comment>Title for command to copy source branch of a pull request</comment>
   </data>
-  <data name="Widget_Template.Author" xml:space="preserve">
-    <value>Author</value>
-    <comment>Shown in Widget</comment>
+  <data name="Commands_Copy_Checkout" xml:space="preserve">
+    <value>Copy checkout command</value>
+    <comment>Title for copy checkout command</comment>
   </data>
-  <data name="Widget_Template.By" xml:space="preserve">
-    <value>by</value>
-    <comment>Shown in Widget, part of a string:  # opened {date} by {user}</comment>
+  <data name="Commands_Copy" xml:space="preserve">
+    <value>Copy to clipboard</value>
+    <comment>Title of Copy command, shown in pages menu options</comment>
   </data>
-  <data name="Widget_Template.Issues" xml:space="preserve">
-    <value>Issues</value>
-    <comment>Shown in Widget</comment>
+  <data name="Commands_Open_Link" xml:space="preserve">
+    <value>Open link</value>
+    <comment>Title for command to open an item in the browser</comment>
   </data>
-  <data name="Widget_Template.Label" xml:space="preserve">
-    <value>Label</value>
-    <comment>Shown in Widget</comment>
+  <data name="Commands_Remove_Saved_Search" xml:space="preserve">
+    <value>Remove</value>
+    <comment>Title for command to remove a saved search</comment>
   </data>
-  <data name="Widget_Template.Milestone" xml:space="preserve">
-    <value>Milestone</value>
-    <comment>Shown in Widget</comment>
+  <data name="Forms_Save_Search" xml:space="preserve">
+    <value>Save Search</value>
+    <comment>Shown in form button to save a search</comment>
   </data>
-  <data name="Widget_Template.Opened" xml:space="preserve">
-    <value>opened</value>
-    <comment>Shown in Widget, part of a string:  # opened {date} by {user}</comment>
+  <data name="Forms_Edit_Search" xml:space="preserve">
+    <value>Edit Search</value>
+    <comment>Shown in form button to edit a search</comment>
   </data>
-  <data name="Widget_Template.Project" xml:space="preserve">
-    <value>Project</value>
-    <comment>Shown in Widget</comment>
+  <data name="Forms_Sign_In" xml:space="preserve">
+    <value>Sign In</value>
+    <comment>Shown in sign in form as title and button title</comment>
   </data>
-  <data name="Widget_Template.PullRequests" xml:space="preserve">
-    <value>Pull requests</value>
-    <comment>Shown in Widget</comment>
+  <data name="Forms_Sign_In_Tooltip" xml:space="preserve">
+    <value>Sign in to GitHub</value>
+    <comment>Shown in form's sign in button tooltip</comment>
   </data>
-  <data name="Widget_Template.Pulls" xml:space="preserve">
-    <value>PR</value>
-    <comment>Shown in Widget, Abbreviation of "Pull Request" and part of a prefix:  PR / {repositoryName}</comment>
+  <data name="Forms_Sign_Out_Title" xml:space="preserve">
+    <value>Are you sue you want to sign out?</value>
+    <comment>Title for sign out form page</comment>
   </data>
-  <data name="Widget_Template.Repository" xml:space="preserve">
-    <value>Repository</value>
-    <comment>Shown in Widget</comment>
+  <data name="Forms_Sign_Out_Button_Title" xml:space="preserve">
+    <value>Sign out</value>
+    <comment>Title for sign out button title, shown in sign out form</comment>
   </data>
-  <data name="Widget_Template_Button.SignIn" xml:space="preserve">
-    <value>Sign in</value>
-    <comment>Shown in Widget, Button text</comment>
+  <data name="Forms_Sign_Out_Tooltip" xml:space="preserve">
+    <value>Sign out from GitHub extension</value>
+    <comment>Tooltip for sign out button on sign out form</comment>
   </data>
-  <data name="Widget_Template_Button.Submit" xml:space="preserve">
-    <value>Submit</value>
-    <comment>Shown in Widget, Button text</comment>
+  <data name="ListItems_AddSearch" xml:space="preserve">
+    <value>Add a search</value>
+    <comment>Title for Add search list item, shown in Add Searches page.</comment>
   </data>
-  <data name="Widget_Template_Input.UrlPlaceholder" xml:space="preserve">
-    <value>github.com/owner/repository</value>
-    <comment>Shown in Widget, this is default placeholder hint text for a textbox that is a URL</comment>
+  <data name="Pages_No_Items_Found" xml:space="preserve">
+    <value>No items found. See logs for more details.</value>
+    <comment>Shown in list pages when there is no items found for a search query.</comment>
   </data>
-  <data name="Widget_Template_Label.Url" xml:space="preserve">
-    <value>URL</value>
-    <comment>Shown in Widget, Label Text</comment>
+  <data name="Pages_Error_Title" xml:space="preserve">
+    <value>Error fetching items</value>
+    <comment>Shown in page when there is an error on a search request</comment>
   </data>
-  <data name="Widget_Template_Tooltip.OpenIssue" xml:space="preserve">
-    <value>Open issue</value>
-    <comment>Shown in Widget, Tooltip text</comment>
+  <data name="Pages_Error_Body" xml:space="preserve">
+    <value>No items found</value>
+    <comment>Body of error message when an error ocurred fetching items</comment>
   </data>
-  <data name="Widget_Template_Tooltip.OpenPullRequest" xml:space="preserve">
-    <value>Open pull request</value>
-    <comment>Shown in Widget, Tooltip text</comment>
+  <data name="Pages_Issue_Title" xml:space="preserve">
+    <value>issue title</value>
+    <comment>Shown in command to copy issue title on pages</comment>
   </data>
-  <data name="Widget_Template_Tooltip.SignIn" xml:space="preserve">
-    <value>Click here to sign in on GitHub</value>
-    <comment>Shown in Widget, Button tooltip</comment>
+  <data name="Pages_PullRequest_Title" xml:space="preserve">
+    <value>pull request title</value>
+    <comment>Shown in command to copy title of pull request on a page</comment>
   </data>
-  <data name="Widget_Template_Tooltip.Submit" xml:space="preserve">
-    <value>Submit</value>
-    <comment>Shown in Widget, Tooltip text</comment>
+  <data name="Pages_Item_Number" xml:space="preserve">
+    <value>item number</value>
+    <comment>Shown in command to copy the number of a issue or pull request on a page</comment>
   </data>
-  <data name="Notifications_Toast_Button.Dismiss" xml:space="preserve">
-    <value>Dismiss</value>
-    <comment>Shown in toast notification.</comment>
+  <data name="Pages_Edit" xml:space="preserve">
+    <value>Edit</value>
+    <comment>Name and title for edit search page</comment>
   </data>
-  <data name="Notifications_Toast_CheckRunFailed.Title" xml:space="preserve">
-    <value>Failed checks</value>
-    <comment>Shown in toast notification.</comment>
+  <data name="Pages_Markdown_Issue" xml:space="preserve">
+    <value>View issue in Command Palette</value>
+    <comment>Name for the markdown page that show issue's details</comment>
   </data>
-  <data name="Notifications_Toast_CheckRunSucceeded.Title" xml:space="preserve">
-    <value>Succeeded checks</value>
-    <comment>Shown in toast notification.</comment>
+  <data name="Pages_Markdown_PullRequest" xml:space="preserve">
+    <value>View pull request in Command Palette</value>
+    <comment>Name of markdown page to show pull request details</comment>
   </data>
-  <data name="LoginUI_LoginFailedPage_text1" xml:space="preserve">
-    <value>Something went wrong :(</value>
-    <comment>Generic error text shown in LoginUI failure page</comment>
+  <data name="Pages_Saved_Searches" xml:space="preserve">
+    <value>Saved GitHub Searches</value>
+    <comment>Name of page that shows list of saved github searches</comment>
   </data>
-  <data name="LoginUI_LoginFailedPage_text2" xml:space="preserve">
-    <value>Please consider filing feedback</value>
-    <comment>Generic error text shown in LoginUI failure page</comment>
+  <data name="Pages_Saved_Searches_Error" xml:space="preserve">
+    <value>Error in removing search: </value>
+    <comment>Shown in a toast when error happens when saving a search</comment>
   </data>
-  <data name="LoginUI_LoginPage_Button1Text" xml:space="preserve">
-    <value>Sign in to github.com</value>
-    <comment>Button name to login to GitHub.com. "github.com" should not be localized.</comment>
+  <data name="Pages_Saved_Searches_Failure" xml:space="preserve">
+    <value>Failed to remove search.</value>
+    <comment>Shown when failed to remove a search from saved searches page</comment>
   </data>
-  <data name="LoginUI_LoginPage_Button1ToolTip" xml:space="preserve">
-    <value>Opens the browser to log you into GitHub</value>
-    <comment>Tooltip text on mouse hover over login button</comment>
-  </data>
-  <data name="LoginUI_LoginPage_Button2Flyout_Button" xml:space="preserve">
-    <value>Go</value>
-  </data>
-  <data name="LoginUI_LoginPage_Button2Flyout_Text_ErrorMessage" xml:space="preserve">
-    <value>Please enter a valid GitHub Enterprise Server URL</value>
-    <comment>"GitHub Enterprise Server" should not be localized</comment>
-  </data>
-  <data name="LoginUI_LoginPage_Button2Flyout_Text_Label" xml:space="preserve">
-    <value>Server URL</value>
-  </data>
-  <data name="LoginUI_LoginPage_Button2Flyout_Text_PlaceHolder" xml:space="preserve">
-    <value>&lt;Enter the GitHub Enterprise Server link&gt;</value>
-    <comment>"GitHub Enterprise Server" should not be localized</comment>
-  </data>
-  <data name="LoginUI_LoginPage_Button2Text" xml:space="preserve">
-    <value>Sign in to GitHub Enterprise Server</value>
-    <comment>Button name to login to GitHub Enterprise Server</comment>
-  </data>
-  <data name="LoginUI_LoginPage_Button2ToolTip" xml:space="preserve">
-    <value>Lets you enter the host address of your GitHub Enterprise Server</value>
-    <comment>Tooltip text on mouse hover over GitHub Enterprise Server button</comment>
-  </data>
-  <data name="LoginUI_LoginPage_Heading" xml:space="preserve">
-    <value>GitHub</value>
-    <comment>Page title</comment>
-  </data>
-  <data name="LoginUI_LoginPage_Subheading" xml:space="preserve">
-    <value>Sign in</value>
-    <comment>Page subtitle</comment>
-  </data>
-  <data name="LoginUI_LoginSucceededPage_text" xml:space="preserve">
-    <value>{User} has logged in successfully! You may close this window.</value>
-    <comment>Text for when a user signs in successfully</comment>
-  </data>
-  <data name="LoginUI_WaitingPage_Text" xml:space="preserve">
-    <value>Waiting for browser...</value>
-    <comment>Shown in Waiting page</comment>
-  </data>
-  <data name="Widget_Template.SignInRequired" xml:space="preserve">
-    <value>Sign in to use this widget.</value>
-    <comment>Shown in Widget when user is not logged in.</comment>
-  </data>
-  <data name="Widget_Template.Loading" xml:space="preserve">
-    <value>Loading...</value>
-    <comment>Shown in Loading Widget, Message text</comment>
-  </data>
-  <data name="Widget_Template.ContentLoading" xml:space="preserve">
-    <value>Loading...</value>
-    <comment>Shown in Widget, when loading content (issues or PRs)</comment>
-  </data>
-  <data name="Widget_Template.EmptyIssues" xml:space="preserve">
-    <value>There are no issues in this repository.</value>
-    <comment>Shown in Widget, when there are no issues</comment>
-  </data>
-  <data name="Widget_Template.EmptyPulls" xml:space="preserve">
-    <value>There are no pull requests in this repository.</value>
-    <comment>Shown in Widget, when there are no pull requests</comment>
-  </data>
-  <data name="Widget_Template.AssignedTitle" xml:space="preserve">
-    <value>Assigned to me</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="Widget_Template/Mentioned_user" xml:space="preserve">
-    <value>Mentioned me</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="Widget_Template.Assigned" xml:space="preserve">
-    <value>assigned</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="Widget_Template.AssignedTo" xml:space="preserve">
-    <value>Assigned to</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="Widget_Template.Open" xml:space="preserve">
-    <value>open</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="Widget_Template/Mentioned" xml:space="preserve">
-    <value>Mentioned</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="Widget_Template/MentionedLow" xml:space="preserve">
-    <value>mentioned</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="Widget_Template/SelectInfoText" xml:space="preserve">
-    <value>Select what items appear in this widget</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="Widget_Template.IssuesAndPullRequests" xml:space="preserve">
-    <value>Issues &amp; pull requests </value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="Widget_Template.ShowInWidget" xml:space="preserve">
-    <value>Show in widget</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="Widget_Template/PR_Issue_description" xml:space="preserve">
-    <value>Items in widget will appear in chronological order from when the pull request or issue was last updated</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="WidgetTemplate_DaysAgo" xml:space="preserve">
-    <value>{days, plural, =1 {# day ago} other {# days ago}}</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="WidgetTemplate_HoursAgo" xml:space="preserve">
-    <value>{hours, plural, =1 {# hour ago} other {# hours ago}}</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="WidgetTemplate_MinutesAgo" xml:space="preserve">
-    <value>{minutes, plural, =1 {# minute ago} other {# minutes ago}}</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="WidgetTemplate_SecondsAgo" xml:space="preserve">
-    <value>{seconds, plural, =1 {# second ago} other {# seconds ago}}</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="WidgetTemplate_Now" xml:space="preserve">
-    <value>now</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="Widget_Template/ReviewRequestedFrom" xml:space="preserve">
-    <value>Review requested from</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="Widget_Template/PR_description" xml:space="preserve">
-    <value>Items in widget will appear in chronological order from when the pull request was last updated</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="Widget_Template/PR_info" xml:space="preserve">
-    <value>Display pull requests where my review has been requested</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="Widget_Template/ReviewRequestedTitle" xml:space="preserve">
-    <value>Review requested</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="LoginUI_WaitingPageBrowserLaunch_Text" xml:space="preserve">
-    <value>Note: Browser may have launched in the background.</value>
-    <comment>Shown in Waiting page</comment>
-  </data>
-  <data name="WidgetTemplate_UnknownTime" xml:space="preserve">
-    <value>not known</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="Widget_Template/Updated" xml:space="preserve">
+  <data name="TimeUpdated" xml:space="preserve">
     <value>updated</value>
-    <comment>Shown in widget</comment>
+    <comment>Indicates when something was updated</comment>
   </data>
-  <data name="RepositoryProviderDisplayName" xml:space="preserve">
-    <value>GitHub</value>
-    <comment>Shown in various places, is GitHub even localized as a product name?</comment>
+  <data name="TimeNow" xml:space="preserve">
+    <value>now</value>
+    <comment>Indicates something happened just now</comment>
   </data>
-  <data name="Widget_Template.Search" xml:space="preserve">
-    <value>Search</value>
-    <comment>Shown in Widget, label for the query used to filter GitHub issues</comment>
+  <data name="TimeUnknown" xml:space="preserve">
+    <value>not known</value>
+    <comment>Indicates unknown time</comment>
   </data>
-  <data name="Widget_Template.EmptyAssigned" xml:space="preserve">
-    <value>There are no items assigned to you.</value>
-    <comment>Shown in Widget, when there are no items assigned</comment>
+  <data name="TimeDaysAgo" xml:space="preserve">
+    <value>{days, plural, =1{# day ago} other{# days ago}}</value>
+    <comment>Days ago format</comment>
   </data>
-  <data name="Widget_Template.EmptyMentioned" xml:space="preserve">
-    <value>There are no items mentioning you.</value>
-    <comment>Shown in Widget, when there are no items mentioning this user</comment>
+  <data name="TimeHoursAgo" xml:space="preserve">
+    <value>{hours, plural, =1{# hour ago} other{# hours ago}}</value>
+    <comment>Hours ago format</comment>
   </data>
-  <data name="Widget_Template.EmptyReviews" xml:space="preserve">
-    <value>There are no reviews requested.</value>
-    <comment>Shown in Widget, when there are no reviews requested</comment>
+  <data name="TimeMinutesAgo" xml:space="preserve">
+    <value>{minutes, plural, =1{# minute ago} other{# minutes ago}}</value>
+    <comment>Minutes ago format</comment>
   </data>
-  <data name="Settings_NotificationsEnabled" xml:space="preserve">
-    <value>Notifications Enabled</value>
+  <data name="TimeSecondsAgo" xml:space="preserve">
+    <value>{seconds, plural, =1{# second ago} other{# seconds ago}}</value>
+    <comment>Seconds ago format</comment>
   </data>
-  <data name="Settings_NotificationsDisabled" xml:space="preserve">
-    <value>Notifications Disabled</value>
+  <data name="Message_Search_saved" xml:space="preserve">
+    <value>Search saved successfully!</value>
+    <comment>Shown in a toast when search is saved</comment>
   </data>
-  <data name="Widget_Template_Button.Save" xml:space="preserve">
-    <value>Save</value>
-    <comment>Shown in Widget, Button text</comment>
+  <data name="Message_Search_Saved_Error" xml:space="preserve">
+    <value>Error in saving search</value>
+    <comment>Shown in a toast when there is an error saving a search</comment>
   </data>
-  <data name="Widget_Template_Button.Cancel" xml:space="preserve">
-    <value>Cancel</value>
-    <comment>Shown in Widget, Button text</comment>
+  <data name="Message_Sign_Out_Success" xml:space="preserve">
+    <value>Sign out succeeded!</value>
+    <comment>Shown in a toast when sign out is succeeded</comment>
   </data>
-  <data name="Widget_Template_Tooltip.Save" xml:space="preserve">
-    <value>Save</value>
-    <comment>Shown in Widget, Button tooltip</comment>
+  <data name="Message_Sign_Out_Fail" xml:space="preserve">
+    <value>Sign out failed</value>
+    <comment>Shown in a toast when sign out process fails</comment>
   </data>
-  <data name="Widget_Template_Tooltip.Cancel" xml:space="preserve">
-    <value>Cancel</value>
-    <comment>Shown in Widget, Button tooltip</comment>
+  <data name="Message_Sign_In_Success" xml:space="preserve">
+    <value>Sign in succeeded!</value>
+    <comment>Shown in a toast when sign in proccess succeeded</comment>
   </data>
-  <data name="LoginUI_EnterprisePage_Button_Cancel" xml:space="preserve">
-    <value>Cancel</value>
-    <comment>LoginUI Button text</comment>
-  </data>
-  <data name="LoginUI_EnterprisePage_Button_Next" xml:space="preserve">
-    <value>Next</value>
-    <comment>LoginUI Button text</comment>
-  </data>
-  <data name="LoginUI_EnterprisePage_NullErrorText" xml:space="preserve">
-    <value>Enterprise Server is not valid</value>
-    <comment>LoginUI Error text if input is not valid</comment>
-  </data>
-  <data name="LoginUI_EnterprisePage_Heading" xml:space="preserve">
-    <value>GitHub</value>
-    <comment>LoginUI Page Title</comment>
-  </data>
-  <data name="LoginUI_EnterprisePage_InputText_PlaceHolder" xml:space="preserve">
-    <value>Enter server address here</value>
-    <comment>LoginUI Input placeholder text</comment>
-  </data>
-  <data name="LoginUI_EnterprisePage_Subheading" xml:space="preserve">
-    <value>Enterprise Server</value>
-    <comment>LoginUI Page subtitle</comment>
-  </data>
-  <data name="LoginUI_EnterprisePATPage_Button_Cancel" xml:space="preserve">
-    <value>Cancel</value>
-    <comment>LoginUI Button text</comment>
-  </data>
-  <data name="LoginUI_EnterprisePATPage_Button_Connect" xml:space="preserve">
-    <value>Connect</value>
-    <comment>LoginUI Button text</comment>
-  </data>
-  <data name="LoginUI_EnterprisePage_UriErrorText" xml:space="preserve">
-    <value>URL is invalid</value>
-    <comment>LoginUI Error text if input is not a valid URL</comment>
-  </data>
-  <data name="LoginUI_EnterprisePage_UnreachableErrorText" xml:space="preserve">
-    <value>Enterprise Server is not reachable</value>
-    <comment>LoginUI Error text if input is not reachable</comment>
-  </data>
-  <data name="LoginUI_EnterprisePATPage_InputText_PlaceHolder" xml:space="preserve">
-    <value>Enter Personal Access Token</value>
-    <comment>LoginUI placeholder text</comment>
-  </data>
-  <data name="LoginUI_EnterprisePATPage_Text1" xml:space="preserve">
-    <value>Enter your Personal Access Token (PAT) to connect to ${EnterpriseServerPATPageServerUrlValue}. To create a new PAT, </value>
-    <comment>LoginUI Instructional text before highlighted text. This will be displayed as "LoginUI_EnterprisePATPage_Text1+LoginUI_EnterprisePATPage_HighlightedText+LoginUI_EnterprisePATPage_Text2".</comment>
-  </data>
-  <data name="LoginUI_EnterprisePATPage_HighlightedText" xml:space="preserve">
-    <value>click here</value>
-    <comment>LoginUI Instructional text with hyperlink. This will be displayed as "LoginUI_EnterprisePATPage_Text1+LoginUI_EnterprisePATPage_HighlightedText+LoginUI_EnterprisePATPage_Text2".</comment>
-  </data>
-  <data name="LoginUI_EnterprisePATPage_Text2" xml:space="preserve">
-    <value>.</value>
-    <comment>LoginUI Instructional text after highlighted text. In some languages, there might be some text after the highlighted text with link. This will be displayed as "LoginUI_EnterprisePATPage_Text1+LoginUI_EnterprisePATPage_HighlightedText+LoginUI_EnterprisePATPage_Text2".</comment>
-  </data>
-  <data name="LoginUI_EnterprisePage_GenericErrorText" xml:space="preserve">
-    <value>Something went wrong</value>
-    <comment>LoginUI Error text for generic case</comment>
-  </data>
-  <data name="LoginUI_EnterprisePATPage_BadCredentialsErrorText" xml:space="preserve">
-    <value>PAT doesn't work for this GitHub Enterprise Server endpoint</value>
-    <comment>LoginUI Error text if input Personal Access Token does not work; "GitHub Enterprise Server" should not be localized</comment>
-  </data>
-  <data name="LoginUI_EnterprisePATPage_GenericErrorPrefix" xml:space="preserve">
-    <value>Error:</value>
-    <comment>LoginUI Error Prefix</comment>
-  </data>
-  <data name="LoginUI_EnterprisePATPage_NullErrorText" xml:space="preserve">
-    <value>Please enter the PAT</value>
-    <comment>LoginUI Error text if input is null</comment>
-  </data>
-  <data name="Notifications_Toast_NewReview.Approved" xml:space="preserve">
-    <value>Approved</value>
-    <comment>Shown in toast notification.</comment>
-  </data>
-  <data name="Notifications_Toast_NewReview.ChangesRequested" xml:space="preserve">
-    <value>Changes requested</value>
-    <comment>Shown in toast notification.</comment>
-  </data>
-  <data name="Widget_Template.ChooseAccountPlaceholder" xml:space="preserve">
-    <value>Please choose an account</value>
-    <comment>Placeholder text for a combobox where the user can select between accounts</comment>
-  </data>
-  <data name="Widget_Releases_Latest" xml:space="preserve">
-    <value>Latest</value>
-    <comment>Refers to most recent release of a repository</comment>
-  </data>
-  <data name="Widget_Releases_Prerelease" xml:space="preserve">
-    <value>Pre-release</value>
-    <comment>Refers to the pre-release status of a repository release</comment>
-  </data>
-  <data name="Widget_Template.Published" xml:space="preserve">
-    <value>Published</value>
-    <comment>Shown in Widget</comment>
-  </data>
-  <data name="Widget_Template_Tooltip.OpenRelease" xml:space="preserve">
-    <value>Open release</value>
-    <comment>Shown in Widget, Tooltip text</comment>
-  </data>
-  <data name="Widget_Template.EmptyReleases" xml:space="preserve">
-    <value>There are no releases in this repository.</value>
-    <comment>Shown in Widget, when there are no releases</comment>
-  </data>
-  <data name="Widget_Template/WidgetTitleLabel" xml:space="preserve">
-    <value>Title (Optional)</value>
-    <comment>Shown in Widget, Label for title</comment>
-  </data>
-  <data name="Widget_Template/WidgetTitlePlaceholder" xml:space="preserve">
-    <value>Widget Title</value>
-    <comment>Shown in Widget, placeholder for title</comment>
-  </data>
-  <data name="SignIn_Title" xml:space="preserve">
-    <value>Sign in to your Github account</value>
+  <data name="Message_Sign_In_Fail" xml:space="preserve">
+    <value>Sign in failed</value>
+    <comment>Message shown in a toast when sign in proccess fails</comment>
   </data>
 </root>

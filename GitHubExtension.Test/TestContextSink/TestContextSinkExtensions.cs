@@ -5,7 +5,7 @@
 using Serilog;
 using Serilog.Configuration;
 
-namespace GitHubExtension.Test;
+namespace GitHubExtension.Test.TestContextSink;
 
 public static class TestContextSinkExtensions
 {

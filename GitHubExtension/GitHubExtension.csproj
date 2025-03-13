@@ -48,9 +48,13 @@
   </ItemGroup>
 
     <ItemGroup>
-        <Content Include="Templates\*">
+        <Content Include="Controls\Templates\*">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
+        <Compile Remove="Data\**" />
+        <EmbeddedResource Remove="Data\**" />
+        <None Remove="Data\**" />
+        <Page Remove="Data\**" />
         <Compile Remove="D:\ghext\\codeAnalysis\GlobalSuppressions.cs" />
         <None Update="appsettings.json">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -69,9 +73,6 @@
     <PackageReference Include="Dapper" Version="2.0.78" />
     <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="2.0.322" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Data\" />
-  </ItemGroup>
 
   <!--
     Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
@@ -81,4 +82,7 @@
   <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
   </PropertyGroup>
+  <ItemGroup>
+    <PRIResource Remove="Data\**" />
+  </ItemGroup>
 </Project>

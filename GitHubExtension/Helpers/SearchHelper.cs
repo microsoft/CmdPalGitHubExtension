@@ -3,66 +3,12 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Globalization;
-using GitHubExtension.Client;
 using GitHubExtension.DataModel.Enums;
-using GitHubExtension.PersistentData;
-using Octokit;
 
 namespace GitHubExtension.Helpers;
 
-public class SearchHelper
+public static class SearchHelper
 {
-    private static readonly Lazy<SearchHelper> _instance = new(() => new SearchHelper(GitHubClientProvider.Instance.GetClient()));
-
-    private GitHubClient _client;
-
-    private SearchHelper(GitHubClient client)
-    {
-        _client = client;
-    }
-
-    public static SearchHelper Instance => _instance.Value;
-
-    public void UpdateClient(GitHubClient client)
-    {
-        _client = client;
-    }
-
-    public async Task<IEnumerable<PersistentData.Search>> GetSavedSearches()
-    {
-        var dataManager = PersistentDataManager.CreateInstance();
-        return await dataManager!.GetAllSearchesAsync();
-    }
-
-    public async Task AddSavedSearch(SearchCandidate search)
-    {
-        var dataManager = PersistentDataManager.CreateInstance();
-        await dataManager!.AddSearchAsync(search.Name, search.SearchString, search.Type);
-    }
-
-    public async Task RemoveSavedSearch(SearchCandidate search)
-    {
-        var dataManager = PersistentDataManager.CreateInstance();
-        await dataManager!.RemoveSearchAsync(search.Name, search.SearchString, search.Type);
-    }
-
-    public async Task RemoveSavedSearch(Search search)
-    {
-        var dataManager = PersistentDataManager.CreateInstance();
-        await dataManager!.RemoveSearchAsync(search.Name, search.SearchString, DataModel.Enums.SearchType.Issues);
-    }
-
-    public void ClearSavedSearches()
-    {
-        // TODO: Implement
-    }
-
-    // Runs the query saved and raises any Octokit errors
-    public async Task ValidateSearch(SearchCandidate search)
-    {
-        await _client.Search.SearchIssues(new SearchIssuesRequest(search?.SearchString));
-    }
-
     public static SearchType ParseSearchTypeFromSearchString(string searchString)
     {
         // parse "type:typeName" if it's in the string
@@ -91,7 +37,7 @@ public class SearchHelper
             return (SearchType)Enum.Parse(typeof(SearchType), typeName, true);
         }
 
-        return SearchType.Unkown;
+        return SearchType.IssuesAndPullRequests;
     }
 
     private static readonly Dictionary<string, SearchType> SearchTypeMappings = new()
