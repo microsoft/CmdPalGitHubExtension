@@ -46,7 +46,7 @@ public class CacheDataManagerFacadeTests
 
     [TestMethod]
     [TestCategory("Unit")]
-    public void GetPullRequests()
+    public async Task GetPullRequests()
     {
         var stubCacheManager = new Mock<ICacheManager>().Object;
         var mockGitHubDataManager = new Mock<IDataRequester>();
@@ -62,7 +62,7 @@ public class CacheDataManagerFacadeTests
 
         mockGitHubDataManager.Setup(x => x.GetPullRequestsForSearch(It.IsAny<string>(), It.IsAny<string>())).Returns(mockPullRequests.Object);
 
-        var pullRequests = cacheDataManagerFacade.GetPullRequests(search);
+        var pullRequests = await cacheDataManagerFacade.GetPullRequests(search);
         Assert.IsNotNull(pullRequests);
     }
 
