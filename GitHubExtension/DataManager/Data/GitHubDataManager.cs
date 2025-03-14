@@ -23,13 +23,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
     private const string LastUpdatedKeyName = "LastUpdated";
     private static readonly TimeSpan _searchRetentionTime = TimeSpan.FromDays(7);
 
-    // It is possible different widgets have queries which touch the same pull requests.
-    // We want to keep this window large enough that we don't delete data being used by
-    // other clients which simply haven't been updated yet but will in the near future.
-    // This is a conservative time period to check for pruning and give time for other
-    // consumers using the data to update its freshness before we remove it.
     private static readonly TimeSpan _searchTablesLastObservedDeleteSpan = TimeSpan.FromMinutes(2);
-    private static readonly TimeSpan _itemsLastObservedDeleteSpan = TimeSpan.FromMinutes(8);
 
     private DataStore DataStore { get; set; }
 
