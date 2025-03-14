@@ -66,7 +66,7 @@ public class Search : ISearch
             DataStore = dataStore,
             Name = name,
             SearchString = searchString,
-            TimeUpdated = DateTime.Now.ToDataStoreInteger(),
+            TimeUpdated = DateTime.UtcNow.ToDataStoreInteger(),
         };
     }
 

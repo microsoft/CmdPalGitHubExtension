@@ -5,6 +5,7 @@
 using System.Globalization;
 using GitHubExtension.Controls.Commands;
 using GitHubExtension.Helpers;
+using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Controls.Pages;

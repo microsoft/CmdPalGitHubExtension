@@ -65,7 +65,7 @@ public class User
             Login = user.Login,
             AvatarUrl = user.AvatarUrl ?? string.Empty,
             Type = user.Type.HasValue ? user.Type.Value.ToString() : string.Empty,
-            TimeUpdated = DateTime.Now.ToDataStoreInteger(),
+            TimeUpdated = DateTime.UtcNow.ToDataStoreInteger(),
         };
     }
 

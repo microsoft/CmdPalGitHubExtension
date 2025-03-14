@@ -40,19 +40,9 @@ public class GitHubCacheAdapter : IGitHubCacheDataManager
         return dsSearch == null || DateTime.Now - dsSearch.UpdatedAt > refreshCooldown;
     }
 
-    public Task RequestAllUpdateAsync(RepositoryCollection repoCollection, List<ISearch> searches, RequestOptions options)
+    public Task RequestAllUpdateAsync(List<ISearch> searches, RequestOptions options)
     {
-        return _dataManager.RequestAllUpdateAsync(repoCollection, searches, options);
-    }
-
-    public Task RequestIssuesUpdateAsync(RepositoryCollection repoCollection, RequestOptions options)
-    {
-        return _dataManager.RequestIssuesUpdateAsync(repoCollection, options);
-    }
-
-    public Task RequestPullRequestsUpdateAsync(RepositoryCollection repoCollection, RequestOptions options)
-    {
-        return _dataManager.RequestPullRequestsUpdateAsync(repoCollection, options);
+        return _dataManager.RequestAllUpdateAsync(searches, options);
     }
 
     public Task RequestSearchUpdateAsync(string name, string searchString, SearchType type, RequestOptions options)

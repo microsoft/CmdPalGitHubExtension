@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation
+// Copyright (c) Microsoft Corporation
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
@@ -20,17 +20,14 @@ public abstract partial class SearchPage<T> : ListPage
 
     protected ICacheDataManager CacheDataManager { get; private set; }
 
-    protected IResources Resources { get; private set; }
-
     // Search is mandatory for this page to exist
-    protected SearchPage(ISearch search, ICacheDataManager cacheDataManager, IResources resources)
+    protected SearchPage(ISearch search, ICacheDataManager cacheDataManager)
     {
         Icon = new IconInfo(GitHubIcon.IconDictionary[$"{search.Type}"]);
         Name = search.Name;
         CurrentSearch = search;
         Logger = Log.ForContext("SourceContext", $"Pages/{GetType().Name}");
         CacheDataManager = cacheDataManager;
-        Resources = resources;
     }
 
     public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();
@@ -64,7 +61,7 @@ public abstract partial class SearchPage<T> : ListPage
                     {
                             new(new NoOpCommand())
                             {
-                                Title = Resources.GetResource("Pages_No_Items_Found"),
+                                Title = "No items found. See logs for more details.",
                                 Icon = new IconInfo(GitHubIcon.IconDictionary[iconString]),
                             },
                     }
@@ -72,10 +69,10 @@ public abstract partial class SearchPage<T> : ListPage
                     [
                             new ListItem(new NoOpCommand())
                             {
-                                Title = Resources.GetResource("Pages_Error_Title"),
+                                Title = "Error fetching items",
                                 Details = new Details()
                                 {
-                                    Body = Resources.GetResource("Pages_Error_Body"),
+                                    Body = "No items found",
                                 },
                                 Icon = new IconInfo(GitHubIcon.IconDictionary[iconString]),
                             },
@@ -88,7 +85,7 @@ public abstract partial class SearchPage<T> : ListPage
             [
                     new ListItem(new NoOpCommand())
                     {
-                        Title = Resources.GetResource("Pages_Error_Title"),
+                        Title = "Error fetching items",
                         Details = new Details()
                         {
                             Title = ex.Message,
