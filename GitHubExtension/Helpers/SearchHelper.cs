@@ -25,19 +25,33 @@ public static class SearchHelper
         }
 
         // parse "is:typeName" if it's in the string
-        type = searchString.Split(' ').FirstOrDefault(x => x.StartsWith("is:", StringComparison.OrdinalIgnoreCase));
-        if (type != null)
+        var isQualifiers = GetIsQualifiers(searchString);
+        if (isQualifiers != null)
         {
-            var typeName = type.Split(':')[1];
-            if (SearchTypeMappings.TryGetValue(typeName.ToLower(CultureInfo.CurrentCulture), out var searchType))
+            foreach (var isQualifier in isQualifiers)
             {
-                return searchType;
+                try
+                {
+                    if (SearchTypeMappings.TryGetValue(isQualifier.ToLower(CultureInfo.CurrentCulture), out var searchType))
+                    {
+                        return searchType;
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    // Ignore the exception and continue
+                }
             }
-
-            return (SearchType)Enum.Parse(typeof(SearchType), typeName, true);
         }
 
         return SearchType.IssuesAndPullRequests;
+    }
+
+    public static IEnumerable<string> GetIsQualifiers(string searchString)
+    {
+        return searchString.Split(' ')
+            .Where(x => x.StartsWith("is:", StringComparison.OrdinalIgnoreCase))
+            .Select(x => x.Split(':')[1]);
     }
 
     private static readonly Dictionary<string, SearchType> SearchTypeMappings = new()
