@@ -20,7 +20,7 @@ public partial class DataStoreTests
     [TestCategory("Unit")]
     public void DataManagerCreate()
     {
-        using var dataManager = new GitHubDataManager(GetDeveloperIdProvider(), GetGitHubClientProvider(GetDeveloperIdProvider()), TestOptions.DataStoreOptions);
+        using var dataManager = new GitHubDataManager(GetGitHubClientProvider(GetDeveloperIdProvider()), TestOptions.DataStoreOptions);
         Assert.IsNotNull(dataManager);
     }
 
@@ -28,7 +28,7 @@ public partial class DataStoreTests
     [TestCategory("Unit")]
     public void DataManagerGetRepositories()
     {
-        using var dataManager = new GitHubDataManager(GetDeveloperIdProvider(), GetGitHubClientProvider(GetDeveloperIdProvider()), TestOptions.DataStoreOptions);
+        using var dataManager = new GitHubDataManager(GetGitHubClientProvider(GetDeveloperIdProvider()), TestOptions.DataStoreOptions);
         Assert.IsNotNull(dataManager);
 
         var repos = dataManager.GetRepositories();
@@ -42,70 +42,10 @@ public partial class DataStoreTests
     }
 
     [TestMethod]
-    [TestCategory("LiveData")]
-    public async Task DataManagerUpdateRepository()
+    [TestCategory("Unit")]
+    public void DataManagerGetIssues()
     {
-        using var dataManager = new GitHubDataManager(GetDeveloperIdProvider(), GetGitHubClientProvider(GetDeveloperIdProvider()), TestOptions.DataStoreOptions);
-        Assert.IsNotNull(dataManager);
-
-        // Limit the page size so we don't destroy our rate limit on a busy repo.
-        // Get 10 items of each type.
-        var requestOptions = new RequestOptions()
-        {
-            ApiOptions = new Octokit.ApiOptions()
-            {
-                PageSize = 10,
-                PageCount = 1,
-                StartPage = 1,
-            },
-        };
-
-        await dataManager.UpdateAllDataForRepositoryAsync("microsoft/windowsappsdk", requestOptions);
-    }
-
-    [TestMethod]
-    [TestCategory("LiveData")]
-    public async Task DataManagerUpdatePullRequests()
-    {
-        using var dataManager = new GitHubDataManager(GetDeveloperIdProvider(), GetGitHubClientProvider(GetDeveloperIdProvider()), TestOptions.DataStoreOptions);
-        Assert.IsNotNull(dataManager);
-
-        // Limit the page size so we don't destroy our rate limit on a busy repo.
-        // Get 10 items of each type.
-        var requestOptions = new RequestOptions()
-        {
-            ApiOptions = new Octokit.ApiOptions()
-            {
-                PageSize = 10,
-                PageCount = 1,
-                StartPage = 1,
-            },
-        };
-
-        await dataManager.UpdatePullRequestsForRepositoryAsync("octokit/octokit.net", requestOptions);
-        await dataManager.UpdatePullRequestsForRepositoryAsync("microsoft/powertoys", requestOptions);
-    }
-
-    [TestMethod]
-    [TestCategory("LiveData")]
-    public async Task DataManagerUpdateIssues()
-    {
-        using var dataManager = new GitHubDataManager(GetDeveloperIdProvider(), GetGitHubClientProvider(GetDeveloperIdProvider()), TestOptions.DataStoreOptions);
-        Assert.IsNotNull(dataManager);
-
-        // Limit the page size so we don't destroy our rate limit on a busy repo.
-        // Get 10 items of each type.
-        var requestOptions = new RequestOptions()
-        {
-            ApiOptions = new Octokit.ApiOptions()
-            {
-                PageSize = 10,
-                PageCount = 1,
-                StartPage = 1,
-            },
-        };
-
-        await dataManager.UpdateIssuesForRepositoryAsync("octokit/octokit.net", requestOptions);
+        using var dataManager = new GitHubDataManager(GetGitHubClientProvider(GetDeveloperIdProvider()), TestOptions.DataStoreOptions);
     }
 
     [TestMethod]

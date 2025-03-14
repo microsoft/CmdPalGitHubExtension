@@ -48,7 +48,7 @@ public class Label : ILabel
             Description = label.Description ?? string.Empty,
             IsDefault = label.Default ? 1 : 0,
             Color = label.Color is not null ? label.Color : string.Empty,
-            TimeUpdated = DateTime.Now.ToDataStoreInteger(),
+            TimeUpdated = DateTime.UtcNow.ToDataStoreInteger(),
         };
     }
 

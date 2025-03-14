@@ -35,7 +35,7 @@ public partial class CacheManagerTests
     private Mock<IGitHubCacheDataManager> MockGitHubDataManager()
     {
         var mockGitHubDataManager = new Mock<IGitHubCacheDataManager>();
-        mockGitHubDataManager.Setup(x => x.RequestAllUpdateAsync(It.IsAny<RepositoryCollection>(), It.IsAny<List<ISearch>>(), It.IsAny<RequestOptions>())).Returns(Task.CompletedTask);
+        mockGitHubDataManager.Setup(x => x.RequestAllUpdateAsync(It.IsAny<List<ISearch>>(), It.IsAny<RequestOptions>())).Returns(Task.CompletedTask);
         return mockGitHubDataManager;
     }
 
