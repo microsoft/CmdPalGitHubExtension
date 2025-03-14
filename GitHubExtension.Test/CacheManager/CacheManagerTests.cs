@@ -102,15 +102,32 @@ public partial class CacheManagerTests
 
         Assert.AreEqual(cacheManager.RefreshingState, cacheManager.State);
         Assert.AreEqual(stubSearch.Object, cacheManager.PendingSearch);
+        mockGitHubDataManager.Verify(
+            x => x.RequestSearchUpdateAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<SearchType>(),
+                It.IsAny<RequestOptions>()),
+            Times.Once);
 
         await cacheManager.Refresh(stubSearch.Object);
 
-        // As we passed the same search object, the refresh should be ignored.
+        // As we passed the same search object, the refresh
+        // should be ignored and the count should remain one.
         Assert.AreEqual(cacheManager.RefreshingState, cacheManager.State);
+
+        mockGitHubDataManager.Verify(
+            x => x.RequestSearchUpdateAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<SearchType>(),
+                It.IsAny<RequestOptions>()),
+            Times.Once);
 
         mockGitHubDataManager.Raise(x => x.OnUpdate += null, this, new DataManagerUpdateEventArgs(DataManagerUpdateKind.Success, UpdateType.Search, string.Empty, Array.Empty<string>()));
 
         Assert.AreEqual(cacheManager.IdleState, cacheManager.State);
+        Assert.IsNull(cacheManager.PendingSearch);
     }
 
     [TestMethod]
@@ -149,6 +166,7 @@ public partial class CacheManagerTests
         mockGitHubDataManager.Raise(x => x.OnUpdate += null, this, new DataManagerUpdateEventArgs(DataManagerUpdateKind.Success, UpdateType.Search, string.Empty, Array.Empty<string>()));
 
         Assert.AreEqual(cacheManager.IdleState, cacheManager.State);
+        Assert.IsNull(cacheManager.PendingSearch);
     }
 
     [TestMethod]
