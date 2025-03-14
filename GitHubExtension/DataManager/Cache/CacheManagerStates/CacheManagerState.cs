@@ -21,12 +21,12 @@ public abstract class CacheManagerState
         Logger = Log.Logger.ForContext("SourceContext", $"CacheManager/{GetType().Name}");
     }
 
-    public abstract Task Refresh(UpdateType updateType, ISearch? search);
+    public abstract Task Refresh(ISearch search);
 
-    public async virtual Task PeriodicUpdate()
+    public virtual Task PeriodicUpdate()
     {
         Logger.Information("Periodic update requested. Ignoring.");
-        await Task.CompletedTask;
+        return Task.CompletedTask;
     }
 
     public virtual void HandleDataManagerUpdate(object? source, DataManagerUpdateEventArgs e)

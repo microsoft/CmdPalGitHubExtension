@@ -14,16 +14,17 @@ public class IdleState : CacheManagerState
     {
     }
 
-    public async override Task Refresh(UpdateType updateType, ISearch? search = null)
+    public async override Task Refresh(ISearch search)
     {
         lock (CacheManager.GetStateLock())
         {
             CacheManager.State = CacheManager.RefreshingState;
             CacheManager.PendingSearch = search;
+            CacheManager.CurrentUpdateType = UpdateType.Search;
         }
 
-        Logger.Information($"Starting refresh for {updateType}. Search: {search?.Name} - {search?.SearchString}");
-        await CacheManager.Update(TimeSpan.MinValue, updateType, search);
+        Logger.Information($"Starting refresh for Search: {search.Name} - {search.SearchString}");
+        await CacheManager.Update(TimeSpan.MinValue, UpdateType.Search, search);
     }
 
     public async override Task PeriodicUpdate()
