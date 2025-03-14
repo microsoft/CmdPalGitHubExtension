@@ -4,17 +4,20 @@
 
 using GitHubExtension.Controls;
 using GitHubExtension.DataManager.Data;
+using Serilog;
 
 namespace GitHubExtension.DataManager.Cache;
 
 public class GitHubCacheAdapter : IGitHubCacheDataManager
 {
     private readonly IGitHubDataManager _dataManager;
+    private readonly ILogger _logger;
 
     public GitHubCacheAdapter(IGitHubDataManager dataManager)
     {
         _dataManager = dataManager;
         _dataManager.OnUpdate += DataManagerUpdateEventHandler;
+        _logger = Log.Logger.ForContext("SourceContext", nameof(GitHubCacheAdapter));
     }
 
     public DateTime LastUpdated
@@ -35,7 +38,7 @@ public class GitHubCacheAdapter : IGitHubCacheDataManager
     {
         var dsSearch = _dataManager.GetSearch(search.Name, search.SearchString);
 
-        return dsSearch == null || DateTime.Now - dsSearch.UpdatedAt > refreshCooldown;
+        return dsSearch == null || DateTime.UtcNow - dsSearch.UpdatedAt > refreshCooldown;
     }
 
     public Task RequestAllUpdateAsync(List<ISearch> searches, RequestOptions options)

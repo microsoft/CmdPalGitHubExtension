@@ -23,7 +23,7 @@ public static class DateTimeExtensions
 
     public static DateTime ToDateTime(this long value)
     {
-        return new DateTime(value);
+        return new DateTime(value, DateTimeKind.Utc);
     }
 
     public static TimeSpan ToTimeSpan(this long value)

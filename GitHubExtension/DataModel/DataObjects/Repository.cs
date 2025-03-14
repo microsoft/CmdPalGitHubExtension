@@ -134,8 +134,8 @@ public class Repository
             DefaultBranch = octokitRepository.DefaultBranch ?? string.Empty,
             Visibility = octokitRepository.Visibility.HasValue ? octokitRepository.Visibility.Value.ToString() : string.Empty,
             HasIssues = octokitRepository.HasIssues ? 1 : 0,
-            TimeUpdated = octokitRepository.UpdatedAt.DateTime.ToDataStoreInteger(),
-            TimePushed = octokitRepository.UpdatedAt.DateTime.ToDataStoreInteger(),
+            TimeUpdated = octokitRepository.UpdatedAt.UtcDateTime.ToDataStoreInteger(),
+            TimePushed = octokitRepository.UpdatedAt.UtcDateTime.ToDataStoreInteger(),
         };
 
         // Owner is a rowId in the User table

@@ -19,7 +19,7 @@ public class Search : ISearch
     private static readonly ILogger _log = _logger.Value;
 
     // This is the time between seeing a search and updating it's TimeUpdated.
-    private static readonly long _updateThreshold = TimeSpan.FromMinutes(2).Ticks;
+    private static readonly long _updateThreshold = TimeSpan.FromMinutes(1).Ticks;
 
     [Key]
     public long Id { get; set; } = DataStore.NoForeignKey;
