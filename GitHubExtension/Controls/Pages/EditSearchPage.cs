@@ -11,15 +11,15 @@ namespace GitHubExtension.Controls;
 
 internal sealed partial class EditSearchPage : ContentPage
 {
-    private readonly ISearch _searchToEdit;
+    private readonly IResources _resources;
     private readonly SaveSearchForm _saveSearchForm;
     private readonly StatusMessage _statusMessage;
     private readonly string _successMessage;
     private readonly string _errorMessage;
 
-    public EditSearchPage(ISearch searchToEdit, SaveSearchForm saveSearchForm, StatusMessage statusMessage, string successMessage, string errorMessage)
+    public EditSearchPage(IResources resources, SaveSearchForm saveSearchForm, StatusMessage statusMessage, string successMessage, string errorMessage)
     {
-        _searchToEdit = searchToEdit;
+        _resources = resources;
         _saveSearchForm = saveSearchForm;
         _statusMessage = statusMessage;
         _successMessage = successMessage;
@@ -32,8 +32,8 @@ internal sealed partial class EditSearchPage : ContentPage
         ExtensionHost.HideStatus(_statusMessage);
 
         // Set page properties
-        Title = "Edit";
-        Name = "Edit"; // Title is for the Page, Name is for the Command
+        Title = _resources.GetResource("Pages_Edit");
+        Name = _resources.GetResource("Pages_Edit"); // Title is for the Page, Name is for the Command
         Icon = new IconInfo("\ue70f");
     }
 

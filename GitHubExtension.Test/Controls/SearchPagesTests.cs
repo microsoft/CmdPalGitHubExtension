@@ -5,6 +5,7 @@
 using GitHubExtension.Controls;
 using GitHubExtension.Controls.Pages;
 using GitHubExtension.DataModel.Enums;
+using GitHubExtension.Helpers;
 using Moq;
 
 namespace GitHubExtension.Test.Controls;
@@ -17,15 +18,16 @@ public class SearchPagesTests
     public void SearchPagesCreate()
     {
         var stubCacheDataManager = new Mock<ICacheDataManager>().Object;
+        var stubResources = new Mock<IResources>().Object;
         var stubSearch = new Mock<ISearch>();
         stubSearch.Setup(x => x.Name).Returns("Name");
         stubSearch.Setup(x => x.SearchString).Returns("test search string is:pr");
         stubSearch.Setup(x => x.Type).Returns(SearchType.Issues);
-        var issuesSearchPage = new IssuesSearchPage(stubSearch.Object, stubCacheDataManager);
+        var issuesSearchPage = new IssuesSearchPage(stubSearch.Object, stubCacheDataManager, stubResources);
         Assert.IsNotNull(issuesSearchPage);
 
         stubSearch.Setup(x => x.Type).Returns(SearchType.PullRequests);
-        var pullRequestsSearchPage = new PullRequestsSearchPage(stubSearch.Object, stubCacheDataManager);
+        var pullRequestsSearchPage = new PullRequestsSearchPage(stubSearch.Object, stubCacheDataManager, stubResources);
         Assert.IsNotNull(pullRequestsSearchPage);
     }
 
@@ -34,12 +36,13 @@ public class SearchPagesTests
     public void GetItemsFromPullRequestPage()
     {
         var stubCacheDataManager = new Mock<ICacheDataManager>();
+        var stubResources = new Mock<IResources>().Object;
         var stubSearch = new Mock<ISearch>();
         stubSearch.Setup(x => x.Name).Returns("Name");
         stubSearch.Setup(x => x.SearchString).Returns("test search string is:pr");
         stubSearch.Setup(x => x.Type).Returns(SearchType.PullRequests);
 
-        var pullRequestsSearchPage = new PullRequestsSearchPage(stubSearch.Object, stubCacheDataManager.Object);
+        var pullRequestsSearchPage = new PullRequestsSearchPage(stubSearch.Object, stubCacheDataManager.Object, stubResources);
 
         var pull1 = new Mock<IPullRequest>();
         var pull2 = new Mock<IPullRequest>();
@@ -70,12 +73,13 @@ public class SearchPagesTests
     public void GetItemsFromIssuesPage()
     {
         var stubCacheDataManager = new Mock<ICacheDataManager>();
+        var stubResources = new Mock<IResources>().Object;
         var stubSearch = new Mock<ISearch>();
         stubSearch.Setup(x => x.Name).Returns("Name");
         stubSearch.Setup(x => x.SearchString).Returns("test search string is:issue");
         stubSearch.Setup(x => x.Type).Returns(SearchType.Issues);
 
-        var issuesSearchPage = new IssuesSearchPage(stubSearch.Object, stubCacheDataManager.Object);
+        var issuesSearchPage = new IssuesSearchPage(stubSearch.Object, stubCacheDataManager.Object, stubResources);
 
         var issue1 = new Mock<IIssue>();
         var issue2 = new Mock<IIssue>();
