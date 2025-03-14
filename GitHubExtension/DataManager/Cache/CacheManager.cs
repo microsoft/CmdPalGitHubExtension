@@ -5,7 +5,6 @@
 using GitHubExtension.Controls;
 using GitHubExtension.DataManager.Data;
 using GitHubExtension.DataManager.Enums;
-using Octokit;
 using Serilog;
 
 namespace GitHubExtension.DataManager.Cache;
@@ -17,8 +16,6 @@ public sealed class CacheManager : IDisposable, ICacheManager
     public static readonly TimeSpan UpdateFrequency = TimeSpan.FromMinutes(5);
 
     public static readonly TimeSpan RefreshCooldown = TimeSpan.FromMinutes(2);
-
-    private static readonly object _instanceLock = new();
 
     // Lock to be used everytime we want to check or update the state of
     // the CacheManager.
@@ -171,7 +168,7 @@ public sealed class CacheManager : IDisposable, ICacheManager
                 await _dataManager.RequestAllUpdateAsync(searches, options);
                 break;
             case UpdateType.Search:
-                await _dataManager.RequestSearchUpdateAsync(search!.Name, search!.SearchString, search!.Type, options);
+                await _dataManager.RequestSearchUpdateAsync(search!, options);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(updateType), updateType, null);

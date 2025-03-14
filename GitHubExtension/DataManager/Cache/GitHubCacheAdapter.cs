@@ -4,8 +4,6 @@
 
 using GitHubExtension.Controls;
 using GitHubExtension.DataManager.Data;
-using GitHubExtension.DataModel.Enums;
-using Octokit;
 
 namespace GitHubExtension.DataManager.Cache;
 
@@ -45,8 +43,8 @@ public class GitHubCacheAdapter : IGitHubCacheDataManager
         return _dataManager.RequestAllUpdateAsync(searches, options);
     }
 
-    public Task RequestSearchUpdateAsync(string name, string searchString, SearchType type, RequestOptions options)
+    public Task RequestSearchUpdateAsync(ISearch search, RequestOptions options)
     {
-        return _dataManager.RequestSearchUpdateAsync(name, searchString, type, options);
+        return _dataManager.RequestSearchUpdateAsync(search, options);
     }
 }

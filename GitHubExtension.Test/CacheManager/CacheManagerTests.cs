@@ -104,9 +104,7 @@ public partial class CacheManagerTests
         Assert.AreEqual(stubSearch.Object, cacheManager.PendingSearch);
         mockGitHubDataManager.Verify(
             x => x.RequestSearchUpdateAsync(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<SearchType>(),
+                It.IsAny<ISearch>(),
                 It.IsAny<RequestOptions>()),
             Times.Once);
 
@@ -118,9 +116,7 @@ public partial class CacheManagerTests
 
         mockGitHubDataManager.Verify(
             x => x.RequestSearchUpdateAsync(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<SearchType>(),
+                It.IsAny<ISearch>(),
                 It.IsAny<RequestOptions>()),
             Times.Once);
 
@@ -150,7 +146,7 @@ public partial class CacheManagerTests
 
         Assert.AreEqual(stubSearch1.Object, cacheManager.PendingSearch);
         Assert.AreEqual(cacheManager.RefreshingState, cacheManager.State);
-        mockGitHubDataManager.Verify(x => x.RequestSearchUpdateAsync(It.IsAny<string>(), "Test1", It.IsAny<SearchType>(), It.IsAny<RequestOptions>()), Times.Once);
+        mockGitHubDataManager.Verify(x => x.RequestSearchUpdateAsync(stubSearch1.Object, It.IsAny<RequestOptions>()), Times.Once);
 
         await cacheManager.Refresh(stubSearch2.Object);
 
@@ -161,7 +157,7 @@ public partial class CacheManagerTests
         mockGitHubDataManager.Raise(x => x.OnUpdate += null, this, new DataManagerUpdateEventArgs(DataManagerUpdateKind.Cancel, UpdateType.Search, string.Empty, Array.Empty<string>()));
 
         Assert.AreEqual(cacheManager.RefreshingState, cacheManager.State);
-        mockGitHubDataManager.Verify(x => x.RequestSearchUpdateAsync(It.IsAny<string>(), "Test2", It.IsAny<SearchType>(), It.IsAny<RequestOptions>()), Times.Once);
+        mockGitHubDataManager.Verify(x => x.RequestSearchUpdateAsync(stubSearch2.Object, It.IsAny<RequestOptions>()), Times.Once);
 
         mockGitHubDataManager.Raise(x => x.OnUpdate += null, this, new DataManagerUpdateEventArgs(DataManagerUpdateKind.Success, UpdateType.Search, string.Empty, Array.Empty<string>()));
 
@@ -222,12 +218,12 @@ public partial class CacheManagerTests
 
         await cacheManager.RequestRefresh(stubSearch.Object);
 
-        mockGitHubDataManager.Verify(x => x.RequestSearchUpdateAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<SearchType>(), It.IsAny<RequestOptions>()), Times.Never);
+        mockGitHubDataManager.Verify(x => x.RequestSearchUpdateAsync(It.IsAny<ISearch>(), It.IsAny<RequestOptions>()), Times.Never);
 
         mockGitHubDataManager.Setup(x => x.IsSearchNewOrStale(It.IsAny<ISearch>(), It.IsAny<TimeSpan>())).Returns(true);
 
         await cacheManager.RequestRefresh(stubSearch.Object);
 
-        mockGitHubDataManager.Verify(x => x.RequestSearchUpdateAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<SearchType>(), It.IsAny<RequestOptions>()), Times.Once);
+        mockGitHubDataManager.Verify(x => x.RequestSearchUpdateAsync(It.IsAny<ISearch>(), It.IsAny<RequestOptions>()), Times.Once);
     }
 }

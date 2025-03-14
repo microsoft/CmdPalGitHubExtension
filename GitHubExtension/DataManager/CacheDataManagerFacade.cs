@@ -4,7 +4,6 @@
 
 using GitHubExtension.Controls;
 using GitHubExtension.DataManager.Cache;
-using GitHubExtension.DataManager.Enums;
 using GitHubExtension.DataModel.DataObjects;
 
 namespace GitHubExtension.DataManager;
@@ -43,7 +42,7 @@ public class CacheDataManagerFacade : ICacheDataManager
         var res = _dataRequester.GetIssuesForSearch(search.Name, search.SearchString);
 
         _ = _cacheManager.RequestRefresh(search);
-        return res as IEnumerable<IIssue>;
+        return res;
     }
 
     public async Task<IEnumerable<IPullRequest>> GetPullRequests(ISearch search)
@@ -65,7 +64,7 @@ public class CacheDataManagerFacade : ICacheDataManager
             res.Add(_decoratorFactory.DecorateSearchBranch(pr));
         }
 
-        return res as IEnumerable<IPullRequest>;
+        return res;
     }
 
     private List<IIssue> MergeIssuesAndPullRequests(IEnumerable<Issue> issues, IEnumerable<PullRequest> pullRequests)
@@ -118,6 +117,6 @@ public class CacheDataManagerFacade : ICacheDataManager
             return item;
         });
 
-        return res as IEnumerable<IIssue>;
+        return res;
     }
 }

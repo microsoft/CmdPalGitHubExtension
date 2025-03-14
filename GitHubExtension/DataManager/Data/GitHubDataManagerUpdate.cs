@@ -86,7 +86,7 @@ public partial class GitHubDataManager
         _lastUpdateTime = DateTime.UtcNow;
     }
 
-    public async Task RequestSearchUpdateAsync(string name, string searchString, SearchType type, RequestOptions options)
+    public async Task RequestSearchUpdateAsync(ISearch search, RequestOptions options)
     {
         _log.Information("Updating search data");
         var parameters = new DataStoreOperationParameters
@@ -94,12 +94,12 @@ public partial class GitHubDataManager
             OperationName = nameof(RequestSearchUpdateAsync),
             RequestOptions = options,
             UpdateType = UpdateType.Search,
-            SearchName = name,
-            SearchType = type,
+            SearchName = search.Name,
+            SearchType = search.Type,
         };
         await PerformUpdateAsync(
             parameters,
-            async () => await UpdateDataForSearchAsync(name, searchString, type, options));
+            async () => await UpdateDataForSearchAsync(search, options));
 
         _lastUpdateTime = DateTime.UtcNow;
     }
