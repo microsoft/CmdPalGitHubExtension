@@ -473,21 +473,6 @@ public class PullRequest : IPullRequest
         }
     }
 
-    public static void DeleteLastObservedBefore(DataStore dataStore, long searchId, DateTime date)
-    {
-        // Delete pull requests older than the time specified for the given search.
-        // This is intended to be run after updating a search's Pull Requests so that non-observed
-        // records will be removed.
-        var sql = @"DELETE FROM PullRequest WHERE Id IN (SELECT PullRequest FROM SearchPullRequest WHERE Search = $SearchId) AND TimeLastObserved < $Time;";
-        var command = dataStore.Connection!.CreateCommand();
-        command.CommandText = sql;
-        command.Parameters.AddWithValue("$Time", date.ToDataStoreInteger());
-        command.Parameters.AddWithValue("$SearchId", searchId);
-        _log.Verbose(DataStore.GetCommandLogMessage(sql, command));
-        var rowsDeleted = command.ExecuteNonQuery();
-        _log.Verbose(DataStore.GetDeletedLogMessage(rowsDeleted));
-    }
-
     public static void DeleteNotReferencedBySearch(DataStore dataStore)
     {
         // Delete pull requests that are not referenced by any search.
