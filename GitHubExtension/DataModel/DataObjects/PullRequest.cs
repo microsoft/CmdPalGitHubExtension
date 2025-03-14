@@ -187,10 +187,10 @@ public class PullRequest : IPullRequest
             HtmlUrl = okitPull.HtmlUrl ?? string.Empty,
             Locked = okitPull.Locked ? 1 : 0,
             Draft = okitPull.Draft ? 1 : 0,
-            TimeCreated = okitPull.CreatedAt.DateTime.ToDataStoreInteger(),
-            TimeUpdated = okitPull.UpdatedAt.DateTime.ToDataStoreInteger(),
-            TimeMerged = okitPull.MergedAt.HasValue ? okitPull.MergedAt.Value.DateTime.ToDataStoreInteger() : 0,
-            TimeClosed = okitPull.ClosedAt.HasValue ? okitPull.ClosedAt.Value.DateTime.ToDataStoreInteger() : 0,
+            TimeCreated = okitPull.CreatedAt.UtcDateTime.ToDataStoreInteger(),
+            TimeUpdated = okitPull.UpdatedAt.UtcDateTime.ToDataStoreInteger(),
+            TimeMerged = okitPull.MergedAt.HasValue ? okitPull.MergedAt.Value.UtcDateTime.ToDataStoreInteger() : 0,
+            TimeClosed = okitPull.ClosedAt.HasValue ? okitPull.ClosedAt.Value.UtcDateTime.ToDataStoreInteger() : 0,
             TimeLastObserved = DateTime.UtcNow.ToDataStoreInteger(),
         };
 
@@ -251,9 +251,9 @@ public class PullRequest : IPullRequest
             State = okitIssue.State.Value.ToString(),
             HtmlUrl = okitIssue.HtmlUrl ?? string.Empty,
             Locked = okitIssue.Locked ? 1 : 0,
-            TimeCreated = okitIssue.CreatedAt.DateTime.ToDataStoreInteger(),
-            TimeUpdated = okitIssue.UpdatedAt.HasValue ? okitIssue.UpdatedAt.Value.DateTime.ToDataStoreInteger() : 0,
-            TimeClosed = okitIssue.ClosedAt.HasValue ? okitIssue.ClosedAt.Value.DateTime.ToDataStoreInteger() : 0,
+            TimeCreated = okitIssue.CreatedAt.UtcDateTime.ToDataStoreInteger(),
+            TimeUpdated = okitIssue.UpdatedAt.HasValue ? okitIssue.UpdatedAt.Value.UtcDateTime.ToDataStoreInteger() : 0,
+            TimeClosed = okitIssue.ClosedAt.HasValue ? okitIssue.ClosedAt.Value.UtcDateTime.ToDataStoreInteger() : 0,
             TimeLastObserved = DateTime.UtcNow.ToDataStoreInteger(),
         };
 

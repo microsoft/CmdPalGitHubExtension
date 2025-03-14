@@ -130,7 +130,9 @@ public abstract partial class SearchPage<T> : ListPage
         var tags = new List<ITag>();
         if (item.Labels != null)
         {
-            foreach (var label in item.Labels)
+            // Limit to 4 tags for UI space
+            var labels = item.Labels.Take(4);
+            foreach (var label in labels)
             {
                 var color = ColorTranslator.FromHtml($"#{label.Color}");
                 tags.Add(new Tag

@@ -16,7 +16,7 @@ public interface IGitHubCacheDataManager
 
     Task RequestAllUpdateAsync(List<ISearch> searches, RequestOptions options);
 
-    Task RequestSearchUpdateAsync(string name, string searchString, SearchType type, RequestOptions options);
+    Task RequestSearchUpdateAsync(ISearch search, RequestOptions options);
 
     bool IsSearchNewOrStale(ISearch search, TimeSpan refreshCooldown);
 }

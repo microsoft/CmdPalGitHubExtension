@@ -19,7 +19,7 @@ public interface IGitHubDataManager : IDisposable
 
     Task RequestAllUpdateAsync(List<ISearch> searches, RequestOptions options);
 
-    Task RequestSearchUpdateAsync(string name, string searchString, SearchType type, RequestOptions options);
+    Task RequestSearchUpdateAsync(ISearch search, RequestOptions options);
 
     Search? GetSearch(string name, string searchString);
 }

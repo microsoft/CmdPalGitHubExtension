@@ -7,7 +7,6 @@ using GitHubExtension.Controls;
 using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.DataModel.Enums;
-using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Serilog;
 using Windows.Storage;
@@ -92,8 +91,11 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
 
     // Search area
     // Methods to update Search items
-    private async Task UpdateIssuesForSearchAsync(string name, string searchString, RequestOptions? options = null)
+    private async Task UpdateIssuesForSearchAsync(ISearch search, RequestOptions? options = null)
     {
+        var name = search.Name;
+        var searchString = search.SearchString;
+
         _log.Information($"Updating issues for: {name} - {searchString}");
         options ??= RequestOptions.RequestOptionsDefault();
         var searchIssuesRequest = new Octokit.SearchIssuesRequest(searchString)
@@ -126,8 +128,11 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
         SearchIssue.DeleteBefore(DataStore, dsSearch, DateTime.UtcNow - _searchTablesLastObservedDeleteSpan);
     }
 
-    private async Task UpdatePullRequestsForSearchAsync(string name, string searchString, RequestOptions? options = null)
+    private async Task UpdatePullRequestsForSearchAsync(ISearch search, RequestOptions? options = null)
     {
+        var name = search.Name;
+        var searchString = search.SearchString;
+
         _log.Information($"Updating pull requests for: {name} - {searchString}");
         options ??= RequestOptions.RequestOptionsDefault();
         var searchIssuesRequest = new Octokit.SearchIssuesRequest(searchString)
@@ -161,8 +166,11 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
         SearchPullRequest.DeleteBefore(DataStore, dsSearch, DateTime.UtcNow - _searchTablesLastObservedDeleteSpan);
     }
 
-    private async Task UpdateRepositoriesForSearchAsync(string name, string searchString, RequestOptions? options = null)
+    private async Task UpdateRepositoriesForSearchAsync(ISearch search, RequestOptions? options = null)
     {
+        var name = search.Name;
+        var searchString = search.SearchString;
+
         _log.Information($"Updating repositories for: {name}");
         options ??= RequestOptions.RequestOptionsDefault();
         var searchRepoRequest = new Octokit.SearchRepositoriesRequest(searchString);
@@ -188,28 +196,28 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
         SearchRepository.DeleteBefore(DataStore, dsSearch, DateTime.UtcNow - _searchTablesLastObservedDeleteSpan);
     }
 
-    public async Task UpdateDataForSearchAsync(string name, string searchString, SearchType type, RequestOptions options)
+    public async Task UpdateDataForSearchAsync(ISearch search, RequestOptions options)
     {
         var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
         cancellationToken.ThrowIfCancellationRequested();
 
-        switch (type)
+        switch (search.Type)
         {
             case SearchType.Issues:
-                await UpdateIssuesForSearchAsync(name, searchString, options);
+                await UpdateIssuesForSearchAsync(search, options);
                 break;
             case SearchType.PullRequests:
-                await UpdatePullRequestsForSearchAsync(name, searchString, options);
+                await UpdatePullRequestsForSearchAsync(search, options);
                 break;
             case SearchType.IssuesAndPullRequests:
-                await UpdateIssuesForSearchAsync(name, searchString, options);
-                await UpdatePullRequestsForSearchAsync(name, searchString, options);
+                await UpdateIssuesForSearchAsync(search, options);
+                await UpdatePullRequestsForSearchAsync(search, options);
                 break;
             case SearchType.Repositories:
-                await UpdateRepositoriesForSearchAsync(name, searchString, options);
+                await UpdateRepositoriesForSearchAsync(search, options);
                 break;
             default:
-                throw new ArgumentOutOfRangeException(nameof(type), type, null);
+                throw new ArgumentOutOfRangeException(nameof(search), search.Type, null);
         }
     }
 
@@ -217,7 +225,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
     {
         foreach (var search in searches)
         {
-            await UpdateDataForSearchAsync(search.Name, search.SearchString, search.Type, options);
+            await UpdateDataForSearchAsync(search, options);
         }
     }
 
