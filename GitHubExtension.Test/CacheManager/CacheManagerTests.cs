@@ -192,7 +192,7 @@ public partial class CacheManagerTests
 
     [TestMethod]
     [TestCategory("Unit")]
-    public void RequestRefreshTest()
+    public async Task RequestRefreshTest()
     {
         var mockSearchRepository = MockSearchRepository();
         var mockGitHubDataManager = MockGitHubDataManager();
@@ -202,13 +202,13 @@ public partial class CacheManagerTests
 
         var stubSearch = new Mock<ISearch>();
 
-        cacheManager.RequestRefresh(UpdateType.Search, stubSearch.Object);
+        await cacheManager.RequestRefresh(UpdateType.Search, stubSearch.Object);
 
         mockGitHubDataManager.Verify(x => x.RequestSearchUpdateAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<SearchType>(), It.IsAny<RequestOptions>()), Times.Never);
 
         mockGitHubDataManager.Setup(x => x.IsSearchNewOrStale(It.IsAny<ISearch>(), It.IsAny<TimeSpan>())).Returns(true);
 
-        cacheManager.RequestRefresh(UpdateType.Search, stubSearch.Object);
+        await cacheManager.RequestRefresh(UpdateType.Search, stubSearch.Object);
 
         mockGitHubDataManager.Verify(x => x.RequestSearchUpdateAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<SearchType>(), It.IsAny<RequestOptions>()), Times.Once);
     }
