@@ -28,7 +28,8 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
     // other clients which simply haven't been updated yet but will in the near future.
     // This is a conservative time period to check for pruning and give time for other
     // consumers using the data to update its freshness before we remove it.
-    private static readonly TimeSpan _lastObservedDeleteSpan = TimeSpan.FromMinutes(6);
+    private static readonly TimeSpan _searchTablesLastObservedDeleteSpan = TimeSpan.FromMinutes(2);
+    private static readonly TimeSpan _itemsLastObservedDeleteSpan = TimeSpan.FromMinutes(8);
 
     private DataStore DataStore { get; set; }
 
@@ -106,7 +107,9 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
             State = Octokit.ItemState.Open,
             Type = Octokit.IssueTypeQualifier.Issue,
         };
-        var issuesResult = await _gitHubClientProvider.GetClient().Search.SearchIssues(searchIssuesRequest);
+
+        var client = await _gitHubClientProvider.GetClientForLoggedInDeveloper(true);
+        var issuesResult = await client.Search.SearchIssues(searchIssuesRequest);
         if (issuesResult == null)
         {
             _log.Information($"No issues found.");
@@ -126,7 +129,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
             SearchIssue.AddIssueToSearch(DataStore, dsIssue, dsSearch);
         }
 
-        Issue.DeleteLastObservedBefore(DataStore, dsSearch.Id, DateTime.UtcNow - _lastObservedDeleteSpan);
+        SearchIssue.DeleteBefore(DataStore, dsSearch, DateTime.UtcNow - _searchTablesLastObservedDeleteSpan);
     }
 
     private async Task UpdatePullRequestsForSearchAsync(string name, string searchString, RequestOptions? options = null)
@@ -139,7 +142,9 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
             Type = Octokit.IssueTypeQualifier.PullRequest,
             PerPage = 100,
         };
-        var issuesResult = await _gitHubClientProvider.GetClient().Search.SearchIssues(searchIssuesRequest);
+
+        var client = await _gitHubClientProvider.GetClientForLoggedInDeveloper(true);
+        var issuesResult = await client.Search.SearchIssues(searchIssuesRequest);
         if (issuesResult == null)
         {
             _log.Information($"No pull requests found.");
@@ -159,7 +164,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
             SearchPullRequest.AddPullRequestToSearch(DataStore, dsPullRequest, dsSearch);
         }
 
-        PullRequest.DeleteLastObservedBefore(DataStore, dsSearch.Id, DateTime.UtcNow - _lastObservedDeleteSpan);
+        SearchPullRequest.DeleteBefore(DataStore, dsSearch, DateTime.UtcNow - _searchTablesLastObservedDeleteSpan);
     }
 
     private async Task UpdateRepositoriesForSearchAsync(string name, string searchString, RequestOptions? options = null)
@@ -185,6 +190,8 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
             var dsRepository = Repository.GetOrCreateByOctokitRepository(DataStore, repo);
             SearchRepository.AddRepositoryToSearch(DataStore, dsRepository, dsSearch);
         }
+
+        SearchRepository.DeleteBefore(DataStore, dsSearch, DateTime.UtcNow - _searchTablesLastObservedDeleteSpan);
     }
 
     public async Task UpdateDataForSearchAsync(string name, string searchString, SearchType type, RequestOptions options)
@@ -259,6 +266,8 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
         SearchIssue.DeleteUnreferenced(DataStore);
         SearchPullRequest.DeleteUnreferenced(DataStore);
         SearchRepository.DeleteUnreferenced(DataStore);
+        Issue.DeleteNotReferencedBySearch(DataStore);
+        PullRequest.DeleteNotReferencedBySearch(DataStore);
     }
 
     // Sets a last-updated in the MetaData.

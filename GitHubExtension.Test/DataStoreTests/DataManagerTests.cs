@@ -20,7 +20,7 @@ public partial class DataStoreTests
     [TestCategory("Unit")]
     public void DataManagerCreate()
     {
-        using var dataManager = new GitHubDataManager(GetDeveloperIdProvider(), GetGitHubClientProvider(GetDeveloperIdProvider()), TestOptions.DataStoreOptions);
+        using var dataManager = new GitHubDataManager(GetGitHubClientProvider(GetDeveloperIdProvider()), TestOptions.DataStoreOptions);
         Assert.IsNotNull(dataManager);
     }
 
@@ -28,7 +28,7 @@ public partial class DataStoreTests
     [TestCategory("Unit")]
     public void DataManagerGetRepositories()
     {
-        using var dataManager = new GitHubDataManager(GetDeveloperIdProvider(), GetGitHubClientProvider(GetDeveloperIdProvider()), TestOptions.DataStoreOptions);
+        using var dataManager = new GitHubDataManager(GetGitHubClientProvider(GetDeveloperIdProvider()), TestOptions.DataStoreOptions);
         Assert.IsNotNull(dataManager);
 
         var repos = dataManager.GetRepositories();
@@ -39,6 +39,13 @@ public partial class DataStoreTests
 
         noSuchRepo = dataManager.GetRepository("foo", "bar");
         Assert.IsNull(noSuchRepo);
+    }
+
+    [TestMethod]
+    [TestCategory("Unit")]
+    public void DataManagerGetIssues()
+    {
+        using var dataManager = new GitHubDataManager(GetGitHubClientProvider(GetDeveloperIdProvider()), TestOptions.DataStoreOptions);
     }
 
     [TestMethod]

@@ -487,4 +487,12 @@ public class PullRequest : IPullRequest
         var rowsDeleted = command.ExecuteNonQuery();
         _log.Verbose(DataStore.GetDeletedLogMessage(rowsDeleted));
     }
+
+    public static void DeleteNotReferencedBySearch(DataStore dataStore)
+    {
+        // Delete pull requests that are not referenced by any search.
+        var sql = @"DELETE FROM PullRequest WHERE Id NOT IN (SELECT PullRequest FROM SearchPullRequest);";
+        var rowsDeleted = dataStore.Connection!.Execute(sql);
+        _log.Verbose(DataStore.GetDeletedLogMessage(rowsDeleted));
+    }
 }

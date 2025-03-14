@@ -361,18 +361,11 @@ public class Issue : IIssue
         }
     }
 
-    public static void DeleteLastObservedBefore(DataStore dataStore, long searchId, DateTime date)
+    public static void DeleteNotReferencedBySearch(DataStore datasStore)
     {
-        // Delete issues older than the time specified for the given search.
-        // This is intended to be run after updating a search's issues so that non-observed
-        // records will be removed.
-        var sql = @"DELETE FROM Issue WHERE Id IN (SELECT Issue FROM SearchIssue WHERE Search = $SearchId) AND TimeLastObserved < $Time;";
-        var command = dataStore.Connection!.CreateCommand();
-        command.CommandText = sql;
-        command.Parameters.AddWithValue("$Time", date.ToDataStoreInteger());
-        command.Parameters.AddWithValue("$SearchId", searchId);
-        _log.Verbose(DataStore.GetCommandLogMessage(sql, command));
-        var rowsDeleted = command.ExecuteNonQuery();
+        // Delete issues that are not referenced by any search.
+        var sql = @"DELETE FROM Issue WHERE Id NOT IN (SELECT Issue FROM SearchIssue);";
+        var rowsDeleted = datasStore.Connection!.Execute(sql);
         _log.Verbose(DataStore.GetDeletedLogMessage(rowsDeleted));
     }
 }
