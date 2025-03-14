@@ -49,7 +49,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         RemoveSavedSearchCommand.SearchRemoved += OnSearchRemoved;
 
         // This async method raises the RaiseItemsChanged event to update the top-level commands
-        // So it is save if we let it run asynchronously as "fire and forget"
+        // So it is safe if we let it run asynchronously as "fire and forget"
         _ = UpdateSignInStatus(IsSignedIn());
     }
 

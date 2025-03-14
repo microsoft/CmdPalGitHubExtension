@@ -129,10 +129,6 @@ public sealed class CacheManager : IDisposable, ICacheManager
             _logger.Information("Search is stale or new. Refreshing.");
             await Refresh(search);
         }
-        else
-        {
-            _logger.Information("Search is still fresh. Ignoring.");
-        }
     }
 
     // This method is called by the pages to request
