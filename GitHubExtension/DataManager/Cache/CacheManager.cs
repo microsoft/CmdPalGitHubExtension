@@ -125,11 +125,11 @@ public sealed class CacheManager : IDisposable, ICacheManager
         }
     }
 
-    public void RequestRefresh(UpdateType updateType, ISearch search)
+    public async Task RequestRefresh(UpdateType updateType, ISearch search)
     {
         if (_dataManager.IsSearchNewOrStale(search, RefreshCooldown))
         {
-            _ = Refresh(updateType, search);
+            await Refresh(updateType, search);
         }
     }
 

@@ -27,7 +27,7 @@ public class CacheDataManagerFacadeTests
 
     [TestMethod]
     [TestCategory("Unit")]
-    public void GetIssues()
+    public async Task GetIssues()
     {
         var stubCacheManager = new Mock<ICacheManager>().Object;
         var mockGitHubDataManager = new Mock<IDataRequester>();
@@ -40,13 +40,13 @@ public class CacheDataManagerFacadeTests
 
         mockGitHubDataManager.Setup(x => x.GetIssuesForSearch(It.IsAny<string>(), It.IsAny<string>())).Returns(mockIssues.Object);
 
-        var issues = cacheDataManagerFacade.GetIssues(search);
+        var issues = await cacheDataManagerFacade.GetIssues(search);
         Assert.IsNotNull(issues);
     }
 
     [TestMethod]
     [TestCategory("Unit")]
-    public void GetPullRequests()
+    public async Task GetPullRequests()
     {
         var stubCacheManager = new Mock<ICacheManager>().Object;
         var mockGitHubDataManager = new Mock<IDataRequester>();
@@ -58,11 +58,11 @@ public class CacheDataManagerFacadeTests
                             .Returns((IPullRequest pr) => pr);
 
         var search = new Mock<ISearch>().Object;
-        var mockPullRequests = new Mock<IEnumerable<PullRequest>>();
+        var mockPullRequests = new List<PullRequest> { };
 
-        mockGitHubDataManager.Setup(x => x.GetPullRequestsForSearch(It.IsAny<string>(), It.IsAny<string>())).Returns(mockPullRequests.Object);
+        mockGitHubDataManager.Setup(x => x.GetPullRequestsForSearch(It.IsAny<string>(), It.IsAny<string>())).Returns(mockPullRequests);
 
-        var pullRequests = cacheDataManagerFacade.GetPullRequests(search);
+        var pullRequests = await cacheDataManagerFacade.GetPullRequests(search);
         Assert.IsNotNull(pullRequests);
     }
 
