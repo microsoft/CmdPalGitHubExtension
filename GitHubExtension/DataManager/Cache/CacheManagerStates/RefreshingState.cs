@@ -15,26 +15,20 @@ public class RefreshingState : CacheManagerState
     {
     }
 
-    public async override Task Refresh(UpdateType updateType, ISearch? search)
+    public async override Task Refresh(ISearch search)
     {
         await Task.Run(() =>
         {
             lock (CacheManager.GetStateLock())
             {
-                if (search != null && search.SearchString == CacheManager.PendingSearch?.SearchString)
+                if (search.SearchString == CacheManager.PendingSearch?.SearchString)
                 {
                     Logger.Information("Search is the same as the pending search. Ignoring.");
                     return;
                 }
 
-                if (updateType == CacheManager.CurrentUpdateType)
-                {
-                    Logger.Information("Update type is the same as the current update type. Ignoring.");
-                    return;
-                }
-
                 CacheManager.PendingSearch = search;
-                CacheManager.CurrentUpdateType = updateType;
+                CacheManager.CurrentUpdateType = UpdateType.Search;
             }
 
             CacheManager.CancelUpdateInProgress();
@@ -53,6 +47,7 @@ public class RefreshingState : CacheManagerState
         {
             CacheManager.State = CacheManager.IdleState;
             CacheManager.PendingSearch = null;
+            CacheManager.CurrentUpdateType = UpdateType.Unknown;
         }
     }
 }

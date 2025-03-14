@@ -37,12 +37,12 @@ public class CacheDataManagerFacade : ICacheDataManager
 
         if (_dataRequester.GetSearch(search.Name, search.SearchString) == null)
         {
-            await _cacheManager.RequestRefresh(UpdateType.Search, search);
+            await _cacheManager.RequestRefresh(search);
         }
 
         var res = _dataRequester.GetIssuesForSearch(search.Name, search.SearchString);
 
-        _ = _cacheManager.RequestRefresh(UpdateType.Search, search);
+        _ = _cacheManager.RequestRefresh(search);
         return res as IEnumerable<IIssue>;
     }
 
@@ -52,11 +52,11 @@ public class CacheDataManagerFacade : ICacheDataManager
 
         if (_dataRequester.GetSearch(search.Name, search.SearchString) == null)
         {
-            await _cacheManager.RequestRefresh(UpdateType.Search, search);
+            await _cacheManager.RequestRefresh(search);
         }
 
         var intermediateRes = _dataRequester.GetPullRequestsForSearch(search.Name, search.SearchString);
-        _ = _cacheManager.RequestRefresh(UpdateType.Search, search);
+        _ = _cacheManager.RequestRefresh(search);
 
         var res = new List<IPullRequest>();
 
@@ -100,13 +100,13 @@ public class CacheDataManagerFacade : ICacheDataManager
 
         if (_dataRequester.GetSearch(search.Name, search.SearchString) == null)
         {
-            await _cacheManager.RequestRefresh(UpdateType.Search, search);
+            await _cacheManager.RequestRefresh(search);
         }
 
         var issues = _dataRequester.GetIssuesForSearch(search.Name, search.SearchString);
         var pullRequests = _dataRequester.GetPullRequestsForSearch(search.Name, search.SearchString);
 
-        _ = _cacheManager.RequestRefresh(UpdateType.Search, search);
+        _ = _cacheManager.RequestRefresh(search);
 
         var res = MergeIssuesAndPullRequests(issues, pullRequests).Select(item =>
         {

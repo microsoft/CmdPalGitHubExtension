@@ -125,19 +125,19 @@ public sealed class CacheManager : IDisposable, ICacheManager
         }
     }
 
-    public async Task RequestRefresh(UpdateType updateType, ISearch search)
+    public async Task RequestRefresh(ISearch search)
     {
         if (_dataManager.IsSearchNewOrStale(search, RefreshCooldown))
         {
-            await Refresh(updateType, search);
+            await Refresh(search);
         }
     }
 
     // This method is called by the pages to request
     // an instant update of its data.
-    public async Task Refresh(UpdateType updateType, ISearch? search = null)
+    public async Task Refresh(ISearch search)
     {
-        await State.Refresh(updateType, search);
+        await State.Refresh(search);
     }
 
     public async Task PeriodicUpdate()
