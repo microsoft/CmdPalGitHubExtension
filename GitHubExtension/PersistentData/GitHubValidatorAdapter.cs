@@ -31,6 +31,7 @@ public class GitHubValidatorAdapter : IGitHubValidator
             throw new NoSignedInUsersException("No GitHub client available for validation. User needs to sign in.");
         }
 
+        _developerIdProvider.RestoreDeveloperIdClient(_developerIdProvider.GetLoggedInDeveloperIdsInternal().First());
         var client = _developerIdProvider.GetLoggedInDeveloperIdsInternal().First().GitHubClient;
 
         // Type is set here so we can search issues and PRs by default

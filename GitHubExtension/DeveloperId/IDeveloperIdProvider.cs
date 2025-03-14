@@ -18,5 +18,5 @@ public interface IDeveloperIdProvider
 
     void HandleOauthRedirection(Uri authorizationResponse);
 
-    bool IsSSOAuthenticated(string org);
+    void RestoreDeveloperIdClient(IDeveloperId developerId);
 }

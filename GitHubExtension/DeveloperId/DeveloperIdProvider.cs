@@ -300,17 +300,11 @@ public class DeveloperIdProvider : IDeveloperIdProvider
         }
     }
 
-    public bool IsSSOAuthenticated(string org)
+    public void RefreshDeveloperIdClient(IDeveloperId developerId)
     {
-        var developerIds = GetLoggedInDeveloperIdsInternal();
-        foreach (var developerId in developerIds)
-        {
-            if (developerId.SSOAuthenticated.TryGetValue(org, out var isAuthenticated))
-            {
-                return isAuthenticated;
-            }
-        }
-
-        return false;
+        var devId = GetDeveloperIdInternal(developerId);
+        RestoreDeveloperIds(new[] { devId.Url });
     }
+
+    public void RestoreDeveloperIdClient(IDeveloperId developerId) => throw new NotImplementedException();
 }

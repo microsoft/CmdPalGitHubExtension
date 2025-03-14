@@ -20,8 +20,6 @@ public class DeveloperId : IDeveloperId
 
     public GitHubClient GitHubClient { get; private set; }
 
-    public Dictionary<string, bool> SSOAuthenticated => [];
-
     public DeveloperId()
     {
         LoginId = string.Empty;
