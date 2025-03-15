@@ -34,6 +34,11 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
         { "{{SavedSearchString}}", _savedSearch.SearchString },
         { "{{SavedSearchName}}", _savedSearch.Name },
         { "{{IsTopLevel}}", IsTopLevelChecked },
+        { "{{EnteredSearchErrorMessage}}", _resources.GetResource("SaveSearchTemplateEnteredSearchError") },
+        { "{{EnteredSearchLabel}}", _resources.GetResource("SaveSearchTemplateEnteredSearchLabel") },
+        { "{{NameLabel}}", _resources.GetResource("SaveSearchTemplateNameLabel") },
+        { "{{NameErrorMessage}}", _resources.GetResource("SaveSearchTemplateNameError") },
+        { "{{IsTopLevelTitle}}", _resources.GetResource("SaveSearchTemplateIsTopLevelTitle") },
     };
 
     public SaveSearchForm(ISearchRepository searchRepository, IResources resources)

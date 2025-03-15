@@ -297,4 +297,24 @@
     <value>checkout command</value>
     <comment>Tooltip for command to copy checkout command of a PR</comment>
   </data>
+  <data name="SaveSearchTemplateEnteredSearchError" xml:space="preserve">
+    <value>Query is required</value>
+    <comment>Shown if the user submits the form without entering a query</comment>
+  </data>
+  <data name="SaveSearchTemplateEnteredSearchLabel" xml:space="preserve">
+    <value>Query string or URL:</value>
+    <comment>Shown as the label for the input text box for the GitHub query</comment>
+  </data>
+  <data name="SaveSearchTemplateNameLabel" xml:space="preserve">
+    <value>Name:</value>
+    <comment>Shown as the name for the saved query</comment>
+  </data>
+  <data name="SaveSearchTemplateNameErrorMessage" xml:space="preserve">
+    <value>A query name is required</value>
+    <comment>Shown if the user submits the SaveSearchForm without a name</comment>
+  </data>
+  <data name="SaveSearchTemplateIsTopLevelTitle" xml:space="preserve">
+    <value>Pin query to top-level commands</value>
+    <comment>The label text for the checkbox that determines if the query should be pinned as a top level command</comment>
+  </data>
 </root>
