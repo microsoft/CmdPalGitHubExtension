@@ -17,14 +17,14 @@ public sealed partial class SaveSearchPage : ContentPage
     private readonly string _successMessage;
     private readonly string _errorMessage;
 
-    public SaveSearchPage(SaveSearchForm saveSearchForm, StatusMessage statusMessage, string successMessage, string errorMessage, IResources resources)
+    public SaveSearchPage(SaveSearchForm saveSearchForm, StatusMessage statusMessage, string successMessage, string errorMessage, string saveSearchPageTitle)
     {
         _saveSearchForm = saveSearchForm;
         _statusMessage = statusMessage;
         _successMessage = successMessage;
         _errorMessage = errorMessage;
         Icon = new IconInfo("\uecc8");
-        Title = resources.GetResource("ListItems_AddSearch");
+        Title = saveSearchPageTitle;
 
         // Wire up events using the helper
         FormEventHelper.WireFormEvents(_saveSearchForm, this, _statusMessage, _successMessage, _errorMessage);
