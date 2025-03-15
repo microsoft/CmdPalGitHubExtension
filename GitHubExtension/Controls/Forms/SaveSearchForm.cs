@@ -115,15 +115,13 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
         var isTopLevel = jsonNode?["IsTopLevel"]?.ToString() == "true";
 
         string? searchStr;
-        if (!Validation.IsValidGitHubURL(enteredSearch))
+        var searchFromUrl = string.Empty;
+        if (Validation.IsValidHttpUri(enteredSearch, out Uri? uri) && uri != null)
         {
-            searchStr = enteredSearch;
+            searchFromUrl = SearchHelper.ParseSearchStringFromUri(uri);
         }
-        else
-        {
-            var parsedUrl = SearchHelper.ParseSearchStringFromGitHubUrl(enteredSearch);
-            searchStr = parsedUrl ?? enteredSearch;
-        }
+
+        searchStr = string.IsNullOrEmpty(searchFromUrl) ? enteredSearch : searchFromUrl;
 
         return new SearchCandidate(searchStr, name, isTopLevel);
     }

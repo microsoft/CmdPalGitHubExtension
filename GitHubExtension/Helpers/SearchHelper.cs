@@ -55,12 +55,10 @@ public static class SearchHelper
             .Select(x => x.Split(':')[1]);
     }
 
-    public static string? ParseSearchStringFromGitHubUrl(string url)
+    public static string? ParseSearchStringFromUri(Uri uri)
     {
         try
         {
-            var uri = new Uri(url);
-
             var pathSegments = uri.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
             var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
