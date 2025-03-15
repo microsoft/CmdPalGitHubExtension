@@ -11,10 +11,6 @@ namespace GitHubExtension.DataManager.Data;
 
 public partial class GitHubDataManager
 {
-    // This is how frequently the DataStore update occurs.
-    private static readonly TimeSpan _updateInterval = TimeSpan.FromMinutes(5);
-    private static DateTime _lastUpdateTime = DateTime.MinValue;
-
     public event DataManagerUpdateEventHandler? OnUpdate;
 
     private async Task PerformUpdateAsync(DataStoreOperationParameters parameters, Func<Task> asyncOperation)
@@ -83,7 +79,7 @@ public partial class GitHubDataManager
                 await UpdateDataForSearchesAsync(searches, options);
             });
 
-        _lastUpdateTime = DateTime.UtcNow;
+        LastUpdated = DateTime.UtcNow;
     }
 
     public async Task RequestSearchUpdateAsync(ISearch search, RequestOptions options)
@@ -101,7 +97,7 @@ public partial class GitHubDataManager
             parameters,
             async () => await UpdateDataForSearchAsync(search, options));
 
-        _lastUpdateTime = DateTime.UtcNow;
+        LastUpdated = DateTime.UtcNow;
     }
 
     private void SendUpdateEvent(object? source, DataManagerUpdateKind kind, UpdateType updateType, string? info = null, string[]? context = null, Exception? ex = null)
