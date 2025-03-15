@@ -91,17 +91,17 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
 
     // Search area
     // Methods to update Search items
-    private async Task UpdateIssuesForSearchAsync(ISearch search, RequestOptions? options = null)
+    private async Task UpdateIssuesForSearchAsync(ISearch search, RequestOptions options)
     {
         var name = search.Name;
         var searchString = search.SearchString;
 
         _log.Information($"Updating issues for: {name} - {searchString}");
-        options ??= RequestOptions.RequestOptionsDefault();
+
         var searchIssuesRequest = new Octokit.SearchIssuesRequest(searchString)
         {
-            State = Octokit.ItemState.Open,
             Type = Octokit.IssueTypeQualifier.Issue,
+            PerPage = 100,
         };
 
         var client = await _gitHubClientProvider.GetClientForLoggedInDeveloper(true);
@@ -114,7 +114,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
 
         _log.Information($"Results contain {issuesResult.Items.Count} issues.");
 
-        var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
+        var cancellationToken = options.CancellationToken.GetValueOrDefault();
         var dsSearch = Search.GetOrCreate(DataStore, name, searchString);
 
         foreach (var issue in issuesResult.Items)
@@ -128,16 +128,14 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
         SearchIssue.DeleteBefore(DataStore, dsSearch, DateTime.UtcNow - _searchTablesLastObservedDeleteSpan);
     }
 
-    private async Task UpdatePullRequestsForSearchAsync(ISearch search, RequestOptions? options = null)
+    private async Task UpdatePullRequestsForSearchAsync(ISearch search, RequestOptions options)
     {
         var name = search.Name;
         var searchString = search.SearchString;
 
         _log.Information($"Updating pull requests for: {name} - {searchString}");
-        options ??= RequestOptions.RequestOptionsDefault();
         var searchIssuesRequest = new Octokit.SearchIssuesRequest(searchString)
         {
-            State = Octokit.ItemState.Open,
             Type = Octokit.IssueTypeQualifier.PullRequest,
             PerPage = 100,
         };
@@ -152,7 +150,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
 
         _log.Information($"Results contain {issuesResult.Items.Count} pull requests.");
 
-        var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
+        var cancellationToken = options.CancellationToken.GetValueOrDefault();
         var dsSearch = Search.GetOrCreate(DataStore, name, searchString);
 
         foreach (var issue in issuesResult.Items)
@@ -166,13 +164,12 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
         SearchPullRequest.DeleteBefore(DataStore, dsSearch, DateTime.UtcNow - _searchTablesLastObservedDeleteSpan);
     }
 
-    private async Task UpdateRepositoriesForSearchAsync(ISearch search, RequestOptions? options = null)
+    private async Task UpdateRepositoriesForSearchAsync(ISearch search, RequestOptions options)
     {
         var name = search.Name;
         var searchString = search.SearchString;
 
         _log.Information($"Updating repositories for: {name}");
-        options ??= RequestOptions.RequestOptionsDefault();
         var searchRepoRequest = new Octokit.SearchRepositoriesRequest(searchString);
         var reposResult = await _gitHubClientProvider.GetClient().Search.SearchRepo(searchRepoRequest);
 
@@ -182,7 +179,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
             return;
         }
 
-        var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
+        var cancellationToken = options.CancellationToken.GetValueOrDefault();
         _log.Debug($"Results contain {reposResult.Items.Count} repositories.");
         var dsSearch = Search.GetOrCreate(DataStore, name, searchString);
         foreach (var repo in reposResult.Items)
@@ -198,7 +195,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
 
     public async Task UpdateDataForSearchAsync(ISearch search, RequestOptions options)
     {
-        var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
+        var cancellationToken = options.CancellationToken.GetValueOrDefault();
         cancellationToken.ThrowIfCancellationRequested();
 
         switch (search.Type)
