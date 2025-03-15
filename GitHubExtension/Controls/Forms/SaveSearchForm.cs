@@ -20,6 +20,7 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
     private readonly ISearch _savedSearch;
 
     private readonly ISearchRepository _searchRepository;
+    private readonly IResources _resources;
 
     private string IsTopLevelChecked => GetIsTopLevel().Result.ToString().ToLower(CultureInfo.InvariantCulture);
 
@@ -29,20 +30,22 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
 
     public Dictionary<string, string> TemplateSubstitutions => new()
     {
-        { "{{SaveSearchFormTitle}}", string.IsNullOrEmpty(_savedSearch.Name) ? "Save Search" : "Edit Search" },
+        { "{{SaveSearchFormTitle}}", _resources.GetResource(string.IsNullOrEmpty(_savedSearch.Name) ? "Forms_Save_Search" : "Forms_Edit_Search") },
         { "{{SavedSearchString}}", _savedSearch.SearchString },
         { "{{SavedSearchName}}", _savedSearch.Name },
         { "{{IsTopLevel}}", IsTopLevelChecked },
     };
 
-    public SaveSearchForm(ISearchRepository searchRepository)
+    public SaveSearchForm(ISearchRepository searchRepository, IResources resources)
     {
+        _resources = resources;
         _savedSearch = new SearchCandidate();
         _searchRepository = searchRepository;
     }
 
-    public SaveSearchForm(ISearch savedSearch, ISearchRepository searchRepository)
+    public SaveSearchForm(ISearch savedSearch, ISearchRepository searchRepository, IResources resources)
     {
+        _resources = resources;
         _savedSearch = savedSearch;
         _searchRepository = searchRepository;
     }

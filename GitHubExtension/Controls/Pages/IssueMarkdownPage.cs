@@ -13,19 +13,21 @@ namespace GitHubExtension.Controls.Pages;
 internal sealed partial class IssueContentPage : ContentPage
 {
     private readonly IIssue _issue;
+    private readonly IResources _resources;
 
-    public IssueContentPage(IIssue issue)
+    public IssueContentPage(IIssue issue, IResources resources)
     {
+        _resources = resources;
         Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
-        Name = "View issue in Command Palette";
+        Name = _resources.GetResource("Pages_Markdown_Issue");
         _issue = issue;
 #pragma warning disable IDE0300 // Simplify collection initialization
         Commands = new CommandContextItem[]
         {
-            new(new LinkCommand(issue)),
-            new(new CopyCommand(issue.HtmlUrl, "URL")),
-            new(new CopyCommand(issue.Title, "issue title")),
-            new(new CopyCommand(issue.Number.ToString(CultureInfo.InvariantCulture), "issue number")),
+            new(new LinkCommand(issue, resources)),
+            new(new CopyCommand(issue.HtmlUrl, _resources.GetResource("Pages_Item_URL"))),
+            new(new CopyCommand(issue.Title, _resources.GetResource("Pages_Issue_Title"))),
+            new(new CopyCommand(issue.Number.ToString(CultureInfo.InvariantCulture), _resources.GetResource("Pages_Issue_Number"))),
         };
 #pragma warning restore IDE0300 // Simplify collection initialization
     }

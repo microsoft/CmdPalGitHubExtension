@@ -10,13 +10,6 @@ internal sealed partial class CopyCommand : InvokableCommand
 {
     private readonly string _valueToCopy;
 
-    internal CopyCommand()
-    {
-        _valueToCopy = "Nothing to copy";
-        Name = "Copy to clipboard";
-        Icon = new IconInfo("\uE8C8");
-    }
-
     internal CopyCommand(string valueToCopy, string valueToCopyName)
     {
         _valueToCopy = valueToCopy;

@@ -66,7 +66,7 @@ public partial class GitHubDataManager
         _log.Information($"Update complete: {parameters}");
     }
 
-    public async Task RequestAllUpdateAsync(Octokit.RepositoryCollection repoCollection, List<ISearch> searches, RequestOptions options)
+    public async Task RequestAllUpdateAsync(List<ISearch> searches, RequestOptions options)
     {
         _log.Information("Updating all data");
         var parameters = new DataStoreOperationParameters
@@ -80,49 +80,13 @@ public partial class GitHubDataManager
             parameters,
             async () =>
             {
-                await UpdateAllDataForRepositoriesAsync(repoCollection, options);
                 await UpdateDataForSearchesAsync(searches, options);
             });
 
         _lastUpdateTime = DateTime.UtcNow;
     }
 
-    public async Task RequestIssuesUpdateAsync(Octokit.RepositoryCollection repoCollection, RequestOptions options)
-    {
-        _log.Information("Updating issues data");
-
-        var parameters = new DataStoreOperationParameters
-        {
-            OperationName = nameof(RequestIssuesUpdateAsync),
-            RequestOptions = options,
-            UpdateType = UpdateType.Issues,
-        };
-
-        await PerformUpdateAsync(
-            parameters,
-            async () => await UpdateIssuesForRepositoriesAsync(repoCollection, options));
-
-        _lastUpdateTime = DateTime.UtcNow;
-    }
-
-    public async Task RequestPullRequestsUpdateAsync(Octokit.RepositoryCollection repoCollection, RequestOptions options)
-    {
-        _log.Information("Updating pull requests data");
-        var parameters = new DataStoreOperationParameters
-        {
-            OperationName = nameof(RequestPullRequestsUpdateAsync),
-            RequestOptions = options,
-            UpdateType = UpdateType.PullRequests,
-        };
-
-        await PerformUpdateAsync(
-            parameters,
-            async () => await UpdatePullRequestsForRepositoriesAsync(repoCollection, options));
-
-        _lastUpdateTime = DateTime.UtcNow;
-    }
-
-    public async Task RequestSearchUpdateAsync(string name, string searchString, SearchType type, RequestOptions options)
+    public async Task RequestSearchUpdateAsync(ISearch search, RequestOptions options)
     {
         _log.Information("Updating search data");
         var parameters = new DataStoreOperationParameters
@@ -130,12 +94,12 @@ public partial class GitHubDataManager
             OperationName = nameof(RequestSearchUpdateAsync),
             RequestOptions = options,
             UpdateType = UpdateType.Search,
-            SearchName = name,
-            SearchType = type,
+            SearchName = search.Name,
+            SearchType = search.Type,
         };
         await PerformUpdateAsync(
             parameters,
-            async () => await UpdateDataForSearchAsync(name, searchString, type, options));
+            async () => await UpdateDataForSearchAsync(search, options));
 
         _lastUpdateTime = DateTime.UtcNow;
     }

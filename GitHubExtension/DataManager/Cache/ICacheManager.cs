@@ -11,7 +11,7 @@ public interface ICacheManager
 {
     event CacheManagerUpdateEventHandler? OnUpdate;
 
-    void RequestRefresh(UpdateType updateType, ISearch search);
+    Task RequestRefresh(ISearch search);
 
     void CancelUpdateInProgress();
 }

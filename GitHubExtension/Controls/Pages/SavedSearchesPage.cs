@@ -19,14 +19,18 @@ public partial class SavedSearchesPage : ListPage
     private readonly ISearchPageFactory _searchPageFactory;
 
     private readonly ISearchRepository _searchRepository;
+    private readonly IResources _resources;
 
     public SavedSearchesPage(
        ISearchPageFactory searchPageFactory,
        ISearchRepository searchRepository,
+       IResources resources,
        IListItem addSearchListItem)
     {
+        _resources = resources;
+
         Icon = new IconInfo("\ue721");
-        Name = "Saved GitHub Searches";
+        Name = _resources.GetResource("Pages_Saved_Searches");
         SaveSearchForm.SearchSaved += OnSearchSaved;
         RemoveSavedSearchCommand.SearchRemoved += OnSearchRemoved;
         RemoveSavedSearchCommand.SearchRemoving += OnSearchRemoving;
@@ -74,7 +78,7 @@ public partial class SavedSearchesPage : ListPage
         {
             var toast = new ToastStatusMessage(new StatusMessage()
             {
-                Message = $"Error in removing search: {e.Message}",
+                Message = $"{_resources.GetResource("Pages_Saved_Searches_Error")} {e.Message}",
                 State = MessageState.Error,
             });
 
@@ -88,7 +92,7 @@ public partial class SavedSearchesPage : ListPage
         {
             var toast = new ToastStatusMessage(new StatusMessage()
             {
-                Message = "Failed to remove search.",
+                Message = _resources.GetResource("Pages_Saved_Searches_Failure"),
                 State = MessageState.Error,
             });
 

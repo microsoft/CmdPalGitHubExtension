@@ -4,7 +4,6 @@
 
 using GitHubExtension.Controls;
 using GitHubExtension.DataManager.Cache;
-using GitHubExtension.DataManager.Enums;
 using GitHubExtension.DataModel.DataObjects;
 
 namespace GitHubExtension.DataManager;
@@ -31,37 +30,41 @@ public class CacheDataManagerFacade : ICacheDataManager
         OnUpdate?.Invoke(source, e);
     }
 
-    public Task<IEnumerable<IIssue>> GetIssues(ISearch search)
+    public async Task<IEnumerable<IIssue>> GetIssues(ISearch search)
     {
-        return Task.Run(() =>
+        _cacheManager.CancelUpdateInProgress();
+
+        if (_dataRequester.GetSearch(search.Name, search.SearchString) == null)
         {
-            _cacheManager.CancelUpdateInProgress();
+            await _cacheManager.RequestRefresh(search);
+        }
 
-            var res = _dataRequester.GetIssuesForSearch(search.Name, search.SearchString);
+        var res = _dataRequester.GetIssuesForSearch(search.Name, search.SearchString);
 
-            _cacheManager.RequestRefresh(UpdateType.Search, search);
-            return res as IEnumerable<IIssue>;
-        });
+        _ = _cacheManager.RequestRefresh(search);
+        return res;
     }
 
-    public Task<IEnumerable<IPullRequest>> GetPullRequests(ISearch search)
+    public async Task<IEnumerable<IPullRequest>> GetPullRequests(ISearch search)
     {
-        return Task.Run(() =>
+        _cacheManager.CancelUpdateInProgress();
+
+        if (_dataRequester.GetSearch(search.Name, search.SearchString) == null)
         {
-            _cacheManager.CancelUpdateInProgress();
+            await _cacheManager.RequestRefresh(search);
+        }
 
-            var intermediateRes = _dataRequester.GetPullRequestsForSearch(search.Name, search.SearchString);
-            _cacheManager.RequestRefresh(UpdateType.Search, search);
+        var intermediateRes = _dataRequester.GetPullRequestsForSearch(search.Name, search.SearchString);
+        _ = _cacheManager.RequestRefresh(search);
 
-            var res = new List<IPullRequest>();
+        var res = new List<IPullRequest>();
 
-            foreach (var pr in intermediateRes)
-            {
-                res.Add(_decoratorFactory.DecorateSearchBranch(pr));
-            }
+        foreach (var pr in intermediateRes)
+        {
+            res.Add(_decoratorFactory.DecorateSearchBranch(pr));
+        }
 
-            return res as IEnumerable<IPullRequest>;
-        });
+        return res;
     }
 
     private List<IIssue> MergeIssuesAndPullRequests(IEnumerable<Issue> issues, IEnumerable<PullRequest> pullRequests)
@@ -90,28 +93,30 @@ public class CacheDataManagerFacade : ICacheDataManager
         return res;
     }
 
-    public Task<IEnumerable<IIssue>> GetIssuesAndPullRequests(ISearch search)
+    public async Task<IEnumerable<IIssue>> GetIssuesAndPullRequests(ISearch search)
     {
-        return Task.Run(() =>
+        _cacheManager.CancelUpdateInProgress();
+
+        if (_dataRequester.GetSearch(search.Name, search.SearchString) == null)
         {
-            _cacheManager.CancelUpdateInProgress();
+            await _cacheManager.RequestRefresh(search);
+        }
 
-            var issues = _dataRequester.GetIssuesForSearch(search.Name, search.SearchString);
-            var pullRequests = _dataRequester.GetPullRequestsForSearch(search.Name, search.SearchString);
+        var issues = _dataRequester.GetIssuesForSearch(search.Name, search.SearchString);
+        var pullRequests = _dataRequester.GetPullRequestsForSearch(search.Name, search.SearchString);
 
-            _cacheManager.RequestRefresh(UpdateType.Search, search);
+        _ = _cacheManager.RequestRefresh(search);
 
-            var res = MergeIssuesAndPullRequests(issues, pullRequests).Select(item =>
+        var res = MergeIssuesAndPullRequests(issues, pullRequests).Select(item =>
+        {
+            if (item is IPullRequest)
             {
-                if (item is IPullRequest)
-                {
-                    return _decoratorFactory.DecorateSearchBranch((IPullRequest)item);
-                }
+                return _decoratorFactory.DecorateSearchBranch((IPullRequest)item);
+            }
 
-                return item;
-            });
-
-            return res as IEnumerable<IIssue>;
+            return item;
         });
+
+        return res;
     }
 }
