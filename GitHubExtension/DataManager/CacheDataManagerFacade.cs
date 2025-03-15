@@ -32,7 +32,7 @@ public class CacheDataManagerFacade : ICacheDataManager
         {
             lock (_stateLock)
             {
-                // Ensuring only one page is listeing to the event.
+                // Ensuring only one page is listening to the event.
                 _onUpdate = value;
             }
         }

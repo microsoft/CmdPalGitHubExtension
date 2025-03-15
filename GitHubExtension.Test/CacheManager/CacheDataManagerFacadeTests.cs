@@ -109,7 +109,7 @@ public class CacheDataManagerFacadeTests
 
     [TestMethod]
     [TestCategory("Unit")]
-    public void EnsureOnePageListeningEventAtMaximun()
+    public void EnsureOnePageListeningEventAtMaximum()
     {
         var mockCacheManager = new Mock<ICacheManager>();
         var stubGitHubDataManager = new Mock<IDataRequester>().Object;
