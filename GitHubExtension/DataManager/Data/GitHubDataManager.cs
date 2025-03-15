@@ -115,7 +115,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
 
         _log.Information($"Results contain {issuesResult.Items.Count} issues.");
 
-        var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
+        var cancellationToken = options.CancellationToken.GetValueOrDefault();
         var dsSearch = Search.GetOrCreate(DataStore, name, searchString);
 
         foreach (var issue in issuesResult.Items)
@@ -152,7 +152,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
 
         _log.Information($"Results contain {issuesResult.Items.Count} pull requests.");
 
-        var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
+        var cancellationToken = options.CancellationToken.GetValueOrDefault();
         var dsSearch = Search.GetOrCreate(DataStore, name, searchString);
 
         foreach (var issue in issuesResult.Items)
@@ -181,7 +181,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
             return;
         }
 
-        var cancellationToken = options?.CancellationToken.GetValueOrDefault() ?? default;
+        var cancellationToken = options.CancellationToken.GetValueOrDefault();
         _log.Debug($"Results contain {reposResult.Items.Count} repositories.");
         var dsSearch = Search.GetOrCreate(DataStore, name, searchString);
         foreach (var repo in reposResult.Items)
