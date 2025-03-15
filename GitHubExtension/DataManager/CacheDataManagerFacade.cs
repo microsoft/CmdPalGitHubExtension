@@ -13,6 +13,7 @@ public class CacheDataManagerFacade : ICacheDataManager
     private readonly ICacheManager _cacheManager;
     private readonly IDataRequester _dataRequester;
     private readonly IDecoratorFactory _decoratorFactory;
+    private readonly object _stateLock = new();
 
     public CacheDataManagerFacade(ICacheManager cacheManager, IDataRequester dataRequester, IDecoratorFactory decoratorFactory)
     {
@@ -23,11 +24,31 @@ public class CacheDataManagerFacade : ICacheDataManager
         _cacheManager.OnUpdate += CacheManagerOnOnUpdate;
     }
 
-    public event CacheManagerUpdateEventHandler? OnUpdate;
+    private CacheManagerUpdateEventHandler? _onUpdate;
+
+    public event CacheManagerUpdateEventHandler? OnUpdate
+    {
+        add
+        {
+            lock (_stateLock)
+            {
+                // Ensuring only one page is listeing to the event.
+                _onUpdate = value;
+            }
+        }
+
+        remove
+        {
+            lock (_stateLock)
+            {
+                _onUpdate -= value;
+            }
+        }
+    }
 
     private void CacheManagerOnOnUpdate(object? source, CacheManagerUpdateEventArgs e)
     {
-        OnUpdate?.Invoke(source, e);
+        _onUpdate?.Invoke(source, e);
     }
 
     public async Task<IEnumerable<IIssue>> GetIssues(ISearch search)
