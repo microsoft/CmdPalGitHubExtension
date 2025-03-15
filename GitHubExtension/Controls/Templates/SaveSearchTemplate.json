@@ -52,7 +52,7 @@
   "actions": [
     {
       "type": "Action.Submit",
-      "title": "Save",
+      "title": "{{SaveSearchActionTitle}}",
       "data": {
         "id": "SaveSearchAction"
       }

@@ -317,4 +317,8 @@
     <value>Pin query to top-level commands</value>
     <comment>The label text for the checkbox that determines if the query should be pinned as a top level command</comment>
   </data>
+  <data name="SaveSearchTemplateSaveSearchActionTitle" xml:space="preserve">
+    <value>Save</value>
+    <comment>The title for the button that submits the form and saves the query</comment>
+  </data>
 </root>
