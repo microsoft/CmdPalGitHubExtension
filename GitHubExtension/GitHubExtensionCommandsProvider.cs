@@ -97,7 +97,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         {
             new(_savedSearchesPage)
             {
-                Title = "Saved GitHub Searches",
+                Title = _resources.GetResource("Pages_Saved_Searches"),
                 Icon = new IconInfo("\ue721"),
             },
             new(_signOutPage)
