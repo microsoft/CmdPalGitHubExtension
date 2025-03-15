@@ -100,7 +100,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
 
         var searchIssuesRequest = new Octokit.SearchIssuesRequest(searchString)
         {
-            State = Octokit.ItemState.Open,
             Type = Octokit.IssueTypeQualifier.Issue,
             PerPage = 100,
         };
@@ -137,7 +136,6 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
         _log.Information($"Updating pull requests for: {name} - {searchString}");
         var searchIssuesRequest = new Octokit.SearchIssuesRequest(searchString)
         {
-            State = Octokit.ItemState.Open,
             Type = Octokit.IssueTypeQualifier.PullRequest,
             PerPage = 100,
         };
