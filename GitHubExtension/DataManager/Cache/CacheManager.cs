@@ -153,10 +153,6 @@ public sealed class CacheManager : IDisposable, ICacheManager
         {
             _cancelSource = new CancellationTokenSource();
             options.CancellationToken = _cancelSource.Token;
-
-            // Limiting to 100 for now for performance reasons.
-            options.ApiOptions.PageSize = 100;
-            options.ApiOptions.PageCount = 1;
         }
 
         // Do the update for saved queries here
