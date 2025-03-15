@@ -86,4 +86,121 @@ public class SearchHelperTests
 
         Assert.AreEqual(expectedType, resultIsClosed);
     }
+
+    [TestMethod]
+    public void ParseSearchStringFromUrl_WithQueryParameter_ReturnsSearchString()
+    {
+        var url = "https://github.com/search?q=repo:microsoft/PowerToys+is:issue+label:bug";
+        var expected = "repo:microsoft/PowerToys is:issue label:bug";
+
+        var result = SearchHelper.ParseSearchStringFromGitHubUrl(url);
+
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void ParseSearchStringFromUrl_WithRepositoryIssuesUrl_ReturnsFormattedSearchString()
+    {
+        var url = "https://github.com/microsoft/PowerToys/issues?q=is:open+label:bug";
+        var expected = "is:open label:bug";
+
+        var result = SearchHelper.ParseSearchStringFromGitHubUrl(url);
+
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void ParseSearchStringFromUrl_WithRepositoryIssuesWithoutQuery_ReturnsRepoBasedSearchString()
+    {
+        var url = "https://github.com/microsoft/PowerToys/issues";
+        var expected = "repo:microsoft/PowerToys is:issue is:open";
+
+        var result = SearchHelper.ParseSearchStringFromGitHubUrl(url);
+
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void ParseSearchStringFromUrl_WithRepositoryClosedIssuesUrl_ReturnsClosedIssuesSearchString()
+    {
+        var url = "https://github.com/microsoft/PowerToys/issues?q=is:issue+is:closed";
+        var expected = "is:issue is:closed";
+
+        var result = SearchHelper.ParseSearchStringFromGitHubUrl(url);
+
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void ParseSearchStringFromUrl_WithPullRequestsUrl_ReturnsPrSearchString()
+    {
+        var url = "https://github.com/microsoft/PowerToys/pulls";
+        var expected = "repo:microsoft/PowerToys is:pr is:open";
+
+        var result = SearchHelper.ParseSearchStringFromGitHubUrl(url);
+
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void ParseSearchStringFromUrl_WithSearchPagesUrl_ReturnsBasicSearchString()
+    {
+        var url = "https://github.com/search/issues";
+        var expected = "is:issue";
+
+        var result = SearchHelper.ParseSearchStringFromGitHubUrl(url);
+
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void ParseSearchStringFromUrl_WithInvalidUrl_ReturnsNull()
+    {
+        var url = "not a url";
+
+        var result = SearchHelper.ParseSearchStringFromGitHubUrl(url);
+
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public void ParseSearchStringFromUrl_WithNullOrEmptyUrl_ReturnsNull()
+    {
+        // ParseSearchStringFromGitHubUrl doesn't accept a null parameter
+        Assert.IsNull(SearchHelper.ParseSearchStringFromGitHubUrl(string.Empty));
+        Assert.IsNull(SearchHelper.ParseSearchStringFromGitHubUrl("   "));
+    }
+
+    [TestMethod]
+    public void ParseSearchStringFromUrl_WithEnterpriseGitHubUrl_ReturnsSearchString()
+    {
+        var url = "https://github.contoso.com/search?q=repo:internal/project+is:issue";
+        var expected = "repo:internal/project is:issue";
+
+        var result = SearchHelper.ParseSearchStringFromGitHubUrl(url);
+
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void ParseSearchStringFromUrl_WithMultipleQualifiers_PreservesAllQualifiers()
+    {
+        var url = "https://github.com/search?q=repo:microsoft/PowerToys+is:open+is:issue+label:bug+author:octocat";
+        var expected = "repo:microsoft/PowerToys is:open is:issue label:bug author:octocat";
+
+        var result = SearchHelper.ParseSearchStringFromGitHubUrl(url);
+
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void ParseSearchStringFromUrl_WithNegatedQualifiers_PreservesNegation()
+    {
+        var url = "https://github.com/search?q=repo:microsoft/PowerToys+is:open+-label:wontfix";
+        var expected = "repo:microsoft/PowerToys is:open -label:wontfix";
+
+        var result = SearchHelper.ParseSearchStringFromGitHubUrl(url);
+
+        Assert.AreEqual(expected, result);
+    }
 }

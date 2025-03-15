@@ -4,6 +4,7 @@
 
 using System.Globalization;
 using System.Text.Json.Nodes;
+using GitHubExtension.Client;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -106,13 +107,22 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
 
     public static SearchCandidate CreateSearchFromJson(JsonNode? jsonNode)
     {
-        var searchStr = jsonNode?["EnteredSearch"]?.ToString() ?? string.Empty;
+        var enteredSearch = jsonNode?["EnteredSearch"]?.ToString() ?? string.Empty;
         var name = jsonNode?["Name"]?.ToString() ?? string.Empty;
         var isTopLevel = jsonNode?["IsTopLevel"]?.ToString() == "true";
 
-        var search = new SearchCandidate(searchStr, name, isTopLevel);
+        string? searchStr;
+        if (!Validation.IsValidGitHubURL(enteredSearch))
+        {
+            searchStr = enteredSearch;
+        }
+        else
+        {
+            var parsedUrl = SearchHelper.ParseSearchStringFromGitHubUrl(enteredSearch);
+            searchStr = parsedUrl ?? enteredSearch;
+        }
 
-        return search;
+        return new SearchCandidate(searchStr, name, isTopLevel);
     }
 
     public async Task<bool> GetIsTopLevel()
