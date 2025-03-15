@@ -131,7 +131,7 @@ public class Program
 
         var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository, resources);
 
-        var addSearchListItem = new AddSearchListItem(new SaveSearchPage(new SaveSearchForm(searchRepository, resources), new StatusMessage(), resources.GetResource("Message_Search_Saved"), resources.GetResource("Message_Search_Saved_Error")), resources);
+        var addSearchListItem = new AddSearchListItem(new SaveSearchPage(new SaveSearchForm(searchRepository, resources), new StatusMessage(), resources.GetResource("Message_Search_Saved"), resources.GetResource("Message_Search_Saved_Error"), resources), resources);
 
         var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, resources, addSearchListItem);
 
