@@ -98,11 +98,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
 
         _log.Information($"Updating issues for: {name} - {searchString}");
 
-        var searchIssuesRequest = new Octokit.SearchIssuesRequest(searchString)
-        {
-            Type = Octokit.IssueTypeQualifier.Issue,
-            PerPage = 100,
-        };
+        var searchIssuesRequest = GitHubRequestHelper.GetSearchIssuesRequest(searchString);
 
         var client = await _gitHubClientProvider.GetClientForLoggedInDeveloper(true);
         var issuesResult = await client.Search.SearchIssues(searchIssuesRequest);
@@ -134,11 +130,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
         var searchString = search.SearchString;
 
         _log.Information($"Updating pull requests for: {name} - {searchString}");
-        var searchIssuesRequest = new Octokit.SearchIssuesRequest(searchString)
-        {
-            Type = Octokit.IssueTypeQualifier.PullRequest,
-            PerPage = 100,
-        };
+        var searchIssuesRequest = GitHubRequestHelper.GetSearchIssuesRequest(searchString);
 
         var client = await _gitHubClientProvider.GetClientForLoggedInDeveloper(true);
         var issuesResult = await client.Search.SearchIssues(searchIssuesRequest);
