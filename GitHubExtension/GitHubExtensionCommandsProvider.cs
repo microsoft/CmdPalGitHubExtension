@@ -33,8 +33,6 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         IResources resources,
         ISearchPageFactory searchPageFactory)
     {
-        DisplayName = resources.GetResource("ExtensionTitle");
-
         _savedSearchesPage = savedSearchesPage;
         _signOutPage = signOutPage;
         _signInPage = signInPage;
@@ -42,6 +40,8 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         _persistentDataManager = persistentDataManager;
         _resources = resources;
         _searchPageFactory = searchPageFactory;
+
+        DisplayName = _resources.GetResource("ExtensionTitle");
 
         // Static events here. Hard dependency. But maybe it is ok in this case
         SignInForm.SignInAction += OnSignInStatusChanged;
