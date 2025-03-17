@@ -325,4 +325,12 @@
     <value>GitHub Extension</value>
     <comment>Title for the extension</comment>
   </data>
+  <data name="ExtensionPackageTitle" xml:space="preserve">
+    <value>GitHub Extension for Command Palette</value>
+    <comment>Title for the extension package</comment>
+  </data>
+  <data name="ExtensionPackageDescription" xml:space="preserve">
+    <value>The GitHub extension for Windows Command Palette.</value>
+    <comment>Description for extension package</comment>
+  </data>
 </root>
