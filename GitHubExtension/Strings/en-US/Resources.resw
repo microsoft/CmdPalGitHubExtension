@@ -126,7 +126,7 @@
     <comment>Title for copy checkout command</comment>
   </data>
   <data name="Commands_Copy" xml:space="preserve">
-    <value>Copy to clipboard</value>
+    <value>Copy</value>
     <comment>Title of Copy command, shown in pages menu options</comment>
   </data>
   <data name="Commands_Open_Link" xml:space="preserve">

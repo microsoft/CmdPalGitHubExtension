@@ -21,11 +21,11 @@ public sealed partial class PullRequestsSearchPage(ISearch search, ICacheDataMan
             Subtitle = $"{GetOwner(item.HtmlUrl)}/{GetRepo(item.HtmlUrl)}/#{item.Number}",
             MoreCommands = new CommandContextItem[]
             {
-                new(new CopyGitCheckoutCommand(item, Resources.GetResource("Pages_PullRequest_Checkout"))),
-                new(new CopySourceBranchCommand(item, Resources.GetResource("Pages_PullRequest_SourceBranch"))),
-                new(new CopyCommand(item.HtmlUrl, Resources.GetResource("Pages_Item_URL"))),
-                new(new CopyCommand(item.Title, Resources.GetResource("Pages_PullRequest_Title"))),
-                new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), Resources.GetResource("Pages_PullRequest_Number"))),
+                new(new CopyGitCheckoutCommand(item, $"{Resources.GetResource("Commands_Copy_Checkout")}")),
+                new(new CopySourceBranchCommand(item, $"{Resources.GetResource("Commands_Copy_Source_Branch")}")),
+                new(new CopyCommand(item.HtmlUrl, $"{Resources.GetResource("Commands_Copy")} {Resources.GetResource("Pages_Item_URL")}")),
+                new(new CopyCommand(item.Title, $"{Resources.GetResource("Commands_Copy")} {Resources.GetResource("Pages_PullRequest_Title")}")),
+                new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), $"{Resources.GetResource("Commands_Copy")} {Resources.GetResource("Pages_PullRequest_Number")}")),
                 new(new PullRequestContentPage(item, Resources)),
             },
             Tags = GetTags(item),
