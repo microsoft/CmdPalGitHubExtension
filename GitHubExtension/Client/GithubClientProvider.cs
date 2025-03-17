@@ -48,16 +48,13 @@ public class GitHubClientProvider
     public async Task<GitHubClient> GetClientForLoggedInDeveloper(bool logRateLimit = false)
     {
         var devIds = _developerIdProvider.GetLoggedInDeveloperIdsInternal();
-        GitHubClient client;
-        if (devIds == null || !devIds.Any())
+        GitHubClient? client = devIds.FirstOrDefault()?.GitHubClient;
+
+        // we're only using an authenticated Octokit client
+        if (!devIds.Any())
         {
-            _log.Information($"No logged in developer, using public GitHub client.");
-            client = GetClient();
-        }
-        else
-        {
-            _log.Information($"Using authenticated user: {devIds.First().LoginId}");
-            client = devIds.First().GitHubClient;
+            _log.Error($"No logged in developer ID found.");
+            return client!;
         }
 
         if (client == null)
