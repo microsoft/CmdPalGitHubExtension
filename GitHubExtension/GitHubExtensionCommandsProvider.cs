@@ -61,7 +61,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         }
     }
 
-    private void OnSearchSaved(object sender, object? args)
+    private void OnSearchSaved(object? sender, object? args)
     {
         // Calling RaiseItemsChanged whenever a search is saved ensures the
         // top-level commands are updated.

@@ -119,7 +119,7 @@ public class Program
 
         using var gitHubDataManager = new GitHubDataManager(gitHubClientProvider);
 
-        using var searchRepository = new PersistentDataManager(new GitHubValidatorAdapter(developerIdProvider));
+        using var searchRepository = new PersistentDataManager(new GitHubValidatorAdapter(gitHubClientProvider));
 
         using var cacheManager = new CacheManager(new GitHubCacheAdapter(gitHubDataManager), searchRepository)!;
 

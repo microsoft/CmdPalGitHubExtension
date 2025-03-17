@@ -14,9 +14,9 @@ public partial class SignInForm : FormContent, IGitHubForm
 {
     public static event EventHandler<SignInStatusChangedEventArgs>? SignInAction;
 
-    public event TypedEventHandler<object, bool>? LoadingStateChanged;
+    public event EventHandler<bool>? LoadingStateChanged;
 
-    public event TypedEventHandler<object, FormSubmitEventArgs>? FormSubmitted;
+    public event EventHandler<FormSubmitEventArgs>? FormSubmitted;
 
     private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly IResources _resources;

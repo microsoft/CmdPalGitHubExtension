@@ -15,7 +15,7 @@ namespace GitHubExtension.Controls.Forms;
 
 public sealed partial class SaveSearchForm : FormContent, IGitHubForm
 {
-    public static event TypedEventHandler<object, object?>? SearchSaved;
+    public static event EventHandler<object>? SearchSaved;
 
     private readonly ISearch _savedSearch;
 
@@ -24,9 +24,9 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
 
     private string IsTopLevelChecked => GetIsTopLevel().Result.ToString().ToLower(CultureInfo.InvariantCulture);
 
-    public event TypedEventHandler<object, bool>? LoadingStateChanged;
+    public event EventHandler<bool>? LoadingStateChanged;
 
-    public event TypedEventHandler<object, FormSubmitEventArgs>? FormSubmitted;
+    public event EventHandler<FormSubmitEventArgs>? FormSubmitted;
 
     public Dictionary<string, string> TemplateSubstitutions => new()
     {
@@ -63,9 +63,9 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
     public override ICommandResult SubmitForm(string? inputs, string data)
     {
         LoadingStateChanged?.Invoke(this, true);
-        Task.Run(() =>
+        Task.Run(async () =>
         {
-            var search = GetSearchAsync(inputs);
+            var search = await GetSearchAsync(inputs);
             ExtensionHost.LogMessage(new LogMessage() { Message = $"Search: {search}" });
         });
 
