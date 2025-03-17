@@ -9,7 +9,6 @@ using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Serilog;
-using Windows.Foundation;
 
 namespace GitHubExtension.Controls.Forms;
 
