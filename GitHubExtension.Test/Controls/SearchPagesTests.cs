@@ -2,16 +2,30 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Net;
+using GitHubExtension.Client;
 using GitHubExtension.Controls;
 using GitHubExtension.Controls.Pages;
+using GitHubExtension.DataManager;
+using GitHubExtension.DataManager.Cache;
+using GitHubExtension.DataManager.Data;
+using GitHubExtension.DataModel;
+using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.DataModel.Enums;
+using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
+using GitHubExtension.PersistentData;
+using GitHubExtension.Test.PersistentData;
+using Microsoft.CommandPalette.Extensions.Toolkit;
 using Moq;
+using Octokit;
+using Octokit.Internal;
+using Windows.Media.Protection.PlayReady;
 
 namespace GitHubExtension.Test.Controls;
 
 [TestClass]
-public class SearchPagesTests
+public partial class SearchPagesTests
 {
     [TestMethod]
     [TestCategory("Unit")]
@@ -103,5 +117,68 @@ public class SearchPagesTests
         Assert.AreEqual(issues.Count, items.Length);
         Assert.AreEqual(issues[0].Title, items[0].Title);
         Assert.AreEqual(issues[1].Title, items[1].Title);
+    }
+
+    [TestMethod]
+    [TestCategory("Unit")]
+    public async Task SearchPage_RateLimitExceededException()
+    {
+        var stubResources = new Mock<IResources>();
+        var stubSearch = new Mock<ISearch>();
+        stubSearch.Setup(x => x.Name).Returns("Test Search");
+        stubSearch.Setup(x => x.SearchString).Returns("test search string is:issue");
+        stubSearch.Setup(x => x.Type).Returns(SearchType.Issues);
+
+        var gitHubClient = new GitHubClient(new ProductHeaderValue("TestHeader"));
+
+        var mockDevId = new Mock<IDeveloperId>();
+        mockDevId.Setup(x => x.GitHubClient).Returns(gitHubClient);
+
+        var mockDeveloperIdProvider = new Mock<IDeveloperIdProvider>();
+        mockDeveloperIdProvider.Setup(x => x.GetLoggedInDeveloperIdsInternal()).Returns(new List<IDeveloperId> { mockDevId.Object });
+
+        var mockGitHubClientProvider = new Mock<GitHubClientProvider>(mockDeveloperIdProvider.Object);
+
+        var validator = new GitHubValidatorAdapter(mockDeveloperIdProvider.Object);
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var dataManager = new PersistentDataManager(validator, dataStoreOptions);
+
+        using var gitHubDataManager = new GitHubDataManager(mockGitHubClientProvider.Object, dataStoreOptions);
+
+        var cacheManager = new CacheManager(new GitHubCacheAdapter(gitHubDataManager), dataManager);
+        var cacheDataManager = new CacheDataManagerFacade(cacheManager, gitHubDataManager, new Mock<IDecoratorFactory>().Object);
+
+        var searchPage = new IssuesSearchPage(stubSearch.Object, cacheDataManager, stubResources.Object);
+
+        var intialLoad = searchPage.GetItems();
+
+        try
+        {
+            // simulate a rate limit exceeded excpetion by going through all the calls to exceed the rate limit
+            while (gitHubClient.GetLastApiInfo().RateLimit?.Remaining > 0)
+            {
+                await gitHubClient.Issue.GetAllForRepository("octokit", "octokit.net");
+            }
+        }
+        catch (RateLimitExceededException)
+        {
+            // this is expected, continue
+        }
+
+        var miscellaneousRateLimit = await gitHubClient.RateLimit.GetRateLimits();
+        var limit = miscellaneousRateLimit.Resources.Core.Limit;
+        var remaining = miscellaneousRateLimit.Resources.Core.Remaining;
+        var reset = miscellaneousRateLimit.Resources.Core.Reset;
+        var searchLimit = miscellaneousRateLimit.Resources.Search.Limit;
+        var searchRemaining = miscellaneousRateLimit.Resources.Search.Remaining;
+        var searchReset = miscellaneousRateLimit.Resources.Search.Reset;
+
+        var items = searchPage.GetItems();
+
+        Assert.AreEqual(1, items.Length);
+        Assert.AreEqual("Rate limit exceeded", items[0].Details.Title);
+
+        dataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 }
