@@ -18,7 +18,7 @@ public class DeveloperId : IDeveloperId
 
     public DateTime CredentialExpiryTime { get; set; }
 
-    public GitHubClient GitHubClient { get; private set; }
+    public IGitHubClient GitHubClient { get; private set; }
 
     public DeveloperId()
     {
@@ -26,7 +26,7 @@ public class DeveloperId : IDeveloperId
         DisplayName = string.Empty;
         Email = string.Empty;
         Url = string.Empty;
-        GitHubClient = new(new ProductHeaderValue(Constants.CMDPAL_APPLICATION_NAME));
+        GitHubClient = new GitHubClient(new ProductHeaderValue(Constants.CMDPAL_APPLICATION_NAME));
     }
 
     public DeveloperId(string loginId, string displayName, string email, string url, GitHubClient gitHubClient)
@@ -47,5 +47,5 @@ public class DeveloperId : IDeveloperId
         return;
     }
 
-    public Uri GetHostAddress() => GitHubClient.BaseAddress;
+    public Uri GetHostAddress() => GitHubClient.Connection.BaseAddress;
 }

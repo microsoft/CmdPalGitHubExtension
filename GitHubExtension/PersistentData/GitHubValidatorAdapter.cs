@@ -20,7 +20,7 @@ public class GitHubValidatorAdapter : IGitHubValidator
     public async Task ValidateSearch(ISearch search)
     {
         // TODO: Change this request depending on the search type.
-        GitHubClient? client = _developerIdProvider.GetLoggedInDeveloperIdsInternal().First().GitHubClient;
+        IGitHubClient? client = _developerIdProvider.GetLoggedInDeveloperIdsInternal().First().GitHubClient;
         var issuesOptions = new SearchIssuesRequest(search.SearchString)
         {
             State = ItemState.Open,

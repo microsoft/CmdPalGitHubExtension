@@ -126,7 +126,7 @@ public partial class SearchPagesTests
     {
         var stubDeveloperIdProvider = new Mock<IDeveloperIdProvider>();
         var stubDeveloperId = new Mock<IDeveloperId>();
-        var stubGitHubClient = new Mock<GitHubClient>(new ProductHeaderValue("TestApp"), new InMemoryCredentialStore(Credentials.Anonymous));
+        var stubGitHubClient = new Mock<IGitHubClient>();
 
         stubDeveloperId.Setup(x => x.GitHubClient).Returns(stubGitHubClient.Object);
         stubDeveloperIdProvider.Setup(x => x.GetLoggedInDeveloperIdsInternal()).Returns(new List<IDeveloperId> { stubDeveloperId.Object });
@@ -136,14 +136,15 @@ public partial class SearchPagesTests
         mockResponse.SetupGet(r => r.Body).Returns(string.Empty);
         mockResponse.SetupGet(r => r.Headers).Returns(new Dictionary<string, string>());
 
-        var mockRateLimit = new Mock<RateLimit>(100, 0, DateTimeOffset.Now.AddHours(1));
-        var mockApiInfo = new Mock<ApiInfo>(
-            "etag",
-            mockRateLimit.Object,
+        var mockRateLimit = new RateLimit(100, 0, DateTimeOffset.Now.AddHours(1).Ticks);
+        var mockApiInfo = new ApiInfo(
+            new Dictionary<string, Uri> { { "self", new Uri("https://api.github.com") } },
             new List<string> { "scope1", "scope2" },
             new List<string> { "acceptedScope1", "acceptedScope2" },
-            new Dictionary<string, Uri> { { "self", new Uri("https://api.github.com") } });
-        mockResponse.SetupGet(r => r.ApiInfo).Returns(mockApiInfo.Object);
+            "etag",
+            mockRateLimit);
+
+        mockResponse.SetupGet(r => r.ApiInfo).Returns(mockApiInfo);
 
         var rateLimitException = new RateLimitExceededException(mockResponse.Object);
         stubGitHubClient.Setup(x => x.RateLimit.GetRateLimits()).ThrowsAsync(rateLimitException);
