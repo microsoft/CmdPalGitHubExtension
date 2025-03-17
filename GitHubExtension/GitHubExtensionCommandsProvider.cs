@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Resources;
 using GitHubExtension.Controls;
 using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
@@ -32,7 +33,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         IResources resources,
         ISearchPageFactory searchPageFactory)
     {
-        DisplayName = "GitHub Extension";
+        DisplayName = resources.GetResource("ExtensionTitle");
 
         _savedSearchesPage = savedSearchesPage;
         _signOutPage = signOutPage;
@@ -83,7 +84,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             {
                 new CommandItem(_signInPage)
                 {
-                    Title = "GitHub Extension",
+                    Title = _resources.GetResource("ExtensionTitle"),
                     Subtitle = _resources.GetResource("Forms_Sign_In"),
                     Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
                 },
@@ -102,7 +103,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             },
             new(_signOutPage)
             {
-                Title = "GitHub Extension",
+                Title = _resources.GetResource("ExtensionTitle"),
                 Subtitle = _resources.GetResource("Forms_Sign_Out_Button_Title"),
                 Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
             },
