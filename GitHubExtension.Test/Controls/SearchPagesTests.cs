@@ -15,6 +15,7 @@ using GitHubExtension.DataModel.Enums;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using GitHubExtension.PersistentData;
+using GitHubExtension.Test.Helpers;
 using GitHubExtension.Test.PersistentData;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Moq;
@@ -121,64 +122,38 @@ public partial class SearchPagesTests
 
     [TestMethod]
     [TestCategory("Unit")]
-    public async Task SearchPage_RateLimitExceededException()
+    public async Task GetClientForLoggedInDeveloper_RateLimitExceededException()
     {
-        var stubResources = new Mock<IResources>();
-        var stubSearch = new Mock<ISearch>();
-        stubSearch.Setup(x => x.Name).Returns("Test Search");
-        stubSearch.Setup(x => x.SearchString).Returns("test search string is:issue");
-        stubSearch.Setup(x => x.Type).Returns(SearchType.Issues);
+        var stubDeveloperIdProvider = new Mock<IDeveloperIdProvider>();
+        var stubDeveloperId = new Mock<IDeveloperId>();
+        var stubGitHubClient = new Mock<GitHubClient>(new ProductHeaderValue("TestApp"), new InMemoryCredentialStore(Credentials.Anonymous));
 
-        var gitHubClient = new GitHubClient(new ProductHeaderValue("TestHeader"));
+        stubDeveloperId.Setup(x => x.GitHubClient).Returns(stubGitHubClient.Object);
+        stubDeveloperIdProvider.Setup(x => x.GetLoggedInDeveloperIdsInternal()).Returns(new List<IDeveloperId> { stubDeveloperId.Object });
 
-        var mockDevId = new Mock<IDeveloperId>();
-        mockDevId.Setup(x => x.GitHubClient).Returns(gitHubClient);
+        var mockResponse = new Mock<IResponse>();
+        mockResponse.SetupGet(r => r.StatusCode).Returns(HttpStatusCode.Forbidden);
+        mockResponse.SetupGet(r => r.Body).Returns(string.Empty);
+        mockResponse.SetupGet(r => r.Headers).Returns(new Dictionary<string, string>());
 
-        var mockDeveloperIdProvider = new Mock<IDeveloperIdProvider>();
-        mockDeveloperIdProvider.Setup(x => x.GetLoggedInDeveloperIdsInternal()).Returns(new List<IDeveloperId> { mockDevId.Object });
+        var mockRateLimit = new Mock<RateLimit>(100, 0, DateTimeOffset.Now.AddHours(1));
+        var mockApiInfo = new Mock<ApiInfo>(
+            "etag",
+            mockRateLimit.Object,
+            new List<string> { "scope1", "scope2" },
+            new List<string> { "acceptedScope1", "acceptedScope2" },
+            new Dictionary<string, Uri> { { "self", new Uri("https://api.github.com") } });
+        mockResponse.SetupGet(r => r.ApiInfo).Returns(mockApiInfo.Object);
 
-        var mockGitHubClientProvider = new Mock<GitHubClientProvider>(mockDeveloperIdProvider.Object);
+        var rateLimitException = new RateLimitExceededException(mockResponse.Object);
+        stubGitHubClient.Setup(x => x.RateLimit.GetRateLimits()).ThrowsAsync(rateLimitException);
 
-        var validator = new GitHubValidatorAdapter(mockDeveloperIdProvider.Object);
-        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
-        using var dataManager = new PersistentDataManager(validator, dataStoreOptions);
+        var gitHubClientProvider = new GitHubClientProvider(stubDeveloperIdProvider.Object);
 
-        using var gitHubDataManager = new GitHubDataManager(mockGitHubClientProvider.Object, dataStoreOptions);
+        var client = await gitHubClientProvider.GetClientForLoggedInDeveloper(logRateLimit: true);
 
-        var cacheManager = new CacheManager(new GitHubCacheAdapter(gitHubDataManager), dataManager);
-        var cacheDataManager = new CacheDataManagerFacade(cacheManager, gitHubDataManager, new Mock<IDecoratorFactory>().Object);
-
-        var searchPage = new IssuesSearchPage(stubSearch.Object, cacheDataManager, stubResources.Object);
-
-        var intialLoad = searchPage.GetItems();
-
-        try
-        {
-            // simulate a rate limit exceeded excpetion by going through all the calls to exceed the rate limit
-            while (gitHubClient.GetLastApiInfo().RateLimit?.Remaining > 0)
-            {
-                await gitHubClient.Issue.GetAllForRepository("octokit", "octokit.net");
-            }
-        }
-        catch (RateLimitExceededException)
-        {
-            // this is expected, continue
-        }
-
-        var miscellaneousRateLimit = await gitHubClient.RateLimit.GetRateLimits();
-        var limit = miscellaneousRateLimit.Resources.Core.Limit;
-        var remaining = miscellaneousRateLimit.Resources.Core.Remaining;
-        var reset = miscellaneousRateLimit.Resources.Core.Reset;
-        var searchLimit = miscellaneousRateLimit.Resources.Search.Limit;
-        var searchRemaining = miscellaneousRateLimit.Resources.Search.Remaining;
-        var searchReset = miscellaneousRateLimit.Resources.Search.Reset;
-
-        var items = searchPage.GetItems();
-
-        Assert.AreEqual(1, items.Length);
-        Assert.AreEqual("Rate limit exceeded", items[0].Details.Title);
-
-        dataManager.Dispose();
-        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
+        Assert.IsNotNull(client);
+        Assert.AreEqual(stubGitHubClient.Object, client);
+        stubGitHubClient.Verify(x => x.RateLimit.GetRateLimits(), Times.Once);
     }
 }
