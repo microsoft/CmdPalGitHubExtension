@@ -128,11 +128,11 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             var login = devId.LoginId;
             List<ISearch> defaultSearches = new List<ISearch>
             {
-                new SearchCandidate($"state:open assignee:{login} archived:false", _resources.GetResource("CommandsProvider_AssignedToMeCommandName")),
-                new SearchCandidate($"state:open is:pr review-requested:{login} archived:false", _resources.GetResource("CommandsProvider_ReviewRequestedCommandName")),
-                new SearchCandidate($"state:open mentions:{login} archived:false", _resources.GetResource("CommandsProvider_MentionsMeCommandName")),
-                new SearchCandidate($"state:open is:issue author:{login} archived:false", _resources.GetResource("CommandsProvider_MentionsMeCommandName")),
-                new SearchCandidate($"state:open is:pr author:{login} archived:false", _resources.GetResource("CommandsProvider_MyPullRequestsCommandName")),
+                new SearchCandidate($"is:open archived:false assignee:{login} sort:created-desc", _resources.GetResource("CommandsProvider_AssignedToMeCommandName")),
+                new SearchCandidate($"is:open is:pr review-requested:{login} archived:false sort:created-desc", _resources.GetResource("CommandsProvider_ReviewRequestedCommandName")),
+                new SearchCandidate($"is:open mentions:{login} archived:false sort:created-desc", _resources.GetResource("CommandsProvider_MentionsMeCommandName")),
+                new SearchCandidate($"is:open is:issue archived:false author:{login} sort:created-desc", _resources.GetResource("CommandsProvider_MentionsMeCommandName")),
+                new SearchCandidate($"is:open is:pr author:{login} archived:false sort:created-desc", _resources.GetResource("CommandsProvider_MyPullRequestsCommandName")),
             };
 
             var defaultTasks = new List<Task>();
