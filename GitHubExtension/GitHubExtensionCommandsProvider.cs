@@ -128,11 +128,11 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             var login = devId.LoginId;
             List<ISearch> defaultSearches = new List<ISearch>
             {
-                new SearchCandidate($"state:open assignee:{login} archived:false", "Assigned to Me"),
-                new SearchCandidate($"state:open is:pr review-requested:{login} archived:false", "Review Requested"),
-                new SearchCandidate($"state:open mentions:{login} archived:false", "Mentions Me"),
-                new SearchCandidate($"state:open is:issue author:{login} archived:false", "Created Issues"),
-                new SearchCandidate($"state:open is:pr author:{login} archived:false", "My PRs"),
+                new SearchCandidate($"state:open assignee:{login} archived:false", _resources.GetResource("CommandsProvider_AssignedToMeCommandName")),
+                new SearchCandidate($"state:open is:pr review-requested:{login} archived:false", _resources.GetResource("CommandsProvider_ReviewRequestedCommandName")),
+                new SearchCandidate($"state:open mentions:{login} archived:false", _resources.GetResource("CommandsProvider_MentionsMeCommandName")),
+                new SearchCandidate($"state:open is:issue author:{login} archived:false", _resources.GetResource("CommandsProvider_MentionsMeCommandName")),
+                new SearchCandidate($"state:open is:pr author:{login} archived:false", _resources.GetResource("CommandsProvider_MyPullRequestsCommandName")),
             };
 
             var defaultTasks = new List<Task>();

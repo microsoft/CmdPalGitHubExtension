@@ -321,4 +321,19 @@
     <value>Save</value>
     <comment>The title for the button that submits the form and saves the query</comment>
   </data>
+  <data name="CommandsProvider_AssignedToMeCommandName" xml:space="preserve">
+    <value>Assigned to Me</value>
+  </data>
+  <data name="CommandsProvider_CreatedIssuesCommandName" xml:space="preserve">
+    <value>Created Issues</value>
+  </data>
+  <data name="CommandsProvider_MentionsMeCommandName" xml:space="preserve">
+    <value>Mentions Me</value>
+  </data>
+  <data name="CommandsProvider_ReviewRequestedCommandName" xml:space="preserve">
+    <value>Review Requested</value>
+  </data>
+  <data name="CommandsProvider_MyPullRequestsCommandName" xml:space="preserve">
+    <value>My Pull Requests</value>
+  </data>
 </root>
