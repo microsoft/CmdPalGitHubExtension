@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Diagnostics;
 using GitHubExtension.Client;
 using GitHubExtension.Controls;
 using Octokit;
@@ -23,6 +24,13 @@ public class GitHubValidatorAdapter : IGitHubValidator
         var client = await _gitHubClientProvider.GetClientForLoggedInDeveloper(true);
         var issuesSearch = new SearchIssuesRequest(search.SearchString);
 
-        _ = await client.Search.SearchIssues(issuesSearch);
+        try
+        {
+            await client.Search.SearchIssues(issuesSearch);
+        }
+        catch
+        {
+            Debug.WriteLine($"Search failed: {search.SearchString}. Thread {Environment.CurrentManagedThreadId}");
+        }
     }
 }

@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Diagnostics;
 using GitHubExtension.Controls;
 using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
@@ -50,7 +51,14 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
 
         // This async method raises the RaiseItemsChanged event to update the top-level commands
         // So it is safe if we let it run asynchronously as "fire and forget"
-        _ = UpdateSignInStatus(IsSignedIn());
+        try
+        {
+            var task = UpdateSignInStatus(IsSignedIn());
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error updating sign-in status: {ex.Message}");
+        }
     }
 
     private void OnSearchRemoved(object sender, object args)
@@ -77,6 +85,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
 
     public override ICommandItem[] TopLevelCommands()
     {
+        Debug.WriteLine($"TopLevelCommands called on thread {Environment.CurrentManagedThreadId}. _isSignedIn: {_isSignedIn}");
         if (!_isSignedIn)
         {
             return new[]
@@ -92,6 +101,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
 
         List<CommandItem> commands;
         commands = GetTopLevelSearchCommands().GetAwaiter().GetResult().ToList();
+        Debug.WriteLine($"TopLevelCommands: {string.Join(", ", commands.Select(c => c.Title))}. Thread {Environment.CurrentManagedThreadId}");
 
         var defaultCommands = new List<CommandItem>
         {
@@ -114,48 +124,89 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
 
     private bool IsSignedIn()
     {
+        Debug.WriteLine($"Checking sign-in status on thread {Environment.CurrentManagedThreadId}.");
         var devIds = _developerIdProvider.GetLoggedInDeveloperIdsInternal();
+        Debug.WriteLine($"Number of developer IDs: {devIds.Count()}. Thread {Environment.CurrentManagedThreadId}");
         return devIds.Any();
     }
 
     public async Task UpdateSignInStatus(bool isSignedIn)
     {
+        Debug.WriteLine($"Updating sign-in status on thread {Environment.CurrentManagedThreadId}.");
         _isSignedIn = isSignedIn;
         var devId = _developerIdProvider.GetLoggedInDeveloperIdsInternal().FirstOrDefault();
 
+        Debug.WriteLine($"Developer ID: {devId?.LoginId}. Thread {Environment.CurrentManagedThreadId}");
         if (_isSignedIn && devId != null)
         {
-            var login = devId.LoginId;
-            List<ISearch> defaultSearches = new List<ISearch>
+            try
             {
-                new SearchCandidate($"state:open assignee:{login} archived:false", "Assigned to Me"),
-                new SearchCandidate($"state:open is:pr review-requested:{login} archived:false", "Review Requested"),
-                new SearchCandidate($"state:open mentions:{login} archived:false", "Mentions Me"),
-                new SearchCandidate($"state:open is:issue author:{login} archived:false", "Created Issues"),
-                new SearchCandidate($"state:open is:pr author:{login} archived:false", "My PRs"),
-            };
-
-            var defaultTasks = new List<Task>();
-            foreach (var search in defaultSearches)
-            {
-                var task = Task.Run(async () =>
+                var login = devId.LoginId;
+                List<ISearch> defaultSearches = new List<ISearch>
                 {
-                    await _persistentDataManager.ValidateSearch(search);
-                    await _persistentDataManager.UpdateSearchTopLevelStatus(search, true);
-                });
+                    new SearchCandidate($"state:open assignee:{login} archived:false", "Assigned to Me"),
+                    new SearchCandidate($"state:open is:pr review-requested:{login} archived:false", "Review Requested"),
+                    new SearchCandidate($"state:open mentions:{login} archived:false", "Mentions Me"),
+                    new SearchCandidate($"state:open is:issue author:{login} archived:false", "Created Issues"),
+                    new SearchCandidate($"state:open is:pr author:{login} archived:false", "My PRs"),
+                };
 
-                defaultTasks.Add(task);
+                Debug.WriteLine($"Default searches: {string.Join(", ", defaultSearches.Select(s => s.Name), defaultSearches.Select(t => t.Type))}. Thread {Environment.CurrentManagedThreadId}");
+
+                var defaultTasks = new List<Task>();
+                Debug.WriteLine($"Validating default searches on thread {Environment.CurrentManagedThreadId}. defaultSearches: {defaultSearches.ToString()}");
+                if (defaultSearches == null || defaultSearches.Count == 0)
+                {
+                    Debug.WriteLine($"No default searches found on thread {Environment.CurrentManagedThreadId}. Exiting method.");
+                    return;
+                }
+
+                foreach (var search in defaultSearches)
+                {
+                    if (search == null)
+                    {
+                        Debug.WriteLine($"Search is null on thread {Environment.CurrentManagedThreadId}. Skipping.");
+                        continue;
+                    }
+
+                    var task = Task.Run(async () =>
+                    {
+                        await _persistentDataManager.ValidateSearch(search);
+                        await _persistentDataManager.UpdateSearchTopLevelStatus(search, true);
+                    });
+                    Debug.WriteLine($"Adding task for search: {search.Name} on thread {Environment.CurrentManagedThreadId}");
+
+                    defaultTasks.Add(task);
+                }
+
+                Debug.WriteLine($"Waiting for tasks to complete on thread {Environment.CurrentManagedThreadId}. Task count: {defaultTasks.Count}");
+                Debug.WriteLine($"Tasks: {string.Join(", ", defaultTasks.Select(t => t.ToString()))}. Thread {Environment.CurrentManagedThreadId}");
+                await Task.WhenAll(defaultTasks);
+                UpdateTopLevelCommands();
             }
-
-            await Task.WhenAll(defaultTasks);
+            catch (Exception ex)
+            {
+                // Log the exception
+                Debug.WriteLine($"Error updating sign-in status on thread {Environment.CurrentManagedThreadId}: {ex.Message}");
+            }
         }
-
-        UpdateTopLevelCommands();
+        else
+        {
+            Debug.WriteLine($"User is not signed in. Removing default searches on thread {Environment.CurrentManagedThreadId}");
+            UpdateTopLevelCommands();
+        }
     }
 
     private void OnSignInStatusChanged(object? sender, SignInStatusChangedEventArgs e)
     {
-        _ = UpdateSignInStatus(e.IsSignedIn);
+        try
+        {
+            var signInTask = UpdateSignInStatus(e.IsSignedIn);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error handling sign-in status change: {ex.Message}");
+        }
     }
 
     private async Task<List<CommandItem>> GetTopLevelSearchCommands()

@@ -71,7 +71,6 @@ public class GitHubClientProvider
             try
             {
                 var miscRateLimit = await client.RateLimit.GetRateLimits();
-                _log.Information($"Rate Limit:  Remaining: {miscRateLimit.Resources.Core.Remaining}  Total: {miscRateLimit.Resources.Core.Limit}  Resets: {miscRateLimit.Resources.Core.Reset}");
             }
             catch (Exception ex)
             {
