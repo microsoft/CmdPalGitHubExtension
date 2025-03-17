@@ -34,12 +34,12 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
         { "{{SavedSearchString}}", _savedSearch.SearchString },
         { "{{SavedSearchName}}", _savedSearch.Name },
         { "{{IsTopLevel}}", IsTopLevelChecked },
-        { "{{EnteredSearchErrorMessage}}", _resources.GetResource("SaveSearchTemplateEnteredSearchError") },
-        { "{{EnteredSearchLabel}}", _resources.GetResource("SaveSearchTemplateEnteredSearchLabel") },
-        { "{{NameLabel}}", _resources.GetResource("SaveSearchTemplateNameLabel") },
-        { "{{NameErrorMessage}}", _resources.GetResource("SaveSearchTemplateNameError") },
-        { "{{IsTopLevelTitle}}", _resources.GetResource("SaveSearchTemplateIsTopLevelTitle") },
-        { "{{SaveSearchActionTitle}}", _resources.GetResource("SaveSearchTemplateSaveSearchActionTitle") },
+        { "{{EnteredSearchErrorMessage}}", _resources.GetResource("Forms_SaveSearchTemplateEnteredSearchError") },
+        { "{{EnteredSearchLabel}}", _resources.GetResource("Forms_SaveSearchTemplateEnteredSearchLabel") },
+        { "{{NameLabel}}", _resources.GetResource("Forms_SaveSearchTemplateNameLabel") },
+        { "{{NameErrorMessage}}", _resources.GetResource("Forms_SaveSearchTemplateNameError") },
+        { "{{IsTopLevelTitle}}", _resources.GetResource("Forms_SaveSearchTemplateIsTopLevelTitle") },
+        { "{{SaveSearchActionTitle}}", _resources.GetResource("Forms_SaveSearchTemplateSaveSearchActionTitle") },
     };
 
     // for saving a new query
