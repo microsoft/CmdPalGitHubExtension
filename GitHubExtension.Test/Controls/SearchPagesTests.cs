@@ -3,25 +3,12 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Net;
-using GitHubExtension.Client;
 using GitHubExtension.Controls;
 using GitHubExtension.Controls.Pages;
-using GitHubExtension.DataManager;
-using GitHubExtension.DataManager.Cache;
-using GitHubExtension.DataManager.Data;
-using GitHubExtension.DataModel;
-using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.DataModel.Enums;
-using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
-using GitHubExtension.PersistentData;
-using GitHubExtension.Test.Helpers;
-using GitHubExtension.Test.PersistentData;
-using Microsoft.CommandPalette.Extensions.Toolkit;
 using Moq;
 using Octokit;
-using Octokit.Internal;
-using Windows.Media.Protection.PlayReady;
 
 namespace GitHubExtension.Test.Controls;
 
@@ -122,14 +109,17 @@ public partial class SearchPagesTests
 
     [TestMethod]
     [TestCategory("Unit")]
-    public async Task GetClientForLoggedInDeveloper_RateLimitExceededException()
+    public void SearchPageGetItems_RateLimitExceededExceptionIsCaught()
     {
-        var stubDeveloperIdProvider = new Mock<IDeveloperIdProvider>();
-        var stubDeveloperId = new Mock<IDeveloperId>();
-        var stubGitHubClient = new Mock<IGitHubClient>();
+        var stubCacheDataManager = new Mock<ICacheDataManager>();
+        var stubResources = new Mock<IResources>();
+        stubResources.Setup(x => x.GetResource("Pages_Error_Title", null)).Returns("Error fetching items");
+        var stubSearch = new Mock<ISearch>();
+        stubSearch.Setup(x => x.Name).Returns("Name");
+        stubSearch.Setup(x => x.SearchString).Returns("test search string is:pr");
+        stubSearch.Setup(x => x.Type).Returns(SearchType.PullRequests);
 
-        stubDeveloperId.Setup(x => x.GitHubClient).Returns(stubGitHubClient.Object);
-        stubDeveloperIdProvider.Setup(x => x.GetLoggedInDeveloperIdsInternal()).Returns(new List<IDeveloperId> { stubDeveloperId.Object });
+        var pullRequestsSearchPage = new PullRequestsSearchPage(stubSearch.Object, stubCacheDataManager.Object, stubResources.Object);
 
         var mockResponse = new Mock<IResponse>();
         mockResponse.SetupGet(r => r.StatusCode).Returns(HttpStatusCode.Forbidden);
@@ -147,14 +137,12 @@ public partial class SearchPagesTests
         mockResponse.SetupGet(r => r.ApiInfo).Returns(mockApiInfo);
 
         var rateLimitException = new RateLimitExceededException(mockResponse.Object);
-        stubGitHubClient.Setup(x => x.RateLimit.GetRateLimits()).ThrowsAsync(rateLimitException);
+        stubCacheDataManager.Setup(x => x.GetPullRequests(stubSearch.Object)).ThrowsAsync(rateLimitException);
 
-        var gitHubClientProvider = new GitHubClientProvider(stubDeveloperIdProvider.Object);
+        var items = pullRequestsSearchPage.GetItems();
 
-        var client = await gitHubClientProvider.GetClientForLoggedInDeveloper(logRateLimit: true);
-
-        Assert.IsNotNull(client);
-        Assert.AreEqual(stubGitHubClient.Object, client);
-        stubGitHubClient.Verify(x => x.RateLimit.GetRateLimits(), Times.Once);
+        Assert.AreEqual(1, items.Length);
+        Assert.AreEqual("Error fetching items", items[0].Title);
+        Assert.AreEqual("API Rate Limit exceeded", items[0].Details.Title);
     }
 }
