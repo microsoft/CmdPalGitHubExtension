@@ -33,7 +33,7 @@ public static class FormEventHelper
             var message = $"{errorMessage}: {args.Exception.Message}";
             ExtensionHost.LogMessage(new LogMessage() { Message = args.Exception.Message });
             SetStatusMessage(statusMessage, message, MessageState.Error);
-            ExtensionHost.ShowStatus(statusMessage);
+            ExtensionHost.ShowStatus(statusMessage, StatusContext.Page);
         }
         else
         {
