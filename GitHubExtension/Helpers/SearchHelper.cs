@@ -87,6 +87,36 @@ public static class SearchHelper
                 }
             }
 
+            // Parse negative labels from the query parameters
+            var negativeLabels = queryParams.GetValues("-label");
+            if (negativeLabels != null && negativeLabels.Length > 0)
+            {
+                foreach (var label in negativeLabels)
+                {
+                    searchBuilder.Add($"-label:{label}");
+                }
+            }
+
+            // Parse other qualifiers from the query parameters
+            var qualifiers = queryParams.AllKeys
+                .Where(key => key != null && key.StartsWith("is:", StringComparison.OrdinalIgnoreCase))
+                .Select(key => key + ":" + queryParams[key]);
+
+            foreach (var qualifier in qualifiers)
+            {
+                searchBuilder.Add(qualifier);
+            }
+
+            // Parse negative qualifiers from the query parameters
+            var negativeQualifiers = queryParams.AllKeys
+                .Where(key => key != null && key.StartsWith("-is:", StringComparison.OrdinalIgnoreCase))
+                .Select(key => key + ":" + queryParams[key]);
+
+            foreach (var qualifier in negativeQualifiers)
+            {
+                searchBuilder.Add(qualifier);
+            }
+
             if (searchBuilder.Count > 0)
             {
                 return string.Join(" ", searchBuilder);

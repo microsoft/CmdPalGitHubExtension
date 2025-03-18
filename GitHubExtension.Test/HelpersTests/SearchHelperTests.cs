@@ -103,7 +103,7 @@ public class SearchHelperTests
     public void ParseSearchStringFromUri_WithRepositoryIssuesUrl_ReturnsFormattedSearchString()
     {
         var uri = new Uri("https://github.com/microsoft/PowerToys/issues?q=is:open+label:bug");
-        var expected = "is:open label:bug";
+        var expected = "repo:microsoft/PowerToys is:open label:bug";
 
         var result = SearchHelper.ParseSearchStringFromUri(uri);
 
@@ -125,7 +125,7 @@ public class SearchHelperTests
     public void ParseSearchStringFromUri_WithRepositoryClosedIssuesUrl_ReturnsClosedIssuesSearchString()
     {
         var uri = new Uri("https://github.com/microsoft/PowerToys/issues?q=is:issue+is:closed");
-        var expected = "is:issue is:closed";
+        var expected = "repo:microsoft/PowerToys is:issue is:closed";
 
         var result = SearchHelper.ParseSearchStringFromUri(uri);
 
@@ -181,6 +181,28 @@ public class SearchHelperTests
     {
         var uri = new Uri("https://github.com/search?q=repo:microsoft/PowerToys+is:open+-label:wontfix");
         var expected = "repo:microsoft/PowerToys is:open -label:wontfix";
+
+        var result = SearchHelper.ParseSearchStringFromUri(uri);
+
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void ParseSearchStringFromUri_WithPositiveAndNegativeLabels_ReturnsCorrectSearchString()
+    {
+        var uri = new Uri("https://github.com/microsoft/PowerToys/issues?q=is%3Aopen%20is%3Aissue%20label%3A%22Product-Command%20Palette%22%20-label%3ARun-Plugin");
+        var expected = "repo:microsoft/PowerToys is:open is:issue label:\"Product-Command Palette\" -label:Run-Plugin";
+
+        var result = SearchHelper.ParseSearchStringFromUri(uri);
+
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void ParseSearchStringFromUri_WithPositiveLabel_ReturnsCorrectSearchString()
+    {
+        var uri = new Uri("https://github.com/microsoft/PowerToys/issues?q=is%3Aopen%20is%3Aissue%20label%3A%22Good%20first%20issue%22");
+        var expected = "repo:microsoft/PowerToys is:open is:issue label:\"Good first issue\"";
 
         var result = SearchHelper.ParseSearchStringFromUri(uri);
 
