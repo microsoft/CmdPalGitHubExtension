@@ -7,7 +7,7 @@ using GitHubExtension.Helpers;
 namespace GitHubExtension.Test.HelpersTests;
 
 [TestClass]
-public class StringExtensionsTest
+public class GitStringHelperTest
 {
     [TestMethod]
     public void SwapGitColonsForForwardSlashes_ReplacesColonsWithForwardSlashes()
@@ -15,7 +15,7 @@ public class StringExtensionsTest
         var input = "refs/heads/feature:branch";
         var expected = "refs/heads/feature/branch";
 
-        var result = StringExtensions.SwapGitColonsForForwardSlashes(input);
+        var result = GitStringHelper.SwapGitColonsForForwardSlashes(input);
 
         Assert.AreEqual(expected, result);
     }
@@ -26,7 +26,7 @@ public class StringExtensionsTest
         var input = "refs/heads/feature-branch";
         var expected = "refs/heads/feature-branch";
 
-        var result = StringExtensions.SwapGitColonsForForwardSlashes(input);
+        var result = GitStringHelper.SwapGitColonsForForwardSlashes(input);
 
         Assert.AreEqual(expected, result);
     }
@@ -37,7 +37,7 @@ public class StringExtensionsTest
         var input = string.Empty;
         var expected = string.Empty;
 
-        var result = StringExtensions.SwapGitColonsForForwardSlashes(input);
+        var result = GitStringHelper.SwapGitColonsForForwardSlashes(input);
 
         Assert.AreEqual(expected, result);
     }

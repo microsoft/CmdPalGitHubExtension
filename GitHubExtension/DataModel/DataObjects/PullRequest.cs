@@ -177,7 +177,7 @@ public class PullRequest : IPullRequest
             Number = okitPull.Number,
             Title = okitPull.Title ?? string.Empty,
             Body = okitPull.Body ?? string.Empty,
-            SourceBranch = StringExtensions.SwapGitColonsForForwardSlashes(okitPull.Head.Label) ?? string.Empty,
+            SourceBranch = okitPull.Head.Label ?? string.Empty,
             State = okitPull.State.Value.ToString(),
             HeadSha = okitPull.Head.Sha ?? string.Empty,
             Merged = okitPull.Merged ? 1 : 0,
