@@ -26,13 +26,13 @@ public class GitHubClientProvider
         _publicRepoClient = new GitHubClient(new ProductHeaderValue(Constants.CMDPAL_APPLICATION_NAME));
     }
 
-    public GitHubClient? GetClient(IDeveloperId devId)
+    public IGitHubClient? GetClient(IDeveloperId devId)
     {
         var devIdInternal = _developerIdProvider.GetDeveloperIdInternal(devId) ?? throw new ArgumentException(devId.LoginId);
         return devIdInternal.GitHubClient;
     }
 
-    public GitHubClient GetClient(string url)
+    public IGitHubClient GetClient(string url)
     {
         var devIdInternal = _developerIdProvider.GetLoggedInDeveloperIdsInternal().Where(i => i.Url.Equals(url, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
         return devIdInternal == null ? _publicRepoClient : devIdInternal.GitHubClient;
@@ -45,19 +45,16 @@ public class GitHubClientProvider
         return !GitHubClient.Equals(client, _publicRepoClient);
     }
 
-    public async Task<GitHubClient> GetClientForLoggedInDeveloper(bool logRateLimit = false)
+    public async Task<IGitHubClient> GetClientForLoggedInDeveloper(bool logRateLimit = false)
     {
         var devIds = _developerIdProvider.GetLoggedInDeveloperIdsInternal();
-        GitHubClient client;
-        if (devIds == null || !devIds.Any())
+        IGitHubClient? client = devIds.FirstOrDefault()?.GitHubClient;
+
+        // we're only using an authenticated Octokit client
+        if (!devIds.Any())
         {
-            _log.Information($"No logged in developer, using public GitHub client.");
-            client = GetClient();
-        }
-        else
-        {
-            _log.Information($"Using authenticated user: {devIds.First().LoginId}");
-            client = devIds.First().GitHubClient;
+            _log.Error($"No logged in developer ID found.");
+            return client!;
         }
 
         if (client == null)

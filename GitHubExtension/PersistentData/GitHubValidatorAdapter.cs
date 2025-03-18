@@ -22,7 +22,6 @@ public class GitHubValidatorAdapter : IGitHubValidator
         // TODO: Change this request depending on the search type.
         var client = await _gitHubClientProvider.GetClientForLoggedInDeveloper(true);
         var issuesSearch = new SearchIssuesRequest(search.SearchString);
-
         _ = await client.Search.SearchIssues(issuesSearch);
     }
 }

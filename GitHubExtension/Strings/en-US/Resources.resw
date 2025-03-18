@@ -170,7 +170,7 @@
     <comment>Title for Add query list item, shown in Add Queries page.</comment>
   </data>
   <data name="Pages_No_Items_Found" xml:space="preserve">
-    <value>No items found. See logs for more details.</value>
+    <value>No items found</value>
     <comment>Shown in list pages when there is no items found for a search query.</comment>
   </data>
   <data name="Pages_Error_Title" xml:space="preserve">
