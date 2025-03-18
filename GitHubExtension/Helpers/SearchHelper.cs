@@ -64,64 +64,78 @@ public static class SearchHelper
             var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
             var searchQuery = queryParams["q"];
 
-            if (!string.IsNullOrEmpty(searchQuery))
-            {
-                return searchQuery;
-            }
+            var searchBuilder = new List<string>();
 
             if (pathSegments.Length >= 2)
             {
-                if (pathSegments.Length >= 3 &&
-                    (string.Equals(pathSegments[2], "issues", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(pathSegments[2], "pulls", StringComparison.OrdinalIgnoreCase)))
+                // Add the repo:ownerName/repoName part
+                searchBuilder.Add($"repo:{pathSegments[0]}/{pathSegments[1]}");
+            }
+
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                searchBuilder.Add(searchQuery);
+            }
+
+            // Parse labels from the query parameters
+            var labels = queryParams.GetValues("label");
+            if (labels != null && labels.Length > 0)
+            {
+                foreach (var label in labels)
                 {
-                    var searchBuilder = new List<string>();
+                    searchBuilder.Add($"label:\"{label}\"");
+                }
+            }
 
-                    searchBuilder.Add($"repo:{pathSegments[0]}/{pathSegments[1]}");
+            if (searchBuilder.Count > 0)
+            {
+                return string.Join(" ", searchBuilder);
+            }
 
-                    if (string.Equals(pathSegments[2], "issues", StringComparison.OrdinalIgnoreCase))
-                    {
-                        searchBuilder.Add("is:issue");
-                    }
-                    else if (string.Equals(pathSegments[2], "pulls", StringComparison.OrdinalIgnoreCase))
-                    {
-                        searchBuilder.Add("is:pr");
-                    }
-
-                    if (uri.Query.Contains("state=closed", StringComparison.OrdinalIgnoreCase))
-                    {
-                        searchBuilder.Add("is:closed");
-                    }
-                    else
-                    {
-                        searchBuilder.Add("is:open");
-                    }
-
-                    return string.Join(" ", searchBuilder);
+            if (pathSegments.Length >= 3 &&
+                (string.Equals(pathSegments[2], "issues", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(pathSegments[2], "pulls", StringComparison.OrdinalIgnoreCase)))
+            {
+                if (string.Equals(pathSegments[2], "issues", StringComparison.OrdinalIgnoreCase))
+                {
+                    searchBuilder.Add("is:issue");
+                }
+                else if (string.Equals(pathSegments[2], "pulls", StringComparison.OrdinalIgnoreCase))
+                {
+                    searchBuilder.Add("is:pr");
                 }
 
-                if (string.Equals(pathSegments[0], "search", StringComparison.OrdinalIgnoreCase))
+                if (uri.Query.Contains("state=closed", StringComparison.OrdinalIgnoreCase))
                 {
-                    var searchBuilder = new List<string>();
-
-                    if (pathSegments.Length > 1)
-                    {
-                        switch (pathSegments[1].ToLowerInvariant())
-                        {
-                            case "issues":
-                                searchBuilder.Add("is:issue");
-                                break;
-                            case "pulls":
-                                searchBuilder.Add("is:pr");
-                                break;
-                            case "repositories":
-                                searchBuilder.Add("is:repo");
-                                break;
-                        }
-                    }
-
-                    return string.Join(" ", searchBuilder);
+                    searchBuilder.Add("is:closed");
                 }
+                else
+                {
+                    searchBuilder.Add("is:open");
+                }
+
+                return string.Join(" ", searchBuilder);
+            }
+
+            if (string.Equals(pathSegments[0], "search", StringComparison.OrdinalIgnoreCase))
+            {
+                if (pathSegments.Length > 1)
+                {
+                    switch (pathSegments[1].ToLowerInvariant())
+                    {
+                        case "issues":
+                            searchBuilder.Add("is:issue");
+                            break;
+                        case "pulls":
+                            searchBuilder.Add("is:pr");
+                            break;
+                        case "repositories":
+                            searchBuilder.Add("is:repo");
+                            break;
+                    }
+                }
+
+                return string.Join(" ", searchBuilder);
             }
 
             return null;
