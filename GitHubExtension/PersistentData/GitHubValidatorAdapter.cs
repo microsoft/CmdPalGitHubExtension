@@ -27,7 +27,7 @@ public class GitHubValidatorAdapter : IGitHubValidator
         {
             case SearchType.IssuesAndPullRequests:
             case SearchType.Issues:
-                var searchIssuesRequest = GitHubRequestHelper.GetSearchPullRequestsRequest(search.SearchString);
+                var searchIssuesRequest = GitHubRequestHelper.GetSearchIssuesRequest(search.SearchString);
                 _ = await client.Search.SearchIssues(searchIssuesRequest);
                 break;
             case SearchType.PullRequests:
