@@ -126,7 +126,7 @@
     <comment>Title for copy checkout command</comment>
   </data>
   <data name="Commands_Copy" xml:space="preserve">
-    <value>Copy to clipboard</value>
+    <value>Copy</value>
     <comment>Title of Copy command, shown in pages menu options</comment>
   </data>
   <data name="Commands_Open_Link" xml:space="preserve">
@@ -320,5 +320,17 @@
   <data name="Forms_SaveSearchTemplateSaveSearchActionTitle" xml:space="preserve">
     <value>Save</value>
     <comment>The title for the button that submits the form and saves the query</comment>
+  </data>
+  <data name="ExtensionTitle" xml:space="preserve">
+    <value>GitHub Extension</value>
+    <comment>Title for the extension</comment>
+  </data>
+  <data name="ExtensionPackageTitle" xml:space="preserve">
+    <value>GitHub Extension for Command Palette</value>
+    <comment>Title for the extension package</comment>
+  </data>
+  <data name="ExtensionPackageDescription" xml:space="preserve">
+    <value>The GitHub extension for Windows Command Palette.</value>
+    <comment>Description for extension package</comment>
   </data>
 </root>
