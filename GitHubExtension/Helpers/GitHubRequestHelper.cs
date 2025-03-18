@@ -19,6 +19,17 @@ public static class GitHubRequestHelper
         {
             PerPage = 100,
             Page = 1,
+            Type = IssueTypeQualifier.Issue,
+        };
+    }
+
+    public static SearchIssuesRequest GetSearchPullRequestsRequest(string term)
+    {
+        return new SearchIssuesRequest(term)
+        {
+            PerPage = 100,
+            Page = 1,
+            Type = IssueTypeQualifier.PullRequest,
         };
     }
 }
