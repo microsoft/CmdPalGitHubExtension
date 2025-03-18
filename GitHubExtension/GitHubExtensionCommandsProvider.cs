@@ -10,7 +10,6 @@ using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
-using Serilog;
 
 namespace GitHubExtension;
 
@@ -71,6 +70,8 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             RaiseItemsChanged(0);
         }
     }
+
+    private void UpdateTopLevelCommands() => RaiseItemsChanged(0);
 
     private bool _isSignedIn;
 
@@ -139,6 +140,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             {
                 var task = Task.Run(async () =>
                 {
+                    await _persistentDataManager.ValidateSearch(search);
                     await _persistentDataManager.UpdateSearchTopLevelStatus(search, true);
                 });
 
@@ -148,7 +150,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             await Task.WhenAll(defaultTasks);
         }
 
-        RaiseItemsChanged(0);
+        UpdateTopLevelCommands();
     }
 
     private void OnSignInStatusChanged(object? sender, SignInStatusChangedEventArgs e)
