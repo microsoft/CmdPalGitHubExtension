@@ -12,7 +12,7 @@ Related repositories include:
 
 ### Requirements
 The Command Palette GitHub Extension requires:
-* PowerToys' Command Palette module
+* PowerToys with Command Palette included
 * Windows 11
 * An ARM64 or x64 processor
 
