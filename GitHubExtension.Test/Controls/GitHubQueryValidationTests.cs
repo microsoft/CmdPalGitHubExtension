@@ -29,6 +29,7 @@ public class GitHubQueryValidationTests
         mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
     }
 
+    // is:issue isn't a valid search. On github.com, this just returns no results
     [TestMethod]
     public async Task ValidateSearch_SupportsIsIssueKeyword()
     {
@@ -46,6 +47,7 @@ public class GitHubQueryValidationTests
         mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
     }
 
+    // is:pr isn't a valid search. On github.com, this just returns no results.
     [TestMethod]
     public async Task ValidateSearch_SupportsIsPullRequestKeyword()
     {
@@ -304,6 +306,7 @@ public class GitHubQueryValidationTests
         mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
     }
 
+    // this is a valid search that returns no results
     [TestMethod]
     public async Task ValidateSearch_SupportsMixOfIncludeAndExcludeQualifiers()
     {
@@ -312,6 +315,41 @@ public class GitHubQueryValidationTests
         var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
 
         var searchString = "is:pr label:enhancement -label:wontfix repo:microsoft/PowerToys -is:draft";
+
+        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+
+        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+
+        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+    }
+
+    // this is a valid search, but returned no results
+    [TestMethod]
+    public async Task ValidateSearch_SupportsBooleanOperators()
+    {
+        var mockSearchRepository = new Mock<ISearchRepository>();
+        var mockResources = new Mock<IResources>();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+
+        var searchString = "is:open AND (is:issue OR is:pr) NOT author:bot devhome";
+        var search = new SearchCandidate(searchString, "Test Search");
+
+        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+
+        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+
+        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ValidateSearch_SupportsMultipleRepositories()
+    {
+        var mockSearchRepository = new Mock<ISearchRepository>();
+        var mockResources = new Mock<IResources>();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+
+        var searchString = "repo:microsoft/terminal repo:microsoft/PowerToys repo:microsoft/vscode is:open is:issue";
+        var search = new SearchCandidate(searchString, "Test Search");
 
         mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
 

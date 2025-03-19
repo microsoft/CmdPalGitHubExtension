@@ -355,7 +355,7 @@ public class SaveSearchFormTest
     public async Task GetSearchAsync_WithRepositoryIssuesUrl_ParsesAndReturnsFormattedSearchString()
     {
         var url = "https://github.com/microsoft/PowerToys/issues?q=is:open+label:bug";
-        var expected = "is:open label:bug";
+        var expected = "repo:microsoft/PowerToys is:open label:bug";
 
         var mockSearchRepository = new Mock<ISearchRepository>();
         mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
@@ -397,7 +397,7 @@ public class SaveSearchFormTest
     public async Task GetSearchAsync_WithRepositoryClosedIssuesUrl_ParsesAndReturnsClosedIssuesSearchString()
     {
         var url = "https://github.com/microsoft/PowerToys/issues?q=is:issue+is:closed";
-        var expected = "is:issue is:closed";
+        var expected = "repo:microsoft/PowerToys is:issue is:closed";
 
         var mockSearchRepository = new Mock<ISearchRepository>();
         mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
@@ -524,6 +524,90 @@ public class SaveSearchFormTest
     {
         var url = "https://github.com/search?q=repo:microsoft/PowerToys+is:open+-label:wontfix";
         var expected = "repo:microsoft/PowerToys is:open -label:wontfix";
+
+        var mockSearchRepository = new Mock<ISearchRepository>();
+        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        mockSearchRepository.Setup(repo => repo.UpdateSearchTopLevelStatus(It.IsAny<ISearch>(), It.IsAny<bool>())).Returns(Task.CompletedTask);
+
+        var mockResources = new Mock<IResources>();
+
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var payload = CreatePayload(url, "Test Search");
+
+        var result = await saveSearchForm.GetSearchAsync(payload);
+
+        Assert.AreEqual(expected, result.SearchString);
+        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == expected)), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GetSearchAsync_WithMultipleRepositories_ParsesAndReturnsCorrectSearchString()
+    {
+        var url = "https://github.com/search?q=repo:microsoft/terminal+repo:microsoft/PowerToys+repo:microsoft/vscode+is:open+is:issue";
+        var expected = "repo:microsoft/terminal repo:microsoft/PowerToys repo:microsoft/vscode is:open is:issue";
+
+        var mockSearchRepository = new Mock<ISearchRepository>();
+        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        mockSearchRepository.Setup(repo => repo.UpdateSearchTopLevelStatus(It.IsAny<ISearch>(), It.IsAny<bool>())).Returns(Task.CompletedTask);
+
+        var mockResources = new Mock<IResources>();
+
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var payload = CreatePayload(url, "Test Search");
+
+        var result = await saveSearchForm.GetSearchAsync(payload);
+
+        Assert.AreEqual(expected, result.SearchString);
+        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == expected)), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GetSearchAsync_WithMultipleStates_ParsesAndReturnsCorrectSearchString()
+    {
+        var url = "https://github.com/search?q=repo:microsoft/PowerToys+state:open+state:closed";
+        var expected = "repo:microsoft/PowerToys state:open state:closed";
+
+        var mockSearchRepository = new Mock<ISearchRepository>();
+        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        mockSearchRepository.Setup(repo => repo.UpdateSearchTopLevelStatus(It.IsAny<ISearch>(), It.IsAny<bool>())).Returns(Task.CompletedTask);
+
+        var mockResources = new Mock<IResources>();
+
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var payload = CreatePayload(url, "Test Search");
+
+        var result = await saveSearchForm.GetSearchAsync(payload);
+
+        Assert.AreEqual(expected, result.SearchString);
+        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == expected)), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GetSearchAsync_WithMultipleSortDirections_ParsesAndReturnsCorrectSearchString()
+    {
+        var url = "https://github.com/search?q=repo:microsoft/PowerToys+sort:updated-desc+sort:created-asc";
+        var expected = "repo:microsoft/PowerToys sort:updated-desc sort:created-asc";
+
+        var mockSearchRepository = new Mock<ISearchRepository>();
+        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        mockSearchRepository.Setup(repo => repo.UpdateSearchTopLevelStatus(It.IsAny<ISearch>(), It.IsAny<bool>())).Returns(Task.CompletedTask);
+
+        var mockResources = new Mock<IResources>();
+
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var payload = CreatePayload(url, "Test Search");
+
+        var result = await saveSearchForm.GetSearchAsync(payload);
+
+        Assert.AreEqual(expected, result.SearchString);
+        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == expected)), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GetSearchAsync_WithMultipleLanguagesMilestonesDates_ParsesAndReturnsCorrectSearchString()
+    {
+        var url = "https://github.com/search?q=repo:microsoft/PowerToys+language:csharp+language:javascript+milestone:v1.0+milestone:v2.0+created:>2022-01-01+updated:<2023-01-01";
+        var expected = "repo:microsoft/PowerToys language:csharp language:javascript milestone:v1.0 milestone:v2.0 created:>2022-01-01 updated:<2023-01-01";
 
         var mockSearchRepository = new Mock<ISearchRepository>();
         mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);

@@ -60,14 +60,25 @@ public static class SearchHelper
         {
             var pathSegments = uri.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
+            // case 1: a URL with a query string (e.g. "github.com?q=...")
             var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
             var searchQuery = queryParams["q"];
 
             if (!string.IsNullOrEmpty(searchQuery))
             {
-                return searchQuery;
+                var searchBuilder = new List<string> { searchQuery };
+
+                if (pathSegments.Length >= 2)
+                {
+                    var repoOwner = pathSegments[0];
+                    var repoName = pathSegments[1];
+                    searchBuilder.Insert(0, $"repo:{repoOwner}/{repoName}");
+                }
+
+                return string.Join(" ", searchBuilder);
             }
 
+            // case 2: a URL that queries without a query string (e.g. "github.com/microsoft/PowerToys/issues")
             if (pathSegments.Length >= 2)
             {
                 if (pathSegments.Length >= 3 &&

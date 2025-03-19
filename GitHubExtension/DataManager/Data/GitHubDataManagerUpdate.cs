@@ -13,6 +13,7 @@ public partial class GitHubDataManager
 {
     public event DataManagerUpdateEventHandler? OnUpdate;
 
+    // rate limit exception gets thrown here
     private async Task PerformUpdateAsync(DataStoreOperationParameters parameters, Func<Task> asyncOperation)
     {
         using var tx = DataStore.Connection!.BeginTransaction();
