@@ -47,7 +47,7 @@ Add this to your Saved Queries: *repo:microsoft/CmdPalGitHubExtension is:issue*
 If you would like to ask a question that you feel doesn't warrant an issue (yet), please reach out to us via X or Bluesky:
 
 * Kayla Cinnamon, Senior Product Manager: [@cinnamon_msft on X](https://twitter.com/cinnamon_msft), [@kaylacinnamon on Bluesky](https://bsky.app/profile/kaylacinnamon.bsky.social)
-* Clint Rutkas, Principal Product Manager: [@clintrutkas](https://twitter.com/clintrutkas)
+* Clint Rutkas, Principal Product Manager: [@clintrutkas on X](https://twitter.com/clintrutkas), [@clintrutkas on Bluesky](https://bsky.app/profile/clintrutkas.bsky.social)
 
 ## Building the code
 
