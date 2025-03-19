@@ -1,14 +1,71 @@
-# Project
+# Welcome to the Command Palette (CmdPal) GitHub Extension repo
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+This repository contains the source code for:
 
-As the maintainer of this project, please make a few updates:
+* [Command Palette GitHub Extension](https://github.com/microsoft/CmdPalGitHubExtension)
 
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+Related repositories include:
+
+* [PowerToys' Command Palette Module](https://github.com/microsoft/powertoys)
+
+## Installing and running Command Palette GitHub Extension
+
+### Requirements
+The Command Palette GitHub Extension requires:
+* PowerToys' Command Palette module
+* Windows 11
+* An ARM64 or x64 processor
+
+### Winget [Recommended]
+
+More instructions coming soon!
+
+### Microsoft Store
+
+The Command Palette GitHub Extension is coming to the Microsoft Store. Stay tuned for updates and instructions.
+
+### Other install methods
+
+#### Via GitHub
+
+For users who are unable to install the Command Palette GitHub Extension from the Microsoft Store, released builds can be manually downloaded from this repository's [Releases page](https://github.com/microsoft/CmdPalGitHubExtension/releases).
+
+---
+
+## Contributing
+
+We are excited to work alongside you, our amazing community, to build and enhance the Command Palette GitHub Extension!
+
+## Communicating with the team
+
+The easiest way to communicate with the team is via GitHub issues.
+
+Please file new issues, feature requests and suggestions, but **DO search for similar open/closed preexisting issues before creating a new issue.**
+
+Add this to your Saved Queries: *repo:microsoft/CmdPalGitHubExtension is:issue*
+
+If you would like to ask a question that you feel doesn't warrant an issue (yet), please reach out to us via Twitter:
+
+* Kayla Cinnamon, Senior Product Manager: [@cinnamon_msft](https://twitter.com/cinnamon_msft)
+* Clint Rutkas, Principal Product Manager: [@clintrutkas](https://twitter.com/clintrutkas)
+
+## Building the code
+
+* Clone the repository
+* Uninstall the Command Palette GitHub Extension (Command Palette has a hard time choosing which extension to use if two versions exist)
+* Open `GitHubExtension.sln` in Visual Studio 2022 or later and build from the IDE, or run `build\scripts\Build.ps1` from a Visual Studio command prompt.
+
+### OAuth App
+Since secrets cannot be checked in to the repository, developers must create their own test OAuth app for local tests.
+
+Follow this link https://docs.github.com/en/developers/apps/building-oauth-apps/creating-an-oauth-app to create a Git OAuth app (with RedirectUri = "devhome://oauth_redirect_uri/").
+
+The OAuth App ClientId and ClientSecret can be added as environment variables using the following instructions:
+
+    On an elevated cmd window:
+        setx GITHUB_CLIENT_ID "Your OAuth App's ClientId" /m
+        setx GITHUB_CLIENT_SECRET "Your OAuth App's ClientSecret" /m
+
 
 ## Contributing
 
