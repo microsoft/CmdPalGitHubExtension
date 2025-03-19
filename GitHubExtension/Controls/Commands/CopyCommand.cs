@@ -10,10 +10,10 @@ internal sealed partial class CopyCommand : InvokableCommand
 {
     private readonly string _valueToCopy;
 
-    internal CopyCommand(string valueToCopy, string valueToCopyName)
+    internal CopyCommand(string valueToCopy, string valueToCopyString)
     {
         _valueToCopy = valueToCopy;
-        Name = $"Copy {valueToCopyName}";
+        Name = valueToCopyString;
         Icon = new IconInfo("\uE8C8");
     }
 

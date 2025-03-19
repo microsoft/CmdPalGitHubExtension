@@ -106,4 +106,25 @@ public class CacheDataManagerFacadeTests
         Assert.AreEqual("Issue3", issuesAndPullRequests.ElementAt(4).Title);
         Assert.AreEqual("PullRequest3", issuesAndPullRequests.ElementAt(5).Title);
     }
+
+    [TestMethod]
+    [TestCategory("Unit")]
+    public void EnsureOnePageListeningEventAtMaximum()
+    {
+        var mockCacheManager = new Mock<ICacheManager>();
+        var stubGitHubDataManager = new Mock<IDataRequester>().Object;
+        var stubDecoratorFactory = new Mock<IDecoratorFactory>().Object;
+        var cacheDataManagerFacade = new CacheDataManagerFacade(mockCacheManager.Object, stubGitHubDataManager, stubDecoratorFactory);
+        Assert.IsNotNull(cacheDataManagerFacade);
+
+        var mockEventHandler1 = new Mock<CacheManagerUpdateEventHandler>();
+        var mockEventHandler2 = new Mock<CacheManagerUpdateEventHandler>();
+        cacheDataManagerFacade.OnUpdate += mockEventHandler1.Object;
+        cacheDataManagerFacade.OnUpdate += mockEventHandler2.Object;
+
+        mockCacheManager.Raise(x => x.OnUpdate += null, new CacheManagerUpdateEventArgs(CacheManagerUpdateKind.Updated));
+
+        mockEventHandler1.Verify(handler => handler(It.IsAny<object>(), It.IsAny<CacheManagerUpdateEventArgs>()), Times.Never);
+        mockEventHandler2.Verify(handler => handler(It.IsAny<object>(), It.IsAny<CacheManagerUpdateEventArgs>()), Times.Once);
+    }
 }

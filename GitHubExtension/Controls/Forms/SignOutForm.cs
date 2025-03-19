@@ -6,7 +6,6 @@ using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
-using Windows.Foundation;
 
 namespace GitHubExtension.Controls.Forms;
 
@@ -14,9 +13,9 @@ public sealed partial class SignOutForm : FormContent, IGitHubForm
 {
     public static event EventHandler<SignInStatusChangedEventArgs>? SignOutAction;
 
-    public event TypedEventHandler<object, bool>? LoadingStateChanged;
+    public event EventHandler<bool>? LoadingStateChanged;
 
-    public event TypedEventHandler<object, FormSubmitEventArgs>? FormSubmitted;
+    public event EventHandler<FormSubmitEventArgs>? FormSubmitted;
 
     private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly IResources _resources;

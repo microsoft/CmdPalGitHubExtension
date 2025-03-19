@@ -9,13 +9,12 @@ using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Serilog;
-using Windows.Foundation;
 
 namespace GitHubExtension.Controls.Forms;
 
 public sealed partial class SaveSearchForm : FormContent, IGitHubForm
 {
-    public static event TypedEventHandler<object, object?>? SearchSaved;
+    public static event EventHandler<object>? SearchSaved;
 
     private readonly ISearch _savedSearch;
 
@@ -24,9 +23,9 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
 
     private string IsTopLevelChecked => GetIsTopLevel().Result.ToString().ToLower(CultureInfo.InvariantCulture);
 
-    public event TypedEventHandler<object, bool>? LoadingStateChanged;
+    public event EventHandler<bool>? LoadingStateChanged;
 
-    public event TypedEventHandler<object, FormSubmitEventArgs>? FormSubmitted;
+    public event EventHandler<FormSubmitEventArgs>? FormSubmitted;
 
     public Dictionary<string, string> TemplateSubstitutions => new()
     {
@@ -34,8 +33,15 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
         { "{{SavedSearchString}}", _savedSearch.SearchString },
         { "{{SavedSearchName}}", _savedSearch.Name },
         { "{{IsTopLevel}}", IsTopLevelChecked },
+        { "{{EnteredSearchErrorMessage}}", _resources.GetResource("Forms_SaveSearchTemplateEnteredSearchError") },
+        { "{{EnteredSearchLabel}}", _resources.GetResource("Forms_SaveSearchTemplateEnteredSearchLabel") },
+        { "{{NameLabel}}", _resources.GetResource("Forms_SaveSearchTemplateNameLabel") },
+        { "{{NameErrorMessage}}", _resources.GetResource("Forms_SaveSearchTemplateNameError") },
+        { "{{IsTopLevelTitle}}", _resources.GetResource("Forms_SaveSearchTemplateIsTopLevelTitle") },
+        { "{{SaveSearchActionTitle}}", _resources.GetResource("Forms_SaveSearchTemplateSaveSearchActionTitle") },
     };
 
+    // for saving a new query
     public SaveSearchForm(ISearchRepository searchRepository, IResources resources)
     {
         _resources = resources;
@@ -43,6 +49,7 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
         _searchRepository = searchRepository;
     }
 
+    // for editing an existing query
     public SaveSearchForm(ISearch savedSearch, ISearchRepository searchRepository, IResources resources)
     {
         _resources = resources;
@@ -55,9 +62,9 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
     public override ICommandResult SubmitForm(string? inputs, string data)
     {
         LoadingStateChanged?.Invoke(this, true);
-        Task.Run(() =>
+        Task.Run(async () =>
         {
-            var search = GetSearchAsync(inputs);
+            var search = await GetSearchAsync(inputs);
             ExtensionHost.LogMessage(new LogMessage() { Message = $"Search: {search}" });
         });
 

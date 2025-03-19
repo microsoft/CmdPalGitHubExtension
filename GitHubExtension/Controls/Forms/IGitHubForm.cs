@@ -9,9 +9,9 @@ namespace GitHubExtension.Controls.Forms;
 
 public interface IGitHubForm
 {
-    event TypedEventHandler<object, bool>? LoadingStateChanged;
+    event EventHandler<bool>? LoadingStateChanged;
 
-    event TypedEventHandler<object, FormSubmitEventArgs>? FormSubmitted;
+    event EventHandler<FormSubmitEventArgs>? FormSubmitted;
 
     Dictionary<string, string> TemplateSubstitutions { get; }
 }

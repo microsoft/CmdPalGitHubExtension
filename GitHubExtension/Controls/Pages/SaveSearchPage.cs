@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Resources;
 using GitHubExtension.Controls.Forms;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
@@ -16,12 +17,14 @@ public sealed partial class SaveSearchPage : ContentPage
     private readonly string _successMessage;
     private readonly string _errorMessage;
 
-    public SaveSearchPage(SaveSearchForm saveSearchForm, StatusMessage statusMessage, string successMessage, string errorMessage)
+    public SaveSearchPage(SaveSearchForm saveSearchForm, StatusMessage statusMessage, string successMessage, string errorMessage, string saveSearchPageTitle)
     {
         _saveSearchForm = saveSearchForm;
         _statusMessage = statusMessage;
         _successMessage = successMessage;
         _errorMessage = errorMessage;
+        Icon = new IconInfo("\uecc8");
+        Title = saveSearchPageTitle;
 
         // Wire up events using the helper
         FormEventHelper.WireFormEvents(_saveSearchForm, this, _statusMessage, _successMessage, _errorMessage);

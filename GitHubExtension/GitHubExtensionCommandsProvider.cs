@@ -32,8 +32,6 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         IResources resources,
         ISearchPageFactory searchPageFactory)
     {
-        DisplayName = "GitHub Extension";
-
         _savedSearchesPage = savedSearchesPage;
         _signOutPage = signOutPage;
         _signInPage = signInPage;
@@ -41,6 +39,8 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         _persistentDataManager = persistentDataManager;
         _resources = resources;
         _searchPageFactory = searchPageFactory;
+
+        DisplayName = _resources.GetResource("ExtensionTitle");
 
         // Static events here. Hard dependency. But maybe it is ok in this case
         SignInForm.SignInAction += OnSignInStatusChanged;
@@ -61,7 +61,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         }
     }
 
-    private void OnSearchSaved(object sender, object? args)
+    private void OnSearchSaved(object? sender, object? args)
     {
         // Calling RaiseItemsChanged whenever a search is saved ensures the
         // top-level commands are updated.
@@ -83,7 +83,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             {
                 new CommandItem(_signInPage)
                 {
-                    Title = "GitHub Extension",
+                    Title = _resources.GetResource("ExtensionTitle"),
                     Subtitle = _resources.GetResource("Forms_Sign_In"),
                     Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
                 },
@@ -97,12 +97,12 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         {
             new(_savedSearchesPage)
             {
-                Title = "Saved GitHub Searches",
+                Title = _resources.GetResource("Pages_Saved_Searches"),
                 Icon = new IconInfo("\ue721"),
             },
             new(_signOutPage)
             {
-                Title = "GitHub Extension",
+                Title = _resources.GetResource("ExtensionTitle"),
                 Subtitle = _resources.GetResource("Forms_Sign_Out_Button_Title"),
                 Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
             },
@@ -128,11 +128,11 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             var login = devId.LoginId;
             List<ISearch> defaultSearches = new List<ISearch>
             {
-                new SearchCandidate($"state:open assignee:{login} archived:false", "Assigned to Me"),
-                new SearchCandidate($"state:open is:pr review-requested:{login} archived:false", "Review Requested"),
-                new SearchCandidate($"state:open mentions:{login} archived:false", "Mentions Me"),
-                new SearchCandidate($"state:open is:issue author:{login} archived:false", "Created Issues"),
-                new SearchCandidate($"state:open is:pr author:{login} archived:false", "My PRs"),
+                new SearchCandidate($"is:open archived:false assignee:{login} sort:created-desc", _resources.GetResource("CommandsProvider_AssignedToMeCommandName")),
+                new SearchCandidate($"is:open is:pr review-requested:{login} archived:false sort:created-desc", _resources.GetResource("CommandsProvider_ReviewRequestedCommandName")),
+                new SearchCandidate($"is:open mentions:{login} archived:false sort:created-desc", _resources.GetResource("CommandsProvider_MentionsMeCommandName")),
+                new SearchCandidate($"is:open is:issue archived:false author:{login} sort:created-desc", _resources.GetResource("CommandsProvider_CreatedIssuesCommandName")),
+                new SearchCandidate($"is:open is:pr author:{login} archived:false sort:created-desc", _resources.GetResource("CommandsProvider_MyPullRequestsCommandName")),
             };
 
             var defaultTasks = new List<Task>();

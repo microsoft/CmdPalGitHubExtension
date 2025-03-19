@@ -57,27 +57,7 @@ public sealed class CacheManager : IDisposable, ICacheManager
     // Cache Manager whe it receives an update complete event.
     public DateTime LastUpdated { get => GetLastUpdated(); private set => SetLastUpdated(value); }
 
-    private CacheManagerUpdateEventHandler? _onUpdate;
-
-    public event CacheManagerUpdateEventHandler? OnUpdate
-    {
-        add
-        {
-            lock (_stateLock)
-            {
-                // Ensuring only one page is listeing to the event.
-                _onUpdate = value;
-            }
-        }
-
-        remove
-        {
-            lock (_stateLock)
-            {
-                _onUpdate -= value;
-            }
-        }
-    }
+    public event CacheManagerUpdateEventHandler? OnUpdate;
 
     private DataUpdater DataUpdater { get; set; }
 
@@ -153,10 +133,6 @@ public sealed class CacheManager : IDisposable, ICacheManager
         {
             _cancelSource = new CancellationTokenSource();
             options.CancellationToken = _cancelSource.Token;
-
-            // Limiting to 100 for now for performance reasons.
-            options.ApiOptions.PageSize = 100;
-            options.ApiOptions.PageCount = 1;
         }
 
         // Do the update for saved queries here
@@ -178,10 +154,10 @@ public sealed class CacheManager : IDisposable, ICacheManager
 
     public void SendUpdateEvent(object? source, CacheManagerUpdateKind kind, Exception? ex = null)
     {
-        if (_onUpdate != null)
+        if (OnUpdate != null)
         {
             _logger.Debug($"Sending update event. Kind: {kind}.");
-            _onUpdate.Invoke(source, new CacheManagerUpdateEventArgs(kind, ex));
+            OnUpdate.Invoke(source, new CacheManagerUpdateEventArgs(kind, ex));
         }
     }
 

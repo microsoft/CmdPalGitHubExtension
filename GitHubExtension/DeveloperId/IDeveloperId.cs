@@ -10,5 +10,5 @@ public interface IDeveloperId
 
     string Url { get; }
 
-    Octokit.GitHubClient GitHubClient { get; }
+    Octokit.IGitHubClient GitHubClient { get; }
 }
