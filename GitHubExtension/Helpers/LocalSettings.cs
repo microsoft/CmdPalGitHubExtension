@@ -8,7 +8,7 @@ namespace GitHubExtension.Helpers;
 
 public static class LocalSettings
 {
-    private static readonly string _applicationDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DevHome/ApplicationData");
+    private static readonly string _applicationDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CommandPalette/ApplicationData");
     private static readonly string _localSettingsFile = "LocalSettings.json";
 
     private static Dictionary<string, object>? _settings;
