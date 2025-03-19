@@ -66,7 +66,16 @@ public static class SearchHelper
 
             if (!string.IsNullOrEmpty(searchQuery))
             {
-                return searchQuery;
+                var searchBuilder = new List<string> { searchQuery };
+
+                if (pathSegments.Length >= 2)
+                {
+                    var repoOwner = pathSegments[0];
+                    var repoName = pathSegments[1];
+                    searchBuilder.Insert(0, $"repo:{repoOwner}/{repoName}");
+                }
+
+                return string.Join(" ", searchBuilder);
             }
 
             if (pathSegments.Length >= 2)
