@@ -28,7 +28,7 @@ public class GitHubQueryValidationTests
 
         mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
     }
-    
+
     // is:issue isn't a valid search. On github.com, this just returns no results
     [TestMethod]
     public async Task ValidateSearch_SupportsIsIssueKeyword()
