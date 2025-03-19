@@ -208,4 +208,15 @@ public class SearchHelperTests
 
         Assert.AreEqual(expected, result);
     }
+
+    [TestMethod]
+    public void ParseSearchStringFromUri_WithMultipleRepositories_ReturnsCorrectSearchString()
+    {
+        var uri = new Uri("https://github.com/search?q=repo:microsoft/terminal+repo:microsoft/PowerToys+repo:microsoft/vscode+is:open+is:issue");
+        var expected = "repo:microsoft/terminal repo:microsoft/PowerToys repo:microsoft/vscode is:open is:issue";
+
+        var result = SearchHelper.ParseSearchStringFromUri(uri);
+
+        Assert.AreEqual(expected, result);
+    }
 }

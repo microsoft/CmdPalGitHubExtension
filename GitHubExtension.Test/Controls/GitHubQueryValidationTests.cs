@@ -341,6 +341,23 @@ public class GitHubQueryValidationTests
         mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
     }
 
+    [TestMethod]
+    public async Task ValidateSearch_SupportsMultipleRepositories()
+    {
+        var mockSearchRepository = new Mock<ISearchRepository>();
+        var mockResources = new Mock<IResources>();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+
+        var searchString = "repo:microsoft/terminal repo:microsoft/PowerToys repo:microsoft/vscode is:open is:issue";
+        var search = new SearchCandidate(searchString, "Test Search");
+
+        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+
+        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+
+        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+    }
+
     private string CreatePayload(string searchString, string name)
     {
         return $"{{ \"EnteredSearch\": \"{searchString}\", \"Name\": \"{name}\", \"IsTopLevel\": \"false\" }}";

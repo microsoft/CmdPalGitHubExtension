@@ -355,7 +355,7 @@ public class SaveSearchFormTest
     public async Task GetSearchAsync_WithRepositoryIssuesUrl_ParsesAndReturnsFormattedSearchString()
     {
         var url = "https://github.com/microsoft/PowerToys/issues?q=is:open+label:bug";
-        var expected = "is:open label:bug";
+        var expected = "repo:microsoft/PowerToys is:open label:bug";
 
         var mockSearchRepository = new Mock<ISearchRepository>();
         mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
@@ -397,7 +397,7 @@ public class SaveSearchFormTest
     public async Task GetSearchAsync_WithRepositoryClosedIssuesUrl_ParsesAndReturnsClosedIssuesSearchString()
     {
         var url = "https://github.com/microsoft/PowerToys/issues?q=is:issue+is:closed";
-        var expected = "is:issue is:closed";
+        var expected = "repo:microsoft/PowerToys is:issue is:closed";
 
         var mockSearchRepository = new Mock<ISearchRepository>();
         mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
