@@ -16,7 +16,7 @@ The Command Palette GitHub Extension requires:
 * Windows 11
 * An ARM64 or x64 processor
 
-### Winget [Recommended]
+### WinGet [Recommended]
 
 More instructions coming soon!
 
