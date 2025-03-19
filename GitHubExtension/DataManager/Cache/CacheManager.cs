@@ -5,17 +5,16 @@
 using GitHubExtension.Controls;
 using GitHubExtension.DataManager.Data;
 using GitHubExtension.DataManager.Enums;
+using GitHubExtension.Helpers;
 using Serilog;
 
 namespace GitHubExtension.DataManager.Cache;
 
 public sealed class CacheManager : IDisposable, ICacheManager
 {
-    public static readonly TimeSpan UpdateInterval = TimeSpan.FromMinutes(10);
+    public static readonly TimeSpan UpdateInterval = ExtensionConstants.UpdateInterval;
 
-    public static readonly TimeSpan UpdateFrequency = TimeSpan.FromMinutes(5);
-
-    public static readonly TimeSpan RefreshCooldown = TimeSpan.FromMinutes(2);
+    public static readonly TimeSpan RefreshCooldown = ExtensionConstants.RefreshCooldown;
 
     // Lock to be used everytime we want to check or update the state of
     // the CacheManager.
@@ -123,7 +122,7 @@ public sealed class CacheManager : IDisposable, ICacheManager
         await State.PeriodicUpdate();
     }
 
-    public async Task Update(TimeSpan? olderThan, UpdateType updateType, ISearch? search = null)
+    public async Task Update(UpdateType updateType, ISearch? search = null)
     {
         var options = new RequestOptions();
 

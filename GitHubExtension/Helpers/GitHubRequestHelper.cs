@@ -2,11 +2,6 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Octokit;
 
 namespace GitHubExtension.Helpers;
@@ -17,7 +12,7 @@ public static class GitHubRequestHelper
     {
         return new SearchIssuesRequest(term)
         {
-            PerPage = 100,
+            PerPage = ExtensionConstants.PerPage,
             Page = 1,
             Type = IssueTypeQualifier.Issue,
         };
@@ -27,7 +22,7 @@ public static class GitHubRequestHelper
     {
         return new SearchIssuesRequest(term)
         {
-            PerPage = 100,
+            PerPage = ExtensionConstants.PerPage,
             Page = 1,
             Type = IssueTypeQualifier.PullRequest,
         };
