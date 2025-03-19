@@ -6,7 +6,7 @@ This repository contains the source code for:
 
 Related repositories include:
 
-* [PowerToys' Command Palette Module](https://github.com/microsoft/powertoys)
+* [PowerToys Command Palette utility](https://github.com/microsoft/PowerToys/tree/main/src/modules/cmdpal)
 
 ## Installing and running Command Palette GitHub Extension
 
