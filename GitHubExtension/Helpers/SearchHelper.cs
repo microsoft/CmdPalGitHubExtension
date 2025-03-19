@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Globalization;
-using GitHubExtension.Client;
 using GitHubExtension.DataModel.Enums;
 
 namespace GitHubExtension.Helpers;
@@ -61,6 +60,7 @@ public static class SearchHelper
         {
             var pathSegments = uri.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
+            // case 1: a URL with a query string (e.g. "github.com?q=...")
             var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
             var searchQuery = queryParams["q"];
 
@@ -78,6 +78,7 @@ public static class SearchHelper
                 return string.Join(" ", searchBuilder);
             }
 
+            // case 2: a URL that queries without a query string (e.g. "github.com/microsoft/PowerToys/issues")
             if (pathSegments.Length >= 2)
             {
                 if (pathSegments.Length >= 3 &&
