@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Diagnostics;
 using GitHubExtension.Controls.Forms;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -31,6 +32,12 @@ public static class FormEventHelper
         if (args?.Exception != null)
         {
             var message = $"{errorMessage}: {args.Exception.Message}";
+            if (args.Exception is Octokit.ApiException)
+            {
+                Octokit.ApiException apiException = (Octokit.ApiException)args.Exception;
+                message += $" - {StringHelper.ParseHttpErrorMessage(apiException.HttpResponse?.Body?.ToString())}";
+            }
+
             ExtensionHost.LogMessage(new LogMessage() { Message = args.Exception.Message });
             SetStatusMessage(statusMessage, message, MessageState.Error);
             ExtensionHost.ShowStatus(statusMessage);
