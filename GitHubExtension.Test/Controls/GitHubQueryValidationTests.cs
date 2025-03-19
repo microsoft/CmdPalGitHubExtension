@@ -306,7 +306,7 @@ public class GitHubQueryValidationTests
         mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
     }
 
-    // this a valid search that returns no results
+    // this is a valid search that returns no results
     [TestMethod]
     public async Task ValidateSearch_SupportsMixOfIncludeAndExcludeQualifiers()
     {
