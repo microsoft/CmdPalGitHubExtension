@@ -130,7 +130,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
         var searchString = search.SearchString;
 
         _log.Information($"Updating pull requests for: {name} - {searchString}");
-        var searchIssuesRequest = GitHubRequestHelper.GetSearchIssuesRequest(searchString);
+        var searchIssuesRequest = GitHubRequestHelper.GetSearchPullRequestsRequest(searchString);
 
         var client = await _gitHubClientProvider.GetClientForLoggedInDeveloper(true);
         var issuesResult = await client.Search.SearchIssues(searchIssuesRequest);

@@ -4,6 +4,8 @@
 
 using GitHubExtension.Client;
 using GitHubExtension.Controls;
+using GitHubExtension.DataModel.Enums;
+using GitHubExtension.Helpers;
 using Octokit;
 
 namespace GitHubExtension.PersistentData;
@@ -19,10 +21,23 @@ public class GitHubValidatorAdapter : IGitHubValidator
 
     public async Task ValidateSearch(ISearch search)
     {
-        // TODO: Change this request depending on the search type.
         var client = await _gitHubClientProvider.GetClientForLoggedInDeveloper(true);
-        var issuesSearch = new SearchIssuesRequest(search.SearchString);
 
-        _ = await client.Search.SearchIssues(issuesSearch);
+        switch (search.Type)
+        {
+            case SearchType.IssuesAndPullRequests:
+            case SearchType.Issues:
+                var searchIssuesRequest = GitHubRequestHelper.GetSearchIssuesRequest(search.SearchString);
+                _ = await client.Search.SearchIssues(searchIssuesRequest);
+                break;
+            case SearchType.PullRequests:
+                var searchPullRequestsRequest = GitHubRequestHelper.GetSearchPullRequestsRequest(search.SearchString);
+                _ = await client.Search.SearchIssues(searchPullRequestsRequest);
+                break;
+            case SearchType.Repositories:
+                throw new NotImplementedException();
+            default:
+                throw new ArgumentException("Invalid search type");
+        }
     }
 }

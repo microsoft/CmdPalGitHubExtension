@@ -126,7 +126,7 @@
     <comment>Title for copy checkout command</comment>
   </data>
   <data name="Commands_Copy" xml:space="preserve">
-    <value>Copy to clipboard</value>
+    <value>Copy</value>
     <comment>Title of Copy command, shown in pages menu options</comment>
   </data>
   <data name="Commands_Open_Link" xml:space="preserve">
@@ -170,7 +170,7 @@
     <comment>Title for Add query list item, shown in Add Queries page.</comment>
   </data>
   <data name="Pages_No_Items_Found" xml:space="preserve">
-    <value>No items found. See logs for more details.</value>
+    <value>No items found</value>
     <comment>Shown in list pages when there is no items found for a search query.</comment>
   </data>
   <data name="Pages_Error_Title" xml:space="preserve">
@@ -340,5 +340,16 @@
   <data name="CommandsProvider_MyPullRequestsCommandName" xml:space="preserve">
     <value>My Pull Requests</value>
     <comment>Title for search "state:open is:pr author:{login} archived:false"</comment>
+  <data name="ExtensionTitle" xml:space="preserve">
+    <value>GitHub Extension</value>
+    <comment>Title for the extension</comment>
+  </data>
+  <data name="ExtensionPackageTitle" xml:space="preserve">
+    <value>GitHub Extension for Command Palette</value>
+    <comment>Title for the extension package</comment>
+  </data>
+  <data name="ExtensionPackageDescription" xml:space="preserve">
+    <value>The GitHub extension for Windows Command Palette.</value>
+    <comment>Description for extension package</comment>
   </data>
 </root>
