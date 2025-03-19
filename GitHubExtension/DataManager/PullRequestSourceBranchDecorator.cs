@@ -34,7 +34,7 @@ public sealed class PullRequestSourceBranchDecorator : IPullRequest
                 _source = _pullRequestUpdater.UpdatePullRequestFromPullRequestAPIAsync(_source).GetAwaiter().GetResult();
             }
 
-            return GitStringHelper.SwapGitColonsForForwardSlashes(_source.SourceBranch);
+            return StringHelper.SwapGitColonsForForwardSlashes(_source.SourceBranch);
         }
     }
 

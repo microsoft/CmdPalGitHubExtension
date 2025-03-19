@@ -309,7 +309,7 @@
     <value>Name:</value>
     <comment>Shown as the name for the saved query</comment>
   </data>
-  <data name="Forms_SaveSearchTemplateNameErrorMessage" xml:space="preserve">
+  <data name="Forms_SaveSearchTemplateNameError" xml:space="preserve">
     <value>A query name is required</value>
     <comment>Shown if the user submits the SaveSearchForm without a name</comment>
   </data>
