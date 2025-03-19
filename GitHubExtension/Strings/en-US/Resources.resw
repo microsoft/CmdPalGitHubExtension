@@ -340,6 +340,7 @@
   <data name="CommandsProvider_MyPullRequestsCommandName" xml:space="preserve">
     <value>My Pull Requests</value>
     <comment>Title for search "state:open is:pr author:{login} archived:false"</comment>
+  </data>
   <data name="ExtensionTitle" xml:space="preserve">
     <value>GitHub Extension</value>
     <comment>Title for the extension</comment>
