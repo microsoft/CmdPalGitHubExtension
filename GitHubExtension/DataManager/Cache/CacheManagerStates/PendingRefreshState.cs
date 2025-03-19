@@ -46,7 +46,7 @@ public class PendingRefreshState : CacheManagerState
                     CacheManager.State = CacheManager.RefreshingState;
                 }
 
-                await CacheManager.Update(TimeSpan.MinValue, CacheManager.CurrentUpdateType, CacheManager.PendingSearch);
+                await CacheManager.Update(CacheManager.CurrentUpdateType, CacheManager.PendingSearch);
                 break;
             default:
                 Logger.Information($"Received data manager update event {e.Kind}. Changing to Idle state.");
