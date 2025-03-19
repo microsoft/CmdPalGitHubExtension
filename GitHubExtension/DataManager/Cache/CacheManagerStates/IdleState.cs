@@ -24,7 +24,7 @@ public class IdleState : CacheManagerState
         }
 
         Logger.Information($"Starting refresh for Search: {search.Name} - {search.SearchString}");
-        await CacheManager.Update(TimeSpan.MinValue, UpdateType.Search, search);
+        await CacheManager.Update(UpdateType.Search, search);
     }
 
     public async override Task PeriodicUpdate()
@@ -42,6 +42,6 @@ public class IdleState : CacheManagerState
         }
 
         Logger.Information("Starting periodic update.");
-        await CacheManager.Update(CacheManager.UpdateFrequency, UpdateType.All);
+        await CacheManager.Update(UpdateType.All);
     }
 }
