@@ -15,26 +15,20 @@ public class PendingRefreshState : CacheManagerState
     {
     }
 
-    public async override Task Refresh(UpdateType updateType, ISearch? search)
+    public async override Task Refresh(ISearch search)
     {
         await Task.Run(() =>
         {
             lock (CacheManager.GetStateLock())
             {
-                if (search != null && search.SearchString == CacheManager.PendingSearch?.SearchString)
+                if (search.SearchString == CacheManager.PendingSearch?.SearchString)
                 {
                     Logger.Information("Search is the same as the pending search. Ignoring.");
                     return;
                 }
 
-                if (updateType == CacheManager.CurrentUpdateType)
-                {
-                    Logger.Information("Update type is the same as the current update type. Ignoring.");
-                    return;
-                }
-
                 CacheManager.PendingSearch = search;
-                CacheManager.CurrentUpdateType = updateType;
+                CacheManager.CurrentUpdateType = UpdateType.Search;
             }
 
             CacheManager.CancelUpdateInProgress();
@@ -52,7 +46,7 @@ public class PendingRefreshState : CacheManagerState
                     CacheManager.State = CacheManager.RefreshingState;
                 }
 
-                await CacheManager.Update(TimeSpan.MinValue, CacheManager.CurrentUpdateType, CacheManager.PendingSearch);
+                await CacheManager.Update(CacheManager.CurrentUpdateType, CacheManager.PendingSearch);
                 break;
             default:
                 Logger.Information($"Received data manager update event {e.Kind}. Changing to Idle state.");

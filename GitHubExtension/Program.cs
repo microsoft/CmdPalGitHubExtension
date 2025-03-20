@@ -10,10 +10,12 @@ using GitHubExtension.DataManager;
 using GitHubExtension.DataManager.Cache;
 using GitHubExtension.DataManager.Data;
 using GitHubExtension.DeveloperId;
+using GitHubExtension.Helpers;
 using GitHubExtension.PersistentData;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Windows.ApplicationModel.Resources;
 using Microsoft.Windows.AppLifecycle;
 using Microsoft.Windows.Storage;
 using Serilog;
@@ -109,11 +111,15 @@ public class Program
         var developerIdProvider = new DeveloperIdProvider();
         _developerIdProvider = developerIdProvider;
 
+        var path = ResourceLoader.GetDefaultResourceFilePath();
+        var resourceLoader = new ResourceLoader(path);
+        var resources = new Resources(resourceLoader);
+
         var gitHubClientProvider = new GitHubClientProvider(developerIdProvider);
 
-        using var gitHubDataManager = new GitHubDataManager(developerIdProvider, gitHubClientProvider);
+        using var gitHubDataManager = new GitHubDataManager(gitHubClientProvider);
 
-        using var searchRepository = new PersistentDataManager(new GitHubValidatorAdapter(developerIdProvider));
+        using var searchRepository = new PersistentDataManager(new GitHubValidatorAdapter(gitHubClientProvider));
 
         using var cacheManager = new CacheManager(new GitHubCacheAdapter(gitHubDataManager), searchRepository)!;
 
@@ -123,16 +129,16 @@ public class Program
         var decoratorFactory = new DecoratorFactory(gitHubDataManager);
         var cacheDataManager = new CacheDataManagerFacade(cacheManager, gitHubDataManager, decoratorFactory);
 
-        var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository);
+        var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository, resources);
 
-        var addSearchListItem = new AddSearchListItem(new SaveSearchPage(new SaveSearchForm(searchRepository), new StatusMessage(), "Search saved successfully!", "Error in saving search"));
+        var addSearchListItem = new AddSearchListItem(new SaveSearchPage(new SaveSearchForm(searchRepository, resources), new StatusMessage(), resources.GetResource("Message_Search_Saved"), resources.GetResource("Message_Search_Saved_Error"), resources.GetResource("ListItems_AddSearch")), resources);
 
-        var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, addSearchListItem);
+        var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, resources, addSearchListItem);
 
-        var signOutPage = new SignOutPage(new SignOutForm(developerIdProvider), new StatusMessage(), "Sign out succeeded!", "Sign out failed");
-        var signInPage = new SignInPage(new SignInForm(developerIdProvider), new StatusMessage(), "Sign in succeeded!", "Sign in failed");
+        var signOutPage = new SignOutPage(new SignOutForm(developerIdProvider, resources), new StatusMessage(), resources.GetResource("Message_Sign_Out_Success"), resources.GetResource("Message_Sign_Out_Fail"));
+        var signInPage = new SignInPage(new SignInForm(developerIdProvider, resources), new StatusMessage(), resources.GetResource("Message_Sign_In_Success"), resources.GetResource("Message_Sign_In_Fail"));
 
-        var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, developerIdProvider, searchRepository, searchPageFactory);
+        var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, developerIdProvider, searchRepository, resources, searchPageFactory);
         var extensionInstance = new GitHubExtension(extensionDisposedEvent, commandProvider);
 
         // We are instantiating an extension instance once above, and returning it every time the callback in RegisterExtension below is called.

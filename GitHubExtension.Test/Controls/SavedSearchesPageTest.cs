@@ -20,7 +20,8 @@ public class SavedSearchesPageTest
         var stubSearchPageFactory = new Mock<ISearchPageFactory>().Object;
         var stubSearchRepository = new Mock<ISearchRepository>().Object;
         var stubAddSearchListItem = new Mock<IListItem>().Object;
-        var savedSearchesPage = new SavedSearchesPage(stubSearchPageFactory, stubSearchRepository, stubAddSearchListItem);
+        var stubResources = new Mock<IResources>().Object;
+        var savedSearchesPage = new SavedSearchesPage(stubSearchPageFactory, stubSearchRepository, stubResources, stubAddSearchListItem);
         Assert.IsNotNull(savedSearchesPage);
     }
 
@@ -31,7 +32,8 @@ public class SavedSearchesPageTest
         var stubSearchPageFactory = new Mock<ISearchPageFactory>();
         var stubSearchRepository = new Mock<ISearchRepository>();
         var stubAddSearchListItem = new Mock<IListItem>();
-        var savedSearchesPage = new SavedSearchesPage(stubSearchPageFactory.Object, stubSearchRepository.Object, stubAddSearchListItem.Object);
+        var stubResources = new Mock<IResources>();
+        var savedSearchesPage = new SavedSearchesPage(stubSearchPageFactory.Object, stubSearchRepository.Object, stubResources.Object, stubAddSearchListItem.Object);
         var savedSearches = new List<ISearch>
         {
             new Mock<ISearch>().Object,
@@ -49,7 +51,8 @@ public class SavedSearchesPageTest
         var stubSearchPageFactory = new Mock<ISearchPageFactory>();
         var stubSearchRepository = new Mock<ISearchRepository>();
         var stubAddSearchListItem = new Mock<IListItem>();
-        var savedSearchesPage = new SavedSearchesPage(stubSearchPageFactory.Object, stubSearchRepository.Object, stubAddSearchListItem.Object);
+        var stubResources = new Mock<IResources>();
+        var savedSearchesPage = new SavedSearchesPage(stubSearchPageFactory.Object, stubSearchRepository.Object, stubResources.Object, stubAddSearchListItem.Object);
         var items = savedSearchesPage.GetItems();
         Assert.AreEqual(1, items.Length);
     }
@@ -61,7 +64,8 @@ public class SavedSearchesPageTest
         var stubSearchPageFactory = new Mock<ISearchPageFactory>();
         var stubSearchRepository = new Mock<ISearchRepository>();
         var stubAddSearchListItem = new Mock<IListItem>();
-        var savedSearchesPage = new SavedSearchesPage(stubSearchPageFactory.Object, stubSearchRepository.Object, stubAddSearchListItem.Object);
+        var stubResources = new Mock<IResources>();
+        var savedSearchesPage = new SavedSearchesPage(stubSearchPageFactory.Object, stubSearchRepository.Object, stubResources.Object, stubAddSearchListItem.Object);
 
         savedSearchesPage.OnSearchSaved(this, new SearchCandidate());
         stubSearchRepository.Verify(x => x.GetSavedSearches(), Times.Once);
@@ -74,7 +78,8 @@ public class SavedSearchesPageTest
         var stubSearchPageFactory = new Mock<ISearchPageFactory>();
         var stubSearchRepository = new Mock<ISearchRepository>();
         var stubAddSearchListItem = new Mock<IListItem>();
-        var savedSearchesPage = new SavedSearchesPage(stubSearchPageFactory.Object, stubSearchRepository.Object, stubAddSearchListItem.Object);
+        var stubResources = new Mock<IResources>();
+        var savedSearchesPage = new SavedSearchesPage(stubSearchPageFactory.Object, stubSearchRepository.Object, stubResources.Object, stubAddSearchListItem.Object);
         var search = new Mock<ISearch>().Object;
         var savedSearchesPostRemove = new List<ISearch>();
 

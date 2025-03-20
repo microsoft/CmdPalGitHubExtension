@@ -15,17 +15,17 @@
     {
       "type": "Input.Text",
       "id": "Name",
-      "label": "Name",
+      "label": "{{NameLabel}}",
       "isRequired": true,
-      "errorMessage": "Name is required",
+      "errorMessage": "{{NameErrorMessage}}",
       "value": "{{SavedSearchName}}"
     },
     {
       "type": "Input.Text",
       "id": "EnteredSearch",
-      "label": "Search",
+      "label": "{{EnteredSearchLabel}}",
       "isRequired": true,
-      "errorMessage": "Search is required",
+      "errorMessage": "{{EnteredSearchErrorMessage}}",
       "value": "{{SavedSearchString}}"
     },
     {
@@ -39,7 +39,7 @@
             {
               "type": "Input.Toggle",
               "id": "IsTopLevel",
-              "title": "Pin search to top-level commands",
+              "title": "{{IsTopLevelTitle}}",
               "valueOn": "true",
               "valueOff": "false",
               "value": "{{IsTopLevel}}"
@@ -52,7 +52,7 @@
   "actions": [
     {
       "type": "Action.Submit",
-      "title": "Save",
+      "title": "{{SaveSearchActionTitle}}",
       "data": {
         "id": "SaveSearchAction"
       }

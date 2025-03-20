@@ -13,19 +13,22 @@ namespace GitHubExtension.Controls.Pages;
 internal sealed partial class PullRequestContentPage : ContentPage
 {
     private readonly IPullRequest _pullRequest;
+    private readonly IResources _resources;
 
-    public PullRequestContentPage(IPullRequest pullRequest)
+    public PullRequestContentPage(IPullRequest pullRequest, IResources resources)
     {
+        _resources = resources;
+
         Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]);
-        Name = "View pull request in Command Palette";
+        Name = _resources.GetResource("Pages_Markdown_PullRequest");
         _pullRequest = pullRequest;
 #pragma warning disable IDE0300 // Simplify collection initialization
         Commands = new CommandContextItem[]
         {
-            new(new LinkCommand(pullRequest)),
-            new(new CopyCommand(pullRequest.HtmlUrl, "URL")),
-            new(new CopyCommand(pullRequest.Title, "pull request title")),
-            new(new CopyCommand(pullRequest.Number.ToString(CultureInfo.InvariantCulture), "pull request number")),
+            new(new LinkCommand(pullRequest, resources)),
+            new(new CopyCommand(pullRequest.HtmlUrl, _resources.GetResource("Pages_Item_URL"))),
+            new(new CopyCommand(pullRequest.Title, _resources.GetResource("Pages_PullRequest_Title"))),
+            new(new CopyCommand(pullRequest.Number.ToString(CultureInfo.InvariantCulture), _resources.GetResource("Pages_PullRequest_Number"))),
         };
 #pragma warning restore IDE0300 // Simplify collection initialization
     }

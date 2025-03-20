@@ -21,6 +21,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
     private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly ISearchRepository _persistentDataManager;
     private readonly ISearchPageFactory _searchPageFactory;
+    private readonly IResources _resources;
 
     public GitHubExtensionCommandsProvider(
         SavedSearchesPage savedSearchesPage,
@@ -28,16 +29,18 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         SignInPage signInPage,
         IDeveloperIdProvider developerIdProvider,
         ISearchRepository persistentDataManager,
+        IResources resources,
         ISearchPageFactory searchPageFactory)
     {
-        DisplayName = "GitHub Extension";
-
         _savedSearchesPage = savedSearchesPage;
         _signOutPage = signOutPage;
         _signInPage = signInPage;
         _developerIdProvider = developerIdProvider;
         _persistentDataManager = persistentDataManager;
+        _resources = resources;
         _searchPageFactory = searchPageFactory;
+
+        DisplayName = _resources.GetResource("ExtensionTitle");
 
         // Static events here. Hard dependency. But maybe it is ok in this case
         SignInForm.SignInAction += OnSignInStatusChanged;
@@ -45,7 +48,9 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         SaveSearchForm.SearchSaved += OnSearchSaved;
         RemoveSavedSearchCommand.SearchRemoved += OnSearchRemoved;
 
-        UpdateSignInStatus(IsSignedIn());
+        // This async method raises the RaiseItemsChanged event to update the top-level commands
+        // So it is safe if we let it run asynchronously as "fire and forget"
+        _ = UpdateSignInStatus(IsSignedIn());
     }
 
     private void OnSearchRemoved(object sender, object args)
@@ -56,7 +61,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         }
     }
 
-    private void OnSearchSaved(object sender, object? args)
+    private void OnSearchSaved(object? sender, object? args)
     {
         // Calling RaiseItemsChanged whenever a search is saved ensures the
         // top-level commands are updated.
@@ -66,7 +71,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         }
     }
 
-    private void UpdateTopLevelCommands(object? sender, int items) => RaiseItemsChanged(items);
+    private void UpdateTopLevelCommands() => RaiseItemsChanged(0);
 
     private bool _isSignedIn;
 
@@ -78,8 +83,8 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             {
                 new CommandItem(_signInPage)
                 {
-                    Title = "GitHub Extension",
-                    Subtitle = "Log in",
+                    Title = _resources.GetResource("ExtensionTitle"),
+                    Subtitle = _resources.GetResource("Forms_Sign_In"),
                     Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
                 },
             };
@@ -92,13 +97,13 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         {
             new(_savedSearchesPage)
             {
-                Title = "Saved GitHub Searches",
+                Title = _resources.GetResource("Pages_Saved_Searches"),
                 Icon = new IconInfo("\ue721"),
             },
             new(_signOutPage)
             {
-                Title = "GitHub Extension",
-                Subtitle = "Sign out",
+                Title = _resources.GetResource("ExtensionTitle"),
+                Subtitle = _resources.GetResource("Forms_Sign_Out_Button_Title"),
                 Icon = new IconInfo(GitHubIcon.IconDictionary["logo"]),
             },
         };
@@ -113,10 +118,9 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         return devIds.Any();
     }
 
-    public void UpdateSignInStatus(bool isSignedIn)
+    public async Task UpdateSignInStatus(bool isSignedIn)
     {
         _isSignedIn = isSignedIn;
-        var numCommands = _isSignedIn ? 5 : 2;
         var devId = _developerIdProvider.GetLoggedInDeveloperIdsInternal().FirstOrDefault();
 
         if (_isSignedIn && devId != null)
@@ -124,29 +128,34 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             var login = devId.LoginId;
             List<ISearch> defaultSearches = new List<ISearch>
             {
-                new SearchCandidate($"state:open assignee:{login} archived:false", "Assigned to Me"),
-                new SearchCandidate($"state:open is:pr review-requested:{login} archived:false", "Review Requested"),
-                new SearchCandidate($"state:open mentions:{login} archived:false", "Mentions Me"),
-                new SearchCandidate($"state:open is:issue author:{login} archived:false", "Created Issues"),
-                new SearchCandidate($"state:open is:pr author:{login} archived:false", "My PRs"),
+                new SearchCandidate($"is:open archived:false assignee:{login} sort:created-desc", _resources.GetResource("CommandsProvider_AssignedToMeCommandName")),
+                new SearchCandidate($"is:open is:pr review-requested:{login} archived:false sort:created-desc", _resources.GetResource("CommandsProvider_ReviewRequestedCommandName")),
+                new SearchCandidate($"is:open mentions:{login} archived:false sort:created-desc", _resources.GetResource("CommandsProvider_MentionsMeCommandName")),
+                new SearchCandidate($"is:open is:issue archived:false author:{login} sort:created-desc", _resources.GetResource("CommandsProvider_CreatedIssuesCommandName")),
+                new SearchCandidate($"is:open is:pr author:{login} archived:false sort:created-desc", _resources.GetResource("CommandsProvider_MyPullRequestsCommandName")),
             };
 
+            var defaultTasks = new List<Task>();
             foreach (var search in defaultSearches)
             {
-                _ = Task.Run(async () =>
+                var task = Task.Run(async () =>
                 {
                     await _persistentDataManager.ValidateSearch(search);
                     await _persistentDataManager.UpdateSearchTopLevelStatus(search, true);
                 });
+
+                defaultTasks.Add(task);
             }
+
+            await Task.WhenAll(defaultTasks);
         }
 
-        UpdateTopLevelCommands(null, numCommands);
+        UpdateTopLevelCommands();
     }
 
     private void OnSignInStatusChanged(object? sender, SignInStatusChangedEventArgs e)
     {
-        UpdateSignInStatus(e.IsSignedIn);
+        _ = UpdateSignInStatus(e.IsSignedIn);
     }
 
     private async Task<List<CommandItem>> GetTopLevelSearchCommands()

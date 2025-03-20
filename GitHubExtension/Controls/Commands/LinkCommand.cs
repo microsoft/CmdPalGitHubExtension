@@ -5,6 +5,7 @@
 using System.Diagnostics;
 using GitHubExtension.Controls.Pages;
 using GitHubExtension.DataModel;
+using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Controls.Commands;
@@ -13,17 +14,17 @@ internal sealed partial class LinkCommand : InvokableCommand
 {
     private readonly string _htmlUrl;
 
-    internal LinkCommand(IIssue issue)
+    internal LinkCommand(IIssue issue, IResources resources)
     {
         _htmlUrl = issue.HtmlUrl;
-        Name = "Open link";
+        Name = resources.GetResource("Commands_Open_Link");
         Icon = new IconInfo("\uE8A7");
     }
 
-    internal LinkCommand(IPullRequest pullRequest)
+    internal LinkCommand(IPullRequest pullRequest, IResources resources)
     {
         _htmlUrl = pullRequest.HtmlUrl;
-        Name = "Open link";
+        Name = resources.GetResource("Commands_Open_Link");
         Icon = new IconInfo("\uE8A7");
     }
 

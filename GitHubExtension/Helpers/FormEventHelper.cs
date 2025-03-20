@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Diagnostics;
 using GitHubExtension.Controls.Forms;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -17,7 +18,7 @@ public static class FormEventHelper
         string successMessage,
         string errorMessage)
     {
-        form.FormSubmitted += (sender, args) => OnFormSubmit(page, statusMessage, successMessage, errorMessage, sender, args);
+        form.FormSubmitted += (sender, args) => OnFormSubmit(page, statusMessage, successMessage, errorMessage, args);
         form.LoadingStateChanged += (sender, isLoading) => OnLoadingStateChanged(page, isLoading);
     }
 
@@ -26,15 +27,20 @@ public static class FormEventHelper
         StatusMessage statusMessage,
         string successMessage,
         string errorMessage,
-        object sender,
         FormSubmitEventArgs? args)
     {
         if (args?.Exception != null)
         {
             var message = $"{errorMessage}: {args.Exception.Message}";
+            if (args.Exception is Octokit.ApiException)
+            {
+                Octokit.ApiException apiException = (Octokit.ApiException)args.Exception;
+                message += $" - {StringHelper.ParseHttpErrorMessage(apiException.HttpResponse?.Body?.ToString())}";
+            }
+
             ExtensionHost.LogMessage(new LogMessage() { Message = args.Exception.Message });
             SetStatusMessage(statusMessage, message, MessageState.Error);
-            ExtensionHost.ShowStatus(statusMessage);
+            ExtensionHost.ShowStatus(statusMessage, StatusContext.Page);
         }
         else
         {

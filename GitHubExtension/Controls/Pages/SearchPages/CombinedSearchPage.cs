@@ -9,13 +9,13 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Controls.Pages;
 
-public sealed partial class CombinedSearchPage(ISearch search, ICacheDataManager cacheDataManager)
-    : SearchPage<IIssue>(search, cacheDataManager)
+public sealed partial class CombinedSearchPage(ISearch search, ICacheDataManager cacheDataManager, IResources resources)
+    : SearchPage<IIssue>(search, cacheDataManager, resources)
 {
     protected override ListItem GetListItem(IIssue item)
     {
         var iconType = item is IPullRequest ? "pr" : "issue";
-        return new ListItem(new LinkCommand(item))
+        return new ListItem(new LinkCommand(item, Resources))
         {
             Title = item.Title,
             Icon = new IconInfo(GitHubIcon.IconDictionary[iconType]),
@@ -23,19 +23,19 @@ public sealed partial class CombinedSearchPage(ISearch search, ICacheDataManager
             MoreCommands = item is IPullRequest prItem
                 ? new CommandContextItem[]
                 {
-                    new(new CopyGitCheckoutCommand(prItem, "checkout command")),
-                    new(new CopySourceBranchCommand(prItem, "source branch")),
-                    new(new CopyCommand(prItem.HtmlUrl, "URL")),
-                    new(new CopyCommand(prItem.Title, "pull request title")),
-                    new(new CopyCommand(prItem.Number.ToString(CultureInfo.InvariantCulture), "pull request number")),
-                    new(new PullRequestContentPage(prItem)),
+                    new(new CopyGitCheckoutCommand(prItem, $"{Resources.GetResource("Commands_Copy_Checkout")}")),
+                    new(new CopySourceBranchCommand(prItem, $"{Resources.GetResource("Commands_Copy_Source_Branch")}")),
+                    new(new CopyCommand(prItem.HtmlUrl, $"{Resources.GetResource("Commands_Copy")} {Resources.GetResource("Pages_Item_URL")}")),
+                    new(new CopyCommand(prItem.Title, $"{Resources.GetResource("Commands_Copy")} {Resources.GetResource("Pages_PullRequest_Title")}")),
+                    new(new CopyCommand(prItem.Number.ToString(CultureInfo.InvariantCulture), $"{Resources.GetResource("Commands_Copy")} {Resources.GetResource("Pages_PullRequest_Number")}")),
+                    new(new PullRequestContentPage(prItem, Resources)),
                 }
                 : new CommandContextItem[]
                 {
-                    new(new CopyCommand(item.HtmlUrl, "URL")),
-                    new(new CopyCommand(item.Title, "item title")),
-                    new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), "item number")),
-                    new(new IssueContentPage(item)),
+                    new(new CopyCommand(item.HtmlUrl, $"{Resources.GetResource("Commands_Copy")} {Resources.GetResource("Pages_Item_URL")}")),
+                    new(new CopyCommand(item.Title, $"{Resources.GetResource("Commands_Copy")} {Resources.GetResource("Pages_Issue_Title")}")),
+                    new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), $"{Resources.GetResource("Commands_Copy")} {Resources.GetResource("Pages_Issue_Number")}")),
+                    new(new IssueContentPage(item, Resources)),
                 },
             Tags = GetTags(item),
         };

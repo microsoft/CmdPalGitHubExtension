@@ -6,7 +6,6 @@ using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
-using Windows.Foundation;
 
 namespace GitHubExtension.Controls.Forms;
 
@@ -14,23 +13,25 @@ public sealed partial class SignOutForm : FormContent, IGitHubForm
 {
     public static event EventHandler<SignInStatusChangedEventArgs>? SignOutAction;
 
-    public event TypedEventHandler<object, bool>? LoadingStateChanged;
+    public event EventHandler<bool>? LoadingStateChanged;
 
-    public event TypedEventHandler<object, FormSubmitEventArgs>? FormSubmitted;
+    public event EventHandler<FormSubmitEventArgs>? FormSubmitted;
 
     private readonly IDeveloperIdProvider _developerIdProvider;
+    private readonly IResources _resources;
 
-    public SignOutForm(IDeveloperIdProvider developerIdProvider)
+    public SignOutForm(IDeveloperIdProvider developerIdProvider, IResources resources)
     {
         _developerIdProvider = developerIdProvider;
+        _resources = resources;
     }
 
     public Dictionary<string, string> TemplateSubstitutions => new()
     {
-        { "{{AuthTitle}}", "Are you sure you want to sign out?" },
-        { "{{AuthButtonTitle}}", "Sign out" },
+        { "{{AuthTitle}}", _resources.GetResource("Forms_Sign_Out_Title") },
+        { "{{AuthButtonTitle}}", _resources.GetResource("Forms_Sign_Out_Button_Title") },
         { "{{AuthIcon}}", $"data:image/png;base64,{GitHubIcon.GetBase64Icon("logo")}" },
-        { "{{AuthButtonTooltip}}", "Sign out GitHub extension" },
+        { "{{AuthButtonTooltip}}", _resources.GetResource("Forms_Sign_Out_Tooltip") },
     };
 
     public override string TemplateJson => TemplateHelper.LoadTemplateJsonFromTemplateName("AuthTemplate", TemplateSubstitutions);

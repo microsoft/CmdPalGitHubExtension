@@ -14,7 +14,7 @@ public static class Validation
 
     private static readonly ILogger _log = _logger.Value;
 
-    private static bool IsValidHttpUri(string uriString, out Uri? uri)
+    public static bool IsValidHttpUri(string uriString, out Uri? uri)
     {
         return Uri.TryCreate(uriString, UriKind.Absolute, out uri) &&
             (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);

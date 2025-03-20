@@ -48,7 +48,7 @@ public class SearchRepository
         if (exists is not null)
         {
             // Update the timestamp for this record so we know it is fresh.
-            exists.TimeUpdated = DateTime.Now.ToDataStoreInteger();
+            exists.TimeUpdated = DateTime.UtcNow.ToDataStoreInteger();
             dataStore.Connection!.Update(exists);
             return exists;
         }
@@ -57,7 +57,7 @@ public class SearchRepository
         {
             Repository = repository.Id,
             Search = search.Id,
-            TimeUpdated = DateTime.Now.ToDataStoreInteger(),
+            TimeUpdated = DateTime.UtcNow.ToDataStoreInteger(),
         };
         dataStore.Connection!.Insert(newSearchRepository);
         return newSearchRepository;

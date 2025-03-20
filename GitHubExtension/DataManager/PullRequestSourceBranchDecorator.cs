@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Controls;
+using GitHubExtension.Helpers;
 
 namespace GitHubExtension.DataManager;
 
@@ -33,7 +34,7 @@ public sealed class PullRequestSourceBranchDecorator : IPullRequest
                 _source = _pullRequestUpdater.UpdatePullRequestFromPullRequestAPIAsync(_source).GetAwaiter().GetResult();
             }
 
-            return _source.SourceBranch;
+            return StringHelper.SwapGitColonsForForwardSlashes(_source.SourceBranch);
         }
     }
 

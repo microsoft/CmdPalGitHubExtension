@@ -4,7 +4,6 @@
 
 using GitHubExtension.Controls;
 using GitHubExtension.DataManager.Cache;
-using GitHubExtension.DataManager.Enums;
 using GitHubExtension.DataModel.DataObjects;
 
 namespace GitHubExtension.DataManager;
@@ -14,6 +13,7 @@ public class CacheDataManagerFacade : ICacheDataManager
     private readonly ICacheManager _cacheManager;
     private readonly IDataRequester _dataRequester;
     private readonly IDecoratorFactory _decoratorFactory;
+    private readonly object _stateLock = new();
 
     public CacheDataManagerFacade(ICacheManager cacheManager, IDataRequester dataRequester, IDecoratorFactory decoratorFactory)
     {
@@ -24,44 +24,68 @@ public class CacheDataManagerFacade : ICacheDataManager
         _cacheManager.OnUpdate += CacheManagerOnOnUpdate;
     }
 
-    public event CacheManagerUpdateEventHandler? OnUpdate;
+    private CacheManagerUpdateEventHandler? _onUpdate;
+
+    public event CacheManagerUpdateEventHandler? OnUpdate
+    {
+        add
+        {
+            lock (_stateLock)
+            {
+                // Ensuring only one page is listening to the event.
+                _onUpdate = value;
+            }
+        }
+
+        remove
+        {
+            lock (_stateLock)
+            {
+                _onUpdate -= value;
+            }
+        }
+    }
 
     private void CacheManagerOnOnUpdate(object? source, CacheManagerUpdateEventArgs e)
     {
-        OnUpdate?.Invoke(source, e);
+        _onUpdate?.Invoke(source, e);
     }
 
-    public Task<IEnumerable<IIssue>> GetIssues(ISearch search)
+    public async Task<IEnumerable<IIssue>> GetIssues(ISearch search)
     {
-        return Task.Run(() =>
+        _cacheManager.CancelUpdateInProgress();
+
+        if (_dataRequester.GetSearch(search.Name, search.SearchString) == null)
         {
-            _cacheManager.CancelUpdateInProgress();
+            await _cacheManager.RequestRefresh(search);
+        }
 
-            var res = _dataRequester.GetIssuesForSearch(search.Name, search.SearchString);
+        var res = _dataRequester.GetIssuesForSearch(search.Name, search.SearchString);
 
-            _cacheManager.RequestRefresh(UpdateType.Search, search);
-            return res as IEnumerable<IIssue>;
-        });
+        _ = _cacheManager.RequestRefresh(search);
+        return res;
     }
 
-    public Task<IEnumerable<IPullRequest>> GetPullRequests(ISearch search)
+    public async Task<IEnumerable<IPullRequest>> GetPullRequests(ISearch search)
     {
-        return Task.Run(() =>
+        _cacheManager.CancelUpdateInProgress();
+
+        if (_dataRequester.GetSearch(search.Name, search.SearchString) == null)
         {
-            _cacheManager.CancelUpdateInProgress();
+            await _cacheManager.RequestRefresh(search);
+        }
 
-            var intermediateRes = _dataRequester.GetPullRequestsForSearch(search.Name, search.SearchString);
-            _cacheManager.RequestRefresh(UpdateType.Search, search);
+        var intermediateRes = _dataRequester.GetPullRequestsForSearch(search.Name, search.SearchString);
+        _ = _cacheManager.RequestRefresh(search);
 
-            var res = new List<IPullRequest>();
+        var res = new List<IPullRequest>();
 
-            foreach (var pr in intermediateRes)
-            {
-                res.Add(_decoratorFactory.DecorateSearchBranch(pr));
-            }
+        foreach (var pr in intermediateRes)
+        {
+            res.Add(_decoratorFactory.DecorateSearchBranch(pr));
+        }
 
-            return res as IEnumerable<IPullRequest>;
-        });
+        return res;
     }
 
     private List<IIssue> MergeIssuesAndPullRequests(IEnumerable<Issue> issues, IEnumerable<PullRequest> pullRequests)
@@ -90,28 +114,30 @@ public class CacheDataManagerFacade : ICacheDataManager
         return res;
     }
 
-    public Task<IEnumerable<IIssue>> GetIssuesAndPullRequests(ISearch search)
+    public async Task<IEnumerable<IIssue>> GetIssuesAndPullRequests(ISearch search)
     {
-        return Task.Run(() =>
+        _cacheManager.CancelUpdateInProgress();
+
+        if (_dataRequester.GetSearch(search.Name, search.SearchString) == null)
         {
-            _cacheManager.CancelUpdateInProgress();
+            await _cacheManager.RequestRefresh(search);
+        }
 
-            var issues = _dataRequester.GetIssuesForSearch(search.Name, search.SearchString);
-            var pullRequests = _dataRequester.GetPullRequestsForSearch(search.Name, search.SearchString);
+        var issues = _dataRequester.GetIssuesForSearch(search.Name, search.SearchString);
+        var pullRequests = _dataRequester.GetPullRequestsForSearch(search.Name, search.SearchString);
 
-            _cacheManager.RequestRefresh(UpdateType.Search, search);
+        _ = _cacheManager.RequestRefresh(search);
 
-            var res = MergeIssuesAndPullRequests(issues, pullRequests).Select(item =>
+        var res = MergeIssuesAndPullRequests(issues, pullRequests).Select(item =>
+        {
+            if (item is IPullRequest)
             {
-                if (item is IPullRequest)
-                {
-                    return _decoratorFactory.DecorateSearchBranch((IPullRequest)item);
-                }
+                return _decoratorFactory.DecorateSearchBranch((IPullRequest)item);
+            }
 
-                return item;
-            });
-
-            return res as IEnumerable<IIssue>;
+            return item;
         });
+
+        return res;
     }
 }

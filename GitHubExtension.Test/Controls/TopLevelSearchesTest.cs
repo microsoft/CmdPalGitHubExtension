@@ -50,7 +50,8 @@ public class TopLevelSearchesTest
                 }
             });
 
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object);
+        var stubResources = new Mock<IResources>().Object;
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, stubResources);
 
         var jsonPayload = JsonNode.Parse(@"
             {
@@ -77,7 +78,7 @@ public class TopLevelSearchesTest
 
         Assert.IsNotNull(capturedSearch);
 
-        var saveSearchForm2 = new SaveSearchForm(capturedSearch, mockSearchRepository.Object);
+        var saveSearchForm2 = new SaveSearchForm(capturedSearch, mockSearchRepository.Object, stubResources);
         mockSearchRepository
             .Setup(repo => repo.IsTopLevel(capturedSearch))
             .Returns(Task.FromResult(true));
@@ -97,7 +98,8 @@ public class TopLevelSearchesTest
         var dummySearch = new SearchCandidate("dummy search 2", "Dummy Search", true);
         await dataManager.UpdateSearchTopLevelStatus(dummySearch, true);
 
-        var saveSearchForm = new SaveSearchForm(dummySearch, dataManager);
+        var stubResources = new Mock<IResources>().Object;
+        var saveSearchForm = new SaveSearchForm(dummySearch, dataManager, stubResources);
 
         var initialTopLevelSearches = await dataManager.GetTopLevelSearches();
         Assert.IsTrue(initialTopLevelSearches.Any(s => s.Name == "Dummy Search" && s.SearchString == "dummy search 2"));
@@ -144,7 +146,8 @@ public class TopLevelSearchesTest
 
         using var dataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
 
-        var saveSearchForm = new SaveSearchForm(dataManager);
+        var stubResources = new Mock<IResources>().Object;
+        var saveSearchForm = new SaveSearchForm(dataManager, stubResources);
 
         var jsonPayload = JsonNode.Parse(@"
         {
@@ -196,12 +199,14 @@ public class TopLevelSearchesTest
 
         using var dataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
 
+        var stubResources = new Mock<IResources>().Object;
         var savedSearchesPage = new SavedSearchesPage(
             mockSearchPageFactory.Object,
             dataManager,
+            stubResources,
             mockAddSearchListItem.Object);
 
-        var initialSaveSearchForm = new SaveSearchForm(dataManager);
+        var initialSaveSearchForm = new SaveSearchForm(dataManager, stubResources);
 
         var initialJsonPayload = JsonNode.Parse(@"
         {
@@ -221,7 +226,7 @@ public class TopLevelSearchesTest
         var savedSearch = savedSearches.FirstOrDefault(s => s.Name == "My Regular Search");
         Assert.IsNotNull(savedSearch, "Saved search should exist");
 
-        var editSearchForm = new SaveSearchForm(savedSearch, dataManager);
+        var editSearchForm = new SaveSearchForm(savedSearch, dataManager, stubResources);
 
         var editJsonPayload = JsonNode.Parse(@"
         {
@@ -291,12 +296,14 @@ public class TopLevelSearchesTest
                 s.SearchString == "is:issue author:testuser"),
             "Search should be in top level searches initially");
 
+        var stubResources = new Mock<IResources>().Object;
         var savedSearchesPage = new SavedSearchesPage(
             mockSearchPageFactory.Object,
             dataManager,
+            stubResources,
             mockAddSearchListItem.Object);
 
-        var removeCommand = new RemoveSavedSearchCommand(topLevelSearch, dataManager);
+        var removeCommand = new RemoveSavedSearchCommand(topLevelSearch, dataManager, stubResources);
         removeCommand.Invoke();
 
         await Task.Delay(1000);
@@ -358,7 +365,9 @@ public class TopLevelSearchesTest
                 s.SearchString == "is:issue assignee:me"),
             "Search should be in top level searches initially");
 
-        var removeCommand = new RemoveSavedSearchCommand(topLevelSearch, dataManager);
+        var stubResources = new Mock<IResources>().Object;
+
+        var removeCommand = new RemoveSavedSearchCommand(topLevelSearch, dataManager, stubResources);
         removeCommand.Invoke();
 
         await Task.Delay(1000);
@@ -380,6 +389,7 @@ public class TopLevelSearchesTest
         var savedSearchesPage = new SavedSearchesPage(
             mockSearchPageFactory.Object,
             dataManager,
+            stubResources,
             mockAddSearchListItem.Object);
 
         var savedSearchesItems = savedSearchesPage.GetItems();
@@ -439,16 +449,18 @@ public class TopLevelSearchesTest
                 s.SearchString == "is:issue label:bug"),
             "Search should not be in top level searches initially");
 
+        var stubResources = new Mock<IResources>().Object;
         var savedSearchesPage = new SavedSearchesPage(
             mockSearchPageFactory.Object,
             dataManager,
+            stubResources,
             mockAddSearchListItem.Object);
 
         var savedSearch = initialSavedSearches.First(s =>
             s.Name == "Bug Reports" &&
             s.SearchString == "is:issue label:bug");
 
-        var editSearchForm = new SaveSearchForm(savedSearch, dataManager);
+        var editSearchForm = new SaveSearchForm(savedSearch, dataManager, stubResources);
 
         var editJsonPayload = JsonNode.Parse(@"
         {

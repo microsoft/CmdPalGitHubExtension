@@ -5,20 +5,16 @@
 using GitHubExtension.Controls;
 using GitHubExtension.DataManager.Data;
 using GitHubExtension.DataManager.Enums;
-using Octokit;
+using GitHubExtension.Helpers;
 using Serilog;
 
 namespace GitHubExtension.DataManager.Cache;
 
 public sealed class CacheManager : IDisposable, ICacheManager
 {
-    public static readonly TimeSpan UpdateInterval = TimeSpan.FromMinutes(10);
+    public static readonly TimeSpan UpdateInterval = ExtensionConstants.UpdateInterval;
 
-    public static readonly TimeSpan UpdateFrequency = TimeSpan.FromMinutes(5);
-
-    public static readonly TimeSpan RefreshCooldown = TimeSpan.FromMinutes(3);
-
-    private static readonly object _instanceLock = new();
+    public static readonly TimeSpan RefreshCooldown = ExtensionConstants.RefreshCooldown;
 
     // Lock to be used everytime we want to check or update the state of
     // the CacheManager.
@@ -60,27 +56,7 @@ public sealed class CacheManager : IDisposable, ICacheManager
     // Cache Manager whe it receives an update complete event.
     public DateTime LastUpdated { get => GetLastUpdated(); private set => SetLastUpdated(value); }
 
-    private CacheManagerUpdateEventHandler? _onUpdate;
-
-    public event CacheManagerUpdateEventHandler? OnUpdate
-    {
-        add
-        {
-            lock (_stateLock)
-            {
-                // Ensuring only one page is listeing to the event.
-                _onUpdate = value;
-            }
-        }
-
-        remove
-        {
-            lock (_stateLock)
-            {
-                _onUpdate -= value;
-            }
-        }
-    }
+    public event CacheManagerUpdateEventHandler? OnUpdate;
 
     private DataUpdater DataUpdater { get; set; }
 
@@ -125,19 +101,20 @@ public sealed class CacheManager : IDisposable, ICacheManager
         }
     }
 
-    public void RequestRefresh(UpdateType updateType, ISearch search)
+    public async Task RequestRefresh(ISearch search)
     {
         if (_dataManager.IsSearchNewOrStale(search, RefreshCooldown))
         {
-            _ = Refresh(updateType, search);
+            _logger.Information("Search is stale or new. Refreshing.");
+            await Refresh(search);
         }
     }
 
     // This method is called by the pages to request
     // an instant update of its data.
-    public async Task Refresh(UpdateType updateType, ISearch? search = null)
+    public async Task Refresh(ISearch search)
     {
-        await State.Refresh(updateType, search);
+        await State.Refresh(search);
     }
 
     public async Task PeriodicUpdate()
@@ -145,7 +122,7 @@ public sealed class CacheManager : IDisposable, ICacheManager
         await State.PeriodicUpdate();
     }
 
-    public async Task Update(TimeSpan? olderThan, UpdateType updateType, ISearch? search = null)
+    public async Task Update(UpdateType updateType, ISearch? search = null)
     {
         var options = new RequestOptions();
 
@@ -155,25 +132,19 @@ public sealed class CacheManager : IDisposable, ICacheManager
         {
             _cancelSource = new CancellationTokenSource();
             options.CancellationToken = _cancelSource.Token;
-
-            // Limiting to 100 for now for performance reasons.
-            options.ApiOptions.PageSize = 100;
-            options.ApiOptions.PageCount = 1;
         }
 
         // Do the update for saved queries here
         _logger.Debug($"Starting update of type {updateType}.");
 
-        // TODO: remove this.
-        var repoCollection = new RepositoryCollection();
         switch (updateType)
         {
             case UpdateType.All:
                 var searches = (await _searchRepository.GetSavedSearches()).ToList();
-                await _dataManager.RequestAllUpdateAsync(repoCollection, searches, options);
+                await _dataManager.RequestAllUpdateAsync(searches, options);
                 break;
             case UpdateType.Search:
-                await _dataManager.RequestSearchUpdateAsync(search!.Name, search!.SearchString, search!.Type, options);
+                await _dataManager.RequestSearchUpdateAsync(search!, options);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(updateType), updateType, null);
@@ -182,10 +153,10 @@ public sealed class CacheManager : IDisposable, ICacheManager
 
     public void SendUpdateEvent(object? source, CacheManagerUpdateKind kind, Exception? ex = null)
     {
-        if (_onUpdate != null)
+        if (OnUpdate != null)
         {
             _logger.Debug($"Sending update event. Kind: {kind}.");
-            _onUpdate.Invoke(source, new CacheManagerUpdateEventArgs(kind, ex));
+            OnUpdate.Invoke(source, new CacheManagerUpdateEventArgs(kind, ex));
         }
     }
 

@@ -14,17 +14,20 @@ public partial class RemoveSavedSearchCommand : InvokableCommand
     private readonly ISearch savedSearch;
 
     private readonly ISearchRepository _searchRepository;
+    private readonly IResources _resources;
 
     public static event TypedEventHandler<object, object?>? SearchRemoving;
 
     public static event TypedEventHandler<object, object>? SearchRemoved;
 
-    public RemoveSavedSearchCommand(ISearch search, ISearchRepository searchRepository)
+    public RemoveSavedSearchCommand(ISearch search, ISearchRepository searchRepository, IResources resources)
     {
-        savedSearch = new SearchCandidate(search.SearchString, search.Name);
-        Name = "Remove";
-        Icon = new IconInfo("\uecc9");
         _searchRepository = searchRepository;
+        _resources = resources;
+
+        savedSearch = new SearchCandidate(search.SearchString, search.Name);
+        Name = _resources.GetResource("Commands_Remove_Saved_Search");
+        Icon = new IconInfo("\uecc9");
     }
 
     public override CommandResult Invoke()

@@ -15,7 +15,7 @@ public class PeriodicUpdatingState : CacheManagerState
     {
     }
 
-    public async override Task Refresh(UpdateType updateType, ISearch? search)
+    public async override Task Refresh(ISearch search)
     {
         await Task.Run(() =>
         {
@@ -24,7 +24,7 @@ public class PeriodicUpdatingState : CacheManagerState
             lock (CacheManager.GetStateLock())
             {
                 CacheManager.PendingSearch = search;
-                CacheManager.CurrentUpdateType = updateType;
+                CacheManager.CurrentUpdateType = UpdateType.Search;
                 CacheManager.State = CacheManager.PendingRefreshState;
             }
         });
