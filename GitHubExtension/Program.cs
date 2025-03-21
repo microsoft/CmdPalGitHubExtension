@@ -14,11 +14,11 @@ using GitHubExtension.Helpers;
 using GitHubExtension.PersistentData;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Windows.ApplicationModel.Resources;
 using Microsoft.Windows.AppLifecycle;
-using Microsoft.Windows.Storage;
 using Serilog;
+using Shmuelie.WinRTServer;
+using Shmuelie.WinRTServer.CsWinRT;
 using Windows.ApplicationModel.Activation;
 
 namespace GitHubExtension;
@@ -30,42 +30,16 @@ public class Program
     [MTAThread]
     public static async Task Main(string[] args)
     {
-        // Setup Logging
-        Environment.SetEnvironmentVariable("CMDPAL_LOGS_ROOT", ApplicationData.GetDefault().TemporaryFolder.Path);
-        var configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
-            .Build();
-        Log.Logger = new LoggerConfiguration()
-            .ReadFrom.Configuration(configuration)
-            .CreateLogger();
-
-        Log.Information($"Launched with args: {string.Join(' ', args.ToArray())}");
-
-        // Force the app to be single instanced.
-        // Get or register the main instance.
-        var mainInstance = AppInstance.FindOrRegisterForKey("mainInstance");
-        var activationArgs = AppInstance.GetCurrent().GetActivatedEventArgs();
-        if (!mainInstance.IsCurrent)
-        {
-            Log.Information($"Not main instance, redirecting.");
-            await mainInstance.RedirectActivationToAsync(activationArgs);
-            Log.CloseAndFlush();
-            return;
-        }
-
-        // Register for activation redirection.
-        AppInstance.GetCurrent().Activated += AppActivationRedirected;
-
         if (args.Length > 0 && args[0] == "-RegisterProcessAsComServer")
         {
-            try
-            {
-                HandleCOMServerActivation();
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Failed to register process as COM server.");
-            }
+            await using global::Shmuelie.WinRTServer.ComServer server = new();
+            var extensionDisposedEvent = new ManualResetEvent(false);
+            var extensionInstance = new GitHubExtension(extensionDisposedEvent);
+
+            server.RegisterClass<GitHubExtension, IExtension>(() => extensionInstance);
+            server.Start();
+
+            extensionDisposedEvent.WaitOne();
         }
         else
         {
