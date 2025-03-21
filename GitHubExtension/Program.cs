@@ -14,8 +14,10 @@ using GitHubExtension.Helpers;
 using GitHubExtension.PersistentData;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Windows.ApplicationModel.Resources;
 using Microsoft.Windows.AppLifecycle;
+using Microsoft.Windows.Storage;
 using Serilog;
 using Shmuelie.WinRTServer;
 using Shmuelie.WinRTServer.CsWinRT;
@@ -30,16 +32,35 @@ public class Program
     [MTAThread]
     public static async Task Main(string[] args)
     {
+        // Setup Logging
+        Environment.SetEnvironmentVariable("CMDPAL_LOGS_ROOT", ApplicationData.GetDefault().TemporaryFolder.Path);
+        var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(configuration)
+            .CreateLogger();
+
+        Log.Information($"Launched with args: {string.Join(' ', args.ToArray())}");
+
+        // Force the app to be single instanced.
+        // Get or register the main instance.
+        var mainInstance = AppInstance.FindOrRegisterForKey("mainInstance");
+        var activationArgs = AppInstance.GetCurrent().GetActivatedEventArgs();
+        if (!mainInstance.IsCurrent)
+        {
+            Log.Information($"Not main instance, redirecting.");
+            await mainInstance.RedirectActivationToAsync(activationArgs);
+            Log.CloseAndFlush();
+            return;
+        }
+
+        // Register for activation redirection.
+        AppInstance.GetCurrent().Activated += AppActivationRedirected;
+
         if (args.Length > 0 && args[0] == "-RegisterProcessAsComServer")
         {
-            await using global::Shmuelie.WinRTServer.ComServer server = new();
-            var extensionDisposedEvent = new ManualResetEvent(false);
-            var extensionInstance = new GitHubExtension(extensionDisposedEvent);
-
-            server.RegisterClass<GitHubExtension, IExtension>(() => extensionInstance);
-            server.Start();
-
-            extensionDisposedEvent.WaitOne();
+            await HandleCOMServerActivationAsync();
         }
         else
         {
@@ -47,7 +68,7 @@ public class Program
         }
     }
 
-    private static void AppActivationRedirected(object? sender, Microsoft.Windows.AppLifecycle.AppActivationArguments activationArgs)
+    private static async void AppActivationRedirected(object? sender, Microsoft.Windows.AppLifecycle.AppActivationArguments activationArgs)
     {
         Log.Information($"Redirected with kind: {activationArgs.Kind}");
 
@@ -60,7 +81,7 @@ public class Program
             if (args?.Length > 1 && args[1] == "-RegisterProcessAsComServer")
             {
                 Log.Information($"Activation COM Registration Redirect: {string.Join(' ', args.ToList())}");
-                HandleCOMServerActivation();
+                await HandleCOMServerActivationAsync();
             }
         }
 
@@ -76,9 +97,9 @@ public class Program
         }
     }
 
-    private static void HandleCOMServerActivation()
+    private static async Task HandleCOMServerActivationAsync()
     {
-        using ExtensionServer server = new();
+        await using global::Shmuelie.WinRTServer.ComServer server = new();
         var extensionDisposedEvent = new ManualResetEvent(false);
 
         // COMPOSITION ROOT AREA
@@ -118,7 +139,8 @@ public class Program
         // We are instantiating an extension instance once above, and returning it every time the callback in RegisterExtension below is called.
         // This makes sure that only one instance of GitHubExtension is alive, which is returned every time the host asks for the IExtension object.
         // If you want to instantiate a new instance each time the host asks, create the new instance inside the delegate.
-        server.RegisterExtension(() => extensionInstance);
+        server.RegisterClass<GitHubExtension, IExtension>(() => extensionInstance);
+        server.Start();
 
         // END OF COMPOSITION ROOT AREA
 
