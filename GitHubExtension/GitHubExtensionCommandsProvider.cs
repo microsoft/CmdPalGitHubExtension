@@ -135,10 +135,13 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
                 new SearchCandidate($"is:open is:pr author:{login} archived:false sort:created-desc", _resources.GetResource("CommandsProvider_MyPullRequestsCommandName")),
             };
 
+            var defaultTasks = new List<Task>();
             foreach (var search in defaultSearches)
             {
                 await _persistentDataManager.UpdateSearchTopLevelStatus(search, true);
             }
+
+            await Task.WhenAll(defaultTasks);
         }
 
         UpdateTopLevelCommands();
