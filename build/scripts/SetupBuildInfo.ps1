@@ -1,6 +1,6 @@
 Param(
     [string]$Version,
-    [switch]$IsAzurePipelineBuild = $false,
+    [switch]$IsAzurePipelineBuild = $false
 )
 
 $env:Build_RootDirectory = (Get-Item $PSScriptRoot).parent.parent.FullName
