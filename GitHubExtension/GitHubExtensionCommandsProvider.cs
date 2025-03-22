@@ -161,8 +161,6 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
                 };
                 ExtensionHost.ShowStatus(statusMessage, StatusContext.Page);
             }
-
-            await Task.WhenAll(defaultTasks);
         }
 
         UpdateTopLevelCommands();
