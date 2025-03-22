@@ -69,7 +69,7 @@ extends:
                   displayName: Building MSIX
                   inputs:
                     filePath: './build/scripts/Build.ps1'
-                    arguments: -Platform "${{ platform }}" -Configuration "${{ configuration }}"
+                    arguments: -Platform "${{ platform }}" -Configuration "${{ configuration }}" -Version $(MSIXVersion)
                 
                 - template: ./build/templates/EsrpSigning-Steps.yml@self
                   parameters:

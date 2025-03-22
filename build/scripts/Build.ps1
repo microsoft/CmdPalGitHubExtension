@@ -1,6 +1,7 @@
 Param(
     [string]$Platform = "x64",
     [string]$Configuration = "debug",
+    [string]$Version,
     [switch]$IsAzurePipelineBuild = $false,
     [switch]$Help = $false
 )
