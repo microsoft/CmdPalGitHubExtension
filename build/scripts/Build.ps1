@@ -63,14 +63,14 @@ Try {
         ("/p:configuration="+$configuration),
         ("/restore"),
         ("/binaryLogger:GitHubExtension.$platform.$configuration.binlog"),
-        ("/p:AppxPackageOutput=$appxPackageDir\GitHubExtension_$configuration_$Version_$platform.msix"),
+        ("/p:AppxPackageOutput=$appxPackageDir\GitHubExtension_$configuration" + "_$Version" + "_$platform.msix"),
         ("/p:AppxPackageSigningEnabled=false"),
         ("/p:GenerateAppxPackageOnBuild=true")
     )
 
     & $msbuildPath $msbuildArgs
     if (-not($IsAzurePipelineBuild) -And $isAdmin) {
-      Invoke-SignPackage "$appxPackageDir\GitHubExtension-$platform.msix"
+      Invoke-SignPackage "$appxPackageDir\GitHubExtension_$configuration" + "_$Version" + "_$platform.msix"
     }
   } Catch {
   $formatString = "`n{0}`n`n{1}`n`n"
