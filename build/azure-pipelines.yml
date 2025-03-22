@@ -65,29 +65,11 @@ extends:
                     filePath: './build/scripts/SetupBuildInfo.ps1'
                     arguments: -Version $(MSIXVersion) -IsAzurePipelineBuild
 
-                - task: MSBuild@1
-                  displayName: Restoring packages
-                  inputs:
-                    solution: '$(solution)'
-                    msbuildArchitecture: '${{ platform }}'
-                    platform: '${{ platform }}'
-                    configuration: '${{ configuration }}'
-                    msbuildArguments: '/t:Restore'
-
-                - task: MsixPackaging@1
+                - task: PowerShell@2
                   displayName: Building MSIX
                   inputs:
-                    outputPath: 'BuildOutput\GitHubExtension_${{ configuration }}_${{ platform }}.msix'
-                    solution: '$(solution)'
-                    clean: false
-                    generateBundle: false
-                    buildConfiguration: '${{ configuration }}'
-                    buildPlatform: '${{ platform }}'
-                    updateAppVersion: false
-                    appPackageDistributionMode: 'SideloadOnly'
-                    msbuildLocationMethod: 'version'
-                    msbuildVersion: 'latest'
-                    msbuildArchitecture: '${{ platform }}'
+                    filePath: './build/scripts/Build.ps1'
+                    arguments: -Platform "${{ platform }}" -Configuration "${{ configuration }}" -Version $(MSIXVersion)
                 
                 - template: ./build/templates/EsrpSigning-Steps.yml@self
                   parameters:
@@ -131,7 +113,7 @@ extends:
                         
                 - task: PowerShell@2
                   displayName: 'Run Unittests'
-                  condition: ne('${{ platform}}', 'arm64')
+                  condition: ne('${{ platform }}', 'arm64')
                   retryCountOnTaskFailure: 2
                   inputs:
                     filePath: 'build/scripts/Test.ps1'

@@ -45,55 +45,17 @@ $vstestPath = &"${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhe
 
 $ErrorActionPreference = "Stop"
 
-$isInstalled = Get-ChildItem HKLM:\SOFTWARE\$_\Microsoft\Windows\CurrentVersion\Uninstall\ | ? {($_.GetValue("DisplayName")) -like "*Windows Application Driver*"}
-
-if (-not($IsAzurePipelineBuild)) {
-  if ($isInstalled){
-    Write-Host "WinAppDriver is already installed on this computer."
-  }
-  else {
-    Write-Host "WinAppDriver will be installed in the background."
-    $url = "https://github.com/microsoft/WinAppDriver/releases/download/v1.2.99/WindowsApplicationDriver-1.2.99-win-x64.exe"
-    $outpath = "$env:Build_SourcesDirectory\temp"
-    Invoke-WebRequest -Uri $url -OutFile "$env:Build_SourcesDirectory\temp\WinAppDriverx64.exe"
-
-    Start-Process -Wait -Filepath $env:Build_SourcesDirectory\WinAppDriverx64.exe -ArgumentList "/S" -PassThru
-  }
-
-  start-Process -FilePath "C:\Program Files\Windows Application Driver\WinAppDriver.exe" 
-}
-
 Try {
   foreach ($platform in $env:Build_Platform.Split(",")) {
     foreach ($configuration in $env:Build_Configuration.Split(",")) {
-      # TODO: UI tests are currently disabled in pipeline until signing is solved
-      if (-not($IsAzurePipelineBuild)) {
-        $Package = Get-AppPackage "GitHubExtension"
-        if ($Package) {
-          Write-Host "Uninstalling old GitHubExtension"
-          Remove-AppPackage -Package $Package.PackageFullName
-        }
-        Write-Host "Installing GitHubExtension"
-        Add-AppPackage "AppxPackages\$platform\$configuration\GitHubExtension.msix"
-      }
-
       $vstestArgs = @(
           ("/Platform:$platform"),
           ("/Logger:trx;LogFileName=GitHubExtension.Test-$platform-$configuration.trx"),
-          ("/TestCaseFilter:""TestCategory=Unit"""),
+          ("/TestCaseFilter:""TestCategory!=LiveData"""),
           ("BuildOutput\$configuration\$platform\GitHubExtension.Test\GitHubExtension.Test.dll")
-      )
-      $winAppTestArgs = @(
-          ("/Platform:$platform"),
-          ("/Logger:trx;LogFileName=GitHubExtension.UITest-$platform-$configuration.trx"),
-          ("BuildOutput\$configuration\$platform\GitHubExtension.UITest\GitHubExtension.UITest.dll")
       )
 
       & $vstestPath $vstestArgs
-      # TODO: UI tests are currently disabled in pipeline until signing is solved
-      if (-not($IsAzurePipelineBuild)) {
-          & $vstestPath $winAppTestArgs
-      }
     }
   }
 } Catch {
@@ -101,10 +63,6 @@ Try {
   $fields = $_, $_.ScriptStackTrace
   Write-Host ($formatString -f $fields) -ForegroundColor RED
   Exit 1
-}
-
-if (-not($IsAzurePipelineBuild)) {
-  Stop-Process -Name "WinAppDriver"
 }
 
 $TotalTime = (Get-Date)-$StartTime
