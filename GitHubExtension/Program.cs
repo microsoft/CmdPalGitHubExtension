@@ -19,6 +19,8 @@ using Microsoft.Windows.ApplicationModel.Resources;
 using Microsoft.Windows.AppLifecycle;
 using Microsoft.Windows.Storage;
 using Serilog;
+using Shmuelie.WinRTServer;
+using Shmuelie.WinRTServer.CsWinRT;
 using Windows.ApplicationModel.Activation;
 
 namespace GitHubExtension;
@@ -58,14 +60,7 @@ public class Program
 
         if (args.Length > 0 && args[0] == "-RegisterProcessAsComServer")
         {
-            try
-            {
-                HandleCOMServerActivation();
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Failed to register process as COM server.");
-            }
+            await HandleCOMServerActivationAsync();
         }
         else
         {
@@ -73,7 +68,7 @@ public class Program
         }
     }
 
-    private static void AppActivationRedirected(object? sender, Microsoft.Windows.AppLifecycle.AppActivationArguments activationArgs)
+    private static async void AppActivationRedirected(object? sender, Microsoft.Windows.AppLifecycle.AppActivationArguments activationArgs)
     {
         Log.Information($"Redirected with kind: {activationArgs.Kind}");
 
@@ -86,7 +81,7 @@ public class Program
             if (args?.Length > 1 && args[1] == "-RegisterProcessAsComServer")
             {
                 Log.Information($"Activation COM Registration Redirect: {string.Join(' ', args.ToList())}");
-                HandleCOMServerActivation();
+                await HandleCOMServerActivationAsync();
             }
         }
 
@@ -102,9 +97,9 @@ public class Program
         }
     }
 
-    private static void HandleCOMServerActivation()
+    private static async Task HandleCOMServerActivationAsync()
     {
-        using ExtensionServer server = new();
+        await using global::Shmuelie.WinRTServer.ComServer server = new();
         var extensionDisposedEvent = new ManualResetEvent(false);
 
         // COMPOSITION ROOT AREA
@@ -144,7 +139,8 @@ public class Program
         // We are instantiating an extension instance once above, and returning it every time the callback in RegisterExtension below is called.
         // This makes sure that only one instance of GitHubExtension is alive, which is returned every time the host asks for the IExtension object.
         // If you want to instantiate a new instance each time the host asks, create the new instance inside the delegate.
-        server.RegisterExtension(() => extensionInstance);
+        server.RegisterClass<GitHubExtension, IExtension>(() => extensionInstance);
+        server.Start();
 
         // END OF COMPOSITION ROOT AREA
 
