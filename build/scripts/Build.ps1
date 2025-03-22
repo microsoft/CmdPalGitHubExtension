@@ -65,7 +65,7 @@ Try {
         ("/binaryLogger:GitHubExtension.$platform.$configuration.binlog"),
         ("/p:AppxPackageOutput=$appxPackageDir\GitHubExtension_$configuration_$Version_$platform.msix"),
         ("/p:AppxPackageSigningEnabled=false"),
-        ("/p:GenerateAppxPackageOnBuild=true"),
+        ("/p:GenerateAppxPackageOnBuild=true")
     )
 
     & $msbuildPath $msbuildArgs
