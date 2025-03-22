@@ -47,35 +47,11 @@ Options:
   Exit
 }
 
-# Install NuGet Cred Provider
-Invoke-Expression "& { $(irm https://aka.ms/install-artifacts-credprovider.ps1) } -AddNetfx"
-
 # Root is two levels up from the script location.
 $env:Build_RootDirectory = (Get-Item $PSScriptRoot).parent.parent.FullName
 $env:Build_Platform = $Platform.ToLower()
 $env:Build_Configuration = $Configuration.ToLower()
-$env:msix_version = build\scripts\CreateBuildInfo.ps1 -Version $Version -IsAzurePipelineBuild $IsAzurePipelineBuild
 $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')
-
-# Set GitHub OAuth Client App configuration if build-time parameters are present
-$OAuthConfigFilePath = (Join-Path $env:Build_RootDirectory "src\GitHubExtension\Configuration\OAuthConfiguration.cs")
-if (![string]::IsNullOrWhitespace($ClientId)) {
-    (Get-Content $OAuthConfigFilePath).Replace("%BUILD_TIME_GITHUB_CLIENT_ID_PLACEHOLDER%", $ClientId) | Set-Content $OAuthConfigFilePath
-}
-else {
-    Write-Host "ClientId not found at Build-time"
-}
-
-if (![string]::IsNullOrWhitespace($ClientSecret)) {
-    (Get-Content $OAuthConfigFilePath).Replace("%BUILD_TIME_GITHUB_CLIENT_SECRET_PLACEHOLDER%", $ClientSecret) | Set-Content $OAuthConfigFilePath
-}
-else {
-    Write-Host "ClientSecret not found at Build-time"
-}
-
-if ($IsAzurePipelineBuild) {
-  Copy-Item (Join-Path $env:Build_RootDirectory "build\nuget.config.internal") -Destination (Join-Path $env:Build_RootDirectory "nuget.config")
-}
 
 $msbuildPath = &"${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -prerelease -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
 
@@ -84,17 +60,7 @@ $ErrorActionPreference = "Stop"
 . (Join-Path $env:Build_RootDirectory "build\scripts\CertSignAndInstall.ps1")
 
 Try {
-    $appxmanifestPath = (Join-Path $env:Build_RootDirectory "GitHubExtension\Package.appxmanifest")
-
-    [Reflection.Assembly]::LoadWithPartialName("System.Xml.Linq")
-    $xIdentity = [System.Xml.Linq.XName]::Get("{http://schemas.microsoft.com/appx/manifest/foundation/windows10}Identity");
-
-    # Update the appxmanifest
-    $appxmanifest = [System.Xml.Linq.XDocument]::Load($appxmanifestPath)
-    $appxmanifest.Root.Element($xIdentity).Attribute("Version").Value = $env:msix_version
-    $appxmanifest.Save($appxmanifestPath)
-
-    $appxPackageDir = (Join-Path $env:Build_RootDirectory "AppxPackages\$configuration")
+    $appxPackageDir = (Join-Path $env:Build_RootDirectory "BuildOutput")
     $solutionPath = (Join-Path $env:Build_RootDirectory "GitHubExtension.sln")
     $msbuildArgs = @(
         ($solutionPath),
@@ -102,21 +68,15 @@ Try {
         ("/p:configuration="+$configuration),
         ("/restore"),
         ("/binaryLogger:GitHubExtension.$platform.$configuration.binlog"),
-        ("/p:AppxPackageOutput=$appxPackageDir\GitHubExtension-$platform.msix"),
+        ("/p:AppxPackageOutput=$appxPackageDir\GitHubExtension_$configuration-$Version-$platform.msix"),
         ("/p:AppxPackageSigningEnabled=false"),
         ("/p:GenerateAppxPackageOnBuild=true"),
-        ("/p:BuildRing=$buildRing")
     )
 
     & $msbuildPath $msbuildArgs
     if (-not($IsAzurePipelineBuild) -And $isAdmin) {
       Invoke-SignPackage "$appxPackageDir\GitHubExtension-$platform.msix"
     }
-
-    # Reset the appxmanifest to prevent unnecessary code changes
-    $appxmanifest = [System.Xml.Linq.XDocument]::Load($appxmanifestPath)
-    $appxmanifest.Root.Element($xIdentity).Attribute("Version").Value = "0.0.0.0"
-    $appxmanifest.Save($appxmanifestPath)
   } Catch {
   $formatString = "`n{0}`n`n{1}`n`n"
   $fields = $_, $_.ScriptStackTrace

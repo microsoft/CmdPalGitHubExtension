@@ -77,7 +77,7 @@ extends:
                 - task: MsixPackaging@1
                   displayName: Building MSIX
                   inputs:
-                    outputPath: 'BuildOutput\GitHubExtension_${{ configuration }}_${{ platform }}.msix'
+                    outputPath: 'BuildOutput\GitHubExtension_${{ configuration }}_$(MSIXVersion)_${{ platform }}.msix'
                     solution: '$(solution)'
                     clean: false
                     generateBundle: false
@@ -131,7 +131,7 @@ extends:
                         
                 - task: PowerShell@2
                   displayName: 'Run Unittests'
-                  condition: ne('${{ platform}}', 'arm64')
+                  condition: ne('${{ platform }}', 'arm64')
                   retryCountOnTaskFailure: 2
                   inputs:
                     filePath: 'build/scripts/Test.ps1'
