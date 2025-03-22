@@ -68,8 +68,8 @@ extends:
                 - task: PowerShell@2
                   displayName: Building MSIX
                   inputs:
-                  filePath: './build/scripts/Build.ps1'
-                  arguments: -Platform "${{ platform }}" -Configuration "${{ configuration }}" -Version $(MSIXVersion)
+                    filePath: './build/scripts/Build.ps1'
+                    arguments: -Platform "${{ platform }}" -Configuration "${{ configuration }}" -Version $(MSIXVersion)
                 
                 - template: ./build/templates/EsrpSigning-Steps.yml@self
                   parameters:
