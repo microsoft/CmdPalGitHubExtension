@@ -1,11 +1,6 @@
 Param(
     [string]$Platform = "x64",
     [string]$Configuration = "debug",
-    [string]$Version,
-    [string]$ClientId,
-    [string]$ClientSecret,
-    [string]$BuildStep = "all",
-    [string]$AzureBuildingBranch = "main",
     [switch]$IsAzurePipelineBuild = $false,
     [switch]$Help = $false
 )
@@ -68,7 +63,7 @@ Try {
         ("/p:configuration="+$configuration),
         ("/restore"),
         ("/binaryLogger:GitHubExtension.$platform.$configuration.binlog"),
-        ("/p:AppxPackageOutput=$appxPackageDir\GitHubExtension_$configuration-$Version-$platform.msix"),
+        ("/p:AppxPackageOutput=$appxPackageDir\GitHubExtension_$configuration_$Version_$platform.msix"),
         ("/p:AppxPackageSigningEnabled=false"),
         ("/p:GenerateAppxPackageOnBuild=true"),
     )
