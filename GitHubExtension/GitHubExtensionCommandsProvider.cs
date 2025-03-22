@@ -145,7 +145,21 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Failed to update top-level searches: {ex}");
+                var message = $"{_resources.GetResource("CommandsProvider_DefaultCommands_Error")}: {ex.Message}";
+                Debug.WriteLine(message);
+                if (ex is Octokit.ApiException)
+                {
+                    Octokit.ApiException apiException = (Octokit.ApiException)ex;
+                    message += $" - {StringHelper.ParseHttpErrorMessage(apiException.HttpResponse?.Body?.ToString())}";
+                }
+
+                ExtensionHost.LogMessage(new LogMessage() { Message = ex.Message });
+                var statusMessage = new StatusMessage
+                {
+                    Message = message,
+                    State = MessageState.Error,
+                };
+                ExtensionHost.ShowStatus(statusMessage, StatusContext.Page);
             }
         }
 

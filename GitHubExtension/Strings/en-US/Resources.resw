@@ -353,4 +353,8 @@
     <value>The GitHub extension for Windows Command Palette.</value>
     <comment>Description for extension package</comment>
   </data>
+  <data name="CommandsProvider_DefaultCommands_Error" xml:space="preserve">
+    <value>Adding a query to the top level failed</value>
+    <comment>The error message displayed if adding the default commands to the top level fails</comment>
+  </data>
 </root>
