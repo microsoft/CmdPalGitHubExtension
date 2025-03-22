@@ -16,7 +16,7 @@ parameters:
     - release
 
 variables:
-  MSIXVersion: '0.1800'
+  MSIXVersion: '0.500'
   solution: '**/GitHubExtension.sln'
   appxPackageDir: 'AppxPackages'
   testOutputArtifactDir: 'TestResults'
@@ -58,6 +58,13 @@ extends:
                   inputs:
                     filePath: './build/scripts/OAuthSecrets.ps1'
                     arguments: -ClientId $(GitHubOAuthClientId) -ClientSecret $(GitHubOAuthClientSecret)
+                
+                - task: PowerShell@2
+                  displayName: Setting build version info
+                  inputs:
+                    filePath: './build/scripts/SetupBuildInfo.ps1'
+                    arguments: -Version $(MSIXVersion) -IsAzurePipelineBuild
+
                 - task: MSBuild@1
                   displayName: Restoring packages
                   inputs:
