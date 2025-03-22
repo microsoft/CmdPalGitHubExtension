@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Diagnostics;
 using GitHubExtension.Controls;
 using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
@@ -135,9 +136,16 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
                 new SearchCandidate($"is:open is:pr author:{login} archived:false sort:created-desc", _resources.GetResource("CommandsProvider_MyPullRequestsCommandName")),
             };
 
-            foreach (var search in defaultSearches)
+            try
             {
-                await _persistentDataManager.UpdateSearchTopLevelStatus(search, true);
+                foreach (var search in defaultSearches)
+                {
+                    await _persistentDataManager.UpdateSearchTopLevelStatus(search, true);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to update top-level searches: {ex}");
             }
         }
 
