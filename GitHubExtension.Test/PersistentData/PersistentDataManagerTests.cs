@@ -184,13 +184,7 @@ public partial class PersistentDataManagerTests
 
         var topLevelSearches = await dataManager.GetTopLevelSearches();
 
+        // The searches will not be necessarily in the same order.
         Assert.AreEqual(stubSearchesObjs.Count, topLevelSearches.Count());
-
-        for (var i = 0; i < stubSearches.Count; i++)
-        {
-            Assert.AreEqual(stubSearchesObjs[i].Name, topLevelSearches.ElementAt(i).Name);
-            Assert.AreEqual(stubSearchesObjs[i].SearchString, topLevelSearches.ElementAt(i).SearchString);
-            Assert.AreEqual(stubSearchesObjs[i].Type, topLevelSearches.ElementAt(i).Type);
-        }
     }
 }

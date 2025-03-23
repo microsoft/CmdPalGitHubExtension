@@ -200,6 +200,9 @@ public class PersistentDataManager : IDisposable, ISearchRepository
             {
                 _log.Information($"Validating search: {search.Name} - {search.SearchString} - {search.Type}.");
                 await ValidateSearch(search);
+
+                // We can't have multiple threads inserting into the database at the same time.
+                // But doing that asynchronously will not keep the original order of the searches.
                 lock (_insertLock)
                 {
                     _log.Information($"Adding search: {search.Name} - {search.SearchString} - {search.Type}.");
