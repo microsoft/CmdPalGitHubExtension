@@ -76,6 +76,7 @@ public class Program
         if (activationArgs.Kind == ExtendedActivationKind.Launch)
         {
             var d = activationArgs.Data as ILaunchActivatedEventArgs;
+            Log.Information($"Launch Activation Redirect: {d?.Arguments}");
             var args = d?.Arguments.Split();
 
             if (args?.Length > 1 && args[1] == "-RegisterProcessAsComServer")
