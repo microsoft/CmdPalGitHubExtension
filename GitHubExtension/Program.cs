@@ -76,9 +76,10 @@ public class Program
         if (activationArgs.Kind == ExtendedActivationKind.Launch)
         {
             var d = activationArgs.Data as ILaunchActivatedEventArgs;
+            Log.Information($"Launch Activation Redirect: {d?.Arguments}");
             var args = d?.Arguments.Split();
 
-            if (args?.Length > 1 && args[1] == "-RegisterProcessAsComServer")
+            if (args?.Length > 1 && args.Contains("-RegisterProcessAsComServer"))
             {
                 Log.Information($"Activation COM Registration Redirect: {string.Join(' ', args.ToList())}");
                 await HandleCOMServerActivationAsync();
