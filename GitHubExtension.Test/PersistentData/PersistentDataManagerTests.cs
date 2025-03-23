@@ -154,4 +154,37 @@ public partial class PersistentDataManagerTests
         dataManager.Dispose();
         PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
+
+    [TestMethod]
+    [TestCategory("Unit")]
+    public async Task InitializeTopLevelSearches()
+    {
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        var stubValidator = new Mock<IGitHubValidator>().Object;
+
+        using var dataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
+
+        var stubSearches = new List<Mock<ISearch>>
+        {
+            new(),
+            new(),
+            new(),
+        };
+
+        for (var i = 0; i < stubSearches.Count; i++)
+        {
+            stubSearches[i].SetupGet(x => x.Name).Returns($"TestSearch{i}");
+            stubSearches[i].SetupGet(x => x.SearchString).Returns($"test{i} is:issue");
+            stubSearches[i].SetupGet(x => x.Type).Returns(SearchType.Issues);
+        }
+
+        var stubSearchesObjs = stubSearches.Select(x => x.Object).ToList();
+
+        await dataManager.InitializeTopLevelSearches(stubSearchesObjs);
+
+        var topLevelSearches = await dataManager.GetTopLevelSearches();
+
+        // The searches will not be necessarily in the same order.
+        Assert.AreEqual(stubSearchesObjs.Count, topLevelSearches.Count());
+    }
 }

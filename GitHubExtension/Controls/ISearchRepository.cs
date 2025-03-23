@@ -16,6 +16,8 @@ public interface ISearchRepository
 
     Task AddSavedSearch(ISearch search);
 
+    Task InitializeTopLevelSearches(IEnumerable<ISearch> searches);
+
     Task<IEnumerable<ISearch>> GetTopLevelSearches();
 
     Task<bool> IsTopLevel(ISearch search);
