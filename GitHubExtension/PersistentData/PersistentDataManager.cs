@@ -188,4 +188,29 @@ public class PersistentDataManager : IDisposable, ISearchRepository
         await ValidateSearch(search);
         await AddSearchAsync(search);
     }
+
+    private static readonly object _insertLock = new();
+
+    public async Task InitializeTopLevelSearches(IEnumerable<ISearch> searches)
+    {
+        var defaultTasks = new List<Task>();
+        foreach (var search in searches)
+        {
+            var task = Task.Run(async () =>
+            {
+                _log.Information($"Validating search: {search.Name} - {search.SearchString} - {search.Type}.");
+                await ValidateSearch(search);
+                lock (_insertLock)
+                {
+                    _log.Information($"Adding search: {search.Name} - {search.SearchString} - {search.Type}.");
+                    ValidateDataStore();
+                    Search.AddOrUpdate(DataStore, search.Name, search.SearchString, true);
+                }
+            });
+
+            defaultTasks.Add(task);
+        }
+
+        await Task.WhenAll(defaultTasks);
+    }
 }
