@@ -5,7 +5,7 @@ Param(
 )
 
 $Major = "0"
-$Minor = "5"
+$Minor = "1"
 $Patch = "99" # default to 99 for local builds
 
 $versionSplit = $Version.Split(".");
@@ -31,7 +31,7 @@ if ($versionSplit.length -gt 0) { $Major = $versionSplit[0] }
 #   E = Elapsed (max <= 65535)
 #   B = Build (max <= 65535)
 #
-# NOTE: Elapsed is the number of days since the epoch (Jan'1, 2023).
+# NOTE: Elapsed is the number of days since the epoch (Jan'14, 2025).
 # NOTE: Make sure to compute Elapsed using Universal Time (UTC).
 #
 # NOTE: Build is computed as HHMM i.e. the time (hour and minute) when building locally, 0 otherwise.

@@ -16,7 +16,7 @@ parameters:
     - release
 
 variables:
-  MSIXVersion: '0.500'
+  MSIXVersion: '0.100'
   solution: '**/GitHubExtension.sln'
   appxPackageDir: 'AppxPackages'
   testOutputArtifactDir: 'TestResults'
