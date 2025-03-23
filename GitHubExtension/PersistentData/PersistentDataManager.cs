@@ -189,7 +189,7 @@ public class PersistentDataManager : IDisposable, ISearchRepository
         await AddSearchAsync(search);
     }
 
-    private static readonly object _insertLock = new();
+    private readonly object _insertLock = new();
 
     public async Task InitializeTopLevelSearches(IEnumerable<ISearch> searches)
     {
