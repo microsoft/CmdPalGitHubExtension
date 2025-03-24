@@ -18,5 +18,5 @@ public interface IDeveloperIdProvider
 
     void HandleOauthRedirection(Uri authorizationResponse);
 
-    public event EventHandler<Uri>? OAuthRedirected;
+    public event EventHandler<Exception?>? OAuthRedirected;
 }

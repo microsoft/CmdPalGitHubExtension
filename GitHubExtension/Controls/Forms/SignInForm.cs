@@ -33,8 +33,16 @@ public partial class SignInForm : FormContent, IGitHubForm
         _developerIdProvider.OAuthRedirected += DeveloperIdProvider_OAuthRedirected;
     }
 
-    private void DeveloperIdProvider_OAuthRedirected(object? sender, Uri e)
+    private void DeveloperIdProvider_OAuthRedirected(object? sender, Exception? e)
     {
+        if (e is not null)
+        {
+            SetButtonEnabled(true);
+            LoadingStateChanged?.Invoke(this, false);
+            SignInAction?.Invoke(this, new SignInStatusChangedEventArgs(false, e));
+            FormSubmitted?.Invoke(this, new FormSubmitEventArgs(false, e));
+        }
+
         SetButtonEnabled(false);
     }
 
