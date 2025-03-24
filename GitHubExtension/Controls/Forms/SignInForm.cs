@@ -31,6 +31,12 @@ public partial class SignInForm : FormContent, IGitHubForm
         _resources = resources;
         _developerIdProvider = developerIdProvider;
         _developerIdProvider.OAuthRedirected += DeveloperIdProvider_OAuthRedirected;
+        SignOutForm.SignOutAction += SignOutForm_SignOutAction;
+    }
+
+    private void SignOutForm_SignOutAction(object? sender, SignInStatusChangedEventArgs e)
+    {
+        _isButtonEnabled = !e.IsSignedIn;
     }
 
     private void DeveloperIdProvider_OAuthRedirected(object? sender, Exception? e)
@@ -41,14 +47,13 @@ public partial class SignInForm : FormContent, IGitHubForm
             LoadingStateChanged?.Invoke(this, false);
             SignInAction?.Invoke(this, new SignInStatusChangedEventArgs(false, e));
             FormSubmitted?.Invoke(this, new FormSubmitEventArgs(false, e));
+            return;
         }
-        else
-        {
-            SetButtonEnabled(false);
-        }
+
+        SetButtonEnabled(false);
     }
 
-    public void SetButtonEnabled(bool isEnabled)
+    private void SetButtonEnabled(bool isEnabled)
     {
         _isButtonEnabled = isEnabled;
         TemplateJson = TemplateHelper.LoadTemplateJsonFromTemplateName("AuthTemplate", TemplateSubstitutions);
