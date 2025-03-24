@@ -6,6 +6,7 @@ using GitHubExtension.Controls.Forms;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using Windows.Foundation;
 
 namespace GitHubExtension.Controls.Pages;
 
@@ -26,8 +27,15 @@ public partial class SignInPage : ContentPage
         // Wire up events using the helper
         FormEventHelper.WireFormEvents(_signInForm, this, _statusMessage, _successMessage, _errorMessage);
 
+        _signInForm.PropChanged += UpdatePage;
+
         // Hide status message initially
         ExtensionHost.HideStatus(_statusMessage);
+    }
+
+    private void UpdatePage(object sender, IPropChangedEventArgs args)
+    {
+        RaiseItemsChanged();
     }
 
     public override IContent[] GetContent()

@@ -38,6 +38,8 @@ public class DeveloperIdProvider : IDeveloperIdProvider
 
     private readonly Lazy<CredentialVault> _credentialVault;
 
+    public event EventHandler<Exception?>? OAuthRedirected;
+
     // Private constructor for Singleton class.
     public DeveloperIdProvider()
     {
@@ -149,6 +151,8 @@ public class DeveloperIdProvider : IDeveloperIdProvider
     {
         OAuthRequest? oAuthRequest = null;
 
+        OAuthRedirected?.Invoke(this, null);
+
         lock (_oAuthRequestsLock)
         {
             if (OAuthRequests is null)
@@ -181,7 +185,15 @@ public class DeveloperIdProvider : IDeveloperIdProvider
             }
         }
 
-        oAuthRequest.CompleteOAuthAsync(authorizationResponse).Wait();
+        try
+        {
+           oAuthRequest.CompleteOAuthAsync(authorizationResponse).Wait();
+        }
+        catch (Exception ex)
+        {
+           _log.Error(ex, $"Error while completing OAuth request: ");
+           OAuthRedirected?.Invoke(this, ex);
+        }
     }
 
     public IEnumerable<IDeveloperId> GetLoggedInDeveloperIdsInternal()

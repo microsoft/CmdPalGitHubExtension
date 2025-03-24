@@ -32,6 +32,7 @@ public sealed partial class SignOutForm : FormContent, IGitHubForm
         { "{{AuthButtonTitle}}", _resources.GetResource("Forms_Sign_Out_Button_Title") },
         { "{{AuthIcon}}", $"data:image/png;base64,{GitHubIcon.GetBase64Icon("logo")}" },
         { "{{AuthButtonTooltip}}", _resources.GetResource("Forms_Sign_Out_Tooltip") },
+        { "{{ButtonIsEnabled}}", "true" },
     };
 
     public override string TemplateJson => TemplateHelper.LoadTemplateJsonFromTemplateName("AuthTemplate", TemplateSubstitutions);

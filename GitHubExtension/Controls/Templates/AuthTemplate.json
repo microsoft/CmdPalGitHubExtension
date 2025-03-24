@@ -1,7 +1,7 @@
 {
   "type": "AdaptiveCard",
   "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-  "version": "1.5",
+  "version": "1.6",
   "body": [
     {
       "type": "Container",
@@ -37,9 +37,10 @@
                   "type": "ActionSet",
                   "actions": [
                     {
-                      "type": "Action.Submit",
                       "title": "{{AuthButtonTitle}}",
-                      "tooltip": "{{AuthButtonTooltip}}"
+                      "tooltip": "{{AuthButtonTooltip}}",
+                      "type": "Action.Submit",
+                      "isEnabled": {{ButtonIsEnabled}}
                     }
                   ]
                 }
