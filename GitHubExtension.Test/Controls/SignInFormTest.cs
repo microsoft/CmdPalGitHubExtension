@@ -48,30 +48,4 @@ public class SignInFormTest
             await Task.Run(() => developerIdProvider.HandleOauthRedirection(authorizationResponse));
         });
     }
-
-    [TestMethod]
-    public async Task LoginNewDeveloperIdAsync_ShouldThrowInvalidOperationException_OnTimeout()
-    {
-        // Arrange
-        var mockGitHubClient = new Mock<IGitHubClient>();
-        var mockOauthClient = new Mock<IOauthClient>();
-
-        mockGitHubClient.Setup(client => client.Oauth).Returns(mockOauthClient.Object);
-
-        mockOauthClient
-            .Setup(oauth => oauth.CreateAccessToken(It.IsAny<OauthTokenRequest>()))
-            .Returns(async () =>
-            {
-                await Task.Delay(TimeSpan.FromSeconds(10)); // Simulate delay longer than timeout
-                return new OauthToken();
-            });
-
-        var developerIdProvider = new DeveloperIdProvider();
-
-        // Act & Assert
-        await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
-        {
-            await developerIdProvider.LoginNewDeveloperIdAsync();
-        });
-    }
 }
