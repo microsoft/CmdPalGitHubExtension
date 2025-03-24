@@ -3,12 +3,15 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Security;
 using System.Security.Cryptography;
 using System.Web;
 using GitHubExtension.Helpers;
 using Octokit;
 using Serilog;
+
+[assembly: InternalsVisibleTo("GitHubExtension.Test")]
 
 namespace GitHubExtension.DeveloperId;
 
@@ -113,7 +116,19 @@ internal sealed class OAuthRequest : IDisposable
         try
         {
             var request = new OauthTokenRequest(OauthConfiguration.GetClientId(), OauthConfiguration.GetClientSecret(), code);
-            var token = await _gitHubClient.Oauth.CreateAccessToken(request);
+
+            var tokenTask = _gitHubClient.Oauth.CreateAccessToken(request);
+            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(5));
+
+            var completedTask = await Task.WhenAny(tokenTask, timeoutTask);
+
+            if (completedTask == timeoutTask)
+            {
+                _log.Error("Authorization code exchange timed out.");
+                throw new InvalidOperationException("Authorization code exchange timed out.");
+            }
+
+            var token = await tokenTask;
             AccessToken = new NetworkCredential(string.Empty, token.AccessToken).SecurePassword;
             _gitHubClient.Credentials = new Credentials(token.AccessToken);
         }
