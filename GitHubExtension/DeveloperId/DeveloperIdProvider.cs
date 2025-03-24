@@ -38,6 +38,8 @@ public class DeveloperIdProvider : IDeveloperIdProvider
 
     private readonly Lazy<CredentialVault> _credentialVault;
 
+    public event EventHandler<Uri>? OAuthRedirected;
+
     // Private constructor for Singleton class.
     public DeveloperIdProvider()
     {
@@ -148,6 +150,8 @@ public class DeveloperIdProvider : IDeveloperIdProvider
     public void HandleOauthRedirection(Uri authorizationResponse)
     {
         OAuthRequest? oAuthRequest = null;
+
+        OAuthRedirected?.Invoke(this, authorizationResponse);
 
         lock (_oAuthRequestsLock)
         {

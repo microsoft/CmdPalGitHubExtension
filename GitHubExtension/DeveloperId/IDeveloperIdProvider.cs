@@ -17,4 +17,6 @@ public interface IDeveloperIdProvider
     bool LogoutDeveloperId(IDeveloperId developerId);
 
     void HandleOauthRedirection(Uri authorizationResponse);
+
+    public event EventHandler<Uri>? OAuthRedirected;
 }

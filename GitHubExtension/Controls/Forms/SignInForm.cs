@@ -2,11 +2,11 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Globalization;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
-using Windows.Foundation;
 
 namespace GitHubExtension.Controls.Forms;
 
@@ -21,10 +21,23 @@ public partial class SignInForm : FormContent, IGitHubForm
     private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly IResources _resources;
 
+    private bool _isButtonEnabled = true;
+
+    private string IsButtonEnabled =>
+        _isButtonEnabled.ToString(CultureInfo.InvariantCulture).ToLower(CultureInfo.InvariantCulture);
+
     public SignInForm(IDeveloperIdProvider developerIdProvider, IResources resources)
     {
         _resources = resources;
         _developerIdProvider = developerIdProvider;
+        _developerIdProvider.OAuthRedirected += DeveloperIdProvider_OAuthRedirected;
+    }
+
+    private void DeveloperIdProvider_OAuthRedirected(object? sender, Uri e)
+    {
+        _isButtonEnabled = false;
+        TemplateJson = TemplateHelper.LoadTemplateJsonFromTemplateName("AuthTemplate", TemplateSubstitutions);
+        OnPropertyChanged(nameof(TemplateJson));
     }
 
     public Dictionary<string, string> TemplateSubstitutions => new()
@@ -33,6 +46,7 @@ public partial class SignInForm : FormContent, IGitHubForm
         { "{{AuthButtonTitle}}", _resources.GetResource("Forms_Sign_In") },
         { "{{AuthIcon}}", $"data:image/png;base64,{GitHubIcon.GetBase64Icon("logo")}" },
         { "{{AuthButtonTooltip}}", _resources.GetResource("Forms_Sign_In_Tooltip") },
+        { "{{ButtonIsEnabled}}", IsButtonEnabled },
     };
 
     public override string TemplateJson => TemplateHelper.LoadTemplateJsonFromTemplateName("AuthTemplate", TemplateSubstitutions);
