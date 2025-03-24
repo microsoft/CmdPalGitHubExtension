@@ -42,8 +42,10 @@ public partial class SignInForm : FormContent, IGitHubForm
             SignInAction?.Invoke(this, new SignInStatusChangedEventArgs(false, e));
             FormSubmitted?.Invoke(this, new FormSubmitEventArgs(false, e));
         }
-
-        SetButtonEnabled(false);
+        else
+        {
+            SetButtonEnabled(false);
+        }
     }
 
     public void SetButtonEnabled(bool isEnabled)
