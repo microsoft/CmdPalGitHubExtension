@@ -15,8 +15,6 @@ public class DeveloperIdProvider : IDeveloperIdProvider
     private static readonly Lock _oAuthRequestsLock = new();
 
     // DeveloperIdProvider uses singleton pattern.
-    // private static readonly Lazy<DeveloperIdProvider> _singletonDeveloperIdProvider = new(() => new DeveloperIdProvider());
-    // public static DeveloperIdProvider GetInstance() => _singletonDeveloperIdProvider.Value;
     private static readonly Lazy<ILogger> _logger = new(() => Serilog.Log.ForContext("SourceContext", nameof(DeveloperIdProvider)));
 
     private static readonly ILogger _log = _logger.Value;
