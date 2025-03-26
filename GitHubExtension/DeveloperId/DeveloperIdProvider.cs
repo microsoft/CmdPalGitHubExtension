@@ -36,14 +36,14 @@ public class DeveloperIdProvider : IDeveloperIdProvider
         get; set;
     }
 
-    private readonly Lazy<CredentialVault> _credentialVault;
+    private readonly ICredentialVault _credentialVault;
 
     public event EventHandler<Exception?>? OAuthRedirected;
 
     // Private constructor for Singleton class.
-    public DeveloperIdProvider()
+    public DeveloperIdProvider(ICredentialVault credentialVault)
     {
-        _credentialVault = new(() => new CredentialVault());
+        _credentialVault = credentialVault;
 
         lock (_oAuthRequestsLock)
         {
@@ -58,7 +58,7 @@ public class DeveloperIdProvider : IDeveloperIdProvider
         try
         {
             // Retrieve and populate Logged in DeveloperIds from previous launch.
-            RestoreDeveloperIds(_credentialVault.Value.GetAllCredentials());
+            RestoreDeveloperIds(_credentialVault.GetAllCredentials());
         }
         catch (Exception ex)
         {
@@ -140,7 +140,7 @@ public class DeveloperIdProvider : IDeveloperIdProvider
                 return false;
             }
 
-            _credentialVault.Value.RemoveCredentials(developerIdToLogout.Url);
+            _credentialVault.RemoveCredentials(developerIdToLogout.Url);
             DeveloperIds?.Remove(developerIdToLogout);
         }
 
@@ -229,7 +229,7 @@ public class DeveloperIdProvider : IDeveloperIdProvider
 
             GitHubClient gitHubClient = new(new ProductHeaderValue(Constants.CMDPAL_APPLICATION_NAME), hostAddress)
             {
-                Credentials = new(_credentialVault.Value.GetCredentials(loginIdOrUrl)?.Password),
+                Credentials = new(_credentialVault.GetCredentials(loginIdOrUrl)?.Password),
             };
 
             try
@@ -255,7 +255,7 @@ public class DeveloperIdProvider : IDeveloperIdProvider
 
                 // If we are unable to restore a DeveloperId, remove it from CredentialManager to avoid
                 // the same error next time, and to force the user to login again
-                _credentialVault.Value.RemoveCredentials(loginIdOrUrl);
+                _credentialVault.RemoveCredentials(loginIdOrUrl);
             }
         }
 
@@ -266,10 +266,10 @@ public class DeveloperIdProvider : IDeveloperIdProvider
     {
         try
         {
-            _credentialVault.Value.SaveCredentials(
+            _credentialVault.SaveCredentials(
                 developerId.Url,
-                new NetworkCredential(string.Empty, _credentialVault.Value.GetCredentials(developerId.LoginId)?.Password).SecurePassword);
-            _credentialVault.Value.RemoveCredentials(developerId.LoginId);
+                new NetworkCredential(string.Empty, _credentialVault.GetCredentials(developerId.LoginId)?.Password).SecurePassword);
+            _credentialVault.RemoveCredentials(developerId.LoginId);
             _log.Information($"Replaced {developerId.LoginId} with {developerId.Url} in CredentialManager");
         }
         catch (Exception ex)
@@ -289,7 +289,7 @@ public class DeveloperIdProvider : IDeveloperIdProvider
             try
             {
                 // Save the credential to Credential Vault.
-                _credentialVault.Value.SaveCredentials(duplicateDeveloperIds.Single().Url, accessToken);
+                _credentialVault.SaveCredentials(duplicateDeveloperIds.Single().Url, accessToken);
             }
             catch (InvalidOperationException)
             {
@@ -304,7 +304,7 @@ public class DeveloperIdProvider : IDeveloperIdProvider
                 DeveloperIds.Add(newDeveloperId);
             }
 
-            _credentialVault.Value.SaveCredentials(newDeveloperId.Url, accessToken);
+            _credentialVault.SaveCredentials(newDeveloperId.Url, accessToken);
         }
     }
 }
