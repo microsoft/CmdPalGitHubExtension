@@ -27,7 +27,8 @@ public class SignInFormTest
                 return new OauthToken();
             });
 
-        var developerIdProvider = new DeveloperIdProvider();
+        var mockCredentialVault = new Mock<ICredentialVault>();
+        var developerIdProvider = new DeveloperIdProvider(mockCredentialVault.Object);
 
         mockGitHubClient.Setup(client => client.Oauth).Returns(mockOauthClient.Object);
 
