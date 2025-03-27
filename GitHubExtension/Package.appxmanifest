@@ -52,8 +52,8 @@
           <uap3:AppExtension Name="com.microsoft.commandpalette"
             Id="PG-SP-ID"
             PublicFolder="Public"
-            DisplayName="GitHub extension for cmdpal"
-            Description="GitHub extension for cmdpal">
+            DisplayName="GitHub Extension for Command Palette"
+            Description="GitHub Extension for Command Palette">
             <uap3:Properties>
               <CmdPalProvider>
                 <Activation>
