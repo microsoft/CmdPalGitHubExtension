@@ -56,22 +56,24 @@ $ErrorActionPreference = "Stop"
 . (Join-Path $env:Build_RootDirectory "build\scripts\CertSignAndInstall.ps1")
 
 Try {
-    $msbuildArgs = @(
-        ($solutionPath),
-        ("/p:platform="+$platform),
-        ("/p:configuration="+$configuration),
-        ("/restore"),
-        ("/binaryLogger:GitHubExtension.$platform.$configuration.binlog"),
-        ("/p:AppxPackageOutput=$appxPackageDir\GitHubExtension_$configuration" + "_$Version" + "_$platform.msix"),
-        ("/p:AppxPackageSigningEnabled=false"),
-        ("/p:GenerateAppxPackageOnBuild=true")
-    )
+  $appxPackageDir = (Join-Path $env:Build_RootDirectory "BuildOutput")
+  $solutionPath = (Join-Path $env:Build_RootDirectory "GitHubExtension.sln")j
+  $msbuildArgs = @(
+      ($solutionPath),
+      ("/p:platform="+$platform),
+      ("/p:configuration="+$configuration),
+      ("/restore"),
+      ("/binaryLogger:GitHubExtension.$platform.$configuration.binlog"),
+      ("/p:AppxPackageOutput=$appxPackageDir\GitHubExtension_$configuration" + "_$Version" + "_$platform.msix"),
+      ("/p:AppxPackageSigningEnabled=false"),
+      ("/p:GenerateAppxPackageOnBuild=true")
+  )
 
-    & $msbuildPath $msbuildArgs
-    if (-not($IsAzurePipelineBuild) -And $isAdmin) {
-      Invoke-SignPackage "$appxPackageDir\GitHubExtension_$configuration" + "_$Version" + "_$platform.msix"
-    }
-  } Catch {
+  & $msbuildPath $msbuildArgs
+  if (-not($IsAzurePipelineBuild) -And $isAdmin) {
+    Invoke-SignPackage "$appxPackageDir\GitHubExtension_$configuration" + "_$Version" + "_$platform.msix"
+  }
+} Catch {
   $formatString = "`n{0}`n`n{1}`n`n"
   $fields = $_, $_.ScriptStackTrace
   Write-Host ($formatString -f $fields) -ForegroundColor RED

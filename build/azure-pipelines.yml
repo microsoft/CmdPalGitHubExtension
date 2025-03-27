@@ -75,7 +75,7 @@ extends:
                   parameters:
                     displayName: Submit *.msix to ESRP for code signing
                     inputs:
-                      FolderPath: '$(appxPackageDir)\${{ configuration }}'
+                      FolderPath: 'BuildOutput'
                       Pattern: '*.msix'
                       UseMinimatch: true
                       signConfigType: inlineSignParams
