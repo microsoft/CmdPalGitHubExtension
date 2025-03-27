@@ -57,7 +57,7 @@ $ErrorActionPreference = "Stop"
 
 Try {
   $appxPackageDir = (Join-Path $env:Build_RootDirectory "BuildOutput")
-  $solutionPath = (Join-Path $env:Build_RootDirectory "GitHubExtension.sln")j
+  $solutionPath = (Join-Path $env:Build_RootDirectory "GitHubExtension.sln")
   $msbuildArgs = @(
       ($solutionPath),
       ("/p:platform="+$platform),
