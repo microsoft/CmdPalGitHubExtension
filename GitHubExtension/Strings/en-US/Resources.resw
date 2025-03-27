@@ -357,4 +357,10 @@
     <value>Adding a query to the top level failed</value>
     <comment>The error message displayed if adding the default commands to the top level fails</comment>
   </data>
+  <data name="ExtensionPackageTitleDev" xml:space="preserve">
+    <value>GitHub Extension for Command Palette (Dev)</value>
+  </data>
+  <data name="ExtensionTitleDev" xml:space="preserve">
+    <value>GitHub Extension (Dev)</value>
+  </data>
 </root>

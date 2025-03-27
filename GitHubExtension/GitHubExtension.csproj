@@ -86,4 +86,9 @@
   <ItemGroup>
     <PRIResource Remove="Data\**" />
   </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package-Dev.appxmanifest">
+      <SubType>Designer</SubType>
+    </AppxManifest>
+  </ItemGroup>
 </Project>
