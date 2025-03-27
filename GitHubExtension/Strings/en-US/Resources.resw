@@ -162,7 +162,7 @@
     <comment>Title for sign out button title, shown in sign out form</comment>
   </data>
   <data name="Forms_Sign_Out_Tooltip" xml:space="preserve">
-    <value>Sign out from GitHub extension</value>
+    <value>Sign out from the GitHub Extension</value>
     <comment>Tooltip for sign out button on sign out form</comment>
   </data>
   <data name="ListItems_AddSearch" xml:space="preserve">
@@ -350,7 +350,7 @@
     <comment>Title for the extension package</comment>
   </data>
   <data name="ExtensionPackageDescription" xml:space="preserve">
-    <value>The GitHub extension for Windows Command Palette.</value>
+    <value>The GitHub Extension for Windows Command Palette.</value>
     <comment>Description for extension package</comment>
   </data>
   <data name="CommandsProvider_DefaultCommands_Error" xml:space="preserve">
