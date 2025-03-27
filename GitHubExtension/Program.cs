@@ -104,7 +104,8 @@ public class Program
         var extensionDisposedEvent = new ManualResetEvent(false);
 
         // COMPOSITION ROOT AREA
-        var developerIdProvider = new DeveloperIdProvider();
+        var credentialVault = new CredentialVault();
+        var developerIdProvider = new DeveloperIdProvider(credentialVault);
         _developerIdProvider = developerIdProvider;
 
         var path = ResourceLoader.GetDefaultResourceFilePath();

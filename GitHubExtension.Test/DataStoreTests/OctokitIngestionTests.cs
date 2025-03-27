@@ -8,6 +8,7 @@ using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Test.Helpers;
+using Moq;
 using Octokit;
 
 namespace GitHubExtension.Test.DataStoreTests;
@@ -30,7 +31,8 @@ public partial class DataStoreTests
             "octokit",
         };
 
-        var client = new GitHubClientProvider(new DeveloperIdProvider()).GetClient();
+        var mockCredentialVault = new Mock<ICredentialVault>();
+        var client = new GitHubClientProvider(new DeveloperIdProvider(mockCredentialVault.Object)).GetClient();
         using var tx = dataStore.Connection!.BeginTransaction();
         foreach (var item in items)
         {
@@ -82,7 +84,8 @@ public partial class DataStoreTests
             Tuple.Create("microsoft", "WindowsAppSDK"),
         };
 
-        var client = new GitHubClientProvider(new DeveloperIdProvider()).GetClient();
+        var mockCredentialVault = new Mock<ICredentialVault>();
+        var client = new GitHubClientProvider(new DeveloperIdProvider(mockCredentialVault.Object)).GetClient();
         using var tx = dataStore.Connection!.BeginTransaction();
         foreach (var item in items)
         {
@@ -154,7 +157,8 @@ public partial class DataStoreTests
             Tuple.Create("microsoft", "WindowsAppSDK", 3482, 2),
         };
 
-        var client = new GitHubClientProvider(new DeveloperIdProvider()).GetClient();
+        var mockCredentialVault = new Mock<ICredentialVault>();
+        var client = new GitHubClientProvider(new DeveloperIdProvider(mockCredentialVault.Object)).GetClient();
         using var tx = dataStore.Connection!.BeginTransaction();
 
         foreach (var repo in repositories)
@@ -249,7 +253,8 @@ public partial class DataStoreTests
             Tuple.Create("microsoft", "WindowsAppSDK", 12, 2),
         };
 
-        var client = new GitHubClientProvider(new DeveloperIdProvider()).GetClient();
+        var mockCredentialVault = new Mock<ICredentialVault>();
+        var client = new GitHubClientProvider(new DeveloperIdProvider(mockCredentialVault.Object)).GetClient();
         using var tx = dataStore.Connection!.BeginTransaction();
 
         foreach (var repo in repositories)
@@ -326,7 +331,8 @@ public partial class DataStoreTests
         dataStore.Create();
         Assert.IsNotNull(dataStore.Connection);
 
-        var client = new GitHubClientProvider(new DeveloperIdProvider()).GetClient();
+        var mockCredentialVault = new Mock<ICredentialVault>();
+        var client = new GitHubClientProvider(new DeveloperIdProvider(mockCredentialVault.Object)).GetClient();
 
         using var tx = dataStore.Connection!.BeginTransaction();
 
@@ -382,7 +388,8 @@ public partial class DataStoreTests
         dataStore.Create();
         Assert.IsNotNull(dataStore.Connection);
 
-        var client = new GitHubClientProvider(new DeveloperIdProvider()).GetClient();
+        var mockCredentialVault = new Mock<ICredentialVault>();
+        var client = new GitHubClientProvider(new DeveloperIdProvider(mockCredentialVault.Object)).GetClient();
 
         using var tx = dataStore.Connection!.BeginTransaction();
 

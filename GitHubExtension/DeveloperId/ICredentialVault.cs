@@ -7,7 +7,7 @@ using Windows.Security.Credentials;
 
 namespace GitHubExtension.DeveloperId;
 
-internal interface ICredentialVault
+public interface ICredentialVault
 {
     PasswordCredential? GetCredentials(string loginId);
 

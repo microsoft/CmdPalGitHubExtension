@@ -6,12 +6,13 @@ using GitHubExtension.Client;
 using GitHubExtension.DataManager.Cache;
 using GitHubExtension.DataManager.Data;
 using GitHubExtension.DeveloperId;
+using Moq;
 
 namespace GitHubExtension.Test.DataStoreTests;
 
 public partial class DataStoreTests
 {
-    private DeveloperIdProvider GetDeveloperIdProvider() => new();
+    private DeveloperIdProvider GetDeveloperIdProvider() => new(new Mock<ICredentialVault>().Object);
 
     private GitHubClientProvider GetGitHubClientProvider(DeveloperIdProvider developerIdProvider) =>
         new(developerIdProvider);
