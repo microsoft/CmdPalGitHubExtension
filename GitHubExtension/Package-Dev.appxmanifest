@@ -44,7 +44,7 @@
         <com:Extension Category="windows.comServer">
           <com:ComServer>
             <com:ExeServer Executable="GitHubExtension.exe" Arguments="-RegisterProcessAsComServer" DisplayName="GitHub Extension for Command Palette">
-              <com:Class Id="3CEA4B9F-DC61-45BA-928D-6D9027400815" DisplayName="GitHub Extension for Command Palette" />
+              <com:Class Id="E4E5AAF3-1783-44D0-AA2D-7311DE14303D" DisplayName="GitHub Extension for Command Palette" />
             </com:ExeServer>
           </com:ComServer>
         </com:Extension>
@@ -57,7 +57,7 @@
             <uap3:Properties>
               <CmdPalProvider>
                 <Activation>
-                  <CreateInstance ClassId="3CEA4B9F-DC61-45BA-928D-6D9027400815" />
+                  <CreateInstance ClassId="E4E5AAF3-1783-44D0-AA2D-7311DE14303D" />
                 </Activation>
                 <SupportedInterfaces>
                   <Commands/>

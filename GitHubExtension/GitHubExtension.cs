@@ -9,7 +9,11 @@ using Serilog;
 
 namespace GitHubExtension;
 
+#if DEBUG
+[Guid("E4E5AAF3-1783-44D0-AA2D-7311DE14303D")]
+#else
 [Guid("a3d8cde8-9dd1-4f2f-85f0-77ea15f3ee8f")]
+#endif
 public sealed partial class GitHubExtension : IExtension
 {
     private readonly ManualResetEvent _extensionDisposedEvent;
