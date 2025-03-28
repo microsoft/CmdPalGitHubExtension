@@ -55,6 +55,21 @@ extends:
                 steps:
 
                 - task: MicrosoftTDBuild.tdbuild-task.tdbuild-task.TouchdownBuildTask@4
+                  displayName: Send and Download Localization Files for Artifacts
+                  condition: and(eq(variables['EnableLocalization'], 'true'), eq(variables['UpdateLocalization'], 'true'))
+                  inputs:
+                    teamId: 71221
+                    TDBuildServiceConnection: $(TouchdownServiceConnection)
+                    authType: SubjectNameIssuer
+                    resourceFilePath: |
+                      **\en-US\*.resw;P:466
+                      **\en-US\PDP.xml
+                    outputDirectoryRoot: LocOutput
+                    localizationTarget: true
+                    appendRelativeDir: true
+                    pseudoSetting: Included
+
+                - task: MicrosoftTDBuild.tdbuild-task.tdbuild-task.TouchdownBuildTask@4
                   displayName: Download and Use Localization Files
                   condition: eq(variables['EnableLocalization'], 'true')
                   retryCountOnTaskFailure: 2
@@ -82,6 +97,19 @@ extends:
                       $Files = Get-ChildItem . -R -Filter 'PDP.xml' | ? FullName -Like '*en-US\*\PDP.xml'
 
                       $Files | % { Move-Item -Verbose $_.Directory $_.Directory.Parent.Parent -EA:Ignore }
+                    pwsh: true
+
+                - task: PowerShell@2
+                  displayName: Archive Loc Output for Submission
+                  condition: and(eq(variables['EnableLocalization'], 'true'), eq(variables['UpdateLocalization'], 'true'))
+                  inputs:
+                    PathtoPublish: LocOutput.tar.gz
+                    ArtifactName: LocOutput
+                    targetType: inline
+                    script: >-
+                      New-Item -Path 'locArchive' -ItemType Directory
+                      
+                      tar czf locArchive\LocOutput.tar.gz LocOutput
                     pwsh: true
 
                 - task: PowerShell@2
