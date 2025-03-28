@@ -58,7 +58,7 @@ extends:
                   displayName: Send and Download Localization Files for Artifacts
                   condition: and(eq(variables['EnableLocalization'], 'true'), eq(variables['UpdateLocalization'], 'true'))
                   inputs:
-                    teamId: 123893
+                    teamId: 71221
                     TDBuildServiceConnection: $(TouchdownServiceConnection)
                     authType: SubjectNameIssuer
                     resourceFilePath: |
@@ -74,7 +74,7 @@ extends:
                   condition: eq(variables['EnableLocalization'], 'true')
                   retryCountOnTaskFailure: 2
                   inputs:
-                    teamId: 123893
+                    teamId: 71221
                     TDBuildServiceConnection: $(TouchdownServiceConnection)
                     authType: SubjectNameIssuer
                     resourceFilePath: |
