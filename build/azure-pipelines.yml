@@ -53,6 +53,65 @@ extends:
             - ${{ each platform in parameters.Platforms }}:
               - job: Build_${{ platform }}_${{ configuration }}
                 steps:
+
+                - task: MicrosoftTDBuild.tdbuild-task.tdbuild-task.TouchdownBuildTask@4
+                  displayName: Send and Download Localization Files for Artifacts
+                  condition: and(eq(variables['EnableLocalization'], 'true'), eq(variables['UpdateLocalization'], 'true'))
+                  inputs:
+                    teamId: 123893
+                    TDBuildServiceConnection: $(TouchdownServiceConnection)
+                    authType: SubjectNameIssuer
+                    resourceFilePath: |
+                      **\en-US\*.resw;P:466
+                      **\en-US\PDP.xml
+                    outputDirectoryRoot: LocOutput
+                    localizationTarget: true
+                    appendRelativeDir: true
+                    pseudoSetting: Included
+
+                - task: MicrosoftTDBuild.tdbuild-task.tdbuild-task.TouchdownBuildTask@4
+                  displayName: Download and Use Localization Files
+                  condition: eq(variables['EnableLocalization'], 'true')
+                  retryCountOnTaskFailure: 2
+                  inputs:
+                    teamId: 123893
+                    TDBuildServiceConnection: $(TouchdownServiceConnection)
+                    authType: SubjectNameIssuer
+                    resourceFilePath: |
+                      **\en-US\*.resw;P:466
+                      **\en-US\PDP.xml
+                    localizationTarget: false
+                    appendRelativeDir: true
+                    pseudoSetting: Included
+
+                - task: PowerShell@2
+                  displayName: Move Loc files one level up
+                  condition: eq(variables['EnableLocalization'], 'true')
+                  inputs:
+                    targetType: inline
+                    script: >-
+                      $Files = Get-ChildItem . -R -Filter 'Resources.resw' | ? FullName -Like '*en-US\*\Resources.resw'
+
+                      $Files | % { Move-Item -Verbose $_.Directory $_.Directory.Parent.Parent -EA:Ignore }
+
+                      $Files = Get-ChildItem . -R -Filter 'PDP.xml' | ? FullName -Like '*en-US\*\PDP.xml'
+
+                      $Files | % { Move-Item -Verbose $_.Directory $_.Directory.Parent.Parent -EA:Ignore }
+                    pwsh: true
+
+                - task: PowerShell@2
+                  displayName: Archive Loc Output for Submission
+                  condition: and(eq(variables['EnableLocalization'], 'true'), eq(variables['UpdateLocalization'], 'true'))
+                  inputs:
+                    PathtoPublish: LocOutput.tar.gz
+                    ArtifactName: LocOutput
+                    targetType: inline
+                    script: >-
+                      New-Item -Path 'locArchive' -ItemType Directory
+                      
+                      tar czf locArchive\LocOutput.tar.gz LocOutput
+                    pwsh: true
+
                 - task: PowerShell@2
                   displayName: Running script to update OAuth secrets
                   inputs:
