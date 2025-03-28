@@ -204,3 +204,10 @@ extends:
                     - output: pipelineArtifact
                       targetPath: '$(Build.ArtifactStagingDirectory)'
                       artifactName: drop_${{ platform }}_${{ configuration }}
+                    - output: pipelineArtifact
+                      displayName: 'Publish Artifact: LocOutput'
+                      condition: and(eq(variables['EnableLocalization'], 'true'), eq(variables['UpdateLocalization'], 'true'))
+                      artifactName: LocOutput_${{ platform }}_${{ configuration }}
+                      targetPath: LocArchive
+                      sbomPackageName: devhomegithubextension.locoutput
+                      sbomPackageVersion: $(MSIXVersion)
