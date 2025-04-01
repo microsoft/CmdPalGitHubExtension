@@ -91,9 +91,9 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             };
         }
 
-        List<CommandItem> commands;
-        commands = GetTopLevelSearchCommands().GetAwaiter().GetResult().ToList();
+        List<CommandItem> commands = new();
 
+        // commands = GetTopLevelSearchCommands().GetAwaiter().GetResult().ToList();
         var defaultCommands = new List<CommandItem>
         {
             new(_savedSearchesPage)
