@@ -40,7 +40,7 @@ public class SearchPageFactory : ISearchPageFactory
         {
             Title = search.Name,
             Subtitle = search.SearchString,
-            Icon = new IconInfo(GitHubIcon.IconDictionary[$"{search.Type}"]),
+            Icon = GitHubIcon.IconDictionary[$"{search.Type}"],
             MoreCommands = new CommandContextItem[]
             {
                 new(new RemoveSavedSearchCommand(search, _searchRepository, _resources)),

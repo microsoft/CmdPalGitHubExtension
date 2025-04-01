@@ -18,7 +18,7 @@ internal sealed partial class IssueContentPage : ContentPage
     public IssueContentPage(IIssue issue, IResources resources)
     {
         _resources = resources;
-        Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]);
+        Icon = GitHubIcon.IconDictionary["issue"];
         Name = _resources.GetResource("Pages_Markdown_Issue");
         _issue = issue;
 #pragma warning disable IDE0300 // Simplify collection initialization

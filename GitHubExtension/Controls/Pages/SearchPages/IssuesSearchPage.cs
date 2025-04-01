@@ -17,7 +17,7 @@ public sealed partial class IssuesSearchPage(ISearch search, ICacheDataManager c
         return new ListItem(new LinkCommand(item, Resources))
         {
             Title = item.Title,
-            Icon = new IconInfo(GitHubIcon.IconDictionary["issue"]),
+            Icon = GitHubIcon.IconDictionary["issue"],
             Subtitle = $"{GetOwner(item.HtmlUrl)}/{GetRepo(item.HtmlUrl)}/#{item.Number}",
             MoreCommands = new CommandContextItem[]
             {

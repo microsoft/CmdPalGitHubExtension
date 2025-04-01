@@ -17,7 +17,7 @@ public sealed partial class PullRequestsSearchPage(ISearch search, ICacheDataMan
         return new ListItem(new LinkCommand(item, Resources))
         {
             Title = item.Title,
-            Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]),
+            Icon = GitHubIcon.IconDictionary["pr"],
             Subtitle = $"{GetOwner(item.HtmlUrl)}/{GetRepo(item.HtmlUrl)}/#{item.Number}",
             MoreCommands = new CommandContextItem[]
             {

@@ -19,7 +19,7 @@ internal sealed partial class PullRequestContentPage : ContentPage
     {
         _resources = resources;
 
-        Icon = new IconInfo(GitHubIcon.IconDictionary["pr"]);
+        Icon = GitHubIcon.IconDictionary["pr"];
         Name = _resources.GetResource("Pages_Markdown_PullRequest");
         _pullRequest = pullRequest;
 #pragma warning disable IDE0300 // Simplify collection initialization

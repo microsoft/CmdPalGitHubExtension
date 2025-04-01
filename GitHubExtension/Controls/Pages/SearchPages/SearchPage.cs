@@ -25,7 +25,7 @@ public abstract partial class SearchPage<T> : ListPage
     // Search is mandatory for this page to exist
     protected SearchPage(ISearch search, ICacheDataManager cacheDataManager, IResources resources)
     {
-        Icon = new IconInfo(GitHubIcon.IconDictionary[$"{search.Type}"]);
+        Icon = GitHubIcon.IconDictionary[$"{search.Type}"];
         Name = search.Name;
         CurrentSearch = search;
         Logger = Log.ForContext("SourceContext", $"Pages/{GetType().Name}");
@@ -65,7 +65,7 @@ public abstract partial class SearchPage<T> : ListPage
                             new(new NoOpCommand())
                             {
                                 Title = Resources.GetResource("Pages_No_Items_Found"),
-                                Icon = new IconInfo(GitHubIcon.IconDictionary[iconString]),
+                                Icon = GitHubIcon.IconDictionary[iconString],
                             },
                     }
                     :
@@ -77,7 +77,7 @@ public abstract partial class SearchPage<T> : ListPage
                                 {
                                     Body = Resources.GetResource("Pages_Error_Body"),
                                 },
-                                Icon = new IconInfo(GitHubIcon.IconDictionary[iconString]),
+                                Icon = GitHubIcon.IconDictionary[iconString],
                             },
                     ];
             }

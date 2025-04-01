@@ -18,7 +18,7 @@ public sealed partial class CombinedSearchPage(ISearch search, ICacheDataManager
         return new ListItem(new LinkCommand(item, Resources))
         {
             Title = item.Title,
-            Icon = new IconInfo(GitHubIcon.IconDictionary[iconType]),
+            Icon = GitHubIcon.IconDictionary[iconType],
             Subtitle = $"{GetOwner(item.HtmlUrl)}/{GetRepo(item.HtmlUrl)}/#{item.Number}",
             MoreCommands = item is IPullRequest prItem
                 ? new CommandContextItem[]

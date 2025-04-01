@@ -30,7 +30,7 @@ public sealed partial class SignOutForm : FormContent, IGitHubForm
     {
         { "{{AuthTitle}}", _resources.GetResource("Forms_Sign_Out_Title") },
         { "{{AuthButtonTitle}}", _resources.GetResource("Forms_Sign_Out_Button_Title") },
-        { "{{AuthIcon}}", $"data:image/png;base64,{GitHubIcon.GetBase64Icon("logo")}" },
+        { "{{AuthIcon}}", $"data:image/png;base64,{GitHubIcon.GetBase64Icon(GitHubIcon.LogoWithBackplatePath)}" },
         { "{{AuthButtonTooltip}}", _resources.GetResource("Forms_Sign_Out_Tooltip") },
         { "{{ButtonIsEnabled}}", "true" },
     };
