@@ -215,6 +215,7 @@ public class TopLevelSearchesTest
 
         // Assert that search is displayed in the saved searches page
         var savedSearchesItems = savedSearchesPage.GetItems();
+        Assert.IsTrue(savedSearchesItems.Length == 2, "Should have our saved search and the add item");
         Assert.IsTrue(savedSearchesItems.Any(item => item.Title == testSearchName));
 
         // Assert that search is on the top level commands in the commands provider
@@ -226,83 +227,93 @@ public class TopLevelSearchesTest
         PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
+    // This test creates a non-top-level search and then edits it to be top-level.
     [TestMethod]
-    public async Task Integration_ShouldAddAndEditSearch_ToBeTopLevel()
+    public async Task Integration_AddAndEditSearch_ToBeTopLevel()
     {
-        var mockSearchPageFactory = new Mock<ISearchPageFactory>();
-        mockSearchPageFactory
-            .Setup(factory => factory.CreateItemForSearch(It.IsAny<ISearch>()))
-            .Returns((ISearch search) =>
-            {
-                var mockListItem = new Mock<IListItem>();
-                mockListItem.Setup(item => item.Title).Returns(search.Name);
-                return mockListItem.Object;
-            });
-
-        var mockAddSearchListItem = new Mock<IListItem>();
-        mockAddSearchListItem.Setup(item => item.Title).Returns("Add Saved Search");
-
-        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
-        var stubValidator = new Mock<IGitHubValidator>().Object;
-
-        using var persistentDataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
-
-        var stubResources = new Mock<IResources>().Object;
+        // Multiple parts depend on these:
+        var mockDeveloperIdProvider = new Mock<IDeveloperIdProvider>();
+        mockDeveloperIdProvider
+            .Setup(provider => provider.IsSignedIn())
+            .Returns(true);
+        var mockResources = new Mock<IResources>().Object;
         var savedSearchesMediator = new SavedSearchesMediator();
-        var savedSearchesPage = new SavedSearchesPage(
-            mockSearchPageFactory.Object,
-            persistentDataManager,
-            stubResources,
-            mockAddSearchListItem.Object,
-            savedSearchesMediator);
 
-        var initialSaveSearchForm = new SaveSearchForm(persistentDataManager, stubResources, savedSearchesMediator);
+        // Object we're testing: PersistentDataManager
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions(); // created here because we dispose dataStoreOptions at the end of this test
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
 
-        var initialJsonPayload = JsonNode.Parse(@"
-        {
-            ""EnteredSearch"": ""is:issue author:testuser"",
-            ""Name"": ""My Regular Search"",
-            ""IsTopLevel"": ""false""
-        }")?.ToString();
+        // Object we're testing: SearchPageFactory
+        var mockCacheDataManager = new Mock<ICacheDataManager>().Object;
+        var searchPageFactory = new SearchPageFactory(mockCacheDataManager, persistentDataManager, mockResources, savedSearchesMediator);
 
-        initialSaveSearchForm.SubmitForm(initialJsonPayload, string.Empty);
+        // Object we're testing: SavedSearchForm
+        var addSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        await Task.Delay(1000);
+        // Object we're testing: SavedSearchesPage
+        var mockAddSearchListItem = CreateMockAddSearchListItem();
+        var savedSearchesPage = new SavedSearchesPage(searchPageFactory, persistentDataManager, mockResources, mockAddSearchListItem, savedSearchesMediator);
 
-        var savedItems = savedSearchesPage.GetItems();
-        Assert.IsTrue(savedItems.Length > 1, "Should have at least our saved search and the add item");
+        // testing CommandsProvider
+        var commandsProvider = CreateGitHubExtensionCommandsProvider(mockDeveloperIdProvider.Object, mockResources, savedSearchesPage, persistentDataManager, savedSearchesMediator, searchPageFactory);
 
+        // Create a new top level search
+        var testSearchString = "is:issue author:testuser";
+        var testSearchName = "My regular search";
+        var jsonPayload = CreateJsonPayload(testSearchString, testSearchName, false);
+        addSearchForm.SubmitForm(jsonPayload, string.Empty);
+
+        await Task.Delay(5000);
+
+        // Assert saved search is in PersistentDataManager's saved searches, but not top level commands
         var savedSearches = await persistentDataManager.GetSavedSearches();
-        var savedSearch = savedSearches.FirstOrDefault(s => s.Name == "My Regular Search");
-        Assert.IsNotNull(savedSearch, "Saved search should exist");
+        Assert.IsTrue(savedSearches.Count() == 1, "Should have only our saved search");
+        Assert.IsTrue(
+            savedSearches.Any(s =>
+                s.Name == testSearchName &&
+                s.SearchString == testSearchString),
+            "The new search should appear in saved searches");
+        var savedSearch = savedSearches.First();
+        Assert.IsFalse(
+            await persistentDataManager.IsTopLevel(savedSearch));
 
-        var editSearchForm = new SaveSearchForm(savedSearch, persistentDataManager, stubResources, savedSearchesMediator);
+        // Assert saved search is in SavedSearchesPage
+        var savedItems = savedSearchesPage.GetItems();
+        Assert.IsTrue(savedItems.Length == 2, "Should have our saved search and the add item");
+        Assert.IsTrue(savedItems.Any(item => item.Title == testSearchName));
+        Assert.IsTrue(savedItems.Any(item => item.Title == "Add Saved Search"));
 
-        var editJsonPayload = JsonNode.Parse(@"
-        {
-            ""EnteredSearch"": ""is:issue author:testuser"",
-            ""Name"": ""My Regular Search"",
-            ""IsTopLevel"": ""true""
-        }")?.ToString();
+        var editSearchForm = new SaveSearchForm(savedSearch, persistentDataManager, mockResources, savedSearchesMediator);
+
+        var editSearchString = "is:issue author:testuser";
+        var editSearchName = "My Regular Search - Now top level";
+        var editJsonPayload = CreateJsonPayload(editSearchString, editSearchName, true);
 
         editSearchForm.SubmitForm(editJsonPayload, string.Empty);
 
-        await Task.Delay(1000);
+        await Task.Delay(5000);
 
+        // Assert the saved search is updated as top level in the PersistentDataManager
         var updatedSavedSearches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(updatedSavedSearches.Count() == 1, "Should have only our saved search");
         Assert.IsTrue(
             updatedSavedSearches.Any(s =>
-                s.Name == "My Regular Search" &&
-                s.SearchString == "is:issue author:testuser"),
-            "The search should still appear in saved searches after editing");
+                s.Name == editSearchName &&
+                s.SearchString == editSearchString),
+            "The edited search should be saved");
 
         var topLevelCommands = await persistentDataManager.GetTopLevelSearches();
         Assert.IsTrue(
             topLevelCommands.Any(s =>
-                s.Name == "My Regular Search" &&
-                s.SearchString == "is:issue author:testuser"),
+                s.Name == editSearchName &&
+                s.SearchString == editSearchString),
             "The search should now appear in top level commands after editing");
 
+        // Assert the saved search now appears in the top level commands
+        var topLevelCommandsInCommandsProvider = commandsProvider.TopLevelCommands();
+        Assert.IsTrue(topLevelCommandsInCommandsProvider.Any(c => c.Title == editSearchName));
+
+        // Clean up
         persistentDataManager.Dispose();
         PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
