@@ -22,36 +22,15 @@ namespace GitHubExtension.Test.Controls;
 public class TopLevelSearchesTest
 {
     [TestMethod]
-    public async Task SaveSearchForm_ShouldRememberIfSearchIsTopLevelWhenEditing()
+    public async Task SaveSearchForm_KeepsIsTopLevelCheckedIfSearchSavedToTopLevel()
     {
         // Initialize
-        SearchCandidate? capturedSearchCandidate = null;
-        ISearch? capturedSearch = null;
-
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        mockSearchRepository
-            .Setup(repo => repo.UpdateSearchTopLevelStatus(It.IsAny<ISearch>(), It.IsAny<bool>()))
-            .Callback<ISearch, bool>((s, isTopLevel) =>
-            {
-                // ISearchRepository always returns ISearch, but the PersistentDataManager also returns SearchCandidate,
-                // which is a subclass of ISearch. This test requires both.
-                if (s is SearchCandidate searchCandidate)
-                {
-                    capturedSearchCandidate = searchCandidate;
-                    capturedSearchCandidate.SearchString = s.SearchString;
-                    capturedSearchCandidate.Name = s.Name;
-                    capturedSearchCandidate.IsTopLevel = searchCandidate.IsTopLevel;
-                }
-
-                if (s is ISearch search)
-                {
-                    capturedSearch = search;
-                }
-            });
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions(); // created here because we dispose dataStoreOptions at the end of this test
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
 
         var mockResources = new Mock<IResources>().Object;
         var savedSearchesMediator = new SavedSearchesMediator();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources, savedSearchesMediator);
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
         // Create a top-level command and save it via SaveSearchForm
         var testSearchString = "is:issue author:testuser";
@@ -62,57 +41,54 @@ public class TopLevelSearchesTest
 
         Thread.Sleep(1000);
 
-        // Assert that the search is saved and is top level in the ISearchRepository
-        mockSearchRepository.Verify(
-            repo =>
-            repo.UpdateSearchTopLevelStatus(It.IsAny<ISearch>(), It.IsAny<bool>()),
-            Times.Once);
-
-        // Assert that the search is saved properly in the ISearchRepository
-        Assert.IsNotNull(capturedSearchCandidate);
-        Assert.AreEqual(testSearchName, capturedSearchCandidate.Name);
-        Assert.AreEqual(testSearchString, capturedSearchCandidate.SearchString);
-        Assert.IsTrue(capturedSearchCandidate.IsTopLevel);
-        Assert.IsNotNull(capturedSearch);
+        // Assert that the search is saved and is top level in the PersistentDataManager
+        var savedSearches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(savedSearches.Count() == 1, "Should have only our saved search");
+        Assert.IsTrue(savedSearches.Any(s => s.Name == testSearchName && s.SearchString == testSearchString), "The new search should appear in saved searches");
 
         // Simulate creating a SaveSearchForm for the EditSearchPage. Verify that the IsTopLevel box is checked by checking the GetIsTopLevel on SaveSearchForm.
-        var editSearchForm = new SaveSearchForm(capturedSearch, mockSearchRepository.Object, mockResources, savedSearchesMediator);
-        mockSearchRepository
-            .Setup(repo => repo.IsTopLevel(It.IsAny<ISearch>()))
-            .Returns((ISearch search) => Task.FromResult(search == capturedSearch && capturedSearchCandidate.IsTopLevel));
+        var editSearchForm = new SaveSearchForm(savedSearches.First(), persistentDataManager, mockResources, savedSearchesMediator);
         Assert.IsTrue(await editSearchForm.GetIsTopLevel());
+
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
-    // This test verifies that the SaveSearchForm properly updates the top-level status
-    // of a search in the PersistentDataManager when the "IsTopLevel" checkbox is unchecked.
     [TestMethod]
-    public async Task SaveSearchForm_ShouldRemoveFromTopLevel_WhenIsTopLevelUnchecked()
+    public async Task SaveSearchForm_KeepsIsTopLevelUncheckedIfSearchIsNoLongerSavedToTopLevel()
     {
+        // Initialize
         var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
         var stubValidator = new Mock<IGitHubValidator>().Object;
         using var persistentDataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
+        var savedSearchesMediator = new SavedSearchesMediator();
 
-        // part 1: Create a top-level search and verify that it's listed as top-level
+        // Create a top-level search and verify that it's listed as top-level
         var dummySearch = new SearchCandidate("dummy search", "Dummy Search", true);
 
         await persistentDataManager.UpdateSearchTopLevelStatus(dummySearch, true);
+        savedSearchesMediator.AddSearch(dummySearch);
 
-        var stubResources = new Mock<IResources>().Object;
-        var savedSearchesMediator = new SavedSearchesMediator();
-        var saveSearchForm = new SaveSearchForm(dummySearch, persistentDataManager, stubResources, savedSearchesMediator);
+        var mockResources = new Mock<IResources>().Object;
+        var saveSearchForm = new SaveSearchForm(dummySearch, persistentDataManager, mockResources, savedSearchesMediator);
 
         var initialTopLevelSearches = await persistentDataManager.GetTopLevelSearches();
+        Assert.IsTrue(initialTopLevelSearches.Count() == 1, "Should have only our saved search");
         Assert.IsTrue(initialTopLevelSearches.Any(s => s.Name == dummySearch.Name && s.SearchString == dummySearch.SearchString));
         Assert.IsTrue(saveSearchForm.GetIsTopLevel().Result);
 
-        // part 2: Uncheck the "IsTopLevel" checkbox and verify that the search is no longer top-level
+        // Uncheck the "IsTopLevel" checkbox and verify that the search is no longer top-level
         var jsonPayload = CreateJsonPayload(dummySearch.SearchString, dummySearch.Name, false);
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
         Thread.Sleep(1000);
 
+        var editSearchForm = new SaveSearchForm(initialTopLevelSearches.First(), persistentDataManager, mockResources, savedSearchesMediator);
+        Assert.IsFalse(await editSearchForm.GetIsTopLevel());
+
         var updatedTopLevelSearches = await persistentDataManager.GetTopLevelSearches();
-        Assert.IsFalse(updatedTopLevelSearches.Any(s => s.Name == dummySearch.Name && s.SearchString == dummySearch.SearchString));
+        Assert.IsFalse(updatedTopLevelSearches.Any(), "Should have no top-level searches");
 
         var isTopLevel = await persistentDataManager.IsTopLevel(dummySearch);
         Assert.IsFalse(isTopLevel);
