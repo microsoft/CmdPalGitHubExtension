@@ -5,6 +5,7 @@
 using GitHubExtension.Controls;
 using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
+using GitHubExtension.Controls.ListItems;
 using GitHubExtension.Controls.Pages;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
@@ -19,24 +20,29 @@ public partial class SavedSearchesPage : ListPage
     private readonly ISearchPageFactory _searchPageFactory;
 
     private readonly ISearchRepository _searchRepository;
+
     private readonly IResources _resources;
+
+    private readonly SaveSearchForm _addSearchSaveSearchForm;
 
     public SavedSearchesPage(
        ISearchPageFactory searchPageFactory,
        ISearchRepository searchRepository,
        IResources resources,
-       IListItem addSearchListItem)
+       IListItem addSearchListItem,
+       SaveSearchForm saveSearchForm)
     {
         _resources = resources;
 
         Icon = new IconInfo("\ue721");
         Name = _resources.GetResource("Pages_Saved_Searches");
-        SaveSearchForm.SearchSaved += OnSearchSaved;
         RemoveSavedSearchCommand.SearchRemoved += OnSearchRemoved;
         RemoveSavedSearchCommand.SearchRemoving += OnSearchRemoving;
         _searchPageFactory = searchPageFactory;
         _searchRepository = searchRepository;
         _addSearchListItem = addSearchListItem;
+        _addSearchSaveSearchForm = saveSearchForm;
+        _addSearchSaveSearchForm.SearchSaved += OnSearchSaved;
     }
 
     public override IListItem[] GetItems()

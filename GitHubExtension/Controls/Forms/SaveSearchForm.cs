@@ -14,11 +14,10 @@ namespace GitHubExtension.Controls.Forms;
 
 public sealed partial class SaveSearchForm : FormContent, IGitHubForm
 {
-    public static event EventHandler<object>? SearchSaved;
-
     private readonly ISearch _savedSearch;
 
     private readonly ISearchRepository _searchRepository;
+
     private readonly IResources _resources;
 
     private string IsTopLevelChecked => GetIsTopLevel().Result.ToString().ToLower(CultureInfo.InvariantCulture);
@@ -26,6 +25,8 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
     public event EventHandler<bool>? LoadingStateChanged;
 
     public event EventHandler<FormSubmitEventArgs>? FormSubmitted;
+
+    public event EventHandler<object>? SearchSaved;
 
     public Dictionary<string, string> TemplateSubstitutions => new()
     {

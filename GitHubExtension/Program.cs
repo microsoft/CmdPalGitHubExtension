@@ -130,14 +130,15 @@ public class Program
 
         var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository, resources);
 
-        var addSearchListItem = new AddSearchListItem(new SaveSearchPage(new SaveSearchForm(searchRepository, resources), new StatusMessage(), resources.GetResource("Message_Search_Saved"), resources.GetResource("Message_Search_Saved_Error"), resources.GetResource("ListItems_AddSearch")), resources);
+        var addSearchForm = new SaveSearchForm(searchRepository, resources);
+        var addSearchListItem = new AddSearchListItem(new SaveSearchPage(addSearchForm, new StatusMessage(), resources.GetResource("Message_Search_Saved"), resources.GetResource("Message_Search_Saved_Error"), resources.GetResource("ListItems_AddSearch")), resources);
 
-        var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, resources, addSearchListItem);
+        var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, resources, addSearchListItem, addSearchForm);
 
         var signOutPage = new SignOutPage(new SignOutForm(developerIdProvider, resources), new StatusMessage(), resources.GetResource("Message_Sign_Out_Success"), resources.GetResource("Message_Sign_Out_Fail"));
         var signInPage = new SignInPage(new SignInForm(developerIdProvider, resources), new StatusMessage(), resources.GetResource("Message_Sign_In_Success"), resources.GetResource("Message_Sign_In_Fail"));
 
-        var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, developerIdProvider, searchRepository, resources, searchPageFactory);
+        var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, addSearchForm, developerIdProvider, searchRepository, resources, searchPageFactory);
         var extensionInstance = new GitHubExtension(extensionDisposedEvent, commandProvider);
 
         _disposables = new List<IDisposable>

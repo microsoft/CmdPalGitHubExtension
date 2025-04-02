@@ -19,6 +19,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
     private readonly SavedSearchesPage _savedSearchesPage;
     private readonly SignOutPage _signOutPage;
     private readonly SignInPage _signInPage;
+    private readonly SaveSearchForm _saveSearchForm;
     private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly ISearchRepository _persistentDataManager;
     private readonly ISearchPageFactory _searchPageFactory;
@@ -28,6 +29,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         SavedSearchesPage savedSearchesPage,
         SignOutPage signOutPage,
         SignInPage signInPage,
+        SaveSearchForm saveSearchForm,
         IDeveloperIdProvider developerIdProvider,
         ISearchRepository persistentDataManager,
         IResources resources,
@@ -36,6 +38,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         _savedSearchesPage = savedSearchesPage;
         _signOutPage = signOutPage;
         _signInPage = signInPage;
+        _saveSearchForm = saveSearchForm;
         _developerIdProvider = developerIdProvider;
         _persistentDataManager = persistentDataManager;
         _resources = resources;
@@ -46,7 +49,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         // Static events here. Hard dependency. But maybe it is ok in this case
         SignInForm.SignInAction += OnSignInStatusChanged;
         SignOutForm.SignOutAction += OnSignInStatusChanged;
-        SaveSearchForm.SearchSaved += OnSearchSaved;
+        _saveSearchForm.SearchSaved += OnSearchSaved;
         RemoveSavedSearchCommand.SearchRemoved += OnSearchRemoved;
 
         // This async method raises the RaiseItemsChanged event to update the top-level commands
