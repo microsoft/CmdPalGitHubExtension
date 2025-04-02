@@ -54,7 +54,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
 
         // This async method raises the RaiseItemsChanged event to update the top-level commands
         // So it is safe if we let it run asynchronously as "fire and forget"
-        _ = UpdateSignInStatus(IsSignedIn());
+        _ = UpdateSignInStatus(_developerIdProvider.IsSignedIn());
     }
 
     private void OnSearchRemoved(object? sender, object? args)
@@ -112,12 +112,6 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
 
         commands.AddRange(defaultCommands);
         return commands.ToArray();
-    }
-
-    private bool IsSignedIn()
-    {
-        var devIds = _developerIdProvider.GetLoggedInDeveloperIdsInternal();
-        return devIds.Any();
     }
 
     public async Task UpdateSignInStatus(bool isSignedIn)

@@ -18,5 +18,7 @@ public interface IDeveloperIdProvider
 
     void HandleOauthRedirection(Uri authorizationResponse);
 
+    bool IsSignedIn();
+
     public event EventHandler<Exception?>? OAuthRedirected;
 }
