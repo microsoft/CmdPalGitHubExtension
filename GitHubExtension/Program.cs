@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Client;
+using GitHubExtension.Controls;
 using GitHubExtension.Controls.Forms;
 using GitHubExtension.Controls.ListItems;
 using GitHubExtension.Controls.Pages;
@@ -28,6 +29,8 @@ namespace GitHubExtension;
 public class Program
 {
     private static DeveloperIdProvider? _developerIdProvider;
+
+    private static List<IDisposable>? _disposables;
 
     [MTAThread]
     public static async Task Main(string[] args)
@@ -126,17 +129,31 @@ public class Program
         var decoratorFactory = new DecoratorFactory(gitHubDataManager);
         var cacheDataManager = new CacheDataManagerFacade(cacheManager, gitHubDataManager, decoratorFactory);
 
-        var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository, resources);
+        var savedSearchesMediator = new SavedSearchesMediator();
 
-        var addSearchListItem = new AddSearchListItem(new SaveSearchPage(new SaveSearchForm(searchRepository, resources), new StatusMessage(), resources.GetResource("Message_Search_Saved"), resources.GetResource("Message_Search_Saved_Error"), resources.GetResource("ListItems_AddSearch")), resources);
+        var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository, resources, savedSearchesMediator);
 
-        var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, resources, addSearchListItem);
+        var addSearchForm = new SaveSearchForm(searchRepository, resources, savedSearchesMediator);
+        var addSearchListItem = new AddSearchListItem(new SaveSearchPage(addSearchForm, new StatusMessage(), resources.GetResource("Message_Search_Saved"), resources.GetResource("Message_Search_Saved_Error"), resources.GetResource("ListItems_AddSearch")), resources);
 
-        var signOutPage = new SignOutPage(new SignOutForm(developerIdProvider, resources), new StatusMessage(), resources.GetResource("Message_Sign_Out_Success"), resources.GetResource("Message_Sign_Out_Fail"));
-        var signInPage = new SignInPage(new SignInForm(developerIdProvider, resources), new StatusMessage(), resources.GetResource("Message_Sign_In_Success"), resources.GetResource("Message_Sign_In_Fail"));
+        var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, resources, addSearchListItem, savedSearchesMediator);
 
-        var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, developerIdProvider, searchRepository, resources, searchPageFactory);
+        var authenticationMediator = new AuthenticationMediator();
+
+        var signOutForm = new SignOutForm(developerIdProvider, resources, authenticationMediator);
+        var signOutPage = new SignOutPage(signOutForm, new StatusMessage(), resources.GetResource("Message_Sign_Out_Success"), resources.GetResource("Message_Sign_Out_Fail"));
+        var signInForm = new SignInForm(developerIdProvider, resources, authenticationMediator);
+        var signInPage = new SignInPage(signInForm, new StatusMessage(), resources.GetResource("Message_Sign_In_Success"), resources.GetResource("Message_Sign_In_Fail"));
+
+        var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator, authenticationMediator);
         var extensionInstance = new GitHubExtension(extensionDisposedEvent, commandProvider);
+
+        _disposables = new List<IDisposable>
+        {
+            gitHubDataManager,
+            searchRepository,
+            cacheManager,
+        };
 
         // We are instantiating an extension instance once above, and returning it every time the callback in RegisterExtension below is called.
         // This makes sure that only one instance of GitHubExtension is alive, which is returned every time the host asks for the IExtension object.
@@ -144,11 +161,25 @@ public class Program
         server.RegisterClass<GitHubExtension, IExtension>(() => extensionInstance);
         server.Start();
 
+        extensionInstance.Release += HandleExtensionInstanceRelease;
+
         // END OF COMPOSITION ROOT AREA
 
         // This will make the main thread wait until the event is signalled by the extension class.
         // Since we have single instance of the extension object, we exit as soon as it is disposed.
         extensionDisposedEvent.WaitOne();
+    }
+
+    private static void HandleExtensionInstanceRelease(object? sender, ManualResetEvent e) => DecompositionRoot(_disposables!, e);
+
+    public static void DecompositionRoot(List<IDisposable> disposables, ManualResetEvent extensionDisposedEvent)
+    {
+        foreach (var disposable in disposables)
+        {
+            disposable.Dispose();
+        }
+
+        extensionDisposedEvent.Set();
     }
 
     private static void HandleProtocolActivation(Uri oauthRedirectUri) => _developerIdProvider?.HandleOauthRedirection(oauthRedirectUri);

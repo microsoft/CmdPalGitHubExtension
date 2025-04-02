@@ -4,8 +4,6 @@
 
 using System.Diagnostics;
 using GitHubExtension.Controls;
-using GitHubExtension.Controls.Commands;
-using GitHubExtension.Controls.Forms;
 using GitHubExtension.Controls.Pages;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
@@ -23,6 +21,8 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
     private readonly ISearchRepository _persistentDataManager;
     private readonly ISearchPageFactory _searchPageFactory;
     private readonly IResources _resources;
+    private readonly SavedSearchesMediator _savedSearchesMediator;
+    private readonly AuthenticationMediator _authenticationMediator;
 
     public GitHubExtensionCommandsProvider(
         SavedSearchesPage savedSearchesPage,
@@ -31,7 +31,9 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         IDeveloperIdProvider developerIdProvider,
         ISearchRepository persistentDataManager,
         IResources resources,
-        ISearchPageFactory searchPageFactory)
+        ISearchPageFactory searchPageFactory,
+        SavedSearchesMediator savedSearchesMediator,
+        AuthenticationMediator authenticationMediator)
     {
         _savedSearchesPage = savedSearchesPage;
         _signOutPage = signOutPage;
@@ -40,21 +42,22 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         _persistentDataManager = persistentDataManager;
         _resources = resources;
         _searchPageFactory = searchPageFactory;
+        _savedSearchesMediator = savedSearchesMediator;
+        _authenticationMediator = authenticationMediator;
 
         DisplayName = _resources.GetResource("ExtensionTitle");
 
-        // Static events here. Hard dependency. But maybe it is ok in this case
-        SignInForm.SignInAction += OnSignInStatusChanged;
-        SignOutForm.SignOutAction += OnSignInStatusChanged;
-        SaveSearchForm.SearchSaved += OnSearchSaved;
-        RemoveSavedSearchCommand.SearchRemoved += OnSearchRemoved;
+        _authenticationMediator.SignInAction += OnSignInStatusChanged;
+        _authenticationMediator.SignOutAction += OnSignInStatusChanged;
+        _savedSearchesMediator.SearchSaved += OnSearchSaved;
+        _savedSearchesMediator.SearchRemoved += OnSearchRemoved;
 
         // This async method raises the RaiseItemsChanged event to update the top-level commands
         // So it is safe if we let it run asynchronously as "fire and forget"
         _ = UpdateSignInStatus(IsSignedIn());
     }
 
-    private void OnSearchRemoved(object sender, object args)
+    private void OnSearchRemoved(object? sender, object? args)
     {
         if (args is bool isRemoved && isRemoved)
         {
@@ -91,9 +94,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             };
         }
 
-        List<CommandItem> commands;
-        commands = GetTopLevelSearchCommands().GetAwaiter().GetResult().ToList();
-
+        var commands = GetTopLevelSearchCommands().GetAwaiter().GetResult().ToList();
         var defaultCommands = new List<CommandItem>
         {
             new(_savedSearchesPage)

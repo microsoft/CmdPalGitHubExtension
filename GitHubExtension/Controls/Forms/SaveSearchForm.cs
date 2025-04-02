@@ -14,18 +14,21 @@ namespace GitHubExtension.Controls.Forms;
 
 public sealed partial class SaveSearchForm : FormContent, IGitHubForm
 {
-    public static event EventHandler<object>? SearchSaved;
-
     private readonly ISearch _savedSearch;
 
     private readonly ISearchRepository _searchRepository;
+
     private readonly IResources _resources;
+
+    private readonly SavedSearchesMediator _savedSearchesMediator;
 
     private string IsTopLevelChecked => GetIsTopLevel().Result.ToString().ToLower(CultureInfo.InvariantCulture);
 
     public event EventHandler<bool>? LoadingStateChanged;
 
     public event EventHandler<FormSubmitEventArgs>? FormSubmitted;
+
+    public event EventHandler<object>? SearchSaved;
 
     public Dictionary<string, string> TemplateSubstitutions => new()
     {
@@ -42,19 +45,21 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
     };
 
     // for saving a new query
-    public SaveSearchForm(ISearchRepository searchRepository, IResources resources)
+    public SaveSearchForm(ISearchRepository searchRepository, IResources resources, SavedSearchesMediator savedSearchesMediator)
     {
         _resources = resources;
         _savedSearch = new SearchCandidate();
         _searchRepository = searchRepository;
+        _savedSearchesMediator = savedSearchesMediator;
     }
 
     // for editing an existing query
-    public SaveSearchForm(ISearch savedSearch, ISearchRepository searchRepository, IResources resources)
+    public SaveSearchForm(ISearch savedSearch, ISearchRepository searchRepository, IResources resources, SavedSearchesMediator savedSearchesMediator)
     {
         _resources = resources;
         _savedSearch = savedSearch;
         _searchRepository = searchRepository;
+        _savedSearchesMediator = savedSearchesMediator;
     }
 
     public override string TemplateJson => TemplateHelper.LoadTemplateJsonFromTemplateName("SaveSearch", TemplateSubstitutions);

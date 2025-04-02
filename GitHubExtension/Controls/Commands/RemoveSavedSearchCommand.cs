@@ -2,7 +2,6 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using GitHubExtension.Controls.Pages;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Windows.Foundation;
@@ -12,18 +11,15 @@ namespace GitHubExtension.Controls.Commands;
 public partial class RemoveSavedSearchCommand : InvokableCommand
 {
     private readonly ISearch savedSearch;
-
     private readonly ISearchRepository _searchRepository;
     private readonly IResources _resources;
+    private readonly SavedSearchesMediator _savedSearchesMediator;
 
-    public static event TypedEventHandler<object, object?>? SearchRemoving;
-
-    public static event TypedEventHandler<object, object>? SearchRemoved;
-
-    public RemoveSavedSearchCommand(ISearch search, ISearchRepository searchRepository, IResources resources)
+    public RemoveSavedSearchCommand(ISearch search, ISearchRepository searchRepository, IResources resources, SavedSearchesMediator savedSearchesMediator)
     {
         _searchRepository = searchRepository;
         _resources = resources;
+        _savedSearchesMediator = savedSearchesMediator;
 
         savedSearch = new SearchCandidate(search.SearchString, search.Name);
         Name = _resources.GetResource("Commands_Remove_Saved_Search");
@@ -32,17 +28,17 @@ public partial class RemoveSavedSearchCommand : InvokableCommand
 
     public override CommandResult Invoke()
     {
-        SearchRemoving?.Invoke(this, null);
         Task.Run(async () => await RemoveSavedSearch())
             .ContinueWith(task =>
             {
                 if (task.IsFaulted)
                 {
-                    SearchRemoved?.Invoke(this, task.Exception);
+                    ExtensionHost.LogMessage(new LogMessage() { Message = $"Error removing saved search: {task.Exception?.GetBaseException().Message}" });
+                    _savedSearchesMediator.RemoveSearch(task.Exception!);
                 }
                 else
                 {
-                    SearchRemoved?.Invoke(this, task.Result);
+                    _savedSearchesMediator.RemoveSearch(task.Result);
                 }
             });
 

@@ -16,12 +16,14 @@ public class SearchPageFactory : ISearchPageFactory
     private readonly ICacheDataManager _cacheDataManager;
     private readonly ISearchRepository _searchRepository;
     private readonly IResources _resources;
+    private readonly SavedSearchesMediator _savedSearchesMediator;
 
-    public SearchPageFactory(ICacheDataManager cacheDataManager, ISearchRepository searchRepository, IResources resources)
+    public SearchPageFactory(ICacheDataManager cacheDataManager, ISearchRepository searchRepository, IResources resources, SavedSearchesMediator savedSearchesMediator)
     {
         _cacheDataManager = cacheDataManager;
         _searchRepository = searchRepository;
         _resources = resources;
+        _savedSearchesMediator = savedSearchesMediator;
     }
 
     private ListPage CreatePageForSearch(ISearch search)
@@ -43,10 +45,10 @@ public class SearchPageFactory : ISearchPageFactory
             Icon = new IconInfo(GitHubIcon.IconDictionary[$"{search.Type}"]),
             MoreCommands = new CommandContextItem[]
             {
-                new(new RemoveSavedSearchCommand(search, _searchRepository, _resources)),
+                new(new RemoveSavedSearchCommand(search, _searchRepository, _resources, _savedSearchesMediator)),
                 new(new EditSearchPage(
                     _resources,
-                    new SaveSearchForm(search, _searchRepository, _resources),
+                    new SaveSearchForm(search, _searchRepository, _resources, _savedSearchesMediator),
                     new StatusMessage(),
                     _resources.GetResource("Pages_Search_Edited_Success"),
                     _resources.GetResource("Pages_Search_Edited_Failed"))),

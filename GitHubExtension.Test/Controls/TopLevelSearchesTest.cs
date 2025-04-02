@@ -51,7 +51,8 @@ public class TopLevelSearchesTest
             });
 
         var stubResources = new Mock<IResources>().Object;
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, stubResources);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, stubResources, savedSearchesMediator);
 
         var jsonPayload = JsonNode.Parse(@"
             {
@@ -78,7 +79,7 @@ public class TopLevelSearchesTest
 
         Assert.IsNotNull(capturedSearch);
 
-        var saveSearchForm2 = new SaveSearchForm(capturedSearch, mockSearchRepository.Object, stubResources);
+        var saveSearchForm2 = new SaveSearchForm(capturedSearch, mockSearchRepository.Object, stubResources, savedSearchesMediator);
         mockSearchRepository
             .Setup(repo => repo.IsTopLevel(capturedSearch))
             .Returns(Task.FromResult(true));
@@ -99,7 +100,8 @@ public class TopLevelSearchesTest
         await dataManager.UpdateSearchTopLevelStatus(dummySearch, true);
 
         var stubResources = new Mock<IResources>().Object;
-        var saveSearchForm = new SaveSearchForm(dummySearch, dataManager, stubResources);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(dummySearch, dataManager, stubResources, savedSearchesMediator);
 
         var initialTopLevelSearches = await dataManager.GetTopLevelSearches();
         Assert.IsTrue(initialTopLevelSearches.Any(s => s.Name == "Dummy Search" && s.SearchString == "dummy search 2"));
@@ -147,7 +149,8 @@ public class TopLevelSearchesTest
         using var dataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
 
         var stubResources = new Mock<IResources>().Object;
-        var saveSearchForm = new SaveSearchForm(dataManager, stubResources);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(dataManager, stubResources, savedSearchesMediator);
 
         var jsonPayload = JsonNode.Parse(@"
         {
@@ -200,13 +203,15 @@ public class TopLevelSearchesTest
         using var dataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
 
         var stubResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
         var savedSearchesPage = new SavedSearchesPage(
             mockSearchPageFactory.Object,
             dataManager,
             stubResources,
-            mockAddSearchListItem.Object);
+            mockAddSearchListItem.Object,
+            savedSearchesMediator);
 
-        var initialSaveSearchForm = new SaveSearchForm(dataManager, stubResources);
+        var initialSaveSearchForm = new SaveSearchForm(dataManager, stubResources, savedSearchesMediator);
 
         var initialJsonPayload = JsonNode.Parse(@"
         {
@@ -226,7 +231,7 @@ public class TopLevelSearchesTest
         var savedSearch = savedSearches.FirstOrDefault(s => s.Name == "My Regular Search");
         Assert.IsNotNull(savedSearch, "Saved search should exist");
 
-        var editSearchForm = new SaveSearchForm(savedSearch, dataManager, stubResources);
+        var editSearchForm = new SaveSearchForm(savedSearch, dataManager, stubResources, savedSearchesMediator);
 
         var editJsonPayload = JsonNode.Parse(@"
         {
@@ -284,6 +289,8 @@ public class TopLevelSearchesTest
         var initialSavedSearches = await dataManager.GetSavedSearches();
         var initialTopLevelSearches = await dataManager.GetTopLevelSearches();
 
+        var savedSearchesMediator = new SavedSearchesMediator();
+
         Assert.IsTrue(
             initialSavedSearches.Any(s =>
                 s.Name == "Top Level Search" &&
@@ -301,9 +308,10 @@ public class TopLevelSearchesTest
             mockSearchPageFactory.Object,
             dataManager,
             stubResources,
-            mockAddSearchListItem.Object);
+            mockAddSearchListItem.Object,
+            savedSearchesMediator);
 
-        var removeCommand = new RemoveSavedSearchCommand(topLevelSearch, dataManager, stubResources);
+        var removeCommand = new RemoveSavedSearchCommand(topLevelSearch, dataManager, stubResources, savedSearchesMediator);
         removeCommand.Invoke();
 
         await Task.Delay(1000);
@@ -366,8 +374,8 @@ public class TopLevelSearchesTest
             "Search should be in top level searches initially");
 
         var stubResources = new Mock<IResources>().Object;
-
-        var removeCommand = new RemoveSavedSearchCommand(topLevelSearch, dataManager, stubResources);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var removeCommand = new RemoveSavedSearchCommand(topLevelSearch, dataManager, stubResources, savedSearchesMediator);
         removeCommand.Invoke();
 
         await Task.Delay(1000);
@@ -390,7 +398,8 @@ public class TopLevelSearchesTest
             mockSearchPageFactory.Object,
             dataManager,
             stubResources,
-            mockAddSearchListItem.Object);
+            mockAddSearchListItem.Object,
+            savedSearchesMediator);
 
         var savedSearchesItems = savedSearchesPage.GetItems();
         var containsRemovedSearch = false;
@@ -449,18 +458,20 @@ public class TopLevelSearchesTest
                 s.SearchString == "is:issue label:bug"),
             "Search should not be in top level searches initially");
 
+        var savedSearchesMediator = new SavedSearchesMediator();
         var stubResources = new Mock<IResources>().Object;
         var savedSearchesPage = new SavedSearchesPage(
             mockSearchPageFactory.Object,
             dataManager,
             stubResources,
-            mockAddSearchListItem.Object);
+            mockAddSearchListItem.Object,
+            savedSearchesMediator);
 
         var savedSearch = initialSavedSearches.First(s =>
             s.Name == "Bug Reports" &&
             s.SearchString == "is:issue label:bug");
 
-        var editSearchForm = new SaveSearchForm(savedSearch, dataManager, stubResources);
+        var editSearchForm = new SaveSearchForm(savedSearch, dataManager, stubResources, savedSearchesMediator);
 
         var editJsonPayload = JsonNode.Parse(@"
         {

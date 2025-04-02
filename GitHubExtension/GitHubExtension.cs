@@ -14,6 +14,8 @@ public sealed partial class GitHubExtension : IExtension
 {
     private readonly ManualResetEvent _extensionDisposedEvent;
 
+    public event EventHandler<ManualResetEvent>? Release;
+
     private readonly CommandProvider _commandProvider;
 
     private readonly ILogger _log = Log.ForContext("SourceContext", nameof(GitHubExtension));
@@ -39,5 +41,5 @@ public sealed partial class GitHubExtension : IExtension
         }
     }
 
-    public void Dispose() => this._extensionDisposedEvent.Set();
+    public void Dispose() => Release?.Invoke(this, _extensionDisposedEvent);
 }
