@@ -593,6 +593,370 @@ public class GitHubQueryValidationTests
         PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
+    [TestMethod]
+    public async Task ValidateURL_WithRepositoryIssuesUrl_ParsesAndReturnsFormattedSearchString()
+    {
+        // Initialize
+        var url = "https://github.com/microsoft/PowerToys/issues?q=is:open+label:bug";
+        var expected = "repo:microsoft/PowerToys is:open label:bug";
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
+
+        // Create search string and payload
+        var payload = CreatePayload(url, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
+
+        await Task.Delay(5000); // Simulate async operation
+
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, expected, StringComparison.OrdinalIgnoreCase) && string.Equals(s.Name, "Test Search", StringComparison.OrdinalIgnoreCase)));
+
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
+    }
+
+    [TestMethod]
+    public async Task ValidateURL_WithRepositoryIssuesWithoutQuery_ParsesAndReturnsRepoBasedSearchString()
+    {
+        // Initialize
+        var url = "https://github.com/microsoft/PowerToys/issues";
+        var expected = "repo:microsoft/PowerToys is:issue is:open";
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
+
+        // Create search string and payload
+        var payload = CreatePayload(url, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
+
+        await Task.Delay(5000); // Simulate async operation
+
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, expected, StringComparison.OrdinalIgnoreCase) && string.Equals(s.Name, "Test Search", StringComparison.OrdinalIgnoreCase)));
+
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
+    }
+
+    [TestMethod]
+    public async Task ValidateURL_WithRepositoryClosedIssuesUrl_ParsesAndReturnsClosedIssuesSearchString()
+    {
+        // Initialize
+        var url = "https://github.com/microsoft/PowerToys/issues?q=is:issue+is:closed";
+        var expected = "repo:microsoft/PowerToys is:issue is:closed";
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
+
+        // Create search string and payload
+        var payload = CreatePayload(url, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
+
+        await Task.Delay(5000); // Simulate async operation
+
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, expected, StringComparison.OrdinalIgnoreCase) && string.Equals(s.Name, "Test Search", StringComparison.OrdinalIgnoreCase)));
+
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
+    }
+
+    [TestMethod]
+    public async Task ValidateURL_WithPullRequestsUrl_ParsesAndReturnsPrSearchString()
+    {
+        // Initialize
+        var url = "https://github.com/microsoft/PowerToys/pulls";
+        var expected = "repo:microsoft/PowerToys is:pr is:open";
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
+
+        // Create search string and payload
+        var payload = CreatePayload(url, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
+
+        await Task.Delay(5000); // Simulate async operation
+
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, expected, StringComparison.OrdinalIgnoreCase) && string.Equals(s.Name, "Test Search", StringComparison.OrdinalIgnoreCase)));
+
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
+    }
+
+    [TestMethod]
+    public async Task ValidateURL_WithSearchPagesUrl_ParsesAndReturnsBasicSearchString()
+    {
+        // Initialize
+        var url = "https://github.com/search/issues";
+        var expected = "is:issue";
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
+
+        // Create search string and payload
+        var payload = CreatePayload(url, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
+
+        await Task.Delay(5000); // Simulate async operation
+
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, expected, StringComparison.OrdinalIgnoreCase) && string.Equals(s.Name, "Test Search", StringComparison.OrdinalIgnoreCase)));
+
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
+    }
+
+    [TestMethod]
+    public async Task ValidateURL_WithInvalidUrl_UsesOriginalString()
+    {
+        // Initialize
+        var url = "not a url";
+        var expected = "not a url";
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
+
+        // Create search string and payload
+        var payload = CreatePayload(url, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
+
+        await Task.Delay(5000); // Simulate async operation
+
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, expected, StringComparison.OrdinalIgnoreCase) && string.Equals(s.Name, "Test Search", StringComparison.OrdinalIgnoreCase)));
+
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
+    }
+
+    [TestMethod]
+    public async Task ValidateURL_WithEmptyUrl_ReturnsEmptySearchString()
+    {
+        // Initialize
+        var url = "   ";
+        var expected = "   ";
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
+
+        // Create search string and payload
+        var payload = CreatePayload(url, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
+
+        await Task.Delay(5000); // Simulate async operation
+
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, expected, StringComparison.OrdinalIgnoreCase) && string.Equals(s.Name, "Test Search", StringComparison.OrdinalIgnoreCase)));
+
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
+    }
+
+    [TestMethod]
+    public async Task ValidateURL_WithMultipleQualifiers_ParsesAndPreservesAllQualifiers()
+    {
+        // Initialize
+        var url = "https://github.com/search?q=repo:microsoft/PowerToys+is:open+is:issue+label:bug+author:octocat";
+        var expected = "repo:microsoft/PowerToys is:open is:issue label:bug author:octocat";
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
+
+        // Create search string and payload
+        var payload = CreatePayload(url, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
+
+        await Task.Delay(5000); // Simulate async operation
+
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, expected, StringComparison.OrdinalIgnoreCase) && string.Equals(s.Name, "Test Search", StringComparison.OrdinalIgnoreCase)));
+
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
+    }
+
+    [TestMethod]
+    public async Task ValidateURL_WithNegatedQualifiers_ParsesAndPreservesNegation()
+    {
+        // Initialize
+        var url = "https://github.com/search?q=repo:microsoft/PowerToys+is:open+-label:wontfix";
+        var expected = "repo:microsoft/PowerToys is:open -label:wontfix";
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
+
+        // Create search string and payload
+        var payload = CreatePayload(url, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
+
+        await Task.Delay(5000); // Simulate async operation
+
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, expected, StringComparison.OrdinalIgnoreCase) && string.Equals(s.Name, "Test Search", StringComparison.OrdinalIgnoreCase)));
+
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
+    }
+
+    [TestMethod]
+    public async Task ValidateURL_WithMultipleRepositories_ParsesAndReturnsCorrectSearchString()
+    {
+        // Initialize
+        var url = "https://github.com/search?q=repo:microsoft/terminal+repo:microsoft/PowerToys+repo:microsoft/vscode+is:open+is:issue";
+        var expected = "repo:microsoft/terminal repo:microsoft/PowerToys repo:microsoft/vscode is:open is:issue";
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
+
+        // Create search string and payload
+        var payload = CreatePayload(url, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
+
+        await Task.Delay(5000); // Simulate async operation
+
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, expected, StringComparison.OrdinalIgnoreCase) && string.Equals(s.Name, "Test Search", StringComparison.OrdinalIgnoreCase)));
+
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
+    }
+
+    [TestMethod]
+    public async Task ValidateURL_WithMultipleStates_ParsesAndReturnsCorrectSearchString()
+    {
+        // Initialize
+        var url = "https://github.com/search?q=repo:microsoft/PowerToys+state:open+state:closed";
+        var expected = "repo:microsoft/PowerToys state:open state:closed";
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
+
+        // Create search string and payload
+        var payload = CreatePayload(url, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
+
+        await Task.Delay(5000); // Simulate async operation
+
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, expected, StringComparison.OrdinalIgnoreCase) && string.Equals(s.Name, "Test Search", StringComparison.OrdinalIgnoreCase)));
+
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
+    }
+
+    [TestMethod]
+    public async Task ValidateURL_WithMultipleSortDirections_ParsesAndReturnsCorrectSearchString()
+    {
+        // Initialize
+        var url = "https://github.com/search?q=repo:microsoft/PowerToys+sort:updated-desc+sort:created-asc";
+        var expected = "repo:microsoft/PowerToys sort:updated-desc sort:created-asc";
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
+
+        // Create search string and payload
+        var payload = CreatePayload(url, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
+
+        await Task.Delay(5000); // Simulate async operation
+
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, expected, StringComparison.OrdinalIgnoreCase) && string.Equals(s.Name, "Test Search", StringComparison.OrdinalIgnoreCase)));
+
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
+    }
+
+    [TestMethod]
+    public async Task ValidateURL_WithMultipleLanguagesMilestonesDates_ParsesAndReturnsCorrectSearchString()
+    {
+        // Initialize
+        var url = "https://github.com/search?q=repo:microsoft/PowerToys+language:csharp+language:javascript+milestone:v1.0+milestone:v2.0+created:>2022-01-01+updated:<2023-01-01";
+        var expected = "repo:microsoft/PowerToys language:csharp language:javascript milestone:v1.0 milestone:v2.0 created:>2022-01-01 updated:<2023-01-01";
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
+
+        // Create search string and payload
+        var payload = CreatePayload(url, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
+
+        await Task.Delay(5000); // Simulate async operation
+
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, expected, StringComparison.OrdinalIgnoreCase) && string.Equals(s.Name, "Test Search", StringComparison.OrdinalIgnoreCase)));
+
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
+    }
+
     private string CreatePayload(string searchString, string name)
     {
         return $"{{ \"EnteredSearch\": \"{searchString}\", \"Name\": \"{name}\", \"IsTopLevel\": \"false\" }}";
