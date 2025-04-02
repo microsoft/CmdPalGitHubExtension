@@ -18,16 +18,24 @@ namespace GitHubExtension.Test.Controls;
 [TestClass]
 public class TopLevelSearchesTest
 {
+    public string? CreateJsonPayload(string enteredSearch, string name, bool isTopLevel)
+    {
+        return JsonNode.Parse($@"
+        {{
+            ""EnteredSearch"": ""{enteredSearch}"",
+            ""Name"": ""{name}"",
+            ""IsTopLevel"": ""{isTopLevel.ToString().ToLowerInvariant()}""
+        }}")?.ToString();
+    }
+
+    // This test verifies that the SaveSearchForm properly updates the top-level status
+    // when the "IsTopLevel" checkbox is checked.
     [TestMethod]
     public async Task SaveSearchForm_ShouldRetainIsTopLevel_WhenSearchIsSaved()
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         mockSearchRepository
             .Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>()))
-            .Returns(Task.CompletedTask);
-
-        mockSearchRepository
-            .Setup(repo => repo.RemoveSavedSearch(It.IsAny<ISearch>()))
             .Returns(Task.CompletedTask);
 
         SearchCandidate? capturedSearchCandidate = null;
@@ -41,7 +49,7 @@ public class TopLevelSearchesTest
                     capturedSearchCandidate = searchCandidate;
                     capturedSearchCandidate.SearchString = s.SearchString;
                     capturedSearchCandidate.Name = s.Name;
-                    capturedSearchCandidate.IsTopLevel = isTopLevel;
+                    capturedSearchCandidate.IsTopLevel = searchCandidate.IsTopLevel;
                 }
 
                 if (s is ISearch search)
@@ -54,35 +62,28 @@ public class TopLevelSearchesTest
         var savedSearchesMediator = new SavedSearchesMediator();
         var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, stubResources, savedSearchesMediator);
 
-        var jsonPayload = JsonNode.Parse(@"
-            {
-                ""EnteredSearch"": ""test search"",
-                ""Name"": ""test name"",
-                ""IsTopLevel"": ""true""
-            }")?.ToString();
+        var jsonPayload = CreateJsonPayload("test search", "test name", true);
 
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-        Thread.Sleep(1000);
+        Task.Delay(1000).Wait();
 
         mockSearchRepository.Verify(
             repo =>
             repo.UpdateSearchTopLevelStatus(It.IsAny<ISearch>(), It.IsAny<bool>()),
             Times.Once);
 
-        Task.Delay(2000).Wait();
-
         Assert.IsNotNull(capturedSearchCandidate);
         Assert.AreEqual("test name", capturedSearchCandidate.Name);
         Assert.AreEqual("test search", capturedSearchCandidate.SearchString);
         Assert.IsTrue(capturedSearchCandidate.IsTopLevel);
-
         Assert.IsNotNull(capturedSearch);
 
+        // Simulate creating a SaveSearchForm for the EditSearchPage. Verify that the IsTopLevel box is checked by checking the GetIsTopLevel on SaveSearchForm.
         var saveSearchForm2 = new SaveSearchForm(capturedSearch, mockSearchRepository.Object, stubResources, savedSearchesMediator);
         mockSearchRepository
-            .Setup(repo => repo.IsTopLevel(capturedSearch))
-            .Returns(Task.FromResult(true));
+            .Setup(repo => repo.IsTopLevel(It.IsAny<ISearch>()))
+            .Returns((ISearch search) => Task.FromResult(search == capturedSearch && capturedSearchCandidate.IsTopLevel));
         Assert.IsTrue(await saveSearchForm2.GetIsTopLevel());
     }
 

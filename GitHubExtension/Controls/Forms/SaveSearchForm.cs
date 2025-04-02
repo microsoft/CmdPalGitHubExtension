@@ -87,8 +87,6 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
 
             var search = CreateSearchFromJson(payloadJson);
 
-            await _searchRepository.ValidateSearch(search);
-
             // if editing the search, delete the old one
             // it is safe to do as the new one is already validated
             if (_savedSearch.SearchString != string.Empty)
