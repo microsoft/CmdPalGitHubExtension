@@ -12,12 +12,19 @@ namespace GitHubExtension.Test.Controls;
 [TestClass]
 public class GitHubQueryValidationTests
 {
+    public SaveSearchForm CreateSaveSearchForm(Mock<ISearchRepository> mockSearchRepository)
+    {
+        var mockResources = new Mock<IResources>();
+        var savedSearchesMediator = new SavedSearchesMediator();
+        return new SaveSearchForm(mockSearchRepository.Object, mockResources.Object, savedSearchesMediator);
+    }
+
     [TestMethod]
     public async Task ValidateSearch_SupportsIsOpenKeyword()
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "is:open";
         var search = new SearchCandidate(searchString, "Test Search");
@@ -35,7 +42,7 @@ public class GitHubQueryValidationTests
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "is:issue";
         var search = new SearchCandidate(searchString, "Test Search");
@@ -53,7 +60,7 @@ public class GitHubQueryValidationTests
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "is:pr";
         var search = new SearchCandidate(searchString, "Test Search");
@@ -70,7 +77,7 @@ public class GitHubQueryValidationTests
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "is:open is:issue";
         var search = new SearchCandidate(searchString, "Test Search");
@@ -87,7 +94,7 @@ public class GitHubQueryValidationTests
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "is:issue repo:microsoft/PowerToys";
 
@@ -103,7 +110,7 @@ public class GitHubQueryValidationTests
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "is:pr author:octocat";
 
@@ -119,7 +126,7 @@ public class GitHubQueryValidationTests
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "state:open label:bug";
 
@@ -135,7 +142,7 @@ public class GitHubQueryValidationTests
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "involves:defunkt language:javascript";
 
@@ -151,7 +158,7 @@ public class GitHubQueryValidationTests
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "org:github created:>2022-01-01";
 
@@ -167,7 +174,7 @@ public class GitHubQueryValidationTests
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "is:issue assignee:@me milestone:v1.0";
 
@@ -183,7 +190,7 @@ public class GitHubQueryValidationTests
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "is:pr review:approved";
 
@@ -199,7 +206,7 @@ public class GitHubQueryValidationTests
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "is:issue in:title error";
 
@@ -215,7 +222,7 @@ public class GitHubQueryValidationTests
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "is:pr merged:>=2023-01-01";
 
@@ -231,7 +238,7 @@ public class GitHubQueryValidationTests
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "label:enhancement";
 
@@ -247,7 +254,7 @@ public class GitHubQueryValidationTests
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "label:bug label:help-wanted label:documentation";
 
@@ -263,7 +270,7 @@ public class GitHubQueryValidationTests
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "-label:wontfix";
 
@@ -279,7 +286,7 @@ public class GitHubQueryValidationTests
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "-label:wontfix -label:duplicate -label:invalid";
 
@@ -295,7 +302,7 @@ public class GitHubQueryValidationTests
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "is:issue -is:closed -author:bot";
 
@@ -312,7 +319,7 @@ public class GitHubQueryValidationTests
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "is:pr label:enhancement -label:wontfix repo:microsoft/PowerToys -is:draft";
 
@@ -329,7 +336,7 @@ public class GitHubQueryValidationTests
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "is:open AND (is:issue OR is:pr) NOT author:bot devhome";
         var search = new SearchCandidate(searchString, "Test Search");
@@ -346,7 +353,7 @@ public class GitHubQueryValidationTests
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         var mockResources = new Mock<IResources>();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
 
         var searchString = "repo:microsoft/terminal repo:microsoft/PowerToys repo:microsoft/vscode is:open is:issue";
         var search = new SearchCandidate(searchString, "Test Search");

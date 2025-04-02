@@ -51,7 +51,8 @@ public class SaveSearchFormTest
             .Returns(Task.CompletedTask);
 
         var stubResources = new Mock<IResources>().Object;
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, stubResources);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, stubResources, savedSearchesMediator);
 
         var jsonPayload = JsonNode.Parse(@"
             {
@@ -88,7 +89,8 @@ public class SaveSearchFormTest
             .Returns(Task.CompletedTask);
 
         var stubResources = new Mock<IResources>().Object;
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, stubResources);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, stubResources, savedSearchesMediator);
 
         var jsonPayload = JsonNode.Parse(@"
             {
@@ -125,7 +127,8 @@ public class SaveSearchFormTest
             .Returns(Task.CompletedTask);
 
         var stubResources = new Mock<IResources>().Object;
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, stubResources);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, stubResources, savedSearchesMediator);
 
         var jsonPayload = JsonNode.Parse(@"
             {
@@ -159,7 +162,8 @@ public class SaveSearchFormTest
 
         var existingSearch = new SearchCandidate("old search", "My Search", false);
         var stubResources = new Mock<IResources>().Object;
-        var saveSearchForm = new SaveSearchForm(existingSearch, mockSearchRepository.Object, stubResources);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(existingSearch, mockSearchRepository.Object, stubResources, savedSearchesMediator);
 
         var jsonPayload = JsonNode.Parse(@"
             {
@@ -205,7 +209,8 @@ public class SaveSearchFormTest
 
         var existingSearch = new SearchCandidate("my search", "Old Name", false);
         var stubResources = new Mock<IResources>().Object;
-        var saveSearchForm = new SaveSearchForm(existingSearch, mockSearchRepository.Object, stubResources);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(existingSearch, mockSearchRepository.Object, stubResources, savedSearchesMediator);
 
         var jsonPayload = JsonNode.Parse(@"
             {
@@ -251,7 +256,8 @@ public class SaveSearchFormTest
 
         var existingSearch = new SearchCandidate("old search", "Old Name", false);
         var stubResources = new Mock<IResources>().Object;
-        var saveSearchForm = new SaveSearchForm(existingSearch, mockSearchRepository.Object, stubResources);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(existingSearch, mockSearchRepository.Object, stubResources, savedSearchesMediator);
 
         var jsonPayload = JsonNode.Parse(@"
             {
@@ -297,7 +303,8 @@ public class SaveSearchFormTest
 
         var existingSearch = new SearchCandidate("my search", "My Search", false);
         var stubResources = new Mock<IResources>().Object;
-        var saveSearchForm = new SaveSearchForm(existingSearch, mockSearchRepository.Object, stubResources);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(existingSearch, mockSearchRepository.Object, stubResources, savedSearchesMediator);
 
         var jsonPayload = JsonNode.Parse(@"
             {
@@ -341,7 +348,8 @@ public class SaveSearchFormTest
 
         var mockResources = new Mock<IResources>();
 
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object, savedSearchesMediator);
         var payload = CreatePayload(url, "Test Search");
 
         var result = await saveSearchForm.GetSearchAsync(payload);
@@ -363,7 +371,8 @@ public class SaveSearchFormTest
 
         var mockResources = new Mock<IResources>();
 
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object, savedSearchesMediator);
         var payload = CreatePayload(url, "Test Search");
 
         var result = await saveSearchForm.GetSearchAsync(payload);
@@ -384,7 +393,8 @@ public class SaveSearchFormTest
 
         var mockResources = new Mock<IResources>();
 
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object, savedSearchesMediator);
         var payload = CreatePayload(url, "Test Search");
 
         var result = await saveSearchForm.GetSearchAsync(payload);
@@ -405,7 +415,8 @@ public class SaveSearchFormTest
 
         var mockResources = new Mock<IResources>();
 
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object, savedSearchesMediator);
         var payload = CreatePayload(url, "Test Search");
 
         var result = await saveSearchForm.GetSearchAsync(payload);
@@ -426,7 +437,8 @@ public class SaveSearchFormTest
 
         var mockResources = new Mock<IResources>();
 
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object, savedSearchesMediator);
         var payload = CreatePayload(url, "Test Search");
 
         var result = await saveSearchForm.GetSearchAsync(payload);
@@ -447,7 +459,8 @@ public class SaveSearchFormTest
 
         var mockResources = new Mock<IResources>();
 
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object, savedSearchesMediator);
         var payload = CreatePayload(url, "Test Search");
 
         var result = await saveSearchForm.GetSearchAsync(payload);
@@ -468,7 +481,8 @@ public class SaveSearchFormTest
 
         var mockResources = new Mock<IResources>();
 
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object, savedSearchesMediator);
         var payload = CreatePayload(invalidUrl, "Test Search");
 
         var result = await saveSearchForm.GetSearchAsync(payload);
@@ -489,7 +503,8 @@ public class SaveSearchFormTest
 
         var mockResources = new Mock<IResources>();
 
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object, savedSearchesMediator);
         var payload = CreatePayload(emptyUrl, "Test Search");
 
         var result = await saveSearchForm.GetSearchAsync(payload);
@@ -510,7 +525,8 @@ public class SaveSearchFormTest
 
         var mockResources = new Mock<IResources>();
 
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object, savedSearchesMediator);
         var payload = CreatePayload(url, "Test Search");
 
         var result = await saveSearchForm.GetSearchAsync(payload);
@@ -531,7 +547,8 @@ public class SaveSearchFormTest
 
         var mockResources = new Mock<IResources>();
 
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object, savedSearchesMediator);
         var payload = CreatePayload(url, "Test Search");
 
         var result = await saveSearchForm.GetSearchAsync(payload);
@@ -552,7 +569,8 @@ public class SaveSearchFormTest
 
         var mockResources = new Mock<IResources>();
 
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object, savedSearchesMediator);
         var payload = CreatePayload(url, "Test Search");
 
         var result = await saveSearchForm.GetSearchAsync(payload);
@@ -573,7 +591,8 @@ public class SaveSearchFormTest
 
         var mockResources = new Mock<IResources>();
 
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object, savedSearchesMediator);
         var payload = CreatePayload(url, "Test Search");
 
         var result = await saveSearchForm.GetSearchAsync(payload);
@@ -594,7 +613,8 @@ public class SaveSearchFormTest
 
         var mockResources = new Mock<IResources>();
 
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object, savedSearchesMediator);
         var payload = CreatePayload(url, "Test Search");
 
         var result = await saveSearchForm.GetSearchAsync(payload);
@@ -615,7 +635,8 @@ public class SaveSearchFormTest
 
         var mockResources = new Mock<IResources>();
 
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object);
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources.Object, savedSearchesMediator);
         var payload = CreatePayload(url, "Test Search");
 
         var result = await saveSearchForm.GetSearchAsync(payload);
