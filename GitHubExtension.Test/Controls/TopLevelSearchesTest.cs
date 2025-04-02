@@ -3,15 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Text.Json.Nodes;
-using GitHubExtension.Client;
 using GitHubExtension.Controls;
 using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
-using GitHubExtension.Controls.ListItems;
 using GitHubExtension.Controls.Pages;
-using GitHubExtension.DataManager;
-using GitHubExtension.DataManager.Cache;
-using GitHubExtension.DataManager.Data;
 using GitHubExtension.DataModel;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
@@ -19,41 +14,27 @@ using GitHubExtension.PersistentData;
 using GitHubExtension.Test.PersistentData;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
-using Microsoft.Windows.ApplicationModel.Resources;
 using Moq;
-using Windows.Media.Audio;
 
 namespace GitHubExtension.Test.Controls;
 
 [TestClass]
 public class TopLevelSearchesTest
 {
-    public string? CreateJsonPayload(string enteredSearch, string name, bool isTopLevel)
-    {
-        return JsonNode.Parse($@"
-        {{
-            ""EnteredSearch"": ""{enteredSearch}"",
-            ""Name"": ""{name}"",
-            ""IsTopLevel"": ""{isTopLevel.ToString().ToLowerInvariant()}""
-        }}")?.ToString();
-    }
-
-    // This test verifies that the SaveSearchForm properly updates the top-level status
-    // when the "IsTopLevel" checkbox is checked.
     [TestMethod]
-    public async Task SaveSearchForm_ShouldRetainIsTopLevel_WhenSearchIsSaved()
+    public async Task SaveSearchForm_ShouldRememberIfSearchIsTopLevelWhenEditing()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        mockSearchRepository
-            .Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>()))
-            .Returns(Task.CompletedTask);
-
+        // Initialize
         SearchCandidate? capturedSearchCandidate = null;
         ISearch? capturedSearch = null;
+
+        var mockSearchRepository = new Mock<ISearchRepository>();
         mockSearchRepository
             .Setup(repo => repo.UpdateSearchTopLevelStatus(It.IsAny<ISearch>(), It.IsAny<bool>()))
             .Callback<ISearch, bool>((s, isTopLevel) =>
             {
+                // ISearchRepository always returns ISearch, but the PersistentDataManager also returns SearchCandidate,
+                // which is a subclass of ISearch. This test requires both.
                 if (s is SearchCandidate searchCandidate)
                 {
                     capturedSearchCandidate = searchCandidate;
@@ -68,33 +49,38 @@ public class TopLevelSearchesTest
                 }
             });
 
-        var stubResources = new Mock<IResources>().Object;
+        var mockResources = new Mock<IResources>().Object;
         var savedSearchesMediator = new SavedSearchesMediator();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, stubResources, savedSearchesMediator);
+        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, mockResources, savedSearchesMediator);
 
-        var jsonPayload = CreateJsonPayload("test search", "test name", true);
+        // Create a top-level command and save it via SaveSearchForm
+        var testSearchString = "is:issue author:testuser";
+        var testSearchName = "Test Search";
+        var jsonPayload = CreateJsonPayload(testSearchString, testSearchName, true);
 
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
         Thread.Sleep(1000);
 
+        // Assert that the search is saved and is top level in the ISearchRepository
         mockSearchRepository.Verify(
             repo =>
             repo.UpdateSearchTopLevelStatus(It.IsAny<ISearch>(), It.IsAny<bool>()),
             Times.Once);
 
+        // Assert that the search is saved properly in the ISearchRepository
         Assert.IsNotNull(capturedSearchCandidate);
-        Assert.AreEqual("test name", capturedSearchCandidate.Name);
-        Assert.AreEqual("test search", capturedSearchCandidate.SearchString);
+        Assert.AreEqual(testSearchName, capturedSearchCandidate.Name);
+        Assert.AreEqual(testSearchString, capturedSearchCandidate.SearchString);
         Assert.IsTrue(capturedSearchCandidate.IsTopLevel);
         Assert.IsNotNull(capturedSearch);
 
         // Simulate creating a SaveSearchForm for the EditSearchPage. Verify that the IsTopLevel box is checked by checking the GetIsTopLevel on SaveSearchForm.
-        var saveSearchForm2 = new SaveSearchForm(capturedSearch, mockSearchRepository.Object, stubResources, savedSearchesMediator);
+        var editSearchForm = new SaveSearchForm(capturedSearch, mockSearchRepository.Object, mockResources, savedSearchesMediator);
         mockSearchRepository
             .Setup(repo => repo.IsTopLevel(It.IsAny<ISearch>()))
             .Returns((ISearch search) => Task.FromResult(search == capturedSearch && capturedSearchCandidate.IsTopLevel));
-        Assert.IsTrue(await saveSearchForm2.GetIsTopLevel());
+        Assert.IsTrue(await editSearchForm.GetIsTopLevel());
     }
 
     // This test verifies that the SaveSearchForm properly updates the top-level status
@@ -135,38 +121,6 @@ public class TopLevelSearchesTest
         // Clean up
         persistentDataManager.Dispose();
         PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
-    }
-
-    public IDeveloperIdProvider CreateMockDeveloperIdProvider()
-    {
-        var mockDeveloperIdProvider = new Mock<IDeveloperIdProvider>();
-        mockDeveloperIdProvider
-            .Setup(provider => provider.IsSignedIn())
-            .Returns(true);
-        return mockDeveloperIdProvider.Object;
-    }
-
-    public IListItem CreateMockAddSearchListItem()
-    {
-        var mockAddSearchListItem = new Mock<IListItem>();
-        mockAddSearchListItem.Setup(item => item.Title).Returns("Add Saved Search");
-        return mockAddSearchListItem.Object;
-    }
-
-    public PersistentDataManager CreatePersistentDataManager(DataStoreOptions dataStoreOptions)
-    {
-        var stubValidator = new Mock<IGitHubValidator>().Object;
-        return new PersistentDataManager(stubValidator, dataStoreOptions);
-    }
-
-    public GitHubExtensionCommandsProvider CreateGitHubExtensionCommandsProvider(IDeveloperIdProvider mockDeveloperIdProvider, IResources mockResources, SavedSearchesPage savedSearchesPage, PersistentDataManager persistentDataManager, SavedSearchesMediator savedSearchesMediator, ISearchPageFactory searchPageFactory)
-    {
-        var mockAuthenticationMediator = new Mock<AuthenticationMediator>().Object;
-        var mockSignOutForm = new Mock<SignOutForm>(mockDeveloperIdProvider, mockResources, mockAuthenticationMediator).Object;
-        var mockSignInForm = new Mock<SignInForm>(mockDeveloperIdProvider, mockResources, mockAuthenticationMediator).Object;
-        var signOutPage = new SignOutPage(mockSignOutForm, new StatusMessage(), mockResources.GetResource("Message_Sign_Out_Success"), mockResources.GetResource("Message_Sign_Out_Fail"));
-        var signInPage = new SignInPage(mockSignInForm, new StatusMessage(), mockResources.GetResource("Message_Sign_In_Success"), mockResources.GetResource("Message_Sign_In_Fail"));
-        return new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, mockDeveloperIdProvider, persistentDataManager, mockResources, searchPageFactory, savedSearchesMediator, mockAuthenticationMediator);
     }
 
     [TestMethod]
@@ -497,5 +451,47 @@ public class TopLevelSearchesTest
         // Clean up
         persistentDataManager.Dispose();
         PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
+    }
+
+    public string? CreateJsonPayload(string enteredSearch, string name, bool isTopLevel)
+    {
+        return JsonNode.Parse($@"
+        {{
+            ""EnteredSearch"": ""{enteredSearch}"",
+            ""Name"": ""{name}"",
+            ""IsTopLevel"": ""{isTopLevel.ToString().ToLowerInvariant()}""
+        }}")?.ToString();
+    }
+
+    public IDeveloperIdProvider CreateMockDeveloperIdProvider()
+    {
+        var mockDeveloperIdProvider = new Mock<IDeveloperIdProvider>();
+        mockDeveloperIdProvider
+            .Setup(provider => provider.IsSignedIn())
+            .Returns(true);
+        return mockDeveloperIdProvider.Object;
+    }
+
+    public IListItem CreateMockAddSearchListItem()
+    {
+        var mockAddSearchListItem = new Mock<IListItem>();
+        mockAddSearchListItem.Setup(item => item.Title).Returns("Add Saved Search");
+        return mockAddSearchListItem.Object;
+    }
+
+    public PersistentDataManager CreatePersistentDataManager(DataStoreOptions dataStoreOptions)
+    {
+        var stubValidator = new Mock<IGitHubValidator>().Object;
+        return new PersistentDataManager(stubValidator, dataStoreOptions);
+    }
+
+    public GitHubExtensionCommandsProvider CreateGitHubExtensionCommandsProvider(IDeveloperIdProvider mockDeveloperIdProvider, IResources mockResources, SavedSearchesPage savedSearchesPage, PersistentDataManager persistentDataManager, SavedSearchesMediator savedSearchesMediator, ISearchPageFactory searchPageFactory)
+    {
+        var mockAuthenticationMediator = new Mock<AuthenticationMediator>().Object;
+        var mockSignOutForm = new Mock<SignOutForm>(mockDeveloperIdProvider, mockResources, mockAuthenticationMediator).Object;
+        var mockSignInForm = new Mock<SignInForm>(mockDeveloperIdProvider, mockResources, mockAuthenticationMediator).Object;
+        var signOutPage = new SignOutPage(mockSignOutForm, new StatusMessage(), mockResources.GetResource("Message_Sign_Out_Success"), mockResources.GetResource("Message_Sign_Out_Fail"));
+        var signInPage = new SignInPage(mockSignInForm, new StatusMessage(), mockResources.GetResource("Message_Sign_In_Success"), mockResources.GetResource("Message_Sign_In_Fail"));
+        return new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, mockDeveloperIdProvider, persistentDataManager, mockResources, searchPageFactory, savedSearchesMediator, mockAuthenticationMediator);
     }
 }
