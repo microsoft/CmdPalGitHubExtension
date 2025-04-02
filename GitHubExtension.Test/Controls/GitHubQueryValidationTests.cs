@@ -4,7 +4,10 @@
 
 using GitHubExtension.Controls;
 using GitHubExtension.Controls.Forms;
+using GitHubExtension.DataModel;
 using GitHubExtension.Helpers;
+using GitHubExtension.PersistentData;
+using GitHubExtension.Test.PersistentData;
 using Moq;
 
 namespace GitHubExtension.Test.Controls;
@@ -12,361 +15,592 @@ namespace GitHubExtension.Test.Controls;
 [TestClass]
 public class GitHubQueryValidationTests
 {
-    public SaveSearchForm CreateSaveSearchForm(Mock<ISearchRepository> mockSearchRepository)
+    public SaveSearchForm CreateSaveSearchForm(PersistentDataManager persistentDataManager)
     {
         var mockResources = new Mock<IResources>();
         var savedSearchesMediator = new SavedSearchesMediator();
-        return new SaveSearchForm(mockSearchRepository.Object, mockResources.Object, savedSearchesMediator);
+        return new SaveSearchForm(persistentDataManager, mockResources.Object, savedSearchesMediator);
     }
 
     [TestMethod]
     public async Task ValidateSearch_SupportsIsOpenKeyword()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "is:open";
-        var search = new SearchCandidate(searchString, "Test Search");
+        // Create search string and payload
+        var testSearchString = "is:open";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
-    // is:issue isn't a valid search. On github.com, this just returns no results
     [TestMethod]
     public async Task ValidateSearch_SupportsIsIssueKeyword()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "is:issue";
-        var search = new SearchCandidate(searchString, "Test Search");
+        // Create search string and payload
+        var testSearchString = "is:issue";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
-    // is:pr isn't a valid search. On github.com, this just returns no results.
     [TestMethod]
     public async Task ValidateSearch_SupportsIsPullRequestKeyword()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "is:pr";
-        var search = new SearchCandidate(searchString, "Test Search");
+        // Create search string and payload
+        var testSearchString = "is:pr";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     [TestMethod]
     public async Task ValidateSearch_SupportsMultipleKeywords()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "is:open is:issue";
-        var search = new SearchCandidate(searchString, "Test Search");
+        // Create search string and payload
+        var testSearchString = "is:open is:issue";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     [TestMethod]
     public async Task ValidateSearch_SupportsRepoQualifier()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "is:issue repo:microsoft/PowerToys";
+        // Create search string and payload
+        var testSearchString = "is:issue repo:microsoft/PowerToys";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     [TestMethod]
     public async Task ValidateSearch_SupportsAuthorQualifier()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "is:pr author:octocat";
+        // Create search string and payload
+        var testSearchString = "is:pr author:octocat";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     [TestMethod]
     public async Task ValidateSearch_SupportsStateAndLabelQualifiers()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "state:open label:bug";
+        // Create search string and payload
+        var testSearchString = "state:open label:bug";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     [TestMethod]
     public async Task ValidateSearch_SupportsInvolvesAndLanguageQualifiers()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "involves:defunkt language:javascript";
+        // Create search string and payload
+        var testSearchString = "involves:defunkt language:javascript";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     [TestMethod]
     public async Task ValidateSearch_SupportsOrgAndCreatedQualifiers()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "org:github created:>2022-01-01";
+        // Create search string and payload
+        var testSearchString = "org:github created:>2022-01-01";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     [TestMethod]
     public async Task ValidateSearch_SupportsAssigneeAndMilestoneQualifiers()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "is:issue assignee:@me milestone:v1.0";
+        // Create search string and payload
+        var testSearchString = "is:issue assignee:@me milestone:v1.0";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     [TestMethod]
     public async Task ValidateSearch_SupportsReviewQualifier()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "is:pr review:approved";
+        // Create search string and payload
+        var testSearchString = "is:pr review:approved";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     [TestMethod]
     public async Task ValidateSearch_SupportsInQualifier()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "is:issue in:title error";
+        // Create search string and payload
+        var testSearchString = "is:issue in:title error";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     [TestMethod]
     public async Task ValidateSearch_SupportsMergedDateQualifier()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "is:pr merged:>=2023-01-01";
+        // Create search string and payload
+        var testSearchString = "is:pr merged:>=2023-01-01";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     [TestMethod]
     public async Task ValidateSearch_SupportsSingleLabelQualifier()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "label:enhancement";
+        // Create search string and payload
+        var testSearchString = "label:enhancement";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     [TestMethod]
     public async Task ValidateSearch_SupportsMultipleLabelQualifiers()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "label:bug label:help-wanted label:documentation";
+        // Create search string and payload
+        var testSearchString = "label:bug label:help-wanted label:documentation";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     [TestMethod]
     public async Task ValidateSearch_SupportsExcludingLabel()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions(); // created here because we dispose dataStoreOptions at the end of this test
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "-label:wontfix";
+        // Create search string and payload
+        var testSearchString = "-label:wontfix";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        var search = new SearchCandidate(testSearchString, "Test Search");
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
+
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     [TestMethod]
     public async Task ValidateSearch_SupportsExcludingMultipleLabels()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "-label:wontfix -label:duplicate -label:invalid";
+        // Create search string and payload
+        var testSearchString = "-label:wontfix -label:duplicate -label:invalid";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     [TestMethod]
     public async Task ValidateSearch_SupportsExcludingOtherQualifiers()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "is:issue -is:closed -author:bot";
+        // Create search string and payload
+        var testSearchString = "is:issue -is:closed -author:bot";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     // this is a valid search that returns no results
     [TestMethod]
     public async Task ValidateSearch_SupportsMixOfIncludeAndExcludeQualifiers()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "is:pr label:enhancement -label:wontfix repo:microsoft/PowerToys -is:draft";
+        // Create search string and payload
+        var testSearchString = "is:pr label:enhancement -label:wontfix repo:microsoft/PowerToys -is:draft";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     // this is a valid search, but returned no results
     [TestMethod]
     public async Task ValidateSearch_SupportsBooleanOperators()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "is:open AND (is:issue OR is:pr) NOT author:bot devhome";
-        var search = new SearchCandidate(searchString, "Test Search");
+        // Create search string and payload
+        var testSearchString = "is:open AND (is:issue OR is:pr) NOT author:bot devhome";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     [TestMethod]
     public async Task ValidateSearch_SupportsMultipleRepositories()
     {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        var mockResources = new Mock<IResources>();
-        var saveSearchForm = CreateSaveSearchForm(mockSearchRepository);
+        // Initialize
+        var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
+        using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
+        var mockResources = new Mock<IResources>().Object;
+        var savedSearchesMediator = new SavedSearchesMediator();
+        var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        var searchString = "repo:microsoft/terminal repo:microsoft/PowerToys repo:microsoft/vscode is:open is:issue";
-        var search = new SearchCandidate(searchString, "Test Search");
+        // Create search string and payload
+        var testSearchString = "repo:microsoft/terminal repo:microsoft/PowerToys repo:microsoft/vscode is:open is:issue";
+        var payload = CreatePayload(testSearchString, "Test Search");
+        saveSearchForm.SubmitForm(payload, string.Empty);
 
-        mockSearchRepository.Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>())).Returns(Task.CompletedTask);
+        await Task.Delay(5000); // Simulate async operation
 
-        await saveSearchForm.GetSearchAsync(CreatePayload(searchString, "Test Search"));
+        // Validate the search
+        var searches = await persistentDataManager.GetSavedSearches();
+        Assert.IsTrue(searches.Count() == 1);
+        Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, testSearchString, StringComparison.OrdinalIgnoreCase)));
 
-        mockSearchRepository.Verify(repo => repo.ValidateSearch(It.Is<ISearch>(s => s.SearchString == searchString)), Times.Once);
+        // Clean up
+        persistentDataManager.Dispose();
+        PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
     private string CreatePayload(string searchString, string name)
     {
         return $"{{ \"EnteredSearch\": \"{searchString}\", \"Name\": \"{name}\", \"IsTopLevel\": \"false\" }}";
+    }
+
+    public PersistentDataManager CreatePersistentDataManager(DataStoreOptions dataStoreOptions)
+    {
+        var stubValidator = new Mock<IGitHubValidator>().Object;
+        return new PersistentDataManager(stubValidator, dataStoreOptions);
     }
 }
