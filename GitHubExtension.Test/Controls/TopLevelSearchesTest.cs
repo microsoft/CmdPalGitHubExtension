@@ -94,10 +94,11 @@ public class TopLevelSearchesTest
     {
         var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions();
         var stubValidator = new Mock<IGitHubValidator>().Object;
-
         using var dataManager = new PersistentDataManager(stubValidator, dataStoreOptions);
 
-        var dummySearch = new SearchCandidate("dummy search 2", "Dummy Search", true);
+        // part 1: Create a top-level search and verify that it's listed as top-level
+        var dummySearch = new SearchCandidate("dummy search", "Dummy Search", true);
+
         await dataManager.UpdateSearchTopLevelStatus(dummySearch, true);
 
         var stubResources = new Mock<IResources>().Object;
@@ -105,25 +106,23 @@ public class TopLevelSearchesTest
         var saveSearchForm = new SaveSearchForm(dummySearch, dataManager, stubResources, savedSearchesMediator);
 
         var initialTopLevelSearches = await dataManager.GetTopLevelSearches();
-        Assert.IsTrue(initialTopLevelSearches.Any(s => s.Name == "Dummy Search" && s.SearchString == "dummy search 2"));
+        Assert.IsTrue(initialTopLevelSearches.Any(s => s.Name == dummySearch.Name && s.SearchString == dummySearch.SearchString));
+        Assert.IsTrue(saveSearchForm.GetIsTopLevel().Result);
 
-        var jsonPayload = JsonNode.Parse(@"
-        {
-            ""EnteredSearch"": ""dummy search"",
-            ""Name"": ""Dummy Search"",
-            ""IsTopLevel"": ""false""
-        }")?.ToString();
-
+        // part 2: Uncheck the "IsTopLevel" checkbox and verify that the search is no longer top-level
+        var jsonPayload = CreateJsonPayload(dummySearch.SearchString, dummySearch.Name, false);
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
         Thread.Sleep(1000);
 
         var updatedTopLevelSearches = await dataManager.GetTopLevelSearches();
-        Assert.IsFalse(updatedTopLevelSearches.Any(s => s.Name == "Dummy Search" && s.SearchString == "dummy search"));
+        Assert.IsFalse(updatedTopLevelSearches.Any(s => s.Name == dummySearch.Name && s.SearchString == dummySearch.SearchString));
 
         var isTopLevel = await dataManager.IsTopLevel(dummySearch);
         Assert.IsFalse(isTopLevel);
+        Assert.IsFalse(saveSearchForm.GetIsTopLevel().Result);
 
+        // Clean up
         dataManager.Dispose();
         PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
