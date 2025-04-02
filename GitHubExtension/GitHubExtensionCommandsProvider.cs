@@ -19,6 +19,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
     private readonly SavedSearchesPage _savedSearchesPage;
     private readonly SignOutPage _signOutPage;
     private readonly SignInPage _signInPage;
+    private readonly SignInForm _signInForm;
     private readonly SaveSearchForm _saveSearchForm;
     private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly ISearchRepository _persistentDataManager;
@@ -29,6 +30,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         SavedSearchesPage savedSearchesPage,
         SignOutPage signOutPage,
         SignInPage signInPage,
+        SignInForm signInForm,
         SaveSearchForm saveSearchForm,
         IDeveloperIdProvider developerIdProvider,
         ISearchRepository persistentDataManager,
@@ -38,6 +40,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         _savedSearchesPage = savedSearchesPage;
         _signOutPage = signOutPage;
         _signInPage = signInPage;
+        _signInForm = signInForm;
         _saveSearchForm = saveSearchForm;
         _developerIdProvider = developerIdProvider;
         _persistentDataManager = persistentDataManager;
@@ -47,7 +50,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         DisplayName = _resources.GetResource("ExtensionTitle");
 
         // Static events here. Hard dependency. But maybe it is ok in this case
-        SignInForm.SignInAction += OnSignInStatusChanged;
+        _signInForm.SignInAction += OnSignInStatusChanged;
         SignOutForm.SignOutAction += OnSignInStatusChanged;
         _saveSearchForm.SearchSaved += OnSearchSaved;
         RemoveSavedSearchCommand.SearchRemoved += OnSearchRemoved;

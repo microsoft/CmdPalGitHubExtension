@@ -12,7 +12,7 @@ namespace GitHubExtension.Controls.Forms;
 
 public partial class SignInForm : FormContent, IGitHubForm
 {
-    public static event EventHandler<SignInStatusChangedEventArgs>? SignInAction;
+    public event EventHandler<SignInStatusChangedEventArgs>? SignInAction;
 
     public event EventHandler<bool>? LoadingStateChanged;
 
