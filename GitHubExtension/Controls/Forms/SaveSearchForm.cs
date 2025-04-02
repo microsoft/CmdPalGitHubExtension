@@ -28,8 +28,6 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
 
     public event EventHandler<FormSubmitEventArgs>? FormSubmitted;
 
-    public event EventHandler<object>? SearchSaved;
-
     public Dictionary<string, string> TemplateSubstitutions => new()
     {
         { "{{SaveSearchFormTitle}}", _resources.GetResource(string.IsNullOrEmpty(_savedSearch.Name) ? "Forms_Save_Search" : "Forms_Edit_Search") },
@@ -106,14 +104,14 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
             await _searchRepository.UpdateSearchTopLevelStatus(search, search.IsTopLevel);
 
             LoadingStateChanged?.Invoke(this, false);
-            SearchSaved?.Invoke(this, search);
+            _savedSearchesMediator.AddSearch(search);
             FormSubmitted?.Invoke(this, new FormSubmitEventArgs(true, null));
             return search;
         }
         catch (Exception ex)
         {
             LoadingStateChanged?.Invoke(this, false);
-            SearchSaved?.Invoke(this, ex);
+            _savedSearchesMediator.AddSearch(ex);
             FormSubmitted?.Invoke(this, new FormSubmitEventArgs(false, ex));
         }
 
