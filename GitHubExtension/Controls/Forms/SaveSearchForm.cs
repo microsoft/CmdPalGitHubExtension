@@ -20,7 +20,7 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
 
     private readonly IResources _resources;
 
-    private readonly savedSearchesMediator _savedSearchesMediator;
+    private readonly SavedSearchesMediator _savedSearchesMediator;
 
     private string IsTopLevelChecked => GetIsTopLevel().Result.ToString().ToLower(CultureInfo.InvariantCulture);
 
@@ -45,7 +45,7 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
     };
 
     // for saving a new query
-    public SaveSearchForm(ISearchRepository searchRepository, IResources resources, savedSearchesMediator savedSearchesMediator)
+    public SaveSearchForm(ISearchRepository searchRepository, IResources resources, SavedSearchesMediator savedSearchesMediator)
     {
         _resources = resources;
         _savedSearch = new SearchCandidate();
@@ -54,7 +54,7 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
     }
 
     // for editing an existing query
-    public SaveSearchForm(ISearch savedSearch, ISearchRepository searchRepository, IResources resources, savedSearchesMediator savedSearchesMediator)
+    public SaveSearchForm(ISearch savedSearch, ISearchRepository searchRepository, IResources resources, SavedSearchesMediator savedSearchesMediator)
     {
         _resources = resources;
         _savedSearch = savedSearch;

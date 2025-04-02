@@ -13,9 +13,9 @@ public partial class RemoveSavedSearchCommand : InvokableCommand
     private readonly ISearch savedSearch;
     private readonly ISearchRepository _searchRepository;
     private readonly IResources _resources;
-    private readonly savedSearchesMediator _savedSearchesMediator;
+    private readonly SavedSearchesMediator _savedSearchesMediator;
 
-    public RemoveSavedSearchCommand(ISearch search, ISearchRepository searchRepository, IResources resources, savedSearchesMediator savedSearchesMediator)
+    public RemoveSavedSearchCommand(ISearch search, ISearchRepository searchRepository, IResources resources, SavedSearchesMediator savedSearchesMediator)
     {
         _searchRepository = searchRepository;
         _resources = resources;

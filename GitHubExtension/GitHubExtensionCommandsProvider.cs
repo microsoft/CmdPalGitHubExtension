@@ -4,8 +4,6 @@
 
 using System.Diagnostics;
 using GitHubExtension.Controls;
-using GitHubExtension.Controls.Commands;
-using GitHubExtension.Controls.Forms;
 using GitHubExtension.Controls.Pages;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
@@ -18,46 +16,40 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
 {
     private readonly SavedSearchesPage _savedSearchesPage;
     private readonly SignOutPage _signOutPage;
-    private readonly SignOutForm _signOutForm;
     private readonly SignInPage _signInPage;
-    private readonly SignInForm _signInForm;
-    private readonly SaveSearchForm _saveSearchForm;
     private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly ISearchRepository _persistentDataManager;
     private readonly ISearchPageFactory _searchPageFactory;
     private readonly IResources _resources;
-    private readonly savedSearchesMediator _savedSearchesMediator;
+    private readonly SavedSearchesMediator _savedSearchesMediator;
+    private readonly AuthenticationMediator _authenticationMediator;
 
     public GitHubExtensionCommandsProvider(
         SavedSearchesPage savedSearchesPage,
         SignOutPage signOutPage,
-        SignOutForm signOutForm,
         SignInPage signInPage,
-        SignInForm signInForm,
-        SaveSearchForm saveSearchForm,
         IDeveloperIdProvider developerIdProvider,
         ISearchRepository persistentDataManager,
         IResources resources,
         ISearchPageFactory searchPageFactory,
-        savedSearchesMediator savedSearchesMediator)
+        SavedSearchesMediator savedSearchesMediator,
+        AuthenticationMediator authenticationMediator)
     {
         _savedSearchesPage = savedSearchesPage;
         _signOutPage = signOutPage;
-        _signOutForm = signOutForm;
         _signInPage = signInPage;
-        _signInForm = signInForm;
-        _saveSearchForm = saveSearchForm;
         _developerIdProvider = developerIdProvider;
         _persistentDataManager = persistentDataManager;
         _resources = resources;
         _searchPageFactory = searchPageFactory;
         _savedSearchesMediator = savedSearchesMediator;
+        _authenticationMediator = authenticationMediator;
 
         DisplayName = _resources.GetResource("ExtensionTitle");
 
-        _signInForm.SignInAction += OnSignInStatusChanged;
-        _signOutForm.SignOutAction += OnSignInStatusChanged;
-        _saveSearchForm.SearchSaved += OnSearchSaved;
+        _authenticationMediator.SignInAction += OnSignInStatusChanged;
+        _authenticationMediator.SignOutAction += OnSignInStatusChanged;
+        _savedSearchesMediator.SearchSaved += OnSearchSaved;
         _savedSearchesMediator.SearchRemoved += OnSearchRemoved;
 
         // This async method raises the RaiseItemsChanged event to update the top-level commands
@@ -102,9 +94,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             };
         }
 
-        List<CommandItem> commands = new();
-
-        // commands = GetTopLevelSearchCommands().GetAwaiter().GetResult().ToList();
+        var commands = GetTopLevelSearchCommands().GetAwaiter().GetResult().ToList();
         var defaultCommands = new List<CommandItem>
         {
             new(_savedSearchesPage)

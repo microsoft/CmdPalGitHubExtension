@@ -129,7 +129,7 @@ public class Program
         var decoratorFactory = new DecoratorFactory(gitHubDataManager);
         var cacheDataManager = new CacheDataManagerFacade(cacheManager, gitHubDataManager, decoratorFactory);
 
-        var savedSearchesMediator = new savedSearchesMediator();
+        var savedSearchesMediator = new SavedSearchesMediator();
 
         var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository, resources, savedSearchesMediator);
 
@@ -138,12 +138,14 @@ public class Program
 
         var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, resources, addSearchListItem, savedSearchesMediator);
 
-        var signOutForm = new SignOutForm(developerIdProvider, resources);
+        var authenticationMediator = new AuthenticationMediator();
+
+        var signOutForm = new SignOutForm(developerIdProvider, resources, authenticationMediator);
         var signOutPage = new SignOutPage(signOutForm, new StatusMessage(), resources.GetResource("Message_Sign_Out_Success"), resources.GetResource("Message_Sign_Out_Fail"));
-        var signInForm = new SignInForm(developerIdProvider, resources, signOutForm);
+        var signInForm = new SignInForm(developerIdProvider, resources, authenticationMediator);
         var signInPage = new SignInPage(signInForm, new StatusMessage(), resources.GetResource("Message_Sign_In_Success"), resources.GetResource("Message_Sign_In_Fail"));
 
-        var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signOutForm, signInPage, signInForm, addSearchForm, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator);
+        var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator, authenticationMediator);
         var extensionInstance = new GitHubExtension(extensionDisposedEvent, commandProvider);
 
         _disposables = new List<IDisposable>

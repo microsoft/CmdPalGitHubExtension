@@ -22,14 +22,14 @@ public partial class SavedSearchesPage : ListPage
 
     private readonly IResources _resources;
 
-    private readonly savedSearchesMediator _savedSearchesMediator;
+    private readonly SavedSearchesMediator _savedSearchesMediator;
 
     public SavedSearchesPage(
        ISearchPageFactory searchPageFactory,
        ISearchRepository searchRepository,
        IResources resources,
        IListItem addSearchListItem,
-       savedSearchesMediator savedSearchesMediator)
+       SavedSearchesMediator savedSearchesMediator)
     {
         _resources = resources;
 

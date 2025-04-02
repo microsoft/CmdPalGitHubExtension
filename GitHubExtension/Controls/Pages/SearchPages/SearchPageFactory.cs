@@ -16,9 +16,9 @@ public class SearchPageFactory : ISearchPageFactory
     private readonly ICacheDataManager _cacheDataManager;
     private readonly ISearchRepository _searchRepository;
     private readonly IResources _resources;
-    private readonly savedSearchesMediator _savedSearchesMediator;
+    private readonly SavedSearchesMediator _savedSearchesMediator;
 
-    public SearchPageFactory(ICacheDataManager cacheDataManager, ISearchRepository searchRepository, IResources resources, savedSearchesMediator savedSearchesMediator)
+    public SearchPageFactory(ICacheDataManager cacheDataManager, ISearchRepository searchRepository, IResources resources, SavedSearchesMediator savedSearchesMediator)
     {
         _cacheDataManager = cacheDataManager;
         _searchRepository = searchRepository;

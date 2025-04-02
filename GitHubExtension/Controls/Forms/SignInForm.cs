@@ -12,28 +12,26 @@ namespace GitHubExtension.Controls.Forms;
 
 public partial class SignInForm : FormContent, IGitHubForm
 {
-    public event EventHandler<SignInStatusChangedEventArgs>? SignInAction;
-
     public event EventHandler<bool>? LoadingStateChanged;
 
     public event EventHandler<FormSubmitEventArgs>? FormSubmitted;
 
     private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly IResources _resources;
-    private readonly SignOutForm _signOutForm;
+    private readonly AuthenticationMediator _authenticationMediator;
 
     private bool _isButtonEnabled = true;
 
     private string IsButtonEnabled =>
         _isButtonEnabled.ToString(CultureInfo.InvariantCulture).ToLower(CultureInfo.InvariantCulture);
 
-    public SignInForm(IDeveloperIdProvider developerIdProvider, IResources resources, SignOutForm signOutForm)
+    public SignInForm(IDeveloperIdProvider developerIdProvider, IResources resources, AuthenticationMediator authenticationMediator)
     {
         _resources = resources;
         _developerIdProvider = developerIdProvider;
-        _signOutForm = signOutForm;
         _developerIdProvider.OAuthRedirected += DeveloperIdProvider_OAuthRedirected;
-        _signOutForm.SignOutAction += SignOutForm_SignOutAction;
+        _authenticationMediator = authenticationMediator;
+        _authenticationMediator.SignOutAction += SignOutForm_SignOutAction;
     }
 
     private void SignOutForm_SignOutAction(object? sender, SignInStatusChangedEventArgs e)
@@ -47,7 +45,7 @@ public partial class SignInForm : FormContent, IGitHubForm
         {
             SetButtonEnabled(true);
             LoadingStateChanged?.Invoke(this, false);
-            SignInAction?.Invoke(this, new SignInStatusChangedEventArgs(false, e));
+            _authenticationMediator.SignIn(new SignInStatusChangedEventArgs(false, e));
             FormSubmitted?.Invoke(this, new FormSubmitEventArgs(false, e));
             return;
         }
@@ -82,14 +80,14 @@ public partial class SignInForm : FormContent, IGitHubForm
             {
                 var signInSucceeded = HandleSignIn().Result;
                 LoadingStateChanged?.Invoke(this, false);
-                SignInAction?.Invoke(this, new SignInStatusChangedEventArgs(signInSucceeded, null));
+                _authenticationMediator.SignIn(new SignInStatusChangedEventArgs(signInSucceeded, null));
                 FormSubmitted?.Invoke(this, new FormSubmitEventArgs(signInSucceeded, null));
             }
             catch (Exception ex)
             {
                 LoadingStateChanged?.Invoke(this, false);
                 SetButtonEnabled(true);
-                SignInAction?.Invoke(this, new SignInStatusChangedEventArgs(false, ex));
+                _authenticationMediator.SignIn(new SignInStatusChangedEventArgs(false, ex));
                 FormSubmitted?.Invoke(this, new FormSubmitEventArgs(false, ex));
             }
         });
