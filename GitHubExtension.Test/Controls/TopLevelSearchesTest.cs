@@ -39,12 +39,12 @@ public class TopLevelSearchesTest
 
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-        Thread.Sleep(1000);
+        await Task.Delay(1000);
 
         // Assert that the search is saved and is top level in the PersistentDataManager
         var savedSearches = await persistentDataManager.GetSavedSearches();
         Assert.IsTrue(savedSearches.Count() == 1, "Should have only our saved search");
-        Assert.IsTrue(savedSearches.Any(s => s.Name == testSearchName && s.SearchString == testSearchString), "The new search should appear in saved searches");
+        Assert.IsTrue(savedSearches.Any(s => string.Equals(s.Name, testSearchName, StringComparison.Ordinal) && string.Equals(s.SearchString, s.SearchString, StringComparison.Ordinal)), "The new search should appear in saved searches");
 
         // Simulate creating a SaveSearchForm for the EditSearchPage. Verify that the IsTopLevel box is checked by checking the GetIsTopLevel on SaveSearchForm.
         var editSearchForm = new SaveSearchForm(savedSearches.First(), persistentDataManager, mockResources, savedSearchesMediator);
@@ -75,14 +75,15 @@ public class TopLevelSearchesTest
 
         var initialTopLevelSearches = await persistentDataManager.GetTopLevelSearches();
         Assert.IsTrue(initialTopLevelSearches.Count() == 1, "Should have only our saved search");
-        Assert.IsTrue(initialTopLevelSearches.Any(s => s.Name == dummySearch.Name && s.SearchString == dummySearch.SearchString));
+        Assert.IsTrue(initialTopLevelSearches.Any(s => string.Equals(s.Name, dummySearch.Name, StringComparison.Ordinal)
+            && string.Equals(s.SearchString, dummySearch.SearchString, StringComparison.Ordinal)));
         Assert.IsTrue(saveSearchForm.GetIsTopLevel().Result);
 
         // Uncheck the "IsTopLevel" checkbox and verify that the search is no longer top-level
         var jsonPayload = CreateJsonPayload(dummySearch.SearchString, dummySearch.Name, false);
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-        Thread.Sleep(1000);
+        await Task.Delay(1000);
 
         var editSearchForm = new SaveSearchForm(initialTopLevelSearches.First(), persistentDataManager, mockResources, savedSearchesMediator);
         Assert.IsFalse(await editSearchForm.GetIsTopLevel());
@@ -126,31 +127,31 @@ public class TopLevelSearchesTest
         var jsonPayload = CreateJsonPayload(testSearchString, testSearchName, true);
         addSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-        Thread.Sleep(5000);
+        await Task.Delay(5000);
 
         // Assert that search is saved and is top level in the persistentDataManager
         var savedSearches = await persistentDataManager.GetSavedSearches();
         Assert.IsTrue(
             savedSearches.Any(s =>
-            s.Name == testSearchName &&
-            s.SearchString == testSearchString),
+            string.Equals(s.Name, testSearchName, StringComparison.Ordinal) &&
+            string.Equals(s.SearchString, testSearchString, StringComparison.Ordinal)),
             "The new search should appear in saved searches");
 
         var persitentDataManagerTopLevelCommands = await persistentDataManager.GetTopLevelSearches();
         Assert.IsTrue(
             persitentDataManagerTopLevelCommands.Any(s =>
-            s.Name == testSearchName &&
-            s.SearchString == testSearchString),
+            string.Equals(s.Name, testSearchName, StringComparison.Ordinal) &&
+            string.Equals(s.SearchString, testSearchString, StringComparison.Ordinal)),
             "The new search should appear in top level commands");
 
         // Assert that search is displayed in the saved searches page
         var savedSearchesItems = savedSearchesPage.GetItems();
         Assert.IsTrue(savedSearchesItems.Length == 2, "Should have our saved search and the add item");
-        Assert.IsTrue(savedSearchesItems.Any(item => item.Title == testSearchName));
+        Assert.IsTrue(savedSearchesItems.Any(item => string.Equals(item.Title, testSearchName, StringComparison.Ordinal)));
 
         // Assert that search is in the CommandsProvider's top level commands
         var topLevelCommands = commandsProvider.TopLevelCommands();
-        Assert.IsTrue(topLevelCommands.Any(c => c.Title == testSearchName));
+        Assert.IsTrue(topLevelCommands.Any(c => string.Equals(c.Title, testSearchName, StringComparison.Ordinal)));
 
         // Clean up
         persistentDataManager.Dispose();
@@ -192,8 +193,8 @@ public class TopLevelSearchesTest
         Assert.IsTrue(savedSearches.Count() == 1, "Should have only our saved search");
         Assert.IsTrue(
             savedSearches.Any(s =>
-                s.Name == testSearchName &&
-                s.SearchString == testSearchString),
+                string.Equals(s.Name, testSearchName, StringComparison.Ordinal) &&
+                string.Equals(s.SearchString, testSearchString, StringComparison.Ordinal)),
             "The new search should appear in saved searches");
         var savedSearch = savedSearches.First();
         Assert.IsFalse(
@@ -202,8 +203,8 @@ public class TopLevelSearchesTest
         // Assert saved search is in SavedSearchesPage
         var savedItems = savedSearchesPage.GetItems();
         Assert.IsTrue(savedItems.Length == 2, "Should have our saved search and the add item");
-        Assert.IsTrue(savedItems.Any(item => item.Title == testSearchName));
-        Assert.IsTrue(savedItems.Any(item => item.Title == "Add Saved Search"));
+        Assert.IsTrue(savedItems.Any(item => string.Equals(item.Title, testSearchName, StringComparison.Ordinal)));
+        Assert.IsTrue(savedItems.Any(item => string.Equals(item.Title, "Add Saved Search", StringComparison.Ordinal)));
 
         // Edit saved search to be on the top level
         var editSearchForm = new SaveSearchForm(savedSearch, persistentDataManager, mockResources, savedSearchesMediator);
@@ -220,20 +221,20 @@ public class TopLevelSearchesTest
         Assert.IsTrue(updatedSavedSearches.Count() == 1, "Should have only our saved search");
         Assert.IsTrue(
             updatedSavedSearches.Any(s =>
-                s.Name == editSearchName &&
-                s.SearchString == editSearchString),
+                string.Equals(s.Name, editSearchName, StringComparison.Ordinal) &&
+                string.Equals(s.SearchString, editSearchString, StringComparison.Ordinal)),
             "The edited search should be saved");
 
         var topLevelCommands = await persistentDataManager.GetTopLevelSearches();
         Assert.IsTrue(
             topLevelCommands.Any(s =>
-                s.Name == editSearchName &&
-                s.SearchString == editSearchString),
+                string.Equals(s.Name, editSearchName, StringComparison.Ordinal) &&
+                string.Equals(s.SearchString, editSearchString, StringComparison.Ordinal)),
             "The search should now appear in top level commands after editing");
 
         // Assert the saved search now appears in the top level commands
         var topLevelCommandsInCommandsProvider = commandsProvider.TopLevelCommands();
-        Assert.IsTrue(topLevelCommandsInCommandsProvider.Any(c => c.Title == editSearchName));
+        Assert.IsTrue(topLevelCommandsInCommandsProvider.Any(c => string.Equals(c.Title, editSearchName, StringComparison.Ordinal)));
 
         // Clean up
         persistentDataManager.Dispose();
@@ -286,19 +287,19 @@ public class TopLevelSearchesTest
         Assert.IsTrue(initialSavedSearches.Count() == 1, "Should have only our saved search");
         Assert.IsTrue(
             initialTopLevelSearches.Any(s =>
-                s.Name == testSearchName &&
-                s.SearchString == testSearchString),
+                string.Equals(s.Name, testSearchName, StringComparison.Ordinal) &&
+                string.Equals(s.SearchString, testSearchString, StringComparison.Ordinal)),
             "Search should be in top level searches initially");
 
         // Only one saved search on the SavedSearchesPage and the add search item
         var savedSearchesItems = savedSearchesPage.GetItems();
         Assert.IsTrue(savedSearchesItems.Length == 2, "Should have our saved search and the add item");
-        Assert.IsTrue(savedSearchesItems.Any(item => item.Title == testSearchName));
-        Assert.IsTrue(savedSearchesItems.Any(item => item.Title == "Add Saved Search"));
+        Assert.IsTrue(savedSearchesItems.Any(item => string.Equals(item.Title, testSearchName, StringComparison.Ordinal)));
+        Assert.IsTrue(savedSearchesItems.Any(item => string.Equals(item.Title, "Add Saved Search", StringComparison.Ordinal)));
 
         // The saved search is on the top level
         var topLevelCommands = commandsProvider.TopLevelCommands();
-        Assert.IsTrue(topLevelCommands.Any(c => c.Title == testSearchName));
+        Assert.IsTrue(topLevelCommands.Any(c => string.Equals(c.Title, testSearchName, StringComparison.Ordinal)));
 
         // Remove the top level search
         var removeCommand = new RemoveSavedSearchCommand(topLevelSearch, persistentDataManager, mockResources, savedSearchesMediator);
@@ -310,25 +311,25 @@ public class TopLevelSearchesTest
         var updatedSavedSearches = await persistentDataManager.GetSavedSearches();
         Assert.IsFalse(
             updatedSavedSearches.Any(s =>
-                s.Name == testSearchName &&
-                s.SearchString == testSearchString),
+                string.Equals(s.Name, testSearchName, StringComparison.Ordinal) &&
+                string.Equals(s.SearchString, testSearchString, StringComparison.Ordinal)),
             "Search should be removed from saved searches");
 
         var updatedTopLevelSearches = await persistentDataManager.GetTopLevelSearches();
         Assert.IsFalse(
             updatedTopLevelSearches.Any(s =>
-                s.Name == testSearchName &&
-                s.SearchString == testSearchString),
+                string.Equals(s.Name, testSearchName, StringComparison.Ordinal) &&
+                string.Equals(s.SearchString, testSearchString, StringComparison.Ordinal)),
             "Search should be removed from top level searches");
 
         // Assert the search is removed from the SavedSearchesPage
         var updatedSavedSearchesItems = savedSearchesPage.GetItems();
         Assert.IsTrue(updatedSavedSearchesItems.Length == 1, "Should only have the add item");
-        Assert.IsFalse(updatedSavedSearchesItems.Any(item => item.Title == testSearchName));
+        Assert.IsFalse(updatedSavedSearchesItems.Any(item => string.Equals(item.Title, testSearchName, StringComparison.Ordinal)));
 
         // Assert the search is removed from the top level commands in the CommandsProvider
         var updatedTopLevelCommands = commandsProvider.TopLevelCommands();
-        Assert.IsFalse(updatedTopLevelCommands.Any(c => c.Title == testSearchName));
+        Assert.IsFalse(updatedTopLevelCommands.Any(c => string.Equals(c.Title, testSearchName, StringComparison.Ordinal)));
 
         // Clean up
         persistentDataManager.Dispose();
@@ -363,32 +364,32 @@ public class TopLevelSearchesTest
         await persistentDataManager.UpdateSearchTopLevelStatus(testSearch, testSearch.IsTopLevel);
         savedSearchesMediator.AddSearch(testSearch);
 
-        Thread.Sleep(5000);
+        await Task.Delay(5000);
 
         // Ensure the test conditions are set up correctly:
         var initialSavedSearches = await persistentDataManager.GetSavedSearches();
         Assert.IsTrue(initialSavedSearches.Count() == 1, "Should have only our saved search");
         Assert.IsTrue(
             initialSavedSearches.Any(s =>
-                s.Name == testSearchName &&
-                s.SearchString == testSearchString),
+                string.Equals(s.Name, testSearchName, StringComparison.Ordinal) &&
+                string.Equals(s.SearchString, testSearchString, StringComparison.Ordinal)),
             "Search should be in saved searches initially");
 
         var initialTopLevelSearches = await persistentDataManager.GetTopLevelSearches();
         Assert.IsTrue(initialTopLevelSearches.Count() == 1, "Should have only our saved search");
         Assert.IsTrue(
             initialTopLevelSearches.Any(s =>
-                s.Name == testSearchName &&
-                s.SearchString == testSearchString),
+                string.Equals(s.Name, testSearchName, StringComparison.Ordinal) &&
+                string.Equals(s.SearchString, testSearch.SearchString, StringComparison.Ordinal)),
             "Search should be in top level searches initially");
 
         var savedSearchesItems = savedSearchesPage.GetItems();
         Assert.IsTrue(savedSearchesItems.Length == 2, "Should have our saved search and the add item");
-        Assert.IsTrue(savedSearchesItems.Any(item => item.Title == testSearchName));
-        Assert.IsTrue(savedSearchesItems.Any(item => item.Title == "Add Saved Search"));
+        Assert.IsTrue(savedSearchesItems.Any(item => string.Equals(item.Title, testSearchName, StringComparison.Ordinal)));
+        Assert.IsTrue(savedSearchesItems.Any(item => string.Equals(item.Title, "Add Saved Search", StringComparison.Ordinal)));
 
         var topLevelCommands = commandsProvider.TopLevelCommands();
-        Assert.IsTrue(topLevelCommands.Any(c => c.Title == testSearchName));
+        Assert.IsTrue(topLevelCommands.Any(c => string.Equals(c.Title, testSearchName, StringComparison.Ordinal)));
 
         // Edit the saved search to be non-top-level
         var editSearchForm = new SaveSearchForm(testSearch, persistentDataManager, mockResources, savedSearchesMediator);
@@ -403,26 +404,26 @@ public class TopLevelSearchesTest
         var updatedSavedSearches = await persistentDataManager.GetSavedSearches();
         Assert.IsTrue(
             updatedSavedSearches.Any(s =>
-                s.Name == testSearch.Name &&
-                s.SearchString == testSearch.SearchString),
+                string.Equals(s.Name, testSearch.Name, StringComparison.Ordinal) &&
+                string.Equals(s.SearchString, testSearch.SearchString, StringComparison.Ordinal)),
             "The search should still appear in saved searches after editing");
 
         var updatedTopLevelSearches = await persistentDataManager.GetTopLevelSearches();
         Assert.IsFalse(
             updatedTopLevelSearches.Any(s =>
-                s.Name == testSearchName &&
-                s.SearchString == testSearch.SearchString),
+                string.Equals(s.Name, testSearchName, StringComparison.Ordinal) &&
+                string.Equals(s.SearchString, testSearch.SearchString, StringComparison.Ordinal)),
             "The search should not appear in top level commands after editing");
 
         // Assert the search is still in the SavedSearchesPage
         var updatedSavedSearchPageItems = savedSearchesPage.GetItems();
         Assert.IsTrue(updatedSavedSearchPageItems.Length == 2, "Should have our saved search and the add item");
-        Assert.IsTrue(updatedSavedSearchPageItems.Any(item => item.Title == testSearchName));
-        Assert.IsTrue(updatedSavedSearchPageItems.Any(item => item.Title == "Add Saved Search"));
+        Assert.IsTrue(updatedSavedSearchPageItems.Any(item => string.Equals(item.Title, testSearchName, StringComparison.Ordinal)));
+        Assert.IsTrue(updatedSavedSearchPageItems.Any(item => string.Equals(item.Title, "Add Saved Search", StringComparison.Ordinal)));
 
         // Assert the search is not in the top level commands in the CommandsProvider
         var updatedTopLevelCommands = commandsProvider.TopLevelCommands();
-        Assert.IsFalse(updatedTopLevelCommands.Any(c => c.Title == testSearchName));
+        Assert.IsFalse(updatedTopLevelCommands.Any(c => string.Equals(c.Title, testSearchName, StringComparison.Ordinal)));
 
         // Clean up
         persistentDataManager.Dispose();
