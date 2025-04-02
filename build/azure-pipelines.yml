@@ -57,6 +57,8 @@ extends:
                   displayName: Download and Use Localization Files
                   condition: eq(variables['EnableLocalization'], 'true')
                   inputs:
+                    resourceFilePath: |
+                      **\en-US\*.resw;P:466
                     teamId: '123893'
                     authType: 'FederatedIdentityTDBuild'
                     FederatedIdentityTDBuildServiceConnection: 'CmdPalExtensionsTdBuildConnection'
