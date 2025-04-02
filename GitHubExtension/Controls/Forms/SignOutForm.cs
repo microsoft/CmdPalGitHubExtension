@@ -11,7 +11,7 @@ namespace GitHubExtension.Controls.Forms;
 
 public sealed partial class SignOutForm : FormContent, IGitHubForm
 {
-    public static event EventHandler<SignInStatusChangedEventArgs>? SignOutAction;
+    public event EventHandler<SignInStatusChangedEventArgs>? SignOutAction;
 
     public event EventHandler<bool>? LoadingStateChanged;
 

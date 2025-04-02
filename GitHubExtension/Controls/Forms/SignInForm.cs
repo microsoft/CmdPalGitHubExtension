@@ -20,18 +20,20 @@ public partial class SignInForm : FormContent, IGitHubForm
 
     private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly IResources _resources;
+    private readonly SignOutForm _signOutForm;
 
     private bool _isButtonEnabled = true;
 
     private string IsButtonEnabled =>
         _isButtonEnabled.ToString(CultureInfo.InvariantCulture).ToLower(CultureInfo.InvariantCulture);
 
-    public SignInForm(IDeveloperIdProvider developerIdProvider, IResources resources)
+    public SignInForm(IDeveloperIdProvider developerIdProvider, IResources resources, SignOutForm signOutForm)
     {
         _resources = resources;
         _developerIdProvider = developerIdProvider;
+        _signOutForm = signOutForm;
         _developerIdProvider.OAuthRedirected += DeveloperIdProvider_OAuthRedirected;
-        SignOutForm.SignOutAction += SignOutForm_SignOutAction;
+        _signOutForm.SignOutAction += SignOutForm_SignOutAction;
     }
 
     private void SignOutForm_SignOutAction(object? sender, SignInStatusChangedEventArgs e)

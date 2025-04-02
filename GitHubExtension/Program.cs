@@ -135,11 +135,12 @@ public class Program
 
         var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, resources, addSearchListItem, addSearchForm);
 
-        var signOutPage = new SignOutPage(new SignOutForm(developerIdProvider, resources), new StatusMessage(), resources.GetResource("Message_Sign_Out_Success"), resources.GetResource("Message_Sign_Out_Fail"));
-        var signInForm = new SignInForm(developerIdProvider, resources);
+        var signOutForm = new SignOutForm(developerIdProvider, resources);
+        var signOutPage = new SignOutPage(signOutForm, new StatusMessage(), resources.GetResource("Message_Sign_Out_Success"), resources.GetResource("Message_Sign_Out_Fail"));
+        var signInForm = new SignInForm(developerIdProvider, resources, signOutForm);
         var signInPage = new SignInPage(signInForm, new StatusMessage(), resources.GetResource("Message_Sign_In_Success"), resources.GetResource("Message_Sign_In_Fail"));
 
-        var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, signInForm, addSearchForm, developerIdProvider, searchRepository, resources, searchPageFactory);
+        var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signOutForm, signInPage, signInForm, addSearchForm, developerIdProvider, searchRepository, resources, searchPageFactory);
         var extensionInstance = new GitHubExtension(extensionDisposedEvent, commandProvider);
 
         _disposables = new List<IDisposable>

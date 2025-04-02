@@ -18,6 +18,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
 {
     private readonly SavedSearchesPage _savedSearchesPage;
     private readonly SignOutPage _signOutPage;
+    private readonly SignOutForm _signOutForm;
     private readonly SignInPage _signInPage;
     private readonly SignInForm _signInForm;
     private readonly SaveSearchForm _saveSearchForm;
@@ -29,6 +30,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
     public GitHubExtensionCommandsProvider(
         SavedSearchesPage savedSearchesPage,
         SignOutPage signOutPage,
+        SignOutForm signOutForm,
         SignInPage signInPage,
         SignInForm signInForm,
         SaveSearchForm saveSearchForm,
@@ -39,6 +41,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
     {
         _savedSearchesPage = savedSearchesPage;
         _signOutPage = signOutPage;
+        _signOutForm = signOutForm;
         _signInPage = signInPage;
         _signInForm = signInForm;
         _saveSearchForm = saveSearchForm;
@@ -51,7 +54,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
 
         // Static events here. Hard dependency. But maybe it is ok in this case
         _signInForm.SignInAction += OnSignInStatusChanged;
-        SignOutForm.SignOutAction += OnSignInStatusChanged;
+        _signOutForm.SignOutAction += OnSignInStatusChanged;
         _saveSearchForm.SearchSaved += OnSearchSaved;
         RemoveSavedSearchCommand.SearchRemoved += OnSearchRemoved;
 
