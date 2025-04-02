@@ -70,7 +70,7 @@ public partial class SavedSearchesPage : ListPage
 
         if (args != null && args is SearchCandidate)
         {
-            RaiseItemsChanged(_searchRepository.GetSavedSearches().Result.Count());
+            RaiseItemsChanged(0);
         }
 
         // errors are handled in SaveSearchPage
@@ -92,7 +92,7 @@ public partial class SavedSearchesPage : ListPage
         }
         else if (args is true)
         {
-            RaiseItemsChanged(_searchRepository.GetSavedSearches().Result.Count());
+            RaiseItemsChanged(0);
         }
         else if (args is false)
         {
