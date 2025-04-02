@@ -20,6 +20,8 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
 
     private readonly IResources _resources;
 
+    private readonly savedSearchesMediator _savedSearchesMediator;
+
     private string IsTopLevelChecked => GetIsTopLevel().Result.ToString().ToLower(CultureInfo.InvariantCulture);
 
     public event EventHandler<bool>? LoadingStateChanged;
@@ -43,19 +45,21 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
     };
 
     // for saving a new query
-    public SaveSearchForm(ISearchRepository searchRepository, IResources resources)
+    public SaveSearchForm(ISearchRepository searchRepository, IResources resources, savedSearchesMediator savedSearchesMediator)
     {
         _resources = resources;
         _savedSearch = new SearchCandidate();
         _searchRepository = searchRepository;
+        _savedSearchesMediator = savedSearchesMediator;
     }
 
     // for editing an existing query
-    public SaveSearchForm(ISearch savedSearch, ISearchRepository searchRepository, IResources resources)
+    public SaveSearchForm(ISearch savedSearch, ISearchRepository searchRepository, IResources resources, savedSearchesMediator savedSearchesMediator)
     {
         _resources = resources;
         _savedSearch = savedSearch;
         _searchRepository = searchRepository;
+        _savedSearchesMediator = savedSearchesMediator;
     }
 
     public override string TemplateJson => TemplateHelper.LoadTemplateJsonFromTemplateName("SaveSearch", TemplateSubstitutions);

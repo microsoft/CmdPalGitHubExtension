@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Client;
+using GitHubExtension.Controls;
 using GitHubExtension.Controls.Forms;
 using GitHubExtension.Controls.ListItems;
 using GitHubExtension.Controls.Pages;
@@ -128,19 +129,21 @@ public class Program
         var decoratorFactory = new DecoratorFactory(gitHubDataManager);
         var cacheDataManager = new CacheDataManagerFacade(cacheManager, gitHubDataManager, decoratorFactory);
 
-        var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository, resources);
+        var savedSearchesMediator = new savedSearchesMediator();
 
-        var addSearchForm = new SaveSearchForm(searchRepository, resources);
+        var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository, resources, savedSearchesMediator);
+
+        var addSearchForm = new SaveSearchForm(searchRepository, resources, savedSearchesMediator);
         var addSearchListItem = new AddSearchListItem(new SaveSearchPage(addSearchForm, new StatusMessage(), resources.GetResource("Message_Search_Saved"), resources.GetResource("Message_Search_Saved_Error"), resources.GetResource("ListItems_AddSearch")), resources);
 
-        var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, resources, addSearchListItem, addSearchForm);
+        var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, resources, addSearchListItem, savedSearchesMediator);
 
         var signOutForm = new SignOutForm(developerIdProvider, resources);
         var signOutPage = new SignOutPage(signOutForm, new StatusMessage(), resources.GetResource("Message_Sign_Out_Success"), resources.GetResource("Message_Sign_Out_Fail"));
         var signInForm = new SignInForm(developerIdProvider, resources, signOutForm);
         var signInPage = new SignInPage(signInForm, new StatusMessage(), resources.GetResource("Message_Sign_In_Success"), resources.GetResource("Message_Sign_In_Fail"));
 
-        var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signOutForm, signInPage, signInForm, addSearchForm, developerIdProvider, searchRepository, resources, searchPageFactory);
+        var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signOutForm, signInPage, signInForm, addSearchForm, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator);
         var extensionInstance = new GitHubExtension(extensionDisposedEvent, commandProvider);
 
         _disposables = new List<IDisposable>

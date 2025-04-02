@@ -5,7 +5,6 @@
 using GitHubExtension.Controls;
 using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
-using GitHubExtension.Controls.ListItems;
 using GitHubExtension.Controls.Pages;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
@@ -23,26 +22,61 @@ public partial class SavedSearchesPage : ListPage
 
     private readonly IResources _resources;
 
-    private readonly SaveSearchForm _addSearchSaveSearchForm;
+    private readonly savedSearchesMediator _savedSearchesMediator;
 
     public SavedSearchesPage(
        ISearchPageFactory searchPageFactory,
        ISearchRepository searchRepository,
        IResources resources,
        IListItem addSearchListItem,
-       SaveSearchForm saveSearchForm)
+       savedSearchesMediator savedSearchesMediator)
     {
         _resources = resources;
 
         Icon = new IconInfo("\ue721");
         Name = _resources.GetResource("Pages_Saved_Searches");
-        RemoveSavedSearchCommand.SearchRemoved += OnSearchRemoved;
-        RemoveSavedSearchCommand.SearchRemoving += OnSearchRemoving;
+        _savedSearchesMediator = savedSearchesMediator;
+        _savedSearchesMediator.SearchRemoved += OnSearchRemoved;
+        _savedSearchesMediator.SearchRemoving += OnSearchRemoving;
         _searchPageFactory = searchPageFactory;
         _searchRepository = searchRepository;
         _addSearchListItem = addSearchListItem;
-        _addSearchSaveSearchForm = saveSearchForm;
-        _addSearchSaveSearchForm.SearchSaved += OnSearchSaved;
+        _savedSearchesMediator.SearchSaved += OnSearchSaved;
+    }
+
+    private void OnSearchRemoved(object? sender, object? args)
+    {
+        IsLoading = false;
+
+        if (args is Exception e)
+        {
+            var toast = new ToastStatusMessage(new StatusMessage()
+            {
+                Message = $"{_resources.GetResource("Pages_Saved_Searches_Error")} {e.Message}",
+                State = MessageState.Error,
+            });
+
+            toast.Show();
+        }
+        else if (args is true)
+        {
+            RaiseItemsChanged(0);
+        }
+        else if (args is false)
+        {
+            var toast = new ToastStatusMessage(new StatusMessage()
+            {
+                Message = _resources.GetResource("Pages_Saved_Searches_Failure"),
+                State = MessageState.Error,
+            });
+
+            toast.Show();
+        }
+    }
+
+    private void OnSearchRemoving(object? sender, object? e)
+    {
+        IsLoading = true;
     }
 
     public override IListItem[] GetItems()
@@ -74,40 +108,5 @@ public partial class SavedSearchesPage : ListPage
         }
 
         // errors are handled in SaveSearchPage
-    }
-
-    public void OnSearchRemoved(object sender, object? args)
-    {
-        IsLoading = false;
-
-        if (args is Exception e)
-        {
-            var toast = new ToastStatusMessage(new StatusMessage()
-            {
-                Message = $"{_resources.GetResource("Pages_Saved_Searches_Error")} {e.Message}",
-                State = MessageState.Error,
-            });
-
-            toast.Show();
-        }
-        else if (args is true)
-        {
-            RaiseItemsChanged(0);
-        }
-        else if (args is false)
-        {
-            var toast = new ToastStatusMessage(new StatusMessage()
-            {
-                Message = _resources.GetResource("Pages_Saved_Searches_Failure"),
-                State = MessageState.Error,
-            });
-
-            toast.Show();
-        }
-    }
-
-    private void OnSearchRemoving(object sender, object? args)
-    {
-        IsLoading = true;
     }
 }

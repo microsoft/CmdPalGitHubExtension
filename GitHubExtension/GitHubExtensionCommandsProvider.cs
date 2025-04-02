@@ -26,6 +26,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
     private readonly ISearchRepository _persistentDataManager;
     private readonly ISearchPageFactory _searchPageFactory;
     private readonly IResources _resources;
+    private readonly savedSearchesMediator _savedSearchesMediator;
 
     public GitHubExtensionCommandsProvider(
         SavedSearchesPage savedSearchesPage,
@@ -37,7 +38,8 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         IDeveloperIdProvider developerIdProvider,
         ISearchRepository persistentDataManager,
         IResources resources,
-        ISearchPageFactory searchPageFactory)
+        ISearchPageFactory searchPageFactory,
+        savedSearchesMediator savedSearchesMediator)
     {
         _savedSearchesPage = savedSearchesPage;
         _signOutPage = signOutPage;
@@ -49,21 +51,21 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         _persistentDataManager = persistentDataManager;
         _resources = resources;
         _searchPageFactory = searchPageFactory;
+        _savedSearchesMediator = savedSearchesMediator;
 
         DisplayName = _resources.GetResource("ExtensionTitle");
 
-        // Static events here. Hard dependency. But maybe it is ok in this case
         _signInForm.SignInAction += OnSignInStatusChanged;
         _signOutForm.SignOutAction += OnSignInStatusChanged;
         _saveSearchForm.SearchSaved += OnSearchSaved;
-        RemoveSavedSearchCommand.SearchRemoved += OnSearchRemoved;
+        _savedSearchesMediator.SearchRemoved += OnSearchRemoved;
 
         // This async method raises the RaiseItemsChanged event to update the top-level commands
         // So it is safe if we let it run asynchronously as "fire and forget"
         _ = UpdateSignInStatus(IsSignedIn());
     }
 
-    private void OnSearchRemoved(object sender, object args)
+    private void OnSearchRemoved(object? sender, object? args)
     {
         if (args is bool isRemoved && isRemoved)
         {
