@@ -137,6 +137,15 @@ public class TopLevelSearchesTest
         PersistentDataManagerTestsSetup.Cleanup(dataStoreOptions.DataStoreFolderPath);
     }
 
+    public IDeveloperIdProvider CreateMockDeveloperIdProvider()
+    {
+        var mockDeveloperIdProvider = new Mock<IDeveloperIdProvider>();
+        mockDeveloperIdProvider
+            .Setup(provider => provider.IsSignedIn())
+            .Returns(true);
+        return mockDeveloperIdProvider.Object;
+    }
+
     public IListItem CreateMockAddSearchListItem()
     {
         var mockAddSearchListItem = new Mock<IListItem>();
@@ -160,37 +169,28 @@ public class TopLevelSearchesTest
         return new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, mockDeveloperIdProvider, persistentDataManager, mockResources, searchPageFactory, savedSearchesMediator, mockAuthenticationMediator);
     }
 
-    // This test verifies that the SaveSearchForm properly updates the top-level status
     [TestMethod]
-    public async Task Integration_AddTopLevelCommand_ShouldAppearInSavedSearchesPageAndTopLevel()
+    public async Task Integration_AddNewTopLevelCommand()
     {
-        // Multiple parts depend on these:
-        var mockDeveloperIdProvider = new Mock<IDeveloperIdProvider>();
-        mockDeveloperIdProvider
-            .Setup(provider => provider.IsSignedIn())
-            .Returns(true);
+        // Initialize
+        var mockDeveloperIdProvider = CreateMockDeveloperIdProvider();
         var mockResources = new Mock<IResources>().Object;
         var savedSearchesMediator = new SavedSearchesMediator();
 
-        // Object we're testing: PersistentDataManager
         var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions(); // created here because we dispose dataStoreOptions at the end of this test
         using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
 
-        // Object we're testing: SearchPageFactory
         var mockCacheDataManager = new Mock<ICacheDataManager>().Object;
         var searchPageFactory = new SearchPageFactory(mockCacheDataManager, persistentDataManager, mockResources, savedSearchesMediator);
 
-        // Object we're testing: SavedSearchForm
         var addSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        // Object we're testing: SavedSearchesPage
         var mockAddSearchListItem = CreateMockAddSearchListItem();
         var savedSearchesPage = new SavedSearchesPage(searchPageFactory, persistentDataManager, mockResources, mockAddSearchListItem, savedSearchesMediator);
 
-        // testing CommandsProvider
-        var commandsProvider = CreateGitHubExtensionCommandsProvider(mockDeveloperIdProvider.Object, mockResources, savedSearchesPage, persistentDataManager, savedSearchesMediator, searchPageFactory);
+        var commandsProvider = CreateGitHubExtensionCommandsProvider(mockDeveloperIdProvider, mockResources, savedSearchesPage, persistentDataManager, savedSearchesMediator, searchPageFactory);
 
-        // Create a new top level search
+        // Create a new top level search via the SaveSearchForm
         var testSearchString = "is:issue author:testuser";
         var testSearchName = "New Top Level Search";
         var jsonPayload = CreateJsonPayload(testSearchString, testSearchName, true);
@@ -218,7 +218,7 @@ public class TopLevelSearchesTest
         Assert.IsTrue(savedSearchesItems.Length == 2, "Should have our saved search and the add item");
         Assert.IsTrue(savedSearchesItems.Any(item => item.Title == testSearchName));
 
-        // Assert that search is on the top level commands in the commands provider
+        // Assert that search is in the CommandsProvider's top level commands
         var topLevelCommands = commandsProvider.TopLevelCommands();
         Assert.IsTrue(topLevelCommands.Any(c => c.Title == testSearchName));
 
@@ -231,33 +231,25 @@ public class TopLevelSearchesTest
     [TestMethod]
     public async Task Integration_AddAndEditSearch_ToBeTopLevel()
     {
-        // Multiple parts depend on these:
-        var mockDeveloperIdProvider = new Mock<IDeveloperIdProvider>();
-        mockDeveloperIdProvider
-            .Setup(provider => provider.IsSignedIn())
-            .Returns(true);
+        // Initialize
+        var mockDeveloperIdProvider = CreateMockDeveloperIdProvider();
         var mockResources = new Mock<IResources>().Object;
         var savedSearchesMediator = new SavedSearchesMediator();
 
-        // Object we're testing: PersistentDataManager
         var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions(); // created here because we dispose dataStoreOptions at the end of this test
         using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
 
-        // Object we're testing: SearchPageFactory
         var mockCacheDataManager = new Mock<ICacheDataManager>().Object;
         var searchPageFactory = new SearchPageFactory(mockCacheDataManager, persistentDataManager, mockResources, savedSearchesMediator);
 
-        // Object we're testing: SavedSearchForm
         var addSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        // Object we're testing: SavedSearchesPage
         var mockAddSearchListItem = CreateMockAddSearchListItem();
         var savedSearchesPage = new SavedSearchesPage(searchPageFactory, persistentDataManager, mockResources, mockAddSearchListItem, savedSearchesMediator);
 
-        // testing CommandsProvider
-        var commandsProvider = CreateGitHubExtensionCommandsProvider(mockDeveloperIdProvider.Object, mockResources, savedSearchesPage, persistentDataManager, savedSearchesMediator, searchPageFactory);
+        var commandsProvider = CreateGitHubExtensionCommandsProvider(mockDeveloperIdProvider, mockResources, savedSearchesPage, persistentDataManager, savedSearchesMediator, searchPageFactory);
 
-        // Create a new top level search
+        // Create a new non-top-level search via the SaveSearchForm
         var testSearchString = "is:issue author:testuser";
         var testSearchName = "My regular search";
         var jsonPayload = CreateJsonPayload(testSearchString, testSearchName, false);
@@ -283,8 +275,8 @@ public class TopLevelSearchesTest
         Assert.IsTrue(savedItems.Any(item => item.Title == testSearchName));
         Assert.IsTrue(savedItems.Any(item => item.Title == "Add Saved Search"));
 
+        // Edit saved search to be on the top level
         var editSearchForm = new SaveSearchForm(savedSearch, persistentDataManager, mockResources, savedSearchesMediator);
-
         var editSearchString = "is:issue author:testuser";
         var editSearchName = "My Regular Search - Now top level";
         var editJsonPayload = CreateJsonPayload(editSearchString, editSearchName, true);
@@ -321,34 +313,26 @@ public class TopLevelSearchesTest
     [TestMethod]
     public async Task Integration_RemoveTopLevelCommand_FromSavedSearches()
     {
-        // Multiple parts depend on these:
-        var mockDeveloperIdProvider = new Mock<IDeveloperIdProvider>();
-        mockDeveloperIdProvider
-            .Setup(provider => provider.IsSignedIn())
-            .Returns(true);
+        // Initialize
+        var mockDeveloperIdProvider = CreateMockDeveloperIdProvider();
         var mockResources = new Mock<IResources>().Object;
         var savedSearchesMediator = new SavedSearchesMediator();
 
-        // Object we're testing: PersistentDataManager
         var dataStoreOptions = PersistentDataManagerTestsSetup.GetDataStoreOptions(); // created here because we dispose dataStoreOptions at the end of this test
         using var persistentDataManager = CreatePersistentDataManager(dataStoreOptions);
 
-        // Object we're testing: SearchPageFactory
         var mockCacheDataManager = new Mock<ICacheDataManager>().Object;
         var searchPageFactory = new SearchPageFactory(mockCacheDataManager, persistentDataManager, mockResources, savedSearchesMediator);
 
-        // Object we're testing: SavedSearchForm
         var addSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
-        // Object we're testing: SavedSearchesPage
         var mockAddSearchListItem = CreateMockAddSearchListItem();
         var savedSearchesPage = new SavedSearchesPage(searchPageFactory, persistentDataManager, mockResources, mockAddSearchListItem, savedSearchesMediator);
 
-        // testing CommandsProvider
-        var commandsProvider = CreateGitHubExtensionCommandsProvider(mockDeveloperIdProvider.Object, mockResources, savedSearchesPage, persistentDataManager, savedSearchesMediator, searchPageFactory);
+        var commandsProvider = CreateGitHubExtensionCommandsProvider(mockDeveloperIdProvider, mockResources, savedSearchesPage, persistentDataManager, savedSearchesMediator, searchPageFactory);
 
         // Create a new top level search
-        // In previous tests, we tested the adding and editing flow. Now, we're testing removing an existing command.
+        // In previous tests, we tested the adding and editing flow. Now, we're testing removing an existing command, so the command is added directly.
         var testSearchString = "is:issue author:testuser";
         var testSearchName = "Top level search";
         var topLevelSearch = new SearchCandidate(testSearchString, testSearchName, true);
@@ -357,7 +341,7 @@ public class TopLevelSearchesTest
 
         await Task.Delay(5000);
 
-        // Assert the test conditions are set up correctly:
+        // Ensure the test conditions are set up correctly:
         // Only one saved search and it's the one we added
         var initialSavedSearches = await persistentDataManager.GetSavedSearches();
         Assert.IsTrue(initialSavedSearches.Count() == 1, "Should have only our saved search");
