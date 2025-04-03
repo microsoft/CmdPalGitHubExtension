@@ -305,4 +305,12 @@ public class DeveloperIdProvider : IDeveloperIdProvider
             _credentialVault.SaveCredentials(newDeveloperId.Url, accessToken);
         }
     }
+
+    public bool IsSignedIn()
+    {
+        lock (_developerIdsLock)
+        {
+            return GetLoggedInDeveloperIdsInternal().Any();
+        }
+    }
 }

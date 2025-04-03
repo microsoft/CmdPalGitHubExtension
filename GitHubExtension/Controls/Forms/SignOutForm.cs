@@ -9,7 +9,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Controls.Forms;
 
-public sealed partial class SignOutForm : FormContent, IGitHubForm
+public partial class SignOutForm : FormContent, IGitHubForm
 {
     public event EventHandler<bool>? LoadingStateChanged;
 
