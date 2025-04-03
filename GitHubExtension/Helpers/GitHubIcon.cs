@@ -2,31 +2,33 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using Microsoft.CommandPalette.Extensions.Toolkit;
+
 namespace GitHubExtension.Helpers;
 
 public static class GitHubIcon
 {
+    public static string LogoWithBackplatePath { get; } = Path.Combine(AppContext.BaseDirectory, "Assets", "gh_logo.png");
+
     static GitHubIcon()
     {
-        IconDictionary = new Dictionary<string, string>
+        IconDictionary = new Dictionary<string, IconInfo>
             {
-                { "logo_dark", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "GitHubLogo_Dark.png") },
-                { "logo_light", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "GitHubLogo_Light.png") },
-                { "issue", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "issues.png") },
-                { "pr", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "pulls.png") },
-                { "release", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "releases.png") },
-                { "logo", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "gh_logo.jpg") },
-                { "Issues", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "issues.png") },
-                { "PullRequests", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "pulls.png") },
-                { "IssuesAndPullRequests", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "gh_logo.jpg") },
+                { "issue", IconHelpers.FromRelativePath("Assets\\issues.svg") },
+                { "pr", IconHelpers.FromRelativePath("Assets\\pulls.svg") },
+                { "release", IconHelpers.FromRelativePath("Assets\\releases.svg") },
+                { "logo", IconHelpers.FromRelativePaths("Assets\\github.light.svg", "Assets\\github.dark.svg") },
+                { "Issues", IconHelpers.FromRelativePath("Assets\\issues.svg") },
+                { "PullRequests", IconHelpers.FromRelativePath("Assets\\pulls.svg") },
+                { "IssuesAndPullRequests", IconHelpers.FromRelativePaths("Assets\\github.light.svg", "Assets\\github.dark.svg") },
             };
     }
 
-    public static Dictionary<string, string> IconDictionary { get; private set; }
+    public static Dictionary<string, IconInfo> IconDictionary { get; private set; }
 
-    public static string GetBase64Icon(string iconKey)
+    public static string GetBase64Icon(string iconPath)
     {
-        if (IconDictionary.TryGetValue(iconKey, out var iconPath))
+        if (!string.IsNullOrEmpty(iconPath))
         {
             var bytes = File.ReadAllBytes(iconPath);
             return Convert.ToBase64String(bytes);

@@ -64,7 +64,7 @@ public partial class SignInForm : FormContent, IGitHubForm
     {
         { "{{AuthTitle}}", _resources.GetResource("Forms_Sign_In") },
         { "{{AuthButtonTitle}}", _resources.GetResource("Forms_Sign_In") },
-        { "{{AuthIcon}}", $"data:image/png;base64,{GitHubIcon.GetBase64Icon("logo")}" },
+        { "{{AuthIcon}}", $"data:image/png;base64,{GitHubIcon.GetBase64Icon(GitHubIcon.LogoWithBackplatePath)}" },
         { "{{AuthButtonTooltip}}", _resources.GetResource("Forms_Sign_In_Tooltip") },
         { "{{ButtonIsEnabled}}", IsButtonEnabled },
     };
