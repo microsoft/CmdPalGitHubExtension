@@ -53,19 +53,6 @@ extends:
             - ${{ each platform in parameters.Platforms }}:
               - job: Build_${{ platform }}_${{ configuration }}
                 steps:
-                - task: TouchdownBuildTask@5
-                  displayName: Download and Use Localization Files
-                  condition: eq(variables['EnableLocalization'], 'true')
-                  inputs:
-                    resourceFilePath: |
-                      **\en-US\*.resw;P:466
-                    teamId: '123893'
-                    authType: 'FederatedIdentityTDBuild'
-                    FederatedIdentityTDBuildServiceConnection: 'CmdPalExtensionsTdBuildConnection'
-                    appendRelativeDir: true
-                    localizationTarget: false
-                    pseudoSetting: 'Included'
-                    cultureMappingType: 'None'
 
                 - task: TouchdownBuildTask@5
                   displayName: Send and Download Localization Files for Artifacts
@@ -80,6 +67,20 @@ extends:
                     teamId: '123893'
                     authType: 'FederatedIdentityTDBuild'
                     FederatedIdentityTDBuildServiceConnection: 'CmdPalExtensionsTdBuildConnection'
+                    pseudoSetting: 'Included'
+                    cultureMappingType: 'None'
+
+                - task: TouchdownBuildTask@5
+                  displayName: Download and Use Localization Files
+                  condition: eq(variables['EnableLocalization'], 'true')
+                  inputs:
+                    resourceFilePath: |
+                      **\en-US\*.resw;P:466
+                    teamId: '123893'
+                    authType: 'FederatedIdentityTDBuild'
+                    FederatedIdentityTDBuildServiceConnection: 'CmdPalExtensionsTdBuildConnection'
+                    appendRelativeDir: true
+                    localizationTarget: false
                     pseudoSetting: 'Included'
                     cultureMappingType: 'None'
 
