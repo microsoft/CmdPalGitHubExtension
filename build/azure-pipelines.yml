@@ -60,7 +60,6 @@ extends:
                   inputs:
                     resourceFilePath: |
                       **\en-US\*.resw;P:466
-                      **\en-US\PDP.xml
                     outputDirectoryRoot: LocOutput
                     localizationTarget: true
                     appendRelativeDir: true
