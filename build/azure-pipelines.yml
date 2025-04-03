@@ -59,7 +59,7 @@ extends:
                   condition: and(eq(variables['EnableLocalization'], 'true'), eq(variables['UpdateLocalization'], 'true'))
                   inputs:
                     resourceFilePath: |
-                      **\en-US\*.resw;P:466
+                      **\en-US\*.resw
                     outputDirectoryRoot: LocOutput
                     localizationTarget: true
                     appendRelativeDir: true
@@ -74,7 +74,7 @@ extends:
                   condition: eq(variables['EnableLocalization'], 'true')
                   inputs:
                     resourceFilePath: |
-                      **\en-US\*.resw;P:466
+                      **\en-US\*.resw
                     teamId: '123893'
                     authType: 'FederatedIdentityTDBuild'
                     FederatedIdentityTDBuildServiceConnection: 'CmdPalExtensionsTdBuildConnection'
