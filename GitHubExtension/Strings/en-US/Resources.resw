@@ -138,11 +138,11 @@
     <comment>Title for command to remove a saved query</comment>
   </data>
   <data name="Forms_Save_Search" xml:space="preserve">
-    <value>Save Query</value>
+    <value>Save query</value>
     <comment>Shown in form button to save a query</comment>
   </data>
   <data name="Forms_Edit_Search" xml:space="preserve">
-    <value>Edit Query</value>
+    <value>Edit query</value>
     <comment>Shown in form button to edit a query</comment>
   </data>
   <data name="Forms_Sign_In" xml:space="preserve">
@@ -206,7 +206,7 @@
     <comment>Name of markdown page to show pull request details</comment>
   </data>
   <data name="Pages_Saved_Searches" xml:space="preserve">
-    <value>Saved GitHub Queries</value>
+    <value>Saved GitHub queries</value>
     <comment>Name of page that shows list of saved github queries</comment>
   </data>
   <data name="Pages_Saved_Searches_Error" xml:space="preserve">
@@ -322,23 +322,23 @@
     <comment>The title for the button that submits the form and saves the query</comment>
   </data>
   <data name="CommandsProvider_AssignedToMeCommandName" xml:space="preserve">
-    <value>Assigned to Me</value>
+    <value>Assigned to me</value>
     <comment>Title for search "state:open assignee:{login} archived:false"</comment>
   </data>
   <data name="CommandsProvider_CreatedIssuesCommandName" xml:space="preserve">
-    <value>Created Issues</value>
+    <value>Created issues</value>
     <comment>Title for search "state:open is:pr review-requested:{login} archived:false"</comment>
   </data>
   <data name="CommandsProvider_MentionsMeCommandName" xml:space="preserve">
-    <value>Mentions Me</value>
+    <value>Mentions me</value>
     <comment>Title for search "state:open mentions:{login} archived:false"</comment>
   </data>
   <data name="CommandsProvider_ReviewRequestedCommandName" xml:space="preserve">
-    <value>Review Requested</value>
+    <value>Review requested</value>
     <comment>Title for search "state:open is:pr review-requested:{login} archived:false"</comment>
   </data>
   <data name="CommandsProvider_MyPullRequestsCommandName" xml:space="preserve">
-    <value>My Pull Requests</value>
+    <value>My pull requests</value>
     <comment>Title for search "state:open is:pr author:{login} archived:false"</comment>
   </data>
   <data name="ExtensionTitle" xml:space="preserve">
