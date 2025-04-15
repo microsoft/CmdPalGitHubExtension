@@ -13,7 +13,7 @@ internal sealed partial class CopySourceBranchCommand : InvokableCommand
     internal CopySourceBranchCommand(IPullRequest pullRequestSource, string valueToCopyString)
     {
         _pullRequestSource = pullRequestSource;
-        Name = valueToCopyString;
+        Name = _pullRequestSource.SourceBranch;
         Icon = new IconInfo("\uE8C8");
     }
 
