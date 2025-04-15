@@ -4,6 +4,7 @@
 
 using Dapper;
 using Dapper.Contrib.Extensions;
+using GitHubExtension.Client;
 using GitHubExtension.Controls;
 using GitHubExtension.Helpers;
 using Serilog;
@@ -479,5 +480,18 @@ public class PullRequest : IPullRequest
         var sql = @"DELETE FROM PullRequest WHERE Id NOT IN (SELECT PullRequest FROM SearchPullRequest);";
         var rowsDeleted = dataStore.Connection!.Execute(sql);
         _log.Verbose(DataStore.GetDeletedLogMessage(rowsDeleted));
+    }
+
+    private static string RemoveOrganizationFromSourceBranchLabel(string octokitSourceBranchLabel, string htmlUrl)
+    {
+        var parts = octokitSourceBranchLabel.Split('/', 2);
+        var owner = Validation.ParseOwnerFromGitHubURL(htmlUrl);
+
+        if (parts.Length > 1 && parts[0].Equals(owner, StringComparison.OrdinalIgnoreCase))
+        {
+            return parts[1];
+        }
+
+        return octokitSourceBranchLabel;
     }
 }
