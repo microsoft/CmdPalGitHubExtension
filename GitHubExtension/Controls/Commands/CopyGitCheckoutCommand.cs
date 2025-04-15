@@ -13,7 +13,7 @@ internal sealed partial class CopyGitCheckoutCommand : InvokableCommand
     internal CopyGitCheckoutCommand(IPullRequest pullRequestSource, string valueToCopyString)
     {
         _pullRequestSource = pullRequestSource;
-        Name = valueToCopyString;
+        Name = $"git checkout {_pullRequestSource.SourceBranch}";
         Icon = new IconInfo("\uE8C8");
     }
 
