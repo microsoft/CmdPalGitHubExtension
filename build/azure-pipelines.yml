@@ -53,6 +53,64 @@ extends:
             - ${{ each platform in parameters.Platforms }}:
               - job: Build_${{ platform }}_${{ configuration }}
                 steps:
+
+                - task: TouchdownBuildTask@5
+                  displayName: Send and Download Localization Files for Artifacts
+                  condition: and(eq(variables['EnableLocalization'], 'true'), eq(variables['UpdateLocalization'], 'true'))
+                  inputs:
+                    resourceFilePath: |
+                      **\en-US\*.resw
+                    outputDirectoryRoot: LocOutput
+                    localizationTarget: true
+                    appendRelativeDir: true
+                    teamId: '123893'
+                    authType: 'FederatedIdentityTDBuild'
+                    FederatedIdentityTDBuildServiceConnection: 'CmdPalExtensionsTdBuildConnection'
+                    pseudoSetting: 'Included'
+                    cultureMappingType: 'None'
+
+                - task: TouchdownBuildTask@5
+                  displayName: Download and Use Localization Files
+                  condition: eq(variables['EnableLocalization'], 'true')
+                  inputs:
+                    resourceFilePath: |
+                      **\en-US\*.resw
+                    teamId: '123893'
+                    authType: 'FederatedIdentityTDBuild'
+                    FederatedIdentityTDBuildServiceConnection: 'CmdPalExtensionsTdBuildConnection'
+                    appendRelativeDir: true
+                    localizationTarget: false
+                    pseudoSetting: 'Included'
+                    cultureMappingType: 'None'
+
+                - task: PowerShell@2
+                  displayName: Move Loc files one level up
+                  condition: eq(variables['EnableLocalization'], 'true')
+                  inputs:
+                    targetType: inline
+                    script: >-
+                      $Files = Get-ChildItem . -R -Filter 'Resources.resw' | ? FullName -Like '*en-US\*\Resources.resw'
+
+                      $Files | % { Move-Item -Verbose $_.Directory $_.Directory.Parent.Parent -EA:Ignore }
+
+                      $Files = Get-ChildItem . -R -Filter 'PDP.xml' | ? FullName -Like '*en-US\*\PDP.xml'
+
+                      $Files | % { Move-Item -Verbose $_.Directory $_.Directory.Parent.Parent -EA:Ignore }
+                    pwsh: true
+
+                - task: PowerShell@2
+                  displayName: Archive Loc Output for Submission
+                  condition: and(eq(variables['EnableLocalization'], 'true'), eq(variables['UpdateLocalization'], 'true'))
+                  inputs:
+                    PathtoPublish: LocOutput.tar.gz
+                    ArtifactName: LocOutput
+                    targetType: inline
+                    script: >-
+                      New-Item -Path 'locArchive' -ItemType Directory
+                      
+                      tar czf locArchive\LocOutput.tar.gz LocOutput
+                    pwsh: true
+
                 - task: PowerShell@2
                   displayName: Running script to update OAuth secrets
                   inputs:
@@ -145,3 +203,10 @@ extends:
                     - output: pipelineArtifact
                       targetPath: '$(Build.ArtifactStagingDirectory)'
                       artifactName: drop_${{ platform }}_${{ configuration }}
+                    - output: pipelineArtifact
+                      displayName: 'Publish Artifact: LocOutput'
+                      condition: and(eq(variables['EnableLocalization'], 'true'), eq(variables['UpdateLocalization'], 'true'))
+                      artifactName: LocOutput_${{ platform }}_${{ configuration }}
+                      targetPath: LocArchive
+                      sbomPackageName: devhomegithubextension.locoutput
+                      sbomPackageVersion: $(MSIXVersion)
