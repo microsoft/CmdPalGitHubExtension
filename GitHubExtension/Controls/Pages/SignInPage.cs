@@ -6,7 +6,6 @@ using GitHubExtension.Controls.Forms;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
-using Windows.Foundation;
 
 namespace GitHubExtension.Controls.Pages;
 

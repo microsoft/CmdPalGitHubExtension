@@ -4,6 +4,7 @@
 
 using System.Diagnostics;
 using GitHubExtension.Controls;
+using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Pages;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
@@ -83,14 +84,9 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
     {
         if (!_isSignedIn)
         {
-            return new[]
+            return new ICommandItem[]
             {
-                new CommandItem(_signInPage)
-                {
-                    Title = _resources.GetResource("ExtensionTitle"),
-                    Subtitle = _resources.GetResource("Forms_Sign_In"),
-                    Icon = GitHubIcon.IconDictionary["logo"],
-                },
+                new CommandItem(new SignInCommand(_developerIdProvider, _resources, _authenticationMediator)),
             };
         }
 

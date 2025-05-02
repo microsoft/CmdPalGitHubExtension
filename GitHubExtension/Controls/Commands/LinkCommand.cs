@@ -3,8 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Diagnostics;
-using GitHubExtension.Controls.Pages;
-using GitHubExtension.DataModel;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
