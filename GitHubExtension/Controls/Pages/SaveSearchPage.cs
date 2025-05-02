@@ -27,7 +27,7 @@ public sealed partial class SaveSearchPage : ContentPage
         Title = saveSearchPageTitle;
 
         // Wire up events using the helper
-        FormEventHelper.WireFormEvents(_saveSearchForm, this, _statusMessage, _successMessage, _errorMessage);
+        EventHelper.WireFormEvents(_saveSearchForm, this, _statusMessage, _successMessage, _errorMessage);
 
         // Hide status message initially
         ExtensionHost.HideStatus(_statusMessage);

@@ -7,65 +7,49 @@ using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 
-namespace GitHubExtension.Controls.Commands;
+namespace GitHubExtension.Controls.Pages;
 
-public class SignInCommand : InvokableCommand
+public class AltSignInPage : ContentPage
 {
     private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly IResources _resources;
     private readonly AuthenticationMediator _authenticationMediator;
+    private readonly string _successMessage;
+    private readonly string _failureMessage;
+    private readonly StatusMessage _statusMessage;
 
-    public SignInCommand(IDeveloperIdProvider developerIdProvider, IResources resources, AuthenticationMediator authenticationMediator)
+    public AltSignInPage(IDeveloperIdProvider developerIdProvider, IResources resources, StatusMessage statusMessage, AuthenticationMediator authenticationMediator)
     {
         _resources = resources;
         _developerIdProvider = developerIdProvider;
         _developerIdProvider.OAuthRedirected += DeveloperIdProvider_OAuthRedirected;
         _authenticationMediator = authenticationMediator;
+        _successMessage = _resources.GetResource("Message_Sign_In_Success");
+        _failureMessage = _resources.GetResource("Message_Sign_In_Fail");
+        _statusMessage = statusMessage;
 
         Name = _resources.GetResource("Forms_Sign_In");
         Icon = GitHubIcon.IconDictionary["logo"];
     }
 
-    public override CommandResult Invoke()
+    public override IContent[] GetContent()
     {
         try
         {
-            // start loading if not already
             var signInSucceeded = HandleSignIn().Result;
 
             _authenticationMediator.SignIn(new SignInStatusChangedEventArgs(signInSucceeded, null));
-            var message = signInSucceeded
-                ? "sign in succeeded"
-                : "sign in failed";
-
-            var statusMessage = new StatusMessage()
-            {
-                Message = message,
-                State = MessageState.Info,
-            };
-
-            ExtensionHost.ShowStatus(statusMessage, StatusContext.Extension);
-            var t = new ToastStatusMessage(new StatusMessage()
-            {
-                Message = message,
-                State = MessageState.Warning,
-            });
-            t.Show();
+            EventHelper.RaiseToast(new StatusMessage(), _successMessage, _failureMessage, null, signInSucceeded);
         }
         catch (Exception ex)
         {
-            // stop loading if loading
             _authenticationMediator.SignIn(new SignInStatusChangedEventArgs(false, ex));
 
-            var t = new ToastStatusMessage(new StatusMessage()
-            {
-                Message = "there was an error",
-                State = MessageState.Warning,
-            });
-            t.Show();
+            EventHelper.RaiseToast(new StatusMessage(), _successMessage, _failureMessage, ex, false);
         }
 
-        return CommandResult.KeepOpen();
+        var form = new FormContent();
+        return new IContent[] { form };
     }
 
     private async Task<bool> HandleSignIn()
