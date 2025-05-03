@@ -86,7 +86,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         {
             return new ICommandItem[]
             {
-                new CommandItem(new AltSignInPage(_developerIdProvider, _resources, new StatusMessage(), _authenticationMediator)),
+                new CommandItem(_signInPage),
             };
         }
 
