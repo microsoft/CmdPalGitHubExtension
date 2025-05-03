@@ -98,11 +98,10 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
                 Title = _resources.GetResource("Pages_Saved_Searches"),
                 Icon = new IconInfo("\ue721"), // Search
             },
-            new(_signOutPage)
+            new(new AltSignOutPage(_developerIdProvider, _resources, new StatusMessage(), _authenticationMediator, new SignOutCommand(_developerIdProvider, _resources, new StatusMessage(), _authenticationMediator)))
             {
-                Title = _resources.GetResource("ExtensionTitle"),
-                Subtitle = _resources.GetResource("Forms_Sign_Out_Button_Title"),
-                Icon = GitHubIcon.IconDictionary["logo"],
+                Title = "Sign out",
+                Icon = new IconInfo("\ue8b1"), // Sign out
             },
         };
 

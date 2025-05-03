@@ -48,8 +48,7 @@ public class SignInPage : ContentPage
             EventHelper.RaiseToast(new StatusMessage(), _successMessage, _failureMessage, ex, false);
         }
 
-        var form = new FormContent();
-        return new IContent[] { form };
+        return new IContent[] { new FormContent() };
     }
 
     private async Task<bool> HandleSignIn()
