@@ -16,6 +16,8 @@ steps:
       AuthAKVName: $(EsrpAuthAKVName)
       AuthCertName: $(EsrpAuthCertName)
       AuthSignCertName: $(EsrpAuthSignCertName)
+      UseMSIAuthentication: true
+      EsrpClientId: $(EsrpClientId)
       SessionTimeout: '60'
       MaxConcurrency: '50'
       MaxRetryAttempts: '5'
