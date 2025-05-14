@@ -342,11 +342,11 @@
     <comment>Title for search "state:open is:pr author:{login} archived:false"</comment>
   </data>
   <data name="ExtensionTitle" xml:space="preserve">
-    <value>GitHub Extension</value>
+    <value>GitHub Extension (Preview)</value>
     <comment>Title for the extension</comment>
   </data>
   <data name="ExtensionPackageTitle" xml:space="preserve">
-    <value>GitHub Extension for Command Palette</value>
+    <value>GitHub Extension for Command Palette (Preview)</value>
     <comment>Title for the extension package</comment>
   </data>
   <data name="ExtensionPackageDescription" xml:space="preserve">
