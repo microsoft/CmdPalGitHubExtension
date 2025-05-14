@@ -346,7 +346,7 @@
     <comment>Title for the extension</comment>
   </data>
   <data name="ExtensionPackageTitle" xml:space="preserve">
-    <value>GitHub Extension for Command Palette (Preview)</value>
+    <value>Command Palette GitHub Extension (Preview)</value>
     <comment>Title for the extension package</comment>
   </data>
   <data name="ExtensionPackageDescription" xml:space="preserve">
