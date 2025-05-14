@@ -9,12 +9,12 @@
   IgnorableNamespaces="uap uap3 rescap">
 
   <Identity
-    Name="GitHubExtension"
+    Name="Microsoft.CmdPalGitHubExtension"
     Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
     Version="0.0.0.0" />
 
   <Properties>
-    <DisplayName>GitHub extension for cmdpal</DisplayName>
+    <DisplayName>Command Palette GitHub Extension (Preview)</DisplayName>
     <PublisherDisplayName>Microsoft Corporation</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -68,7 +68,7 @@
         </uap3:Extension>
         <uap:Extension Category="windows.protocol">
           <uap:Protocol Name="cmdpalghext">
-            <uap:DisplayName>GitHub Extension for Command Palette</uap:DisplayName>
+            <uap:DisplayName>ms-resource:ExtensionPackageTitle</uap:DisplayName>
           </uap:Protocol>
         </uap:Extension>
       </Extensions>
