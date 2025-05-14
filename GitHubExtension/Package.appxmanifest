@@ -14,7 +14,7 @@
     Version="0.0.0.0" />
 
   <Properties>
-    <DisplayName>GitHub Extension for Command Palette (Preview)</DisplayName>
+    <DisplayName>Command Palette GitHub Extension (Preview)</DisplayName>
     <PublisherDisplayName>Microsoft Corporation</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
