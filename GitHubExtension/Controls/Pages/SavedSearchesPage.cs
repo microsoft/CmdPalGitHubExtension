@@ -32,9 +32,9 @@ public partial class SavedSearchesPage : ListPage
        SavedSearchesMediator savedSearchesMediator)
     {
         _resources = resources;
-
-        Icon = new IconInfo("\ue721");
-        Name = _resources.GetResource("Pages_Saved_Searches");
+        Title = _resources.GetResource("Pages_Saved_Searches");
+        Name = Title; // Name is for the command, Title is for the page
+        Icon = GitHubIcon.IconDictionary["Search"];
         _savedSearchesMediator = savedSearchesMediator;
         _savedSearchesMediator.SearchRemoved += OnSearchRemoved;
         _savedSearchesMediator.SearchRemoving += OnSearchRemoving;

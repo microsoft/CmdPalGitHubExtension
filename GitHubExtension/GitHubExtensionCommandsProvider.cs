@@ -95,11 +95,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         var commands = GetTopLevelSearchCommands().GetAwaiter().GetResult().ToList();
         var defaultCommands = new List<CommandItem>
         {
-            new(_savedSearchesPage)
-            {
-                Title = _resources.GetResource("Pages_Saved_Searches"),
-                Icon = new IconInfo("\ue721"), // Search
-            },
+            new(_savedSearchesPage),
             new(_signOutPage)
             {
                 Subtitle = _resources.GetResource("Forms_Sign_Out_Button_Title"),
