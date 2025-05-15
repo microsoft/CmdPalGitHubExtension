@@ -65,10 +65,9 @@ public class SignOutCommand : InvokableCommand
                 // if sign out fails, the user is still signed in (true)
                 _authenticationMediator.SignOut(new SignInStatusChangedEventArgs(true, ex));
                 ToastHelper.ShowToast($"{_resources.GetResource("Message_Sign_Out_Fail")} {ex.Message}", MessageState.Error);
+                _invoked = false;
             }
         });
-
-        _invoked = false;
         return CommandResult.KeepOpen();
     }
 }
