@@ -13,8 +13,6 @@ namespace GitHubExtension.Controls.Forms;
 
 public partial class SignInForm : FormContent
 {
-    public event EventHandler<FormSubmitEventArgs>? FormSubmitted;
-
     private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly IResources _resources;
     private readonly AuthenticationMediator _authenticationMediator;
@@ -29,6 +27,7 @@ public partial class SignInForm : FormContent
     {
         _authenticationMediator = authenticationMediator;
         _developerIdProvider = developerIdProvider;
+        _authenticationMediator.LoadingStateChanged += OnLoadingStateChanged;
         _developerIdProvider.OAuthRedirected += DeveloperIdProvider_OAuthRedirected;
         _authenticationMediator.SignInAction += ResetButton;
         _authenticationMediator.SignOutAction += ResetButton;
@@ -52,8 +51,6 @@ public partial class SignInForm : FormContent
         {
             SetButtonEnabled(true);
             _authenticationMediator.SetLoadingState(false);
-            _authenticationMediator.SignIn(new SignInStatusChangedEventArgs(false, e));
-            FormSubmitted?.Invoke(this, new FormSubmitEventArgs(false, e));
             _authenticationMediator.SignIn(new SignInStatusChangedEventArgs(false, e));
             return;
         }
