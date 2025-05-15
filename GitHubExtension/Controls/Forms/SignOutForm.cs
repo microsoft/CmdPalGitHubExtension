@@ -4,7 +4,6 @@
 
 using System.Globalization;
 using GitHubExtension.Controls.Commands;
-using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -17,6 +16,9 @@ public partial class SignOutForm : FormContent
     private readonly SignOutCommand _signOutCommand;
     private readonly AuthenticationMediator _authenticationMediator;
     private bool _isButtonEnabled = true;
+
+    private string IsButtonEnabled =>
+    _isButtonEnabled.ToString(CultureInfo.InvariantCulture).ToLower(CultureInfo.InvariantCulture);
 
     public SignOutForm(IResources resources, AuthenticationMediator authenticationMediator, SignOutCommand signOutCommand)
     {
@@ -54,7 +56,7 @@ public partial class SignOutForm : FormContent
         { "{{AuthButtonTitle}}", _resources.GetResource("Forms_Sign_Out_Button_Title") },
         { "{{AuthIcon}}", $"data:image/png;base64,{GitHubIcon.GetBase64Icon(GitHubIcon.LogoWithBackplatePath)}" },
         { "{{AuthButtonTooltip}}", _resources.GetResource("Forms_Sign_Out_Tooltip") },
-        { "{{ButtonIsEnabled}}", "true" },
+        { "{{ButtonIsEnabled}}", IsButtonEnabled },
     };
 
     public override string TemplateJson => TemplateHelper.LoadTemplateJsonFromTemplateName("AuthTemplate", TemplateSubstitutions);
