@@ -23,9 +23,8 @@ public class SignOutCommand : InvokableCommand
         _authenticationMediator = authenticationMediator;
         _authenticationMediator.SignInAction += ResetCommand;
         _authenticationMediator.SignOutAction += ResetCommand;
-        Name = _resources.GetResource("Forms_SignOut_PageTitle");
-
-        // TODO: set icon
+        Name = _resources.GetResource("Forms_Sign_Out_Title");
+        Icon = GitHubIcon.IconDictionary["logo"];
     }
 
     private void ResetCommand(object? sender, SignInStatusChangedEventArgs e)

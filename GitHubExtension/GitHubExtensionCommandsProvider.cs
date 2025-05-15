@@ -87,9 +87,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             {
                 new CommandItem(_signInPage)
                 {
-                    Title = _resources.GetResource("ExtensionTitle"),
                     Subtitle = _resources.GetResource("Forms_Sign_In"),
-                    Icon = GitHubIcon.IconDictionary["logo"],
                 },
             };
         }
@@ -104,9 +102,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             },
             new(_signOutPage)
             {
-                Title = _resources.GetResource("ExtensionTitle"),
                 Subtitle = _resources.GetResource("Forms_Sign_Out_Button_Title"),
-                Icon = GitHubIcon.IconDictionary["logo"],
             },
         };
 

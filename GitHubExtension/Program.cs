@@ -143,10 +143,10 @@ public class Program
 
         var signOutCommand = new SignOutCommand(resources, developerIdProvider, authenticationMediator);
         var signOutForm = new SignOutForm(developerIdProvider, resources, authenticationMediator, signOutCommand);
-        var signOutPage = new SignOutPage(signOutForm, new StatusMessage(), resources.GetResource("Message_Sign_Out_Success"), resources.GetResource("Message_Sign_Out_Fail"));
+        var signOutPage = new SignOutPage(resources, signOutForm, signOutCommand, authenticationMediator);
         var signInCommand = new SignInCommand(resources, developerIdProvider, authenticationMediator);
         var signInForm = new SignInForm(authenticationMediator, resources, developerIdProvider, signInCommand);
-        var signInPage = new SignInPage(signInForm, new StatusMessage(), resources.GetResource("Message_Sign_In_Success"), resources.GetResource("Message_Sign_In_Fail"));
+        var signInPage = new SignInPage(signInForm, resources, signInCommand, authenticationMediator);
 
         var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator, authenticationMediator);
         var extensionInstance = new GitHubExtension(extensionDisposedEvent, commandProvider);

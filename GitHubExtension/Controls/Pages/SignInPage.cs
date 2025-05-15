@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
@@ -13,21 +14,35 @@ namespace GitHubExtension.Controls.Pages;
 public partial class SignInPage : ContentPage
 {
     private readonly SignInForm _signInForm;
-    private readonly StatusMessage _statusMessage;
-    private readonly string _successMessage;
-    private readonly string _errorMessage;
+    private readonly IResources _resources;
+    private readonly SignInCommand _signInCommand;
+    private readonly AuthenticationMediator _authenticationMediator;
 
-    public SignInPage(SignInForm signInForm, StatusMessage statusMessage, string successMessage, string errorMessage)
+    public SignInPage(SignInForm signInForm, IResources resources, SignInCommand signInCommand, AuthenticationMediator authenticationMediator)
     {
         _signInForm = signInForm;
-        _statusMessage = statusMessage;
-        _successMessage = successMessage;
-        _errorMessage = errorMessage;
+        _resources = resources;
+        Title = _resources.GetResource("ExtensionTitle");
+        Name = Title; // Name is for the command, Title is for the page
+
+        // Subtitle in CommandProvider is _resources.GetResource("Forms_Sign_In"),
+        Icon = GitHubIcon.IconDictionary["logo"];
+
+        _signInCommand = signInCommand;
+        _authenticationMediator = authenticationMediator;
+        _authenticationMediator.LoadingStateChanged += OnLoadingStateChanged;
 
         _signInForm.PropChanged += UpdatePage;
 
-        // Hide status message initially
-        ExtensionHost.HideStatus(_statusMessage);
+        Commands =
+        [
+            new CommandContextItem(_signInCommand),
+        ];
+    }
+
+    private void OnLoadingStateChanged(object? sender, bool isLoading)
+    {
+        IsLoading = isLoading;
     }
 
     private void UpdatePage(object sender, IPropChangedEventArgs args)
@@ -37,7 +52,6 @@ public partial class SignInPage : ContentPage
 
     public override IContent[] GetContent()
     {
-        ExtensionHost.HideStatus(_statusMessage);
         return [_signInForm];
     }
 }
