@@ -141,7 +141,8 @@ public class Program
 
         var authenticationMediator = new AuthenticationMediator();
 
-        var signOutForm = new SignOutForm(developerIdProvider, resources, authenticationMediator);
+        var signOutCommand = new SignOutCommand(resources, developerIdProvider, authenticationMediator);
+        var signOutForm = new SignOutForm(developerIdProvider, resources, authenticationMediator, signOutCommand);
         var signOutPage = new SignOutPage(signOutForm, new StatusMessage(), resources.GetResource("Message_Sign_Out_Success"), resources.GetResource("Message_Sign_Out_Fail"));
         var signInCommand = new SignInCommand(resources, developerIdProvider, authenticationMediator);
         var signInForm = new SignInForm(authenticationMediator, resources, developerIdProvider, signInCommand);

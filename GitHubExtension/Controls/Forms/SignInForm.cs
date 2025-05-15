@@ -11,10 +11,8 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Controls.Forms;
 
-public partial class SignInForm : FormContent, IGitHubForm
+public partial class SignInForm : FormContent
 {
-    public event EventHandler<bool>? LoadingStateChanged;
-
     public event EventHandler<FormSubmitEventArgs>? FormSubmitted;
 
     private readonly IDeveloperIdProvider _developerIdProvider;
@@ -32,7 +30,6 @@ public partial class SignInForm : FormContent, IGitHubForm
         _authenticationMediator = authenticationMediator;
         _developerIdProvider = developerIdProvider;
         _developerIdProvider.OAuthRedirected += DeveloperIdProvider_OAuthRedirected;
-        _authenticationMediator.LoadingStateChanged += OnLoadingStateChanged;
         _authenticationMediator.SignInAction += ResetButton;
         _authenticationMediator.SignOutAction += ResetButton;
         _resources = resources;
@@ -92,35 +89,6 @@ public partial class SignInForm : FormContent, IGitHubForm
 
     public override ICommandResult SubmitForm(string inputs, string data)
     {
-        LoadingStateChanged?.Invoke(this, true);
-        Task.Run(() =>
-        {
-            try
-            {
-                var signInSucceeded = HandleSignIn().Result;
-                LoadingStateChanged?.Invoke(this, false);
-                _authenticationMediator.SignIn(new SignInStatusChangedEventArgs(signInSucceeded, null));
-                FormSubmitted?.Invoke(this, new FormSubmitEventArgs(signInSucceeded, null));
-            }
-            catch (Exception ex)
-            {
-                LoadingStateChanged?.Invoke(this, false);
-                SetButtonEnabled(true);
-                _authenticationMediator.SignIn(new SignInStatusChangedEventArgs(false, ex));
-                FormSubmitted?.Invoke(this, new FormSubmitEventArgs(false, ex));
-            }
-        });
-        return CommandResult.KeepOpen();
-    }
-
-    private async Task<bool> HandleSignIn()
-    {
-        var numPreviousDevIds = _developerIdProvider.GetLoggedInDeveloperIdsInternal().Count();
-
-        await _developerIdProvider.LoginNewDeveloperIdAsync();
-
-        var numDevIds = _developerIdProvider.GetLoggedInDeveloperIdsInternal().Count();
-
-        return numDevIds > numPreviousDevIds;
+        return _signInCommand.Invoke();
     }
 }

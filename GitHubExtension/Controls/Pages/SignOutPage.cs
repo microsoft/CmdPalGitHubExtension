@@ -23,9 +23,6 @@ public sealed partial class SignOutPage : ContentPage
         _successMessage = successMessage;
         _errorMessage = errorMessage;
 
-        // Wire up events using the helper
-        FormEventHelper.WireFormEvents(_signOutForm, this, _statusMessage, _successMessage, _errorMessage);
-
         // Hide status message initially
         ExtensionHost.HideStatus(_statusMessage);
     }

@@ -10,22 +10,19 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Controls.Forms;
 
-public partial class SignOutForm : FormContent, IGitHubForm
+public partial class SignOutForm : FormContent
 {
-    public event EventHandler<bool>? LoadingStateChanged;
-
-    public event EventHandler<FormSubmitEventArgs>? FormSubmitted;
-
     private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly IResources _resources;
     private readonly AuthenticationMediator _authenticationMediator;
     private readonly SignOutCommand _signOutCommand;
 
-    public SignOutForm(IDeveloperIdProvider developerIdProvider, IResources resources, AuthenticationMediator authenticationMediator)
+    public SignOutForm(IDeveloperIdProvider developerIdProvider, IResources resources, AuthenticationMediator authenticationMediator, SignOutCommand signOutCommand)
     {
         _developerIdProvider = developerIdProvider;
         _resources = resources;
         _authenticationMediator = authenticationMediator;
+        _signOutCommand = signOutCommand;
     }
 
     public Dictionary<string, string> TemplateSubstitutions => new()
@@ -41,33 +38,6 @@ public partial class SignOutForm : FormContent, IGitHubForm
 
     public override ICommandResult SubmitForm(string inputs, string data)
     {
-        LoadingStateChanged?.Invoke(this, true);
-        Task.Run(() =>
-        {
-            try
-            {
-                var devIds = _developerIdProvider.GetLoggedInDeveloperIdsInternal();
-
-                foreach (var devId in devIds)
-                {
-                    _developerIdProvider.LogoutDeveloperId(devId);
-                }
-
-                var signOutSucceeded = !_developerIdProvider.GetLoggedInDeveloperIdsInternal().Any();
-
-                LoadingStateChanged?.Invoke(this, false);
-                _authenticationMediator.SignOut(new SignInStatusChangedEventArgs(!signOutSucceeded, null));
-                FormSubmitted?.Invoke(this, new FormSubmitEventArgs(true, null));
-            }
-            catch (Exception ex)
-            {
-                LoadingStateChanged?.Invoke(this, false);
-
-                // if sign out fails, the user is still signed in (true)
-                _authenticationMediator.SignOut(new SignInStatusChangedEventArgs(true, ex));
-                FormSubmitted?.Invoke(this, new FormSubmitEventArgs(false, ex));
-            }
-        });
-        return CommandResult.KeepOpen();
+        return _signOutCommand.Invoke();
     }
 }
