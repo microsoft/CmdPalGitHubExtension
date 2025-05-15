@@ -45,9 +45,9 @@ public class SignInCommand : InvokableCommand
             _authenticationMediator.SetLoadingState(true);
             try
             {
-                var signInSucceeded = await HandleSignIn();
+                var signInSucceeded = await _developerIdProvider.LoginNewDeveloperIdAsync();
                 _authenticationMediator.SetLoadingState(false);
-                _authenticationMediator.SignIn(new SignInStatusChangedEventArgs(signInSucceeded, null));
+                _authenticationMediator.SignIn(new SignInStatusChangedEventArgs(true, null));
                 ToastHelper.ShowToast(_resources.GetResource("Message_Sign_In_Success"), MessageState.Success);
             }
             catch (Exception ex)
@@ -58,16 +58,5 @@ public class SignInCommand : InvokableCommand
             }
         });
         return CommandResult.KeepOpen();
-    }
-
-    private async Task<bool> HandleSignIn()
-    {
-        var numPreviousDevIds = _developerIdProvider.GetLoggedInDeveloperIdsInternal().Count();
-
-        await _developerIdProvider.LoginNewDeveloperIdAsync();
-
-        var numDevIds = _developerIdProvider.GetLoggedInDeveloperIdsInternal().Count();
-
-        return numDevIds > numPreviousDevIds;
     }
 }
