@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Globalization;
 using GitHubExtension.Controls.Commands;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
@@ -12,17 +13,39 @@ namespace GitHubExtension.Controls.Forms;
 
 public partial class SignOutForm : FormContent
 {
-    private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly IResources _resources;
-    private readonly AuthenticationMediator _authenticationMediator;
     private readonly SignOutCommand _signOutCommand;
+    private readonly AuthenticationMediator _authenticationMediator;
+    private bool _isButtonEnabled = true;
 
-    public SignOutForm(IDeveloperIdProvider developerIdProvider, IResources resources, AuthenticationMediator authenticationMediator, SignOutCommand signOutCommand)
+    public SignOutForm(IResources resources, AuthenticationMediator authenticationMediator, SignOutCommand signOutCommand)
     {
-        _developerIdProvider = developerIdProvider;
         _resources = resources;
-        _authenticationMediator = authenticationMediator;
         _signOutCommand = signOutCommand;
+        _authenticationMediator = authenticationMediator;
+        _authenticationMediator.LoadingStateChanged += OnLoadingStateChanged;
+        _authenticationMediator.SignInAction += ResetButton;
+        _authenticationMediator.SignOutAction += ResetButton;
+    }
+
+    private void ResetButton(object? sender, SignInStatusChangedEventArgs e)
+    {
+        SetButtonEnabled(e.IsSignedIn);
+    }
+
+    private void OnLoadingStateChanged(object? sender, bool isLoading)
+    {
+        if (isLoading)
+        {
+            SetButtonEnabled(false);
+        }
+    }
+
+    private void SetButtonEnabled(bool isEnabled)
+    {
+        _isButtonEnabled = isEnabled;
+        TemplateJson = TemplateHelper.LoadTemplateJsonFromTemplateName("AuthTemplate", TemplateSubstitutions);
+        OnPropertyChanged(nameof(TemplateJson));
     }
 
     public Dictionary<string, string> TemplateSubstitutions => new()

@@ -142,7 +142,7 @@ public class Program
         var authenticationMediator = new AuthenticationMediator();
 
         var signOutCommand = new SignOutCommand(resources, developerIdProvider, authenticationMediator);
-        var signOutForm = new SignOutForm(developerIdProvider, resources, authenticationMediator, signOutCommand);
+        var signOutForm = new SignOutForm(resources, authenticationMediator, signOutCommand);
         var signOutPage = new SignOutPage(resources, signOutForm, signOutCommand, authenticationMediator);
         var signInCommand = new SignInCommand(resources, developerIdProvider, authenticationMediator);
         var signInForm = new SignInForm(authenticationMediator, resources, developerIdProvider, signInCommand);
