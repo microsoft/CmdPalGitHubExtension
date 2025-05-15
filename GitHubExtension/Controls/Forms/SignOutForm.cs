@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using GitHubExtension.Controls.Commands;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
@@ -18,6 +19,7 @@ public partial class SignOutForm : FormContent, IGitHubForm
     private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly IResources _resources;
     private readonly AuthenticationMediator _authenticationMediator;
+    private readonly SignOutCommand _signOutCommand;
 
     public SignOutForm(IDeveloperIdProvider developerIdProvider, IResources resources, AuthenticationMediator authenticationMediator)
     {

@@ -12,6 +12,8 @@ public class AuthenticationMediator
 
     public event EventHandler<SignInStatusChangedEventArgs>? SignOutAction;
 
+    public event EventHandler<bool>? LoadingStateChanged;
+
     public AuthenticationMediator()
     {
     }
@@ -24,5 +26,10 @@ public class AuthenticationMediator
     public void SignOut(SignInStatusChangedEventArgs args)
     {
         SignOutAction?.Invoke(this, args);
+    }
+
+    public void SetLoadingState(bool isLoading)
+    {
+        LoadingStateChanged?.Invoke(this, isLoading);
     }
 }

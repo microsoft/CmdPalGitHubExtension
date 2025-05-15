@@ -4,6 +4,7 @@
 
 using GitHubExtension.Client;
 using GitHubExtension.Controls;
+using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
 using GitHubExtension.Controls.ListItems;
 using GitHubExtension.Controls.Pages;
@@ -142,7 +143,8 @@ public class Program
 
         var signOutForm = new SignOutForm(developerIdProvider, resources, authenticationMediator);
         var signOutPage = new SignOutPage(signOutForm, new StatusMessage(), resources.GetResource("Message_Sign_Out_Success"), resources.GetResource("Message_Sign_Out_Fail"));
-        var signInForm = new SignInForm(developerIdProvider, resources, authenticationMediator);
+        var signInCommand = new SignInCommand(resources, developerIdProvider, authenticationMediator);
+        var signInForm = new SignInForm(authenticationMediator, resources, developerIdProvider, signInCommand);
         var signInPage = new SignInPage(signInForm, new StatusMessage(), resources.GetResource("Message_Sign_In_Success"), resources.GetResource("Message_Sign_In_Fail"));
 
         var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator, authenticationMediator);

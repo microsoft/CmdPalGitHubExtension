@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Globalization;
+using GitHubExtension.Controls.Commands;
 using GitHubExtension.DeveloperId;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
@@ -19,19 +20,28 @@ public partial class SignInForm : FormContent, IGitHubForm
     private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly IResources _resources;
     private readonly AuthenticationMediator _authenticationMediator;
+    private readonly SignInCommand _signInCommand;
 
     private bool _isButtonEnabled = true;
 
     private string IsButtonEnabled =>
         _isButtonEnabled.ToString(CultureInfo.InvariantCulture).ToLower(CultureInfo.InvariantCulture);
 
-    public SignInForm(IDeveloperIdProvider developerIdProvider, IResources resources, AuthenticationMediator authenticationMediator)
+    public SignInForm(AuthenticationMediator authenticationMediator, IResources resources, IDeveloperIdProvider developerIdProvider, SignInCommand signInCommand)
     {
-        _resources = resources;
+        _authenticationMediator = authenticationMediator;
         _developerIdProvider = developerIdProvider;
         _developerIdProvider.OAuthRedirected += DeveloperIdProvider_OAuthRedirected;
-        _authenticationMediator = authenticationMediator;
-        _authenticationMediator.SignOutAction += SignOutForm_SignOutAction;
+        _authenticationMediator.LoadingStateChanged += OnLoadingStateChanged;
+        _authenticationMediator.SignInAction += ResetButton;
+        _authenticationMediator.SignOutAction += ResetButton;
+        _resources = resources;
+        _signInCommand = signInCommand;
+    }
+
+    private void ResetButton(object? sender, SignInStatusChangedEventArgs e)
+    {
+        SetButtonEnabled(!e.IsSignedIn);
     }
 
     private void SignOutForm_SignOutAction(object? sender, SignInStatusChangedEventArgs e)
@@ -44,13 +54,22 @@ public partial class SignInForm : FormContent, IGitHubForm
         if (e is not null)
         {
             SetButtonEnabled(true);
-            LoadingStateChanged?.Invoke(this, false);
+            _authenticationMediator.SetLoadingState(false);
             _authenticationMediator.SignIn(new SignInStatusChangedEventArgs(false, e));
             FormSubmitted?.Invoke(this, new FormSubmitEventArgs(false, e));
+            _authenticationMediator.SignIn(new SignInStatusChangedEventArgs(false, e));
             return;
         }
 
         SetButtonEnabled(false);
+    }
+
+    private void OnLoadingStateChanged(object? sender, bool isLoading)
+    {
+        if (isLoading)
+        {
+            SetButtonEnabled(false);
+        }
     }
 
     private void SetButtonEnabled(bool isEnabled)
