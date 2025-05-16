@@ -14,6 +14,7 @@ using GitHubExtension.PersistentData;
 using GitHubExtension.Test.PersistentData;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Resources;
 using Moq;
 
 namespace GitHubExtension.Test.Controls;
@@ -465,10 +466,12 @@ public class TopLevelSearchesTest
     public GitHubExtensionCommandsProvider CreateGitHubExtensionCommandsProvider(IDeveloperIdProvider mockDeveloperIdProvider, IResources mockResources, SavedSearchesPage savedSearchesPage, PersistentDataManager persistentDataManager, SavedSearchesMediator savedSearchesMediator, ISearchPageFactory searchPageFactory)
     {
         var mockAuthenticationMediator = new Mock<AuthenticationMediator>().Object;
-        var mockSignOutForm = new Mock<SignOutForm>(mockDeveloperIdProvider, mockResources, mockAuthenticationMediator).Object;
-        var mockSignInForm = new Mock<SignInForm>(mockDeveloperIdProvider, mockResources, mockAuthenticationMediator).Object;
-        var signOutPage = new SignOutPage(mockSignOutForm, new StatusMessage(), mockResources.GetResource("Message_Sign_Out_Success"), mockResources.GetResource("Message_Sign_Out_Fail"));
-        var signInPage = new SignInPage(mockSignInForm, new StatusMessage(), mockResources.GetResource("Message_Sign_In_Success"), mockResources.GetResource("Message_Sign_In_Fail"));
+        var mockSignOutCommand = new Mock<SignOutCommand>(mockResources, mockDeveloperIdProvider, mockAuthenticationMediator).Object;
+        var mockSignInCommand = new Mock<SignInCommand>(mockResources, mockDeveloperIdProvider, mockAuthenticationMediator).Object;
+        var mockSignOutForm = new Mock<SignOutForm>(mockResources, mockAuthenticationMediator, mockSignOutCommand).Object;
+        var mockSignInForm = new Mock<SignInForm>(mockAuthenticationMediator, mockResources, mockDeveloperIdProvider, mockSignInCommand).Object;
+        var signOutPage = new SignOutPage(mockResources, mockSignOutForm, mockSignOutCommand, mockAuthenticationMediator);
+        var signInPage = new SignInPage(mockSignInForm, mockResources, mockSignInCommand, mockAuthenticationMediator);
         return new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, mockDeveloperIdProvider, persistentDataManager, mockResources, searchPageFactory, savedSearchesMediator, mockAuthenticationMediator);
     }
 }

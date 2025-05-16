@@ -87,9 +87,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
             {
                 new CommandItem(_signInPage)
                 {
-                    Title = _resources.GetResource("ExtensionTitle"),
                     Subtitle = _resources.GetResource("Forms_Sign_In"),
-                    Icon = GitHubIcon.IconDictionary["logo"],
                 },
             };
         }
@@ -97,16 +95,10 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         var commands = GetTopLevelSearchCommands().GetAwaiter().GetResult().ToList();
         var defaultCommands = new List<CommandItem>
         {
-            new(_savedSearchesPage)
-            {
-                Title = _resources.GetResource("Pages_Saved_Searches"),
-                Icon = new IconInfo("\ue721"), // Search
-            },
+            new(_savedSearchesPage),
             new(_signOutPage)
             {
-                Title = _resources.GetResource("ExtensionTitle"),
                 Subtitle = _resources.GetResource("Forms_Sign_Out_Button_Title"),
-                Icon = GitHubIcon.IconDictionary["logo"],
             },
         };
 

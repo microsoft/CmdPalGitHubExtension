@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
@@ -12,27 +13,42 @@ namespace GitHubExtension.Controls.Pages;
 public sealed partial class SignOutPage : ContentPage
 {
     private readonly SignOutForm _signOutForm;
-    private readonly StatusMessage _statusMessage;
-    private readonly string _successMessage;
-    private readonly string _errorMessage;
+    private readonly SignOutCommand _signOutCommand;
+    private readonly IResources _resources;
+    private readonly AuthenticationMediator _authenticationMediator;
 
-    public SignOutPage(SignOutForm signOutForm, StatusMessage statusMessage, string successMessage, string errorMessage)
+    public SignOutPage(IResources resources, SignOutForm signOutForm, SignOutCommand signOutCommand, AuthenticationMediator authenticationMediator)
     {
         _signOutForm = signOutForm;
-        _statusMessage = statusMessage;
-        _successMessage = successMessage;
-        _errorMessage = errorMessage;
+        _resources = resources;
+        _signOutForm.PropChanged += UpdatePage;
+        _signOutCommand = signOutCommand;
+        _authenticationMediator = authenticationMediator;
+        _authenticationMediator.LoadingStateChanged += OnLoadingStateChanged;
+        Title = _resources.GetResource("ExtensionTitle");
+        Name = Title; // Name is for the command, Title is for the page
 
-        // Wire up events using the helper
-        FormEventHelper.WireFormEvents(_signOutForm, this, _statusMessage, _successMessage, _errorMessage);
+        // Subtitle in CommandProvider is _resources.GetResource("Forms_Sign_Out_Button_Title"),
+        Icon = GitHubIcon.IconDictionary["logo"];
 
-        // Hide status message initially
-        ExtensionHost.HideStatus(_statusMessage);
+        Commands =
+        [
+            new CommandContextItem(_signOutCommand),
+        ];
+    }
+
+    private void UpdatePage(object sender, IPropChangedEventArgs args)
+    {
+        RaiseItemsChanged();
+    }
+
+    private void OnLoadingStateChanged(object? sender, bool isLoading)
+    {
+        IsLoading = isLoading;
     }
 
     public override IContent[] GetContent()
     {
-        ExtensionHost.HideStatus(_statusMessage);
-        return [_signOutForm];
+        return new[] { _signOutForm };
     }
 }

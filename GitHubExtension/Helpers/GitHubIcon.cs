@@ -21,6 +21,7 @@ public static class GitHubIcon
                 { "Issues", IconHelpers.FromRelativePath("Assets\\issues.svg") },
                 { "PullRequests", IconHelpers.FromRelativePath("Assets\\pulls.svg") },
                 { "IssuesAndPullRequests", IconHelpers.FromRelativePaths("Assets\\github.light.svg", "Assets\\github.dark.svg") },
+                { "Search", new IconInfo("\ue721") },
             };
     }
 
