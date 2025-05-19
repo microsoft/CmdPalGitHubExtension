@@ -8,7 +8,7 @@ Related repositories include:
 
 * [PowerToys Command Palette utility](https://github.com/microsoft/PowerToys/tree/main/src/modules/cmdpal)
 
-## Installing and running Command Palette GitHub Extension
+## Installing and running Command Palette GitHub Extension (Preview)
 
 ### Requirements
 The Command Palette GitHub Extension requires:
