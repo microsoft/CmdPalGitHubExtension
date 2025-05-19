@@ -1,4 +1,4 @@
-# Welcome to the Command Palette (CmdPal) GitHub Extension repo
+# Welcome to the Command Palette (CmdPal) GitHub Extension (Preview) repo
 
 This repository contains the source code for:
 
