@@ -1,89 +1,93 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\Common.Dotnet.CsWinRT.props" />
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <RootNamespace>GitHubExtension</RootNamespace>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-    <PublishProfile>win-$(Platform).pubxml</PublishProfile>
-    <UseWinUI>false</UseWinUI>
-    <EnableMsixTooling>true</EnableMsixTooling>
-    <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\WinUI3Apps\CmdPalExtensions\$(RootNamespace)</OutputPath>
-    <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-    <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
-    <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
-    <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
-    <GenerateTestArtifacts>True</GenerateTestArtifacts>
-    <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-    <GenerateAppxPackageOnBuild>True</GenerateAppxPackageOnBuild>
-  </PropertyGroup>
+    <Import Project="..\Common.Dotnet.CsWinRT.props" />
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>GitHubExtension</RootNamespace>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <PublishProfile>win-$(Platform).pubxml</PublishProfile>
+        <UseWinUI>false</UseWinUI>
+        <EnableMsixTooling>true</EnableMsixTooling>
+        <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\WinUI3Apps\CmdPalExtensions\$(RootNamespace)</OutputPath>
+        <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+        <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
+        <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+        <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+        <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+        <GenerateTestArtifacts>True</GenerateTestArtifacts>
+        <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+        <GenerateAppxPackageOnBuild>True</GenerateAppxPackageOnBuild>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <Content Include="Assets\*" />
-  </ItemGroup>
+    <ItemGroup>
+        <Content Include="Assets\*" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <Manifest Include="$(ApplicationManifest)" />
-  </ItemGroup>
+    <ItemGroup>
+        <Manifest Include="$(ApplicationManifest)" />
+    </ItemGroup>
 
-  <ItemGroup>
-      <PackageReference Include="Dapper.Contrib" Version="2.0.78" />
-      <PackageReference Include="LibGit2Sharp" Version="0.30.0" />
-      <PackageReference Include="MessageFormat" Version="6.0.2" />
-      <PackageReference Include="Microsoft.CommandPalette.Extensions" Version="0.1.0" />
-      <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.1" />
-      <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-      <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.241114003" />
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-      <PackageReference Include="Octokit" Version="10.0.0" />
-      <PackageReference Include="Serilog" Version="4.0.1" />
-      <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
-      <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.0" />
-      <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
-      <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
-      <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-      <PackageReference Include="Shmuelie.WinRTServer" Version="2.1.1" />
-      <PackageReference Include="System.Text.Json" Version="9.0.0" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Dapper.Contrib" Version="2.0.78" />
+        <PackageReference Include="LibGit2Sharp" Version="0.30.0" />
+        <PackageReference Include="MessageFormat" Version="6.0.2" />
+        <PackageReference Include="Microsoft.CommandPalette.Extensions" Version="0.1.0" />
+        <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+        <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.241114003" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="Octokit" Version="10.0.0" />
+        <PackageReference Include="Serilog" Version="4.0.1" />
+        <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
+        <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
+        <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
+        <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+        <PackageReference Include="Shmuelie.WinRTServer" Version="2.1.1" />
+        <PackageReference Include="System.Text.Json" Version="9.0.0" />
+    </ItemGroup>
 
     <ItemGroup>
         <Content Include="Controls\Templates\*">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
-        <Compile Remove="Data\**" />
-        <EmbeddedResource Remove="Data\**" />
-        <None Remove="Data\**" />
-        <Page Remove="Data\**" />
         <Compile Remove="D:\ghext\\codeAnalysis\GlobalSuppressions.cs" />
         <None Update="appsettings.json">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 
-  <!--
+    <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+        <AppxManifest Include="Package-Dev.appxmanifest">
+        </AppxManifest>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(Configuration)' == 'Release'">
+        <AppxManifest Include="Package.appxmanifest">
+        </AppxManifest>
+    </ItemGroup>
+
+    <!--
     Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
     Tools extension to be activated for this project even if the Windows App SDK Nuget
     package has not yet been restored.
   -->
-  <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-    <ProjectCapability Include="Msix" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.78" />
-    <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="2.0.322" />
-  </ItemGroup>
+    <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+        <ProjectCapability Include="Msix" />
+    </ItemGroup>
 
-  <!--
+    <ItemGroup>
+        <PackageReference Include="Dapper" Version="2.0.78" />
+        <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="2.0.322" />
+    </ItemGroup>
+
+    <!--
     Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
     Explorer "Package and Publish" context menu entry to be enabled for this project even if
     the Windows App SDK Nuget package has not yet been restored.
   -->
-  <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-    <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
-  </PropertyGroup>
-  <ItemGroup>
-    <PRIResource Remove="Data\**" />
-  </ItemGroup>
+    <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+        <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+    </PropertyGroup>
 </Project>
