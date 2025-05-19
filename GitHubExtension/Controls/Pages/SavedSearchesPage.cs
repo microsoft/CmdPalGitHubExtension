@@ -3,8 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Controls;
-using GitHubExtension.Controls.Commands;
-using GitHubExtension.Controls.Forms;
 using GitHubExtension.Controls.Pages;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;

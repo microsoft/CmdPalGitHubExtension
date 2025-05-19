@@ -52,9 +52,13 @@
         <Content Include="Controls\Templates\*">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
+        <Compile Remove="bin\**" />
         <Compile Remove="Data\**" />
+        <EmbeddedResource Remove="bin\**" />
         <EmbeddedResource Remove="Data\**" />
+        <None Remove="bin\**" />
         <None Remove="Data\**" />
+        <Page Remove="bin\**" />
         <Page Remove="Data\**" />
         <Compile Remove="D:\ghext\\codeAnalysis\GlobalSuppressions.cs" />
         <None Update="appsettings.json">
@@ -85,5 +89,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PRIResource Remove="Data\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Remove="bin\**" />
   </ItemGroup>
 </Project>
