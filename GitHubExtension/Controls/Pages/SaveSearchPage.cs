@@ -2,7 +2,6 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Resources;
 using GitHubExtension.Controls.Forms;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
@@ -16,20 +15,21 @@ public sealed partial class SaveSearchPage : ContentPage
     private readonly StatusMessage _statusMessage;
     private readonly string _successMessage;
     private readonly string _errorMessage;
+    private readonly IResources _resources;
 
-    public SaveSearchPage(SaveSearchForm saveSearchForm, StatusMessage statusMessage, string successMessage, string errorMessage, string saveSearchPageTitle)
+    public SaveSearchPage(SaveSearchForm saveSearchForm, StatusMessage statusMessage, IResources resources)
     {
         _saveSearchForm = saveSearchForm;
         _statusMessage = statusMessage;
-        _successMessage = successMessage;
-        _errorMessage = errorMessage;
+        _resources = resources;
+        _successMessage = _resources.GetResource("Message_Search_Saved");
+        _errorMessage = resources.GetResource("Message_Search_Saved_Error");
         Icon = new IconInfo("\uecc8");
-        Title = saveSearchPageTitle;
+        Title = _resources.GetResource("Pages_SaveSearch");
+        Name = Title; // Title is for the Page, Name is for the Command
 
-        // Wire up events using the helper
         FormEventHelper.WireFormEvents(_saveSearchForm, this, _statusMessage, _successMessage, _errorMessage);
 
-        // Hide status message initially
         ExtensionHost.HideStatus(_statusMessage);
     }
 

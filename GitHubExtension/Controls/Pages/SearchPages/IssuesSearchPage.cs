@@ -21,9 +21,9 @@ public sealed partial class IssuesSearchPage(ISearch search, ICacheDataManager c
             Subtitle = $"{GetOwner(item.HtmlUrl)}/{GetRepo(item.HtmlUrl)}/#{item.Number}",
             MoreCommands = new CommandContextItem[]
             {
-                new(new CopyCommand(item.HtmlUrl, $"{Resources.GetResource("Commands_Copy")} {Resources.GetResource("Pages_Item_URL")}")),
-                new(new CopyCommand(item.Title, $"{Resources.GetResource("Commands_Copy")} {Resources.GetResource("Pages_Issue_Title")}")),
-                new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), $"{Resources.GetResource("Commands_Copy")} {Resources.GetResource("Pages_Issue_Number")}")),
+                new(new CopyCommand(item.HtmlUrl, $"{Resources.GetResource("Commands_CopyURL")}")),
+                new(new CopyCommand(item.Title, $"{Resources.GetResource("Commands_CopyIssueTitle")}")),
+                new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), $"{Resources.GetResource("Commands_CopyIssue_Number")}")),
                 new(new IssueContentPage(item, Resources)),
             },
             Tags = GetTags(item),

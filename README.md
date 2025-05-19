@@ -16,7 +16,20 @@ The Command Palette GitHub Extension requires:
 * Windows 11
 * An ARM64 or x64 processor
 
-### WinGet [Recommended]
+## Command Palette [Recommended]
+
+* In Command Palette, search for "Install Command Palette extensions" and press Enter.
+* Search for "Command Palette GitHub Extension (Preview)".
+* Press enter to download the extension.
+* Navigate back to the main screen. If the extension was able to detect your account automatically, you will see the following commands:
+    * Saved queries
+    * Assigned to me
+    * Created issues
+    * My pull requests
+    * Mentions me
+* Otherwise, you'll see a "Sign in" command. Click sign in to login via the GitHub OAuth flows.
+
+### WinGet
 
 More instructions coming soon!
 
@@ -28,7 +41,7 @@ The Command Palette GitHub Extension is coming to the Microsoft Store. Stay tune
 
 #### Via GitHub
 
-For users who are unable to install the Command Palette GitHub Extension from the Microsoft Store, released builds can be manually downloaded from this repository's [Releases page](https://github.com/microsoft/CmdPalGitHubExtension/releases).
+For users who are unable to install the Command Palette GitHub Extension from the winget or the Microsoft Store, released builds can be manually downloaded from this repository's [Releases page](https://github.com/microsoft/CmdPalGitHubExtension/releases).
 
 ---
 
