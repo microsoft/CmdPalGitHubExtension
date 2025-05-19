@@ -49,9 +49,7 @@ public class SearchPageFactory : ISearchPageFactory
                 new(new EditSearchPage(
                     _resources,
                     new SaveSearchForm(search, _searchRepository, _resources, _savedSearchesMediator),
-                    new StatusMessage(),
-                    _resources.GetResource("Pages_Search_Edited_Success"),
-                    _resources.GetResource("Pages_Search_Edited_Failed"))),
+                    new StatusMessage())),
             },
         };
     }

@@ -17,23 +17,20 @@ internal sealed partial class EditSearchPage : ContentPage
     private readonly string _successMessage;
     private readonly string _errorMessage;
 
-    public EditSearchPage(IResources resources, SaveSearchForm saveSearchForm, StatusMessage statusMessage, string successMessage, string errorMessage)
+    public EditSearchPage(IResources resources, SaveSearchForm saveSearchForm, StatusMessage statusMessage)
     {
         _resources = resources;
         _saveSearchForm = saveSearchForm;
         _statusMessage = statusMessage;
-        _successMessage = successMessage;
-        _errorMessage = errorMessage;
+        _successMessage = _resources.GetResource("Pages_Search_Edited_Success");
+        _errorMessage = _resources.GetResource("Pages_Search_Edited_Failed");
 
-        // Wire up events using the helper
         FormEventHelper.WireFormEvents(_saveSearchForm, this, _statusMessage, _successMessage, _errorMessage);
 
-        // Hide status message initially
         ExtensionHost.HideStatus(_statusMessage);
 
-        // Set page properties
         Title = _resources.GetResource("Pages_Edit");
-        Name = _resources.GetResource("Pages_Edit"); // Title is for the Page, Name is for the Command
+        Name = Title; // Title is for the Page, Name is for the Command
         Icon = new IconInfo("\ue70f");
     }
 

@@ -174,7 +174,7 @@
     <comment>Shown in list pages when there is no items found for a search query.</comment>
   </data>
   <data name="Pages_Error_Title" xml:space="preserve">
-    <value>Error fetching items</value>
+    <value>Error fetching items:</value>
     <comment>Shown in page when there is an error on a query request</comment>
   </data>
   <data name="Pages_Error_Body" xml:space="preserve">
@@ -210,11 +210,11 @@
     <comment>Name of page that shows list of saved github queries</comment>
   </data>
   <data name="Pages_Saved_Searches_Error" xml:space="preserve">
-    <value>Error in removing query: </value>
+    <value>Error in removing query:</value>
     <comment>Shown in a toast when error happens when saving a query</comment>
   </data>
   <data name="Pages_Saved_Searches_Failure" xml:space="preserve">
-    <value>Failed to remove query.</value>
+    <value>Failed to remove query:</value>
     <comment>Shown when failed to remove a search from saved queries page</comment>
   </data>
   <data name="TimeUpdated" xml:space="preserve">
@@ -250,7 +250,7 @@
     <comment>Shown in a toast when query is saved</comment>
   </data>
   <data name="Message_Search_Saved_Error" xml:space="preserve">
-    <value>Error in saving query</value>
+    <value>Error in saving query:</value>
     <comment>Shown in a toast when there is an error saving a query</comment>
   </data>
   <data name="Message_Sign_Out_Success" xml:space="preserve">
@@ -258,7 +258,7 @@
     <comment>Shown in a toast when sign out is succeeded</comment>
   </data>
   <data name="Message_Sign_Out_Fail" xml:space="preserve">
-    <value>Sign out failed</value>
+    <value>Sign out failed:</value>
     <comment>Shown in a toast when sign out process fails</comment>
   </data>
   <data name="Message_Sign_In_Success" xml:space="preserve">
@@ -266,7 +266,7 @@
     <comment>Shown in a toast when sign in proccess succeeded</comment>
   </data>
   <data name="Message_Sign_In_Fail" xml:space="preserve">
-    <value>Sign in failed</value>
+    <value>Sign in failed:</value>
     <comment>Message shown in a toast when sign in proccess fails</comment>
   </data>
   <data name="Pages_Search_Edited_Success" xml:space="preserve">
@@ -302,11 +302,11 @@
     <comment>Shown if the user submits the form without entering a query</comment>
   </data>
   <data name="Forms_SaveSearchTemplateEnteredSearchLabel" xml:space="preserve">
-    <value>Query string or URL:</value>
+    <value>Query string or URL</value>
     <comment>Shown as the label for the input text box for the GitHub query</comment>
   </data>
   <data name="Forms_SaveSearchTemplateNameLabel" xml:space="preserve">
-    <value>Name:</value>
+    <value>Name</value>
     <comment>Shown as the name for the saved query</comment>
   </data>
   <data name="Forms_SaveSearchTemplateNameError" xml:space="preserve">
@@ -354,7 +354,39 @@
     <comment>Description for extension package</comment>
   </data>
   <data name="CommandsProvider_DefaultCommands_Error" xml:space="preserve">
-    <value>Adding a query to the top level failed</value>
+    <value>Adding a query to the top level failed:</value>
     <comment>The error message displayed if adding the default commands to the top level fails</comment>
+  </data>
+  <data name="Commands_SignIn" xml:space="preserve">
+    <value>Sign in</value>
+    <comment>Name of the SignInCommand</comment>
+  </data>
+  <data name="Commands_SignOut" xml:space="preserve">
+    <value>Sign out</value>
+    <comment>The name of the SignOut command</comment>
+  </data>
+  <data name="Commands_CopyURL" xml:space="preserve">
+    <value>Copy URL</value>
+    <comment>The command name for copying a URL</comment>
+  </data>
+  <data name="Commands_CopyIssueTitle" xml:space="preserve">
+    <value>Copy issue title</value>
+    <comment>The command name for copying an issue title</comment>
+  </data>
+  <data name="Commands_CopyIssueNumber" xml:space="preserve">
+    <value>Copy issue number</value>
+    <comment>Command name for copying an issue number</comment>
+  </data>
+  <data name="Commands_CopyPullRequestNumber" xml:space="preserve">
+    <value>Copy pull request number</value>
+    <comment>Name for the copy pull request number command</comment>
+  </data>
+  <data name="Pages_SaveSearch" xml:space="preserve">
+    <value>Add a query</value>
+    <comment>Title of SaveSearchPage</comment>
+  </data>
+  <data name="Commands_CopyPullRequestTitle" xml:space="preserve">
+    <value>Copy pull request title</value>
+    <comment>The name of the copy pull request title command</comment>
   </data>
 </root>
