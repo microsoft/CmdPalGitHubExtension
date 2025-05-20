@@ -377,4 +377,8 @@
     <value>Save edited query</value>
     <comment>The title for the button that submits the form in the EditSearchPage</comment>
   </data>
+  <data name="Pages_SignOut_Title" xml:space="preserve">
+    <value>Sign out of the GitHub Extension</value>
+    <comment>The title for the SignOutPage</comment>
+  </data>
 </root>

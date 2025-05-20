@@ -96,10 +96,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         var defaultCommands = new List<CommandItem>
         {
             new(_savedSearchesPage),
-            new(_signOutPage)
-            {
-                Subtitle = _resources.GetResource("Forms_Sign_Out_Button_Title"),
-            },
+            new(_signOutPage),
         };
 
         commands.AddRange(defaultCommands);
