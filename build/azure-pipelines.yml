@@ -38,6 +38,7 @@ extends:
         break: false
         scanOutputDirectoryOnly: true
       policheck:
+        enabled: true
         severity: Note
         break: false
     pool:
