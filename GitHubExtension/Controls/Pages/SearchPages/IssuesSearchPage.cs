@@ -23,7 +23,7 @@ public sealed partial class IssuesSearchPage(ISearch search, ICacheDataManager c
             {
                 new(new CopyCommand(item.HtmlUrl, $"{Resources.GetResource("Commands_CopyURL")}")),
                 new(new CopyCommand(item.Title, $"{Resources.GetResource("Commands_CopyIssueTitle")}")),
-                new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), $"{Resources.GetResource("Commands_CopyIssue_Number")}")),
+                new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), $"{Resources.GetResource("Commands_CopyIssueNumber")}")),
                 new(new IssueContentPage(item, Resources)),
             },
             Tags = GetTags(item),

@@ -374,4 +374,34 @@ public partial class DataStoreTests
             }
         }
     }
+
+    [TestMethod]
+    [TestCategory("Unit")]
+    public void ResetDataStore()
+    {
+        using var dataStore = new DataStore("TestStore", TestHelpers.GetDataStoreFilePath(TestOptions), TestOptions.DataStoreOptions.DataStoreSchema!);
+        Assert.IsNotNull(dataStore);
+        dataStore.Create();
+        using var tx = dataStore.Connection!.BeginTransaction();
+
+        var searches = new List<Search>
+        {
+            { new Search { Name = "Test 0", SearchString = "is:issue lets hope" } },
+            { new Search { Name = "Test 1", SearchString = "is:pr for the best" } },
+        };
+
+        dataStore.Connection.Insert(searches[0]);
+        dataStore.Connection.Insert(searches[1]);
+
+        tx.Commit();
+
+        // Verify retrieval and input into data objects.
+        var dataStoreSearches = dataStore.Connection.GetAll<Search>().ToList();
+        Assert.AreEqual(2, dataStoreSearches.Count);
+
+        dataStore.Reset();
+
+        var dataStoreSearches2 = dataStore.Connection.GetAll<Search>().ToList();
+        Assert.AreEqual(0, dataStoreSearches2.Count);
+    }
 }

@@ -25,9 +25,9 @@ internal sealed partial class IssueContentPage : ContentPage
         Commands = new CommandContextItem[]
         {
             new(new LinkCommand(issue, resources)),
-            new(new CopyCommand(issue.HtmlUrl, _resources.GetResource("Pages_Item_URL"))),
-            new(new CopyCommand(issue.Title, _resources.GetResource("Pages_Issue_Title"))),
-            new(new CopyCommand(issue.Number.ToString(CultureInfo.InvariantCulture), _resources.GetResource("Pages_Issue_Number"))),
+            new(new CopyCommand(issue.HtmlUrl, _resources.GetResource("Commands_CopyURL"))),
+            new(new CopyCommand(issue.Title, _resources.GetResource("Commands_CopyIssueTitle"))),
+            new(new CopyCommand(issue.Number.ToString(CultureInfo.InvariantCulture), _resources.GetResource("Commands_CopyIssueNumber"))),
         };
 #pragma warning restore IDE0300 // Simplify collection initialization
     }

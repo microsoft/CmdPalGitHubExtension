@@ -30,7 +30,7 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
 
     public Dictionary<string, string> TemplateSubstitutions => new()
     {
-        { "{{SaveSearchFormTitle}}", _resources.GetResource(string.IsNullOrEmpty(_savedSearch.Name) ? "Forms_Save_Search" : "Forms_Edit_Search") },
+        { "{{SaveSearchFormTitle}}", _resources.GetResource(string.IsNullOrWhiteSpace(_savedSearch.Name) ? "Forms_Save_Search" : "Forms_Edit_Search") },
         { "{{SavedSearchString}}", _savedSearch.SearchString },
         { "{{SavedSearchName}}", _savedSearch.Name },
         { "{{IsTopLevel}}", IsTopLevelChecked },
@@ -39,7 +39,7 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
         { "{{NameLabel}}", _resources.GetResource("Forms_SaveSearchTemplateNameLabel") },
         { "{{NameErrorMessage}}", _resources.GetResource("Forms_SaveSearchTemplateNameError") },
         { "{{IsTopLevelTitle}}", _resources.GetResource("Forms_SaveSearchTemplateIsTopLevelTitle") },
-        { "{{SaveSearchActionTitle}}", _resources.GetResource("Forms_SaveSearchTemplateSaveSearchActionTitle") },
+        { "{{SaveSearchActionTitle}}", _resources.GetResource(string.IsNullOrWhiteSpace(_savedSearch.Name) ? "Forms_SaveSearchTemplateSaveSearchActionTitle" : "Forms_SaveSearchTemplateEditSearchActionTitle") },
     };
 
     // for saving a new query
@@ -78,7 +78,7 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
     {
         try
         {
-            if (string.IsNullOrEmpty(payload))
+            if (string.IsNullOrWhiteSpace(payload))
             {
                 return new SearchCandidate();
             }
@@ -129,7 +129,8 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
             searchFromUrl = SearchHelper.ParseSearchStringFromUri(uri);
         }
 
-        searchStr = string.IsNullOrEmpty(searchFromUrl) ? enteredSearch : searchFromUrl;
+        searchStr = string.IsNullOrWhiteSpace(searchFromUrl) ? enteredSearch : searchFromUrl;
+        name = string.IsNullOrWhiteSpace(name) ? searchStr : name;
 
         return new SearchCandidate(searchStr, name, isTopLevel);
     }

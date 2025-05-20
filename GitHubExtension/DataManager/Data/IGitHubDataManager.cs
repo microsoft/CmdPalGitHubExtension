@@ -5,7 +5,6 @@
 using GitHubExtension.Controls;
 using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.DataObjects;
-using GitHubExtension.DataModel.Enums;
 
 namespace GitHubExtension.DataManager.Data;
 
@@ -22,4 +21,6 @@ public interface IGitHubDataManager : IDisposable
     Task RequestSearchUpdateAsync(ISearch search, RequestOptions options);
 
     Search? GetSearch(string name, string searchString);
+
+    void PurgeAllData();
 }

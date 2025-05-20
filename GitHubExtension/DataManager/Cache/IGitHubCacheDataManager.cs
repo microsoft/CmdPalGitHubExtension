@@ -4,7 +4,6 @@
 
 using GitHubExtension.Controls;
 using GitHubExtension.DataManager.Data;
-using GitHubExtension.DataModel.Enums;
 
 namespace GitHubExtension.DataManager.Cache;
 
@@ -19,4 +18,6 @@ public interface IGitHubCacheDataManager
     Task RequestSearchUpdateAsync(ISearch search, RequestOptions options);
 
     bool IsSearchNewOrStale(ISearch search, TimeSpan refreshCooldown);
+
+    void PurgeAllData();
 }
