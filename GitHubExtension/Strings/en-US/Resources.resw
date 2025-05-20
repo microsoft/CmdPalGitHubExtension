@@ -373,4 +373,8 @@
     <value>Copy pull request title</value>
     <comment>The name of the copy pull request title command</comment>
   </data>
+  <data name="Forms_SaveSearchTemplateEditSearchActionTitle" xml:space="preserve">
+    <value>Save edited query</value>
+    <comment>The title for the button that submits the form in the EditSearchPage</comment>
+  </data>
 </root>

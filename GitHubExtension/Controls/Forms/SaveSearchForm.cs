@@ -39,7 +39,7 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
         { "{{NameLabel}}", _resources.GetResource("Forms_SaveSearchTemplateNameLabel") },
         { "{{NameErrorMessage}}", _resources.GetResource("Forms_SaveSearchTemplateNameError") },
         { "{{IsTopLevelTitle}}", _resources.GetResource("Forms_SaveSearchTemplateIsTopLevelTitle") },
-        { "{{SaveSearchActionTitle}}", _resources.GetResource("Forms_SaveSearchTemplateSaveSearchActionTitle") },
+        { "{{SaveSearchActionTitle}}", _resources.GetResource(string.IsNullOrEmpty(_savedSearch.Name) ? "Forms_SaveSearchTemplateSaveSearchActionTitle" : "Forms_SaveSearchTemplateEditSearchActionTitle") },
     };
 
     // for saving a new query
