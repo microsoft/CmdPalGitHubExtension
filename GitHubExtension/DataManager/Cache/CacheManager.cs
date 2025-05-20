@@ -2,8 +2,6 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using GitHubExtension.Controls;
 using GitHubExtension.DataManager.Cache.CacheManagerStates;
 using GitHubExtension.DataManager.Data;
@@ -122,13 +120,10 @@ public sealed class CacheManager : IDisposable, ICacheManager
 
     public void CancelUpdateInProgress()
     {
-        lock (_stateSemaphore)
+        if (!_cancelSource.IsCancellationRequested)
         {
-            if (!_cancelSource.IsCancellationRequested)
-            {
-                _logger.Information("Cancelling update.");
-                _cancelSource.Cancel();
-            }
+            _logger.Information("Cancelling update.");
+            _cancelSource.Cancel();
         }
     }
 
