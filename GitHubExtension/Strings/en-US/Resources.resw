@@ -134,7 +134,7 @@
     <comment>Title for command to open an item in the browser</comment>
   </data>
   <data name="Commands_Remove_Saved_Search" xml:space="preserve">
-    <value>Remove</value>
+    <value>Remove saved search</value>
     <comment>Title for command to remove a saved query</comment>
   </data>
   <data name="Forms_Save_Search" xml:space="preserve">
@@ -181,20 +181,12 @@
     <value>No items found</value>
     <comment>Body of error message when an error ocurred fetching items</comment>
   </data>
-  <data name="Pages_Issue_Title" xml:space="preserve">
-    <value>issue title</value>
-    <comment>Shown in command to copy issue title on pages</comment>
-  </data>
   <data name="Pages_PullRequest_Title" xml:space="preserve">
     <value>pull request title</value>
     <comment>Shown in command to copy title of pull request on a page</comment>
   </data>
-  <data name="Pages_Item_Number" xml:space="preserve">
-    <value>item number</value>
-    <comment>Shown in command to copy the number of a issue or pull request on a page</comment>
-  </data>
   <data name="Pages_Edit" xml:space="preserve">
-    <value>Edit</value>
+    <value>Edit query</value>
     <comment>Name and title for edit search page</comment>
   </data>
   <data name="Pages_Markdown_Issue" xml:space="preserve">
@@ -281,17 +273,9 @@
     <value>pull request number</value>
     <comment>Tooltip for command to copy pull request number</comment>
   </data>
-  <data name="Pages_Issue_Number" xml:space="preserve">
-    <value>issue number</value>
-    <comment>Tooltip for command to copy issue number</comment>
-  </data>
   <data name="Pages_PullRequest_SourceBranch" xml:space="preserve">
     <value>source branch</value>
     <comment>Tooltip for copy source branch command</comment>
-  </data>
-  <data name="Pages_Item_URL" xml:space="preserve">
-    <value>URL</value>
-    <comment>Tooltip for copying an issue or PR URL</comment>
   </data>
   <data name="Pages_PullRequest_Checkout" xml:space="preserve">
     <value>checkout command</value>
@@ -306,7 +290,7 @@
     <comment>Shown as the label for the input text box for the GitHub query</comment>
   </data>
   <data name="Forms_SaveSearchTemplateNameLabel" xml:space="preserve">
-    <value>Name</value>
+    <value>Query name</value>
     <comment>Shown as the name for the saved query</comment>
   </data>
   <data name="Forms_SaveSearchTemplateNameError" xml:space="preserve">
@@ -318,7 +302,7 @@
     <comment>The label text for the checkbox that determines if the query should be pinned as a top level command</comment>
   </data>
   <data name="Forms_SaveSearchTemplateSaveSearchActionTitle" xml:space="preserve">
-    <value>Save</value>
+    <value>Save query</value>
     <comment>The title for the button that submits the form and saves the query</comment>
   </data>
   <data name="CommandsProvider_AssignedToMeCommandName" xml:space="preserve">
