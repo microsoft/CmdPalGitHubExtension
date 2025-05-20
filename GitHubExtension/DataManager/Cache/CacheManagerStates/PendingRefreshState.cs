@@ -19,17 +19,14 @@ public class PendingRefreshState : CacheManagerState
     {
         await Task.Run(() =>
         {
-            lock (CacheManager.GetStateLock())
+            if (search.SearchString == CacheManager.PendingSearch?.SearchString)
             {
-                if (search.SearchString == CacheManager.PendingSearch?.SearchString)
-                {
-                    Logger.Information("Search is the same as the pending search. Ignoring.");
-                    return;
-                }
-
-                CacheManager.PendingSearch = search;
-                CacheManager.CurrentUpdateType = UpdateType.Search;
+                Logger.Information("Search is the same as the pending search. Ignoring.");
+                return;
             }
+
+            CacheManager.PendingSearch = search;
+            CacheManager.CurrentUpdateType = UpdateType.Search;
 
             CacheManager.CancelUpdateInProgress();
         });
@@ -41,22 +38,16 @@ public class PendingRefreshState : CacheManagerState
         {
             case DataManagerUpdateKind.Cancel:
                 Logger.Information($"Received data manager cancellation. Refreshing for {CacheManager.PendingSearch?.Name}");
-                lock (CacheManager.GetStateLock())
-                {
-                    CacheManager.State = CacheManager.RefreshingState;
-                }
+                CacheManager.State = CacheManager.RefreshingState;
 
                 await CacheManager.Update(CacheManager.CurrentUpdateType, CacheManager.PendingSearch);
                 break;
             default:
                 Logger.Information($"Received data manager update event {e.Kind}. Changing to Idle state.");
 
-                lock (CacheManager.GetStateLock())
-                {
-                    CacheManager.State = CacheManager.IdleState;
-                    CacheManager.PendingSearch = null;
-                    CacheManager.CurrentUpdateType = UpdateType.Unknown;
-                }
+                CacheManager.State = CacheManager.IdleState;
+                CacheManager.PendingSearch = null;
+                CacheManager.CurrentUpdateType = UpdateType.Unknown;
 
                 break;
         }

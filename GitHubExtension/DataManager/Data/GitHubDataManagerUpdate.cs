@@ -131,4 +131,9 @@ public partial class GitHubDataManager
     {
         SendUpdateEvent(source, DataManagerUpdateKind.Error, updateType, null, null, ex);
     }
+
+    public void PurgeAllData()
+    {
+        DataStore.Reset();
+    }
 }

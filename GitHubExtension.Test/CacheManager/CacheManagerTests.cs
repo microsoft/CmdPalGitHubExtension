@@ -21,7 +21,8 @@ public partial class CacheManagerTests
     {
         var stubGitHubClient = new Mock<IGitHubCacheDataManager>().Object;
         var stubSearchRepository = new Mock<ISearchRepository>().Object;
-        using var cacheManager = new CacheManager(stubGitHubClient, stubSearchRepository);
+        var authenticationMediator = new AuthenticationMediator();
+        using var cacheManager = new CacheManager(stubGitHubClient, stubSearchRepository, authenticationMediator);
         Assert.IsNotNull(cacheManager);
     }
 
@@ -45,7 +46,8 @@ public partial class CacheManagerTests
     {
         var mockSearchRepository = MockSearchRepository();
         var mockGitHubDataManager = MockGitHubDataManager();
-        using var cacheManager = new CacheManager(mockGitHubDataManager.Object, mockSearchRepository.Object);
+        var authenticationMediator = new AuthenticationMediator();
+        using var cacheManager = new CacheManager(mockGitHubDataManager.Object, mockSearchRepository.Object, authenticationMediator);
 
         Assert.AreEqual(cacheManager.IdleState, cacheManager.State);
         await cacheManager.PeriodicUpdate();
@@ -62,7 +64,8 @@ public partial class CacheManagerTests
     {
         var mockSearchRepository = MockSearchRepository();
         var mockGitHubDataManager = MockGitHubDataManager();
-        using var cacheManager = new CacheManager(mockGitHubDataManager.Object, mockSearchRepository.Object);
+        var authenticationMediator = new AuthenticationMediator();
+        using var cacheManager = new CacheManager(mockGitHubDataManager.Object, mockSearchRepository.Object, authenticationMediator);
 
         Assert.AreEqual(cacheManager.IdleState, cacheManager.State);
         await cacheManager.PeriodicUpdate();
@@ -91,7 +94,8 @@ public partial class CacheManagerTests
     {
         var mockSearchRepository = MockSearchRepository();
         var mockGitHubDataManager = MockGitHubDataManager();
-        using var cacheManager = new CacheManager(mockGitHubDataManager.Object, mockSearchRepository.Object);
+        var authenticationMediator = new AuthenticationMediator();
+        using var cacheManager = new CacheManager(mockGitHubDataManager.Object, mockSearchRepository.Object, authenticationMediator);
 
         Assert.AreEqual(cacheManager.IdleState, cacheManager.State);
 
@@ -132,7 +136,8 @@ public partial class CacheManagerTests
     {
         var mockSearchRepository = MockSearchRepository();
         var mockGitHubDataManager = MockGitHubDataManager();
-        using var cacheManager = new CacheManager(mockGitHubDataManager.Object, mockSearchRepository.Object);
+        var authenticationMediator = new AuthenticationMediator();
+        using var cacheManager = new CacheManager(mockGitHubDataManager.Object, mockSearchRepository.Object, authenticationMediator);
 
         Assert.AreEqual(cacheManager.IdleState, cacheManager.State);
 
@@ -171,7 +176,8 @@ public partial class CacheManagerTests
     {
         var mockSearchRepository = MockSearchRepository();
         var mockGitHubDataManager = MockGitHubDataManager();
-        using var cacheManager = new CacheManager(mockGitHubDataManager.Object, mockSearchRepository.Object);
+        var authenticationMediator = new AuthenticationMediator();
+        using var cacheManager = new CacheManager(mockGitHubDataManager.Object, mockSearchRepository.Object, authenticationMediator);
 
         Assert.AreEqual(cacheManager.IdleState, cacheManager.State);
 
@@ -192,7 +198,8 @@ public partial class CacheManagerTests
     {
         var mockSearchRepository = MockSearchRepository();
         var mockGitHubDataManager = MockGitHubDataManager();
-        using var cacheManager = new CacheManager(mockGitHubDataManager.Object, mockSearchRepository.Object);
+        var authenticationMediator = new AuthenticationMediator();
+        using var cacheManager = new CacheManager(mockGitHubDataManager.Object, mockSearchRepository.Object, authenticationMediator);
 
         Assert.AreEqual(cacheManager.IdleState, cacheManager.State);
         await cacheManager.PeriodicUpdate();
@@ -210,7 +217,8 @@ public partial class CacheManagerTests
     {
         var mockSearchRepository = MockSearchRepository();
         var mockGitHubDataManager = MockGitHubDataManager();
-        using var cacheManager = new CacheManager(mockGitHubDataManager.Object, mockSearchRepository.Object);
+        var authenticationMediator = new AuthenticationMediator();
+        using var cacheManager = new CacheManager(mockGitHubDataManager.Object, mockSearchRepository.Object, authenticationMediator);
 
         mockGitHubDataManager.Setup(x => x.IsSearchNewOrStale(It.IsAny<ISearch>(), It.IsAny<TimeSpan>())).Returns(false);
 

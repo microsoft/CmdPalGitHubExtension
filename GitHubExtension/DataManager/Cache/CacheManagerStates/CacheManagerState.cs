@@ -4,7 +4,6 @@
 
 using GitHubExtension.Controls;
 using GitHubExtension.DataManager.Data;
-using GitHubExtension.DataManager.Enums;
 using Serilog;
 
 namespace GitHubExtension.DataManager.Cache;
@@ -32,5 +31,11 @@ public abstract class CacheManagerState
     public virtual void HandleDataManagerUpdate(object? source, DataManagerUpdateEventArgs e)
     {
         return;
+    }
+
+    public virtual void ClearCache()
+    {
+        CacheManager.State = CacheManager.PendingClearCacheState;
+        CacheManager.CancelUpdateInProgress();
     }
 }

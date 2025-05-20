@@ -21,23 +21,17 @@ public class PeriodicUpdatingState : CacheManagerState
         {
             CacheManager.CancelUpdateInProgress();
 
-            lock (CacheManager.GetStateLock())
-            {
-                CacheManager.PendingSearch = search;
-                CacheManager.CurrentUpdateType = UpdateType.Search;
-                CacheManager.State = CacheManager.PendingRefreshState;
-            }
+            CacheManager.PendingSearch = search;
+            CacheManager.CurrentUpdateType = UpdateType.Search;
+            CacheManager.State = CacheManager.PendingRefreshState;
         });
     }
 
     public override void HandleDataManagerUpdate(object? source, DataManagerUpdateEventArgs e)
     {
         Logger.Information("Received data manager update event. Changing to Idle state.");
-        lock (CacheManager.GetStateLock())
-        {
-            CacheManager.State = CacheManager.IdleState;
-            CacheManager.PendingSearch = null;
-            CacheManager.CurrentUpdateType = UpdateType.Unknown;
-        }
+        CacheManager.State = CacheManager.IdleState;
+        CacheManager.PendingSearch = null;
+        CacheManager.CurrentUpdateType = UpdateType.Unknown;
     }
 }
