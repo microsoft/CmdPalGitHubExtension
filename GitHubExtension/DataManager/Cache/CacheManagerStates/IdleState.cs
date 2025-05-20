@@ -16,12 +16,9 @@ public class IdleState : CacheManagerState
 
     public async override Task Refresh(ISearch search)
     {
-        lock (CacheManager.GetStateLock())
-        {
-            CacheManager.State = CacheManager.RefreshingState;
-            CacheManager.PendingSearch = search;
-            CacheManager.CurrentUpdateType = UpdateType.Search;
-        }
+        CacheManager.State = CacheManager.RefreshingState;
+        CacheManager.PendingSearch = search;
+        CacheManager.CurrentUpdateType = UpdateType.Search;
 
         Logger.Information($"Starting refresh for Search: {search.Name} - {search.SearchString}");
         await CacheManager.Update(UpdateType.Search, search);
@@ -36,12 +33,15 @@ public class IdleState : CacheManagerState
             return;
         }
 
-        lock (CacheManager.GetStateLock())
-        {
-            CacheManager.State = CacheManager.PeriodicUpdatingState;
-        }
+        CacheManager.State = CacheManager.PeriodicUpdatingState;
 
         Logger.Information("Starting periodic update.");
         await CacheManager.Update(UpdateType.All);
+    }
+
+    public override void ClearCache()
+    {
+        Logger.Information("Clearing cache.");
+        CacheManager.PurgeAllData();
     }
 }
