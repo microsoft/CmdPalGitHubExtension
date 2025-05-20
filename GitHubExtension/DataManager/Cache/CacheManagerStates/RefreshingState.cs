@@ -19,35 +19,26 @@ public class RefreshingState : CacheManagerState
     {
         await Task.Run(() =>
         {
-            lock (CacheManager.GetStateLock())
+            if (search.SearchString == CacheManager.PendingSearch?.SearchString)
             {
-                if (search.SearchString == CacheManager.PendingSearch?.SearchString)
-                {
-                    Logger.Information("Search is the same as the pending search. Ignoring.");
-                    return;
-                }
-
-                CacheManager.PendingSearch = search;
-                CacheManager.CurrentUpdateType = UpdateType.Search;
+                Logger.Information("Search is the same as the pending search. Ignoring.");
+                return;
             }
+
+            CacheManager.PendingSearch = search;
+            CacheManager.CurrentUpdateType = UpdateType.Search;
 
             CacheManager.CancelUpdateInProgress();
 
-            lock (CacheManager.GetStateLock())
-            {
-                CacheManager.State = CacheManager.PendingRefreshState;
-            }
+            CacheManager.State = CacheManager.PendingRefreshState;
         });
     }
 
     public override void HandleDataManagerUpdate(object? source, DataManagerUpdateEventArgs e)
     {
         Logger.Information("Received data manager update event. Changing to Idle state.");
-        lock (CacheManager.GetStateLock())
-        {
-            CacheManager.State = CacheManager.IdleState;
-            CacheManager.PendingSearch = null;
-            CacheManager.CurrentUpdateType = UpdateType.Unknown;
-        }
+        CacheManager.State = CacheManager.IdleState;
+        CacheManager.PendingSearch = null;
+        CacheManager.CurrentUpdateType = UpdateType.Unknown;
     }
 }

@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Controls;
+using GitHubExtension.DataManager.Cache.CacheManagerStates;
 using GitHubExtension.DataManager.Data;
 using GitHubExtension.DataManager.Enums;
 using GitHubExtension.Helpers;
@@ -18,16 +19,11 @@ public sealed class CacheManager : IDisposable, ICacheManager
 
     // Lock to be used everytime we want to check or update the state of
     // the CacheManager.
-    private static readonly object _stateLock = new();
+    private readonly SemaphoreSlim _stateSemaphore = new(1, 1);
 
     private readonly ILogger _logger;
 
     public CacheManagerState State { get; set; }
-
-    public object GetStateLock()
-    {
-        return _stateLock;
-    }
 
     public CacheManagerState IdleState { get; private set; }
 
@@ -37,9 +33,11 @@ public sealed class CacheManager : IDisposable, ICacheManager
 
     public CacheManagerState PendingRefreshState { get; private set; }
 
-    private readonly IGitHubCacheDataManager _dataManager;
+    public CacheManagerState PendingClearCacheState { get; private set; }
 
+    private readonly IGitHubCacheDataManager _dataManager;
     private readonly ISearchRepository _searchRepository;
+    private readonly AuthenticationMediator _authenticationMediator;
 
     private CancellationTokenSource _cancelSource;
 
@@ -62,10 +60,12 @@ public sealed class CacheManager : IDisposable, ICacheManager
 
     public DateTime LastUpdateTime { get; set; } = DateTime.MinValue;
 
-    public CacheManager(IGitHubCacheDataManager dataManager, ISearchRepository searchRepository)
+    public CacheManager(IGitHubCacheDataManager dataManager, ISearchRepository searchRepository, AuthenticationMediator authenticationMediator)
     {
         _dataManager = dataManager;
         _searchRepository = searchRepository;
+        _authenticationMediator = authenticationMediator;
+        _authenticationMediator.SignOutAction += ClearCache;
         DataUpdater = new DataUpdater(PeriodicUpdate);
         dataManager.OnUpdate += HandleDataManagerUpdate;
         _cancelSource = new CancellationTokenSource();
@@ -76,6 +76,7 @@ public sealed class CacheManager : IDisposable, ICacheManager
         RefreshingState = new RefreshingState(this);
         PeriodicUpdatingState = new PeriodicUpdatingState(this);
         PendingRefreshState = new PendingRefreshState(this);
+        PendingClearCacheState = new PendingClearCacheState(this);
         State = IdleState;
     }
 
@@ -89,15 +90,40 @@ public sealed class CacheManager : IDisposable, ICacheManager
         DataUpdater.Stop();
     }
 
+    private async Task SemaphoreWrapper(Func<Task> stateProcedure)
+    {
+        await _stateSemaphore.WaitAsync();
+        try
+        {
+            await stateProcedure();
+        }
+        finally
+        {
+            _stateSemaphore.Release();
+        }
+    }
+
+    private async void ClearCache(object? sender, SignInStatusChangedEventArgs e)
+    {
+        await SemaphoreWrapper(() =>
+        {
+            _logger.Information("Purging all data.");
+            State.ClearCache();
+            return Task.CompletedTask;
+        });
+    }
+
+    public void PurgeAllData()
+    {
+        _dataManager.PurgeAllData();
+    }
+
     public void CancelUpdateInProgress()
     {
-        lock (_stateLock)
+        if (!_cancelSource.IsCancellationRequested)
         {
-            if (!_cancelSource.IsCancellationRequested)
-            {
-                _logger.Information("Cancelling update.");
-                _cancelSource.Cancel();
-            }
+            _logger.Information("Cancelling update.");
+            _cancelSource.Cancel();
         }
     }
 
@@ -114,12 +140,12 @@ public sealed class CacheManager : IDisposable, ICacheManager
     // an instant update of its data.
     public async Task Refresh(ISearch search)
     {
-        await State.Refresh(search);
+        await SemaphoreWrapper(async () => await State.Refresh(search));
     }
 
     public async Task PeriodicUpdate()
     {
-        await State.PeriodicUpdate();
+        await SemaphoreWrapper(async () => await State.PeriodicUpdate());
     }
 
     public async Task Update(UpdateType updateType, ISearch? search = null)
@@ -128,7 +154,7 @@ public sealed class CacheManager : IDisposable, ICacheManager
 
         _logger.Information($"Starting update of type {updateType}.");
 
-        lock (_stateLock)
+        lock (_stateSemaphore)
         {
             _cancelSource = new CancellationTokenSource();
             options.CancellationToken = _cancelSource.Token;
@@ -141,10 +167,10 @@ public sealed class CacheManager : IDisposable, ICacheManager
         {
             case UpdateType.All:
                 var searches = (await _searchRepository.GetSavedSearches()).ToList();
-                await _dataManager.RequestAllUpdateAsync(searches, options);
+                _ = _dataManager.RequestAllUpdateAsync(searches, options);
                 break;
             case UpdateType.Search:
-                await _dataManager.RequestSearchUpdateAsync(search!, options);
+                _ = _dataManager.RequestSearchUpdateAsync(search!, options);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(updateType), updateType, null);
@@ -160,10 +186,14 @@ public sealed class CacheManager : IDisposable, ICacheManager
         }
     }
 
-    private void HandleDataManagerUpdate(object? source, DataManagerUpdateEventArgs e)
+    private async void HandleDataManagerUpdate(object? source, DataManagerUpdateEventArgs e)
     {
         _logger.Information($"DataManager update: {e.Kind}, {e.UpdateType}");
-        State.HandleDataManagerUpdate(source, e);
+        await SemaphoreWrapper(() =>
+        {
+            State.HandleDataManagerUpdate(source, e);
+            return Task.CompletedTask;
+        });
 
         switch (e.Kind)
         {
@@ -210,8 +240,10 @@ public sealed class CacheManager : IDisposable, ICacheManager
                 {
                     _logger.Debug("Disposing of all CacheManager resources.");
                     _dataManager.OnUpdate -= HandleDataManagerUpdate;
+                    _authenticationMediator.SignOutAction -= ClearCache;
                     DataUpdater.Dispose();
                     _cancelSource.Dispose();
+                    _stateSemaphore.Dispose();
                 }
                 catch (Exception e)
                 {

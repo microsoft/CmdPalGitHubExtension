@@ -38,6 +38,11 @@ public class GitHubCacheAdapter : IGitHubCacheDataManager
         return dsSearch == null || DateTime.UtcNow - dsSearch.UpdatedAt > refreshCooldown;
     }
 
+    public void PurgeAllData()
+    {
+        _dataManager.PurgeAllData();
+    }
+
     public Task RequestAllUpdateAsync(List<ISearch> searches, RequestOptions options)
     {
         return _dataManager.RequestAllUpdateAsync(searches, options);

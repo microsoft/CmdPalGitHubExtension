@@ -122,7 +122,9 @@ public class Program
 
         using var searchRepository = new PersistentDataManager(new GitHubValidatorAdapter(gitHubClientProvider));
 
-        using var cacheManager = new CacheManager(new GitHubCacheAdapter(gitHubDataManager), searchRepository)!;
+        var authenticationMediator = new AuthenticationMediator();
+
+        using var cacheManager = new CacheManager(new GitHubCacheAdapter(gitHubDataManager), searchRepository, authenticationMediator)!;
 
         // Set up cache manager to pre-update data
         cacheManager.Start();
@@ -138,8 +140,6 @@ public class Program
         var addSearchListItem = new AddSearchListItem(new SaveSearchPage(addSearchForm, new StatusMessage(), resources), resources);
 
         var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, resources, addSearchListItem, savedSearchesMediator);
-
-        var authenticationMediator = new AuthenticationMediator();
 
         var signOutCommand = new SignOutCommand(resources, developerIdProvider, authenticationMediator);
         var signOutForm = new SignOutForm(resources, authenticationMediator, signOutCommand);

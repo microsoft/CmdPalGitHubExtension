@@ -53,8 +53,6 @@ public class CacheDataManagerFacade : ICacheDataManager
 
     public async Task<IEnumerable<IIssue>> GetIssues(ISearch search)
     {
-        _cacheManager.CancelUpdateInProgress();
-
         if (_dataRequester.GetSearch(search.Name, search.SearchString) == null)
         {
             await _cacheManager.RequestRefresh(search);
@@ -68,8 +66,6 @@ public class CacheDataManagerFacade : ICacheDataManager
 
     public async Task<IEnumerable<IPullRequest>> GetPullRequests(ISearch search)
     {
-        _cacheManager.CancelUpdateInProgress();
-
         if (_dataRequester.GetSearch(search.Name, search.SearchString) == null)
         {
             await _cacheManager.RequestRefresh(search);
@@ -116,8 +112,6 @@ public class CacheDataManagerFacade : ICacheDataManager
 
     public async Task<IEnumerable<IIssue>> GetIssuesAndPullRequests(ISearch search)
     {
-        _cacheManager.CancelUpdateInProgress();
-
         if (_dataRequester.GetSearch(search.Name, search.SearchString) == null)
         {
             await _cacheManager.RequestRefresh(search);
