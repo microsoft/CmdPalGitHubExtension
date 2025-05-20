@@ -7,6 +7,7 @@ using GitHubExtension.DataManager.Cache;
 using GitHubExtension.DataManager.Data;
 using GitHubExtension.DataManager.Enums;
 using GitHubExtension.DataModel.Enums;
+using GitHubExtension.Helpers;
 using Moq;
 using Octokit;
 
@@ -233,5 +234,42 @@ public partial class CacheManagerTests
         await cacheManager.RequestRefresh(stubSearch.Object);
 
         mockGitHubDataManager.Verify(x => x.RequestSearchUpdateAsync(It.IsAny<ISearch>(), It.IsAny<RequestOptions>()), Times.Once);
+    }
+
+    [TestMethod]
+    [TestCategory("Unit")]
+    public void ClearingCacheWhileIdle()
+    {
+        var mockSearchRepository = MockSearchRepository();
+        var mockGitHubDataManager = MockGitHubDataManager();
+        var authenticationMediator = new AuthenticationMediator();
+        using var cacheManager = new CacheManager(mockGitHubDataManager.Object, mockSearchRepository.Object, authenticationMediator);
+
+        authenticationMediator.SignOut(new SignInStatusChangedEventArgs(false));
+
+        mockGitHubDataManager.Verify(x => x.PurgeAllData());
+    }
+
+    [TestMethod]
+    [TestCategory("Unit")]
+    public async Task ClearingCacheWhileUpdating()
+    {
+        var mockSearchRepository = MockSearchRepository();
+        var mockGitHubDataManager = MockGitHubDataManager();
+        var authenticationMediator = new AuthenticationMediator();
+        using var cacheManager = new CacheManager(mockGitHubDataManager.Object, mockSearchRepository.Object, authenticationMediator);
+
+        await cacheManager.PeriodicUpdate();
+
+        Assert.AreEqual(cacheManager.PeriodicUpdatingState, cacheManager.State);
+
+        authenticationMediator.SignOut(new SignInStatusChangedEventArgs(false));
+
+        Assert.AreEqual(cacheManager.PendingClearCacheState, cacheManager.State);
+
+        mockGitHubDataManager.Raise(x => x.OnUpdate += null, this, new DataManagerUpdateEventArgs(DataManagerUpdateKind.Cancel, UpdateType.All, string.Empty, Array.Empty<string>()));
+
+        Assert.AreEqual(cacheManager.IdleState, cacheManager.State);
+        mockGitHubDataManager.Verify(x => x.PurgeAllData());
     }
 }
