@@ -25,10 +25,9 @@ public sealed partial class SignOutPage : ContentPage
         _signOutCommand = signOutCommand;
         _authenticationMediator = authenticationMediator;
         _authenticationMediator.LoadingStateChanged += OnLoadingStateChanged;
-        Title = _resources.GetResource("ExtensionTitle");
+        Title = _resources.GetResource("Pages_SignOut_Title");
         Name = Title; // Name is for the command, Title is for the page
 
-        // Subtitle in CommandProvider is _resources.GetResource("Forms_Sign_Out_Button_Title"),
         Icon = GitHubIcon.IconDictionary["logo"];
 
         Commands =

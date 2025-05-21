@@ -42,25 +42,26 @@ public partial class SavedSearchesPage : ListPage
         _savedSearchesMediator.SearchSaved += OnSearchSaved;
     }
 
-    private void OnSearchRemoved(object? sender, object? args)
+    private void OnSearchRemoved(object? sender, SavedSearchesUpdatedEventArgs args)
     {
         IsLoading = false;
 
-        if (args is Exception e)
+        if (args.Exception != null)
         {
             var toast = new ToastStatusMessage(new StatusMessage()
             {
-                Message = $"{_resources.GetResource("Pages_Saved_Searches_Error")} {e.Message}",
+                Message = $"{_resources.GetResource("Pages_Saved_Searches_Error")} {args.Exception.Message}",
                 State = MessageState.Error,
             });
 
             toast.Show();
         }
-        else if (args is true)
+        else if (args.Status && args.Search != null)
         {
             RaiseItemsChanged(0);
+            ToastHelper.ShowToast($"{_resources.GetResource("Pages_Saved_Searches_RemovedSavedSearchSuccess")} {args.Search?.Name}", MessageState.Success);
         }
-        else if (args is false)
+        else if (!args.Status)
         {
             var toast = new ToastStatusMessage(new StatusMessage()
             {
@@ -96,11 +97,11 @@ public partial class SavedSearchesPage : ListPage
 
     // Change this to public to facilitate tests. As the event handler is
     // listening to a static event, it is not possible to mock the event.
-    public void OnSearchSaved(object? sender, object? args)
+    public void OnSearchSaved(object? sender, SavedSearchesUpdatedEventArgs args)
     {
         IsLoading = false;
 
-        if (args != null && args is SearchCandidate)
+        if (args != null && args.Search is SearchCandidate)
         {
             RaiseItemsChanged(0);
         }

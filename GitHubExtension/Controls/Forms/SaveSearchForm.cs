@@ -102,14 +102,13 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
             await _searchRepository.UpdateSearchTopLevelStatus(search, search.IsTopLevel);
 
             LoadingStateChanged?.Invoke(this, false);
-            _savedSearchesMediator.AddSearch(search);
+            _savedSearchesMediator.AddSearch(new SavedSearchesUpdatedEventArgs(true, null, search));
             FormSubmitted?.Invoke(this, new FormSubmitEventArgs(true, null));
             return search;
         }
         catch (Exception ex)
         {
-            LoadingStateChanged?.Invoke(this, false);
-            _savedSearchesMediator.AddSearch(ex);
+            _savedSearchesMediator.AddSearch(new SavedSearchesUpdatedEventArgs(false, ex, null));
             FormSubmitted?.Invoke(this, new FormSubmitEventArgs(false, ex));
         }
 

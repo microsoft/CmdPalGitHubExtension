@@ -69,7 +69,7 @@ public class TopLevelSearchesTest
         var dummySearch = new SearchCandidate("dummy search", "Dummy Search", true);
 
         await persistentDataManager.UpdateSearchTopLevelStatus(dummySearch, true);
-        savedSearchesMediator.AddSearch(dummySearch);
+        savedSearchesMediator.AddSearch(new SavedSearchesUpdatedEventArgs(true, null, dummySearch));
 
         var mockResources = new Mock<IResources>().Object;
         var saveSearchForm = new SaveSearchForm(dummySearch, persistentDataManager, mockResources, savedSearchesMediator);
@@ -269,7 +269,7 @@ public class TopLevelSearchesTest
         var testSearchName = "Top level search";
         var topLevelSearch = new SearchCandidate(testSearchString, testSearchName, true);
         await persistentDataManager.UpdateSearchTopLevelStatus(topLevelSearch, true);
-        savedSearchesMediator.AddSearch(topLevelSearch);
+        savedSearchesMediator.AddSearch(new SavedSearchesUpdatedEventArgs(true, null, topLevelSearch));
 
         await Task.Delay(5000);
 
@@ -363,7 +363,7 @@ public class TopLevelSearchesTest
         var testSearchName = "Top level search";
         var testSearch = new SearchCandidate(testSearchString, testSearchName, true);
         await persistentDataManager.UpdateSearchTopLevelStatus(testSearch, testSearch.IsTopLevel);
-        savedSearchesMediator.AddSearch(testSearch);
+        savedSearchesMediator.AddSearch(new SavedSearchesUpdatedEventArgs(true, null, testSearch));
 
         await Task.Delay(5000);
 
