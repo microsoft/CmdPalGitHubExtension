@@ -10,9 +10,9 @@ public class SavedSearchesMediator
 {
     public event EventHandler<object?>? SearchRemoving;
 
-    public event EventHandler<SavedSearchRemovedEventArgs>? SearchRemoved;
+    public event EventHandler<SavedSearchesUpdatedEventArgs>? SearchRemoved;
 
-    public event EventHandler<object?>? SearchSaved;
+    public event EventHandler<SavedSearchesUpdatedEventArgs>? SearchSaved;
 
     public SavedSearchesMediator()
     {
@@ -23,12 +23,12 @@ public class SavedSearchesMediator
         SearchRemoving?.Invoke(this, args);
     }
 
-    public void RemoveSearch(SavedSearchRemovedEventArgs args)
+    public void RemoveSearch(SavedSearchesUpdatedEventArgs args)
     {
         SearchRemoved?.Invoke(this, args);
     }
 
-    public void AddSearch(object args)
+    public void AddSearch(SavedSearchesUpdatedEventArgs args)
     {
         SearchSaved?.Invoke(this, args);
     }

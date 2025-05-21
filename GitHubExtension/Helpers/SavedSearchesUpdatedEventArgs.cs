@@ -6,7 +6,7 @@ using GitHubExtension.Controls;
 
 namespace GitHubExtension.Helpers;
 
-public class SavedSearchRemovedEventArgs : EventArgs
+public class SavedSearchesUpdatedEventArgs : EventArgs
 {
     public bool Status { get; }
 
@@ -14,7 +14,7 @@ public class SavedSearchRemovedEventArgs : EventArgs
 
     public ISearch? Search { get; }
 
-    public SavedSearchRemovedEventArgs(bool status, Exception? ex, ISearch search)
+    public SavedSearchesUpdatedEventArgs(bool status, Exception? ex, ISearch search)
     {
         Status = status;
         Exception = ex;

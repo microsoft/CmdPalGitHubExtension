@@ -73,7 +73,7 @@ public class SavedSearchesPageTest
         var search = new Mock<ISearch>().Object;
         var savedSearchesPostRemove = new List<ISearch>();
 
-        var mockArgs = new SavedSearchRemovedEventArgs(true, null, search);
+        var mockArgs = new SavedSearchesUpdatedEventArgs(true, null, search);
         savedSearchesMediator.RemoveSearch(mockArgs);
         stubSearchRepository.Setup(x => x.GetSavedSearches()).ReturnsAsync(savedSearchesPostRemove);
 

@@ -33,12 +33,12 @@ public partial class RemoveSavedSearchCommand : InvokableCommand
                 if (task.IsFaulted)
                 {
                     ExtensionHost.LogMessage(new LogMessage() { Message = $"Error removing saved search: {task.Exception?.GetBaseException().Message}" });
-                    var args = new SavedSearchRemovedEventArgs(false, task.Exception, savedSearch);
+                    var args = new SavedSearchesUpdatedEventArgs(false, task.Exception, savedSearch);
                     _savedSearchesMediator.RemoveSearch(args);
                 }
                 else
                 {
-                    var args = new SavedSearchRemovedEventArgs(task.Result, null, savedSearch);
+                    var args = new SavedSearchesUpdatedEventArgs(task.Result, null, savedSearch);
                     _savedSearchesMediator.RemoveSearch(args);
                 }
             });

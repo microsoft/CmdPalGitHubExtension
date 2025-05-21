@@ -42,7 +42,7 @@ public partial class SavedSearchesPage : ListPage
         _savedSearchesMediator.SearchSaved += OnSearchSaved;
     }
 
-    private void OnSearchRemoved(object? sender, SavedSearchRemovedEventArgs args)
+    private void OnSearchRemoved(object? sender, SavedSearchesUpdatedEventArgs args)
     {
         IsLoading = false;
 
@@ -97,11 +97,11 @@ public partial class SavedSearchesPage : ListPage
 
     // Change this to public to facilitate tests. As the event handler is
     // listening to a static event, it is not possible to mock the event.
-    public void OnSearchSaved(object? sender, object? args)
+    public void OnSearchSaved(object? sender, SavedSearchesUpdatedEventArgs args)
     {
         IsLoading = false;
 
-        if (args != null && args is SearchCandidate)
+        if (args != null && args.Search is SearchCandidate)
         {
             RaiseItemsChanged(0);
         }
