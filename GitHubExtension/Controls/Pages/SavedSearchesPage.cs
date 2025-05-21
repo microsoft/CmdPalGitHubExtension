@@ -42,25 +42,26 @@ public partial class SavedSearchesPage : ListPage
         _savedSearchesMediator.SearchSaved += OnSearchSaved;
     }
 
-    private void OnSearchRemoved(object? sender, object? args)
+    private void OnSearchRemoved(object? sender, SavedSearchRemovedEventArgs args)
     {
         IsLoading = false;
 
-        if (args is Exception e)
+        if (args.Exception != null)
         {
             var toast = new ToastStatusMessage(new StatusMessage()
             {
-                Message = $"{_resources.GetResource("Pages_Saved_Searches_Error")} {e.Message}",
+                Message = $"{_resources.GetResource("Pages_Saved_Searches_Error")} {args.Exception.Message}",
                 State = MessageState.Error,
             });
 
             toast.Show();
         }
-        else if (args is true)
+        else if (args.Status && args.Search != null)
         {
             RaiseItemsChanged(0);
+            ToastHelper.ShowToast($"{_resources.GetResource("Pages_Saved_Searches_RemovedSavedSearchSuccess")} {args.Search?.Name}", MessageState.Success);
         }
-        else if (args is false)
+        else if (!args.Status)
         {
             var toast = new ToastStatusMessage(new StatusMessage()
             {

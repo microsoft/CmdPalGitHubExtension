@@ -381,4 +381,8 @@
     <value>Sign out of the GitHub Extension</value>
     <comment>The title for the SignOutPage</comment>
   </data>
+  <data name="Pages_Saved_Searches_RemovedSavedSearchSuccess" xml:space="preserve">
+    <value>Search removed successfully! Search removed:</value>
+    <comment>Message shown on the SavedSearchesPage if a search was removed successfully</comment>
+  </data>
 </root>
