@@ -14,7 +14,7 @@ public class SavedSearchesUpdatedEventArgs : EventArgs
 
     public ISearch? Search { get; }
 
-    public SavedSearchesUpdatedEventArgs(bool status, Exception? ex, ISearch search)
+    public SavedSearchesUpdatedEventArgs(bool status, Exception? ex, ISearch? search)
     {
         Status = status;
         Exception = ex;

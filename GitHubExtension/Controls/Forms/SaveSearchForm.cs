@@ -108,8 +108,7 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
         }
         catch (Exception ex)
         {
-            LoadingStateChanged?.Invoke(this, false);
-            _savedSearchesMediator.AddSearch(new SavedSearchesUpdatedEventArgs(false, ex));
+            _savedSearchesMediator.AddSearch(new SavedSearchesUpdatedEventArgs(false, ex, null));
             FormSubmitted?.Invoke(this, new FormSubmitEventArgs(false, ex));
         }
 
