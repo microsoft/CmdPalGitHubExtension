@@ -468,7 +468,7 @@ public class TopLevelSearchesTest
         var mockAuthenticationMediator = new Mock<AuthenticationMediator>().Object;
         var mockSignOutCommand = new Mock<SignOutCommand>(mockResources, mockDeveloperIdProvider, mockAuthenticationMediator).Object;
         var mockSignInCommand = new Mock<SignInCommand>(mockResources, mockDeveloperIdProvider, mockAuthenticationMediator).Object;
-        var mockSignOutForm = new Mock<SignOutForm>(mockResources, mockAuthenticationMediator, mockSignOutCommand).Object;
+        var mockSignOutForm = new Mock<SignOutForm>(mockResources, mockAuthenticationMediator, mockSignOutCommand, mockDeveloperIdProvider).Object;
         var mockSignInForm = new Mock<SignInForm>(mockAuthenticationMediator, mockResources, mockDeveloperIdProvider, mockSignInCommand).Object;
         var signOutPage = new SignOutPage(mockResources, mockSignOutForm, mockSignOutCommand, mockAuthenticationMediator);
         var signInPage = new SignInPage(mockSignInForm, mockResources, mockSignInCommand, mockAuthenticationMediator);
