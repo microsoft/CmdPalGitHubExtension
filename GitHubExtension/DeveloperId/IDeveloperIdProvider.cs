@@ -4,11 +4,13 @@
 
 using Windows.Foundation;
 
-namespace GitHubExtension.DeveloperId;
+namespace GitHubExtension.DeveloperIds;
 
 public interface IDeveloperIdProvider
 {
     IEnumerable<IDeveloperId> GetLoggedInDeveloperIdsInternal();
+
+    IDeveloperId? GetLoggedInDeveloperId();
 
     IDeveloperId GetDeveloperIdInternal(IDeveloperId devId);
 
@@ -20,5 +22,5 @@ public interface IDeveloperIdProvider
 
     bool IsSignedIn();
 
-    public event EventHandler<Exception?>? OAuthRedirected;
+    event EventHandler<Exception?>? OAuthRedirected;
 }

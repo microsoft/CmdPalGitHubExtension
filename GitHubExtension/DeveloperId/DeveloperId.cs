@@ -4,7 +4,7 @@
 
 using Octokit;
 
-namespace GitHubExtension.DeveloperId;
+namespace GitHubExtension.DeveloperIds;
 
 public class DeveloperId : IDeveloperId
 {

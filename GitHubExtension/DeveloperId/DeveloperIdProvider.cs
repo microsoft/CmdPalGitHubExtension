@@ -8,7 +8,7 @@ using Octokit;
 using Serilog;
 using Windows.Foundation;
 
-namespace GitHubExtension.DeveloperId;
+namespace GitHubExtension.DeveloperIds;
 
 public class DeveloperIdProvider : IDeveloperIdProvider
 {
@@ -203,6 +203,14 @@ public class DeveloperIdProvider : IDeveloperIdProvider
         }
 
         return iDeveloperIds;
+    }
+
+    public IDeveloperId? GetLoggedInDeveloperId()
+    {
+        lock (_developerIdsLock)
+        {
+            return DeveloperIds?.FirstOrDefault();
+        }
     }
 
     // Convert devID to internal devID.

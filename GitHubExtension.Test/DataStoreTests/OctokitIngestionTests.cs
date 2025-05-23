@@ -6,7 +6,7 @@ using Dapper.Contrib.Extensions;
 using GitHubExtension.Client;
 using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.DataObjects;
-using GitHubExtension.DeveloperId;
+using GitHubExtension.DeveloperIds;
 using GitHubExtension.Test.Helpers;
 using Moq;
 using Octokit;

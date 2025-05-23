@@ -4,6 +4,7 @@
 
 using System.Globalization;
 using GitHubExtension.Controls.Commands;
+using GitHubExtension.DeveloperIds;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -15,16 +16,18 @@ public partial class SignOutForm : FormContent
     private readonly IResources _resources;
     private readonly SignOutCommand _signOutCommand;
     private readonly AuthenticationMediator _authenticationMediator;
+    private readonly IDeveloperIdProvider _developerIdProvider;
     private bool _isButtonEnabled = true;
 
     private string IsButtonEnabled =>
     _isButtonEnabled.ToString(CultureInfo.InvariantCulture).ToLower(CultureInfo.InvariantCulture);
 
-    public SignOutForm(IResources resources, AuthenticationMediator authenticationMediator, SignOutCommand signOutCommand)
+    public SignOutForm(IResources resources, AuthenticationMediator authenticationMediator, SignOutCommand signOutCommand, IDeveloperIdProvider developerIdProvider)
     {
         _resources = resources;
         _signOutCommand = signOutCommand;
         _authenticationMediator = authenticationMediator;
+        _developerIdProvider = developerIdProvider;
         _authenticationMediator.LoadingStateChanged += OnLoadingStateChanged;
         _authenticationMediator.SignInAction += ResetButton;
         _authenticationMediator.SignOutAction += ResetButton;
@@ -53,7 +56,7 @@ public partial class SignOutForm : FormContent
     public Dictionary<string, string> TemplateSubstitutions => new()
     {
         { "{{AuthTitle}}", _resources.GetResource("Forms_Sign_Out_Title") },
-        { "{{AuthButtonTitle}}", _resources.GetResource("Forms_Sign_Out_Button_Title") },
+        { "{{AuthButtonTitle}}", $"{_resources.GetResource("Forms_Sign_Out_Button_Title")} {_developerIdProvider.GetLoggedInDeveloperId()?.LoginId ?? string.Empty}" },
         { "{{AuthIcon}}", $"data:image/png;base64,{GitHubIcon.GetBase64Icon(GitHubIcon.LogoWithBackplatePath)}" },
         { "{{AuthButtonTooltip}}", _resources.GetResource("Forms_Sign_Out_Tooltip") },
         { "{{ButtonIsEnabled}}", IsButtonEnabled },

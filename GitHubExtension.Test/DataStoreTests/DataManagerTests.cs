@@ -5,7 +5,7 @@
 using GitHubExtension.Client;
 using GitHubExtension.DataManager.Cache;
 using GitHubExtension.DataManager.Data;
-using GitHubExtension.DeveloperId;
+using GitHubExtension.DeveloperIds;
 using Moq;
 
 namespace GitHubExtension.Test.DataStoreTests;

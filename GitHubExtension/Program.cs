@@ -11,7 +11,7 @@ using GitHubExtension.Controls.Pages;
 using GitHubExtension.DataManager;
 using GitHubExtension.DataManager.Cache;
 using GitHubExtension.DataManager.Data;
-using GitHubExtension.DeveloperId;
+using GitHubExtension.DeveloperIds;
 using GitHubExtension.Helpers;
 using GitHubExtension.PersistentData;
 using Microsoft.CommandPalette.Extensions;
@@ -142,7 +142,7 @@ public class Program
         var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, resources, addSearchListItem, savedSearchesMediator);
 
         var signOutCommand = new SignOutCommand(resources, developerIdProvider, authenticationMediator);
-        var signOutForm = new SignOutForm(resources, authenticationMediator, signOutCommand);
+        var signOutForm = new SignOutForm(resources, authenticationMediator, signOutCommand, developerIdProvider);
         var signOutPage = new SignOutPage(resources, signOutForm, signOutCommand, authenticationMediator);
         var signInCommand = new SignInCommand(resources, developerIdProvider, authenticationMediator);
         var signInForm = new SignInForm(authenticationMediator, resources, developerIdProvider, signInCommand);

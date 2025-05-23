@@ -32,4 +32,31 @@
   <ItemGroup>
     <ProjectReference Include="..\GitHubExtension\GitHubExtension.csproj" />
   </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="..\GitHubExtension\Assets\**\*">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Assets\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Update="..\GitHubExtension\Assets\gh_logo.png" Link="Assets\gh_logo.png" />
+      <Content Update="..\GitHubExtension\Assets\github.dark.svg" Link="Assets\github.dark.svg" />
+      <Content Update="..\GitHubExtension\Assets\github.light.svg" Link="Assets\github.light.svg" />
+      <Content Update="..\GitHubExtension\Assets\issues.svg" Link="Assets\issues.svg" />
+      <Content Update="..\GitHubExtension\Assets\LockScreenLogo.scale-200.png" Link="Assets\LockScreenLogo.scale-200.png" />
+      <Content Update="..\GitHubExtension\Assets\pulls.svg" Link="Assets\pulls.svg" />
+      <Content Update="..\GitHubExtension\Assets\releases.svg" Link="Assets\releases.svg" />
+      <Content Update="..\GitHubExtension\Assets\screenshot.png" Link="Assets\screenshot.png" />
+      <Content Update="..\GitHubExtension\Assets\SplashScreen.scale-200.png" Link="Assets\SplashScreen.scale-200.png" />
+      <Content Update="..\GitHubExtension\Assets\Square150x150Logo.scale-200.png" Link="Assets\Square150x150Logo.scale-200.png" />
+      <Content Update="..\GitHubExtension\Assets\Square44x44Logo.scale-200.png" Link="Assets\Square44x44Logo.scale-200.png" />
+      <Content Update="..\GitHubExtension\Assets\Square44x44Logo.targetsize-24_altform-unplated.png" Link="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
+      <Content Update="..\GitHubExtension\Assets\StoreLogo.png" Link="Assets\StoreLogo.png" />
+      <Content Update="..\GitHubExtension\Assets\Wide310x150Logo.scale-200.png" Link="Assets\Wide310x150Logo.scale-200.png" />
+    </ItemGroup>
 </Project>
