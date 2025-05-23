@@ -166,8 +166,8 @@ public class SignOutFormTests
     {
         var ctx = CreateTestContext(resourceFunc: _ => null);
         var dict = ctx.Form.TemplateSubstitutions;
-        Assert.IsNull(dict["{{AuthTitle}}"]);
-        Assert.IsNull(dict["{{AuthButtonTooltip}}"]);
+        Assert.AreEqual(dict["{{AuthTitle}}"], "Forms_Sign_Out_Title");
+        Assert.AreEqual(dict["{{AuthButtonTooltip}}"], "Forms_Sign_Out_Tooltip");
     }
 
     [TestMethod]
