@@ -205,6 +205,14 @@ public class DeveloperIdProvider : IDeveloperIdProvider
         return iDeveloperIds;
     }
 
+    public IDeveloperId? GetLoggedInDeveloperId()
+    {
+        lock (_developerIdsLock)
+        {
+            return DeveloperIds?.FirstOrDefault();
+        }
+    }
+
     // Convert devID to internal devID.
     public IDeveloperId GetDeveloperIdInternal(IDeveloperId devId)
     {

@@ -10,6 +10,8 @@ public interface IDeveloperIdProvider
 {
     IEnumerable<IDeveloperId> GetLoggedInDeveloperIdsInternal();
 
+    IDeveloperId? GetLoggedInDeveloperId();
+
     IDeveloperId GetDeveloperIdInternal(IDeveloperId devId);
 
     IAsyncOperation<IDeveloperId> LoginNewDeveloperIdAsync();
@@ -20,5 +22,5 @@ public interface IDeveloperIdProvider
 
     bool IsSignedIn();
 
-    public event EventHandler<Exception?>? OAuthRedirected;
+    event EventHandler<Exception?>? OAuthRedirected;
 }
