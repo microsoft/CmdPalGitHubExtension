@@ -8,7 +8,7 @@ using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
 using GitHubExtension.Controls.Pages;
 using GitHubExtension.DataModel;
-using GitHubExtension.DeveloperId;
+using GitHubExtension.DeveloperIds;
 using GitHubExtension.Helpers;
 using GitHubExtension.PersistentData;
 using GitHubExtension.Test.PersistentData;

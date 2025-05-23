@@ -4,7 +4,7 @@
 
 using System.Globalization;
 using GitHubExtension.Controls.Commands;
-using GitHubExtension.DeveloperId;
+using GitHubExtension.DeveloperIds;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;

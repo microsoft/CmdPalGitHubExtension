@@ -4,7 +4,7 @@
 
 using Dapper;
 using Dapper.Contrib.Extensions;
-using GitHubExtension.DeveloperId;
+using GitHubExtension.DeveloperIds;
 using GitHubExtension.Helpers;
 using Serilog;
 

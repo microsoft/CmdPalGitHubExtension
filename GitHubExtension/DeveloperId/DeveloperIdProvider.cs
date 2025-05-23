@@ -8,7 +8,7 @@ using Octokit;
 using Serilog;
 using Windows.Foundation;
 
-namespace GitHubExtension.DeveloperId;
+namespace GitHubExtension.DeveloperIds;
 
 public class DeveloperIdProvider : IDeveloperIdProvider
 {

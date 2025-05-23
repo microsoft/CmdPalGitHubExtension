@@ -4,7 +4,7 @@
 
 using Windows.Foundation;
 
-namespace GitHubExtension.DeveloperId;
+namespace GitHubExtension.DeveloperIds;
 
 public interface IDeveloperIdProvider
 {

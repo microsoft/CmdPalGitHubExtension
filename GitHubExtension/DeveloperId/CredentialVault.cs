@@ -7,9 +7,9 @@ using System.Runtime.InteropServices;
 using System.Security;
 using Serilog;
 using Windows.Security.Credentials;
-using static GitHubExtension.DeveloperId.CredentialManager;
+using static GitHubExtension.DeveloperIds.CredentialManager;
 
-namespace GitHubExtension.DeveloperId;
+namespace GitHubExtension.DeveloperIds;
 
 public class CredentialVault(string applicationName = "") : ICredentialVault
 {

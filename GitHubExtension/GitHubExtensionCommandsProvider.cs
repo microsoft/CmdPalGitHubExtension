@@ -5,7 +5,7 @@
 using System.Diagnostics;
 using GitHubExtension.Controls;
 using GitHubExtension.Controls.Pages;
-using GitHubExtension.DeveloperId;
+using GitHubExtension.DeveloperIds;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;

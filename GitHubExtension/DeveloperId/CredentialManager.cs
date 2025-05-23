@@ -4,7 +4,7 @@
 
 using System.Runtime.InteropServices;
 
-namespace GitHubExtension.DeveloperId;
+namespace GitHubExtension.DeveloperIds;
 
 public static class CredentialManager
 {

@@ -13,7 +13,7 @@ using Serilog;
 
 [assembly: InternalsVisibleTo("GitHubExtension.Test")]
 
-namespace GitHubExtension.DeveloperId;
+namespace GitHubExtension.DeveloperIds;
 
 internal sealed class OAuthRequest : IDisposable
 {

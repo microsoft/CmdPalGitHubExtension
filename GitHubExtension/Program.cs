@@ -11,7 +11,7 @@ using GitHubExtension.Controls.Pages;
 using GitHubExtension.DataManager;
 using GitHubExtension.DataManager.Cache;
 using GitHubExtension.DataManager.Data;
-using GitHubExtension.DeveloperId;
+using GitHubExtension.DeveloperIds;
 using GitHubExtension.Helpers;
 using GitHubExtension.PersistentData;
 using Microsoft.CommandPalette.Extensions;

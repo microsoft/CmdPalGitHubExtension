@@ -32,4 +32,10 @@
   <ItemGroup>
     <ProjectReference Include="..\GitHubExtension\GitHubExtension.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

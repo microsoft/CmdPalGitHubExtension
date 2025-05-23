@@ -5,7 +5,7 @@
 using System.Security;
 using Windows.Security.Credentials;
 
-namespace GitHubExtension.DeveloperId;
+namespace GitHubExtension.DeveloperIds;
 
 public interface ICredentialVault
 {

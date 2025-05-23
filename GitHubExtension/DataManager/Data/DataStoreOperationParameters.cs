@@ -4,7 +4,7 @@
 
 using GitHubExtension.DataManager.Enums;
 using GitHubExtension.DataModel.Enums;
-using GitHubExtension.DeveloperId;
+using GitHubExtension.DeveloperIds;
 
 namespace GitHubExtension.DataManager.Data;
 
