@@ -22,12 +22,13 @@ namespace GitHubExtension.Test.Controls;
 public class SignOutFormTests
 {
     private sealed record TestContext(
-        Mock<IResources> ResourcesMock,
-        Mock<SignOutCommand> SignOutCommandMock,
-        Mock<AuthenticationMediator> AuthMediatorMock,
-        Mock<IDeveloperIdProvider> DeveloperIdProviderMock,
-        SignOutForm Form
-    );
+    Mock<IResources> ResourcesMock,
+    Mock<SignOutCommand> SignOutCommandMock,
+    Mock<AuthenticationMediator> AuthMediatorMock,
+    Mock<IDeveloperIdProvider> DeveloperIdProviderMock,
+    SignOutForm Form,
+    string AssetsPath
+);
 
     private TestContext CreateTestContext(
         string? developerId = "user1",
@@ -63,7 +64,13 @@ public class SignOutFormTests
             mockSignOutCommand.Object,
             mockDeveloperIdProvider.Object);
 
-        return new TestContext(mockResources, mockSignOutCommand, mockAuthenticationMediator, mockDeveloperIdProvider, form);
+        // Dynamically resolve the path to the Assets folder
+        var assetsPath = Path.Combine(
+            AppContext.BaseDirectory,
+            "Assets");
+        assetsPath = Path.GetFullPath(assetsPath);
+
+        return new TestContext(mockResources, mockSignOutCommand, mockAuthenticationMediator, mockDeveloperIdProvider, form, assetsPath);
     }
 
     [TestMethod]
