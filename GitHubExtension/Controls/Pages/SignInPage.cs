@@ -10,7 +10,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Controls.Pages;
 
-public partial class SignInPage : ContentPage, IDisposable
+public sealed partial class SignInPage : ContentPage, IDisposable
 {
     private readonly SignInForm _signInForm;
     private readonly IResources _resources;

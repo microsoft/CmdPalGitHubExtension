@@ -8,7 +8,7 @@ using GitHubExtension.DataModel.DataObjects;
 
 namespace GitHubExtension.DataManager;
 
-public class CacheDataManagerFacade : ICacheDataManager, IDisposable
+public sealed class CacheDataManagerFacade : ICacheDataManager, IDisposable
 {
     private readonly ICacheManager _cacheManager;
     private readonly IDataRequester _dataRequester;

@@ -188,7 +188,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         }
     }
 
-    public new void Dispose()
+    void IDisposable.Dispose()
     {
         Dispose(true);
         GC.SuppressFinalize(this);
