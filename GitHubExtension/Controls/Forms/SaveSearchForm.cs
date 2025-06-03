@@ -119,6 +119,7 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
     public static SearchCandidate CreateSearchFromJson(JsonNode? jsonNode)
     {
         var enteredSearch = jsonNode?["EnteredSearch"]?.ToString() ?? string.Empty;
+
         var name = jsonNode?["Name"]?.ToString() ?? string.Empty;
         var isTopLevel = jsonNode?["IsTopLevel"]?.ToString() == "true";
 
