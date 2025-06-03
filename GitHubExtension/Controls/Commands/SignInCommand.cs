@@ -9,7 +9,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Controls.Commands;
 
-public class SignInCommand : InvokableCommand
+public class SignInCommand : InvokableCommand, IDisposable
 {
     private readonly IResources _resources;
     private readonly IDeveloperIdProvider _developerIdProvider;
@@ -59,5 +59,28 @@ public class SignInCommand : InvokableCommand
             }
         });
         return CommandResult.KeepOpen();
+    }
+
+    // Disposing area
+    private bool _disposed;
+
+    private void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _authenticationMediator.SignInAction -= ResetCommand;
+                _authenticationMediator.SignOutAction -= ResetCommand;
+            }
+
+            _disposed = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }

@@ -10,7 +10,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension;
 
-public partial class SavedSearchesPage : ListPage
+public partial class SavedSearchesPage : ListPage, IDisposable
 {
     private readonly IListItem _addSearchListItem;
 
@@ -107,5 +107,29 @@ public partial class SavedSearchesPage : ListPage
         }
 
         // errors are handled in SaveSearchPage
+    }
+
+    // Disposing area
+    private bool _disposed;
+
+    private void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _savedSearchesMediator.SearchRemoved -= OnSearchRemoved;
+                _savedSearchesMediator.SearchRemoving -= OnSearchRemoving;
+                _savedSearchesMediator.SearchSaved -= OnSearchSaved;
+            }
+
+            _disposed = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }
