@@ -195,7 +195,10 @@ public class GitHubQueryValidationTests
         var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
         // Create search string and payload
-        var testSearchString = "is:open is:issue label:\\\"Product-Command Palette\\\"";
+        // var testSearchString = "is:open is:issue label:\\\"Product-Command Palette\\\""; // parses, but doesn't match original
+        var testSearchString = "is:open is:issue label:\"Product-Command Palette\""; // Use escaped quotes for label
+
+        // {"EnteredSearch":"is:issue state:open label:\"Product-Command Palette\" ","IsTopLevel":"false","Name":"Test"} // actual input
         var payload = CreatePayload(testSearchString, "Test Search");
         saveSearchForm.SubmitForm(payload, string.Empty);
 
