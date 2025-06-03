@@ -195,7 +195,7 @@ public class GitHubQueryValidationTests
         var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
         // Create search string and payload
-        var testSearchString = "state:open label:bug";
+        var testSearchString = "is:open label:\"Product-Command Palette\"";
         var payload = CreatePayload(testSearchString, "Test Search");
         saveSearchForm.SubmitForm(payload, string.Empty);
 
