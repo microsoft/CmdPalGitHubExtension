@@ -31,8 +31,6 @@ public class Program
 {
     private static DeveloperIdProvider? _developerIdProvider;
 
-    private static List<IDisposable>? _disposables;
-
     [MTAThread]
     public static async Task Main(string[] args)
     {
@@ -151,20 +149,11 @@ public class Program
         using var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator, authenticationMediator);
         var extensionInstance = new GitHubExtension(extensionDisposedEvent, commandProvider);
 
-        _disposables = new List<IDisposable>
-        {
-            gitHubDataManager,
-            searchRepository,
-            cacheManager,
-        };
-
         // We are instantiating an extension instance once above, and returning it every time the callback in RegisterExtension below is called.
         // This makes sure that only one instance of GitHubExtension is alive, which is returned every time the host asks for the IExtension object.
         // If you want to instantiate a new instance each time the host asks, create the new instance inside the delegate.
         server.RegisterClass<GitHubExtension, IExtension>(() => extensionInstance);
         server.Start();
-
-        extensionInstance.Release += HandleExtensionInstanceRelease;
 
         // END OF COMPOSITION ROOT AREA
 
@@ -173,20 +162,6 @@ public class Program
         extensionDisposedEvent.WaitOne();
         server.Stop();
         server.UnsafeDispose();
-
-        extensionInstance.Release -= HandleExtensionInstanceRelease;
-    }
-
-    private static void HandleExtensionInstanceRelease(object? sender, ManualResetEvent e) => DecompositionRoot(_disposables!, e);
-
-    public static void DecompositionRoot(List<IDisposable> disposables, ManualResetEvent extensionDisposedEvent)
-    {
-        foreach (var disposable in disposables)
-        {
-            disposable.Dispose();
-        }
-
-        extensionDisposedEvent.Set();
     }
 
     private static void HandleProtocolActivation(Uri oauthRedirectUri) => _developerIdProvider?.HandleOauthRedirection(oauthRedirectUri);
