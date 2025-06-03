@@ -15,7 +15,7 @@
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
-    <reser name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
     <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
     <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
     <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
@@ -162,7 +162,7 @@
     <comment>Title for sign out button title, shown in sign out form</comment>
   </data>
   <data name="Forms_Sign_Out_Tooltip" xml:space="preserve">
-    <value>Sign out from GitHub extension</value>
+    <value>Sign out from GitHub Extension (Preview)</value>
     <comment>Tooltip for sign out button on sign out form</comment>
   </data>
   <data name="ListItems_AddSearch" xml:space="preserve">
@@ -378,7 +378,7 @@
     <comment>The title for the button that submits the form in the EditSearchPage</comment>
   </data>
   <data name="Pages_SignOut_Title" xml:space="preserve">
-    <value>Sign out of the GitHub Extension</value>
+    <value>Sign out of the GitHub Extension (Preview)</value>
     <comment>The title for the SignOutPage</comment>
   </data>
   <data name="Pages_Saved_Searches_RemovedSavedSearchSuccess" xml:space="preserve">
