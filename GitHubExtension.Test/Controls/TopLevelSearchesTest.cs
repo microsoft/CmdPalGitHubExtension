@@ -248,6 +248,8 @@ public class TopLevelSearchesTest
 
             var testSearchString = "is:issue author:testuser";
             var testSearchName = "Top level search";
+
+            addSearchForm.SubmitForm(CreateJsonPayload(testSearchString, testSearchName, true), string.Empty);
             var topLevelSearch = new SearchCandidate(testSearchString, testSearchName, true);
             await persistentDataManager.UpdateSearchTopLevelStatus(topLevelSearch, true);
             savedSearchesMediator.AddSearch(topLevelSearch);
@@ -281,7 +283,7 @@ public class TopLevelSearchesTest
             var removeCommand = new RemoveSavedSearchCommand(topLevelSearch, persistentDataManager, mockResources, savedSearchesMediator);
             removeCommand.Invoke();
 
-            await Task.Delay(DEFAULTTESTDELAYMS);
+            await Task.Delay(500);
 
             var updatedSavedSearches = await persistentDataManager.GetSavedSearches();
             Assert.IsFalse(
