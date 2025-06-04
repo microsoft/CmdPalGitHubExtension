@@ -31,8 +31,6 @@ public class Program
 {
     private static DeveloperIdProvider? _developerIdProvider;
 
-    private static List<IDisposable>? _disposables;
-
     [MTAThread]
     public static async Task Main(string[] args)
     {
@@ -130,7 +128,7 @@ public class Program
         cacheManager.Start();
 
         var decoratorFactory = new DecoratorFactory(gitHubDataManager);
-        var cacheDataManager = new CacheDataManagerFacade(cacheManager, gitHubDataManager, decoratorFactory);
+        using var cacheDataManager = new CacheDataManagerFacade(cacheManager, gitHubDataManager, decoratorFactory);
 
         var savedSearchesMediator = new SavedSearchesMediator();
 
@@ -139,32 +137,23 @@ public class Program
         var addSearchForm = new SaveSearchForm(searchRepository, resources, savedSearchesMediator);
         var addSearchListItem = new AddSearchListItem(new SaveSearchPage(addSearchForm, new StatusMessage(), resources), resources);
 
-        var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, resources, addSearchListItem, savedSearchesMediator);
+        using var savedSearchesPage = new SavedSearchesPage(searchPageFactory, searchRepository, resources, addSearchListItem, savedSearchesMediator);
 
-        var signOutCommand = new SignOutCommand(resources, developerIdProvider, authenticationMediator);
-        var signOutForm = new SignOutForm(resources, authenticationMediator, signOutCommand, developerIdProvider);
-        var signOutPage = new SignOutPage(resources, signOutForm, signOutCommand, authenticationMediator);
-        var signInCommand = new SignInCommand(resources, developerIdProvider, authenticationMediator);
-        var signInForm = new SignInForm(authenticationMediator, resources, developerIdProvider, signInCommand);
-        var signInPage = new SignInPage(signInForm, resources, signInCommand, authenticationMediator);
+        using var signOutCommand = new SignOutCommand(resources, developerIdProvider, authenticationMediator);
+        using var signOutForm = new SignOutForm(resources, authenticationMediator, signOutCommand, developerIdProvider);
+        using var signOutPage = new SignOutPage(resources, signOutForm, signOutCommand, authenticationMediator);
+        using var signInCommand = new SignInCommand(resources, developerIdProvider, authenticationMediator);
+        using var signInForm = new SignInForm(authenticationMediator, resources, developerIdProvider, signInCommand);
+        using var signInPage = new SignInPage(signInForm, resources, signInCommand, authenticationMediator);
 
-        var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator, authenticationMediator);
+        using var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator, authenticationMediator);
         var extensionInstance = new GitHubExtension(extensionDisposedEvent, commandProvider);
-
-        _disposables = new List<IDisposable>
-        {
-            gitHubDataManager,
-            searchRepository,
-            cacheManager,
-        };
 
         // We are instantiating an extension instance once above, and returning it every time the callback in RegisterExtension below is called.
         // This makes sure that only one instance of GitHubExtension is alive, which is returned every time the host asks for the IExtension object.
         // If you want to instantiate a new instance each time the host asks, create the new instance inside the delegate.
         server.RegisterClass<GitHubExtension, IExtension>(() => extensionInstance);
         server.Start();
-
-        extensionInstance.Release += HandleExtensionInstanceRelease;
 
         // END OF COMPOSITION ROOT AREA
 
@@ -173,18 +162,6 @@ public class Program
         extensionDisposedEvent.WaitOne();
         server.Stop();
         server.UnsafeDispose();
-    }
-
-    private static void HandleExtensionInstanceRelease(object? sender, ManualResetEvent e) => DecompositionRoot(_disposables!, e);
-
-    public static void DecompositionRoot(List<IDisposable> disposables, ManualResetEvent extensionDisposedEvent)
-    {
-        foreach (var disposable in disposables)
-        {
-            disposable.Dispose();
-        }
-
-        extensionDisposedEvent.Set();
     }
 
     private static void HandleProtocolActivation(Uri oauthRedirectUri) => _developerIdProvider?.HandleOauthRedirection(oauthRedirectUri);

@@ -11,7 +11,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Controls.Forms;
 
-public partial class SignOutForm : FormContent
+public partial class SignOutForm : FormContent, IDisposable
 {
     private readonly IResources _resources;
     private readonly SignOutCommand _signOutCommand;
@@ -67,5 +67,29 @@ public partial class SignOutForm : FormContent
     public override ICommandResult SubmitForm(string inputs, string data)
     {
         return _signOutCommand.Invoke();
+    }
+
+    // Disposing area
+    private bool _disposed;
+
+    private void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _authenticationMediator.LoadingStateChanged -= OnLoadingStateChanged;
+                _authenticationMediator.SignInAction -= ResetButton;
+                _authenticationMediator.SignOutAction -= ResetButton;
+            }
+
+            _disposed = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }

@@ -10,7 +10,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Controls.Pages;
 
-public sealed partial class SignOutPage : ContentPage
+public sealed partial class SignOutPage : ContentPage, IDisposable
 {
     private readonly SignOutForm _signOutForm;
     private readonly SignOutCommand _signOutCommand;
@@ -49,5 +49,28 @@ public sealed partial class SignOutPage : ContentPage
     public override IContent[] GetContent()
     {
         return new[] { _signOutForm };
+    }
+
+    // Disposing area
+    private bool _disposed;
+
+    private void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _signOutForm.PropChanged -= UpdatePage;
+                _authenticationMediator.LoadingStateChanged -= OnLoadingStateChanged;
+            }
+
+            _disposed = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }

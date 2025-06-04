@@ -8,7 +8,7 @@ using GitHubExtension.DataModel.DataObjects;
 
 namespace GitHubExtension.DataManager;
 
-public class CacheDataManagerFacade : ICacheDataManager
+public sealed class CacheDataManagerFacade : ICacheDataManager, IDisposable
 {
     private readonly ICacheManager _cacheManager;
     private readonly IDataRequester _dataRequester;
@@ -133,5 +133,27 @@ public class CacheDataManagerFacade : ICacheDataManager
         });
 
         return res;
+    }
+
+    // Disposing area
+    private bool _disposed;
+
+    private void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _cacheManager.OnUpdate -= CacheManagerOnOnUpdate;
+            }
+
+            _disposed = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }
