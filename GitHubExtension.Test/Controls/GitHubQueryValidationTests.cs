@@ -195,11 +195,11 @@ public class GitHubQueryValidationTests
         var saveSearchForm = new SaveSearchForm(persistentDataManager, mockResources, savedSearchesMediator);
 
         // Create search string and payload
-        var testSearchString = "state:open label:bug";
-        var payload = CreatePayload(testSearchString, "Test Search");
+        var testSearchString = "is:issue state:open label:\"Product-Command Palette\"";
+        var payload = "{\"EnteredSearch\":\"is:issue state:open label:\\\"Product-Command Palette\\\"\",\"IsTopLevel\":\"false\",\"Name\":\"test\"}";
         saveSearchForm.SubmitForm(payload, string.Empty);
 
-        await Task.Delay(5000); // Simulate async operation
+        await Task.Delay(1000); // Simulate async operation
 
         // Validate the search
         var searches = await persistentDataManager.GetSavedSearches();
