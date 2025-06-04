@@ -187,7 +187,7 @@ public class TopLevelSearchesTest
         var jsonPayload = CreateJsonPayload(testSearchString, testSearchName, false);
         addSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-        await Task.Delay(10);
+        await Task.Delay(45);
 
         // Assert saved search is in PersistentDataManager's saved searches, but not top level commands
         var savedSearches = await persistentDataManager.GetSavedSearches();
@@ -215,7 +215,7 @@ public class TopLevelSearchesTest
 
         editSearchForm.SubmitForm(editJsonPayload, string.Empty);
 
-        await Task.Delay(10);
+        await Task.Delay(45);
 
         // Assert the saved search is updated as top level in the PersistentDataManager
         var updatedSavedSearches = await persistentDataManager.GetSavedSearches();
