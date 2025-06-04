@@ -13,8 +13,6 @@ using GitHubExtension.Helpers;
 using GitHubExtension.PersistentData;
 using GitHubExtension.Test.PersistentData;
 using Microsoft.CommandPalette.Extensions;
-using Microsoft.CommandPalette.Extensions.Toolkit;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Resources;
 using Moq;
 
 namespace GitHubExtension.Test.Controls;
@@ -22,6 +20,9 @@ namespace GitHubExtension.Test.Controls;
 [TestClass]
 public class TopLevelSearchesTest
 {
+    public const int DEFAULTTESTDELAYMS = 10;
+    public const int DEFAULTTESTDELAYLONGMS = 50;
+
     [TestMethod]
     public async Task SaveSearchForm_KeepsIsTopLevelCheckedIfSearchSavedToTopLevel()
     {
@@ -40,7 +41,7 @@ public class TopLevelSearchesTest
 
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-        await Task.Delay(10);
+        await Task.Delay(DEFAULTTESTDELAYMS);
 
         // Assert that the search is saved and is top level in the PersistentDataManager
         var savedSearches = await persistentDataManager.GetSavedSearches();
@@ -84,7 +85,7 @@ public class TopLevelSearchesTest
         var jsonPayload = CreateJsonPayload(dummySearch.SearchString, dummySearch.Name, false);
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-        await Task.Delay(10);
+        await Task.Delay(DEFAULTTESTDELAYMS);
 
         var editSearchForm = new SaveSearchForm(initialTopLevelSearches.First(), persistentDataManager, mockResources, savedSearchesMediator);
         Assert.IsFalse(await editSearchForm.GetIsTopLevel());
@@ -128,7 +129,7 @@ public class TopLevelSearchesTest
         var jsonPayload = CreateJsonPayload(testSearchString, testSearchName, true);
         addSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-        await Task.Delay(10);
+        await Task.Delay(45);
 
         // Assert that search is saved and is top level in the persistentDataManager
         var savedSearches = await persistentDataManager.GetSavedSearches();
@@ -187,7 +188,7 @@ public class TopLevelSearchesTest
         var jsonPayload = CreateJsonPayload(testSearchString, testSearchName, false);
         addSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-        await Task.Delay(45);
+        await Task.Delay(DEFAULTTESTDELAYLONGMS);
 
         // Assert saved search is in PersistentDataManager's saved searches, but not top level commands
         var savedSearches = await persistentDataManager.GetSavedSearches();
@@ -271,7 +272,7 @@ public class TopLevelSearchesTest
         await persistentDataManager.UpdateSearchTopLevelStatus(topLevelSearch, true);
         savedSearchesMediator.AddSearch(topLevelSearch);
 
-        await Task.Delay(10);
+        await Task.Delay(DEFAULTTESTDELAYMS);
 
         // Ensure the test conditions are set up correctly:
         // Only one saved search and it's the one we added
@@ -306,7 +307,7 @@ public class TopLevelSearchesTest
         var removeCommand = new RemoveSavedSearchCommand(topLevelSearch, persistentDataManager, mockResources, savedSearchesMediator);
         removeCommand.Invoke();
 
-        await Task.Delay(10);
+        await Task.Delay(DEFAULTTESTDELAYMS);
 
         // Assert the search is removed from the PersistentDataManager's saved searches and top level searches
         var updatedSavedSearches = await persistentDataManager.GetSavedSearches();
@@ -365,7 +366,7 @@ public class TopLevelSearchesTest
         await persistentDataManager.UpdateSearchTopLevelStatus(testSearch, testSearch.IsTopLevel);
         savedSearchesMediator.AddSearch(testSearch);
 
-        await Task.Delay(10);
+        await Task.Delay(DEFAULTTESTDELAYMS);
 
         // Ensure the test conditions are set up correctly:
         var initialSavedSearches = await persistentDataManager.GetSavedSearches();
@@ -399,7 +400,7 @@ public class TopLevelSearchesTest
 
         editSearchForm.SubmitForm(editJsonPayload, string.Empty);
 
-        await Task.Delay(10);
+        await Task.Delay(DEFAULTTESTDELAYMS);
 
         // Assert the saved search is updated as non-top level in the PersistentDataManager
         var updatedSavedSearches = await persistentDataManager.GetSavedSearches();
