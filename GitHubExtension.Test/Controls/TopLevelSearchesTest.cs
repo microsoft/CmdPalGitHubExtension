@@ -41,7 +41,7 @@ public class TopLevelSearchesTest
 
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-        await Task.Delay(DEFAULTTESTDELAYMS);
+        await Task.Delay(DEFAULTTESTDELAYLONGMS);
 
         // Assert that the search is saved and is top level in the PersistentDataManager
         var savedSearches = await persistentDataManager.GetSavedSearches();
@@ -272,7 +272,7 @@ public class TopLevelSearchesTest
         await persistentDataManager.UpdateSearchTopLevelStatus(topLevelSearch, true);
         savedSearchesMediator.AddSearch(topLevelSearch);
 
-        await Task.Delay(DEFAULTTESTDELAYMS);
+        await Task.Delay(DEFAULTTESTDELAYLONGMS);
 
         // Ensure the test conditions are set up correctly:
         // Only one saved search and it's the one we added
