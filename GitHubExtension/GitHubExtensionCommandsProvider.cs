@@ -12,7 +12,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension;
 
-public partial class GitHubExtensionCommandsProvider : CommandProvider
+public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposable
 {
     private readonly SavedSearchesPage _savedSearchesPage;
     private readonly SignOutPage _signOutPage;
@@ -167,5 +167,30 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider
         }
 
         return topLevelSearchCommands;
+    }
+
+    // Disposing area
+    private bool _disposed;
+
+    private void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _authenticationMediator.SignInAction -= OnSignInStatusChanged;
+                _authenticationMediator.SignOutAction -= OnSignInStatusChanged;
+                _savedSearchesMediator.SearchSaved -= OnSearchSaved;
+                _savedSearchesMediator.SearchRemoved -= OnSearchRemoved;
+            }
+
+            _disposed = true;
+        }
+    }
+
+    void IDisposable.Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }
