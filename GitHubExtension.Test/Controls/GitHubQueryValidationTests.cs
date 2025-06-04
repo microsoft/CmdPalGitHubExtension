@@ -474,7 +474,7 @@ public class GitHubQueryValidationTests
         var payload = CreatePayload(testSearchString, "Test Search");
         saveSearchForm.SubmitForm(payload, string.Empty);
 
-        await Task.Delay(DEFAULTTESTDELAYMS); // Simulate async operation
+        await Task.Delay(DEFAULTTESTDELAYLONGMS); // Simulate async operation
 
         // Validate the search
         var searches = await persistentDataManager.GetSavedSearches();
@@ -501,7 +501,7 @@ public class GitHubQueryValidationTests
         var payload = CreatePayload(testSearchString, "Test Search");
         saveSearchForm.SubmitForm(payload, string.Empty);
 
-        await Task.Delay(DEFAULTTESTDELAYMS); // Simulate async operation
+        await Task.Delay(DEFAULTTESTDELAYLONGMS); // Simulate async operation
 
         // Validate the search
         var searches = await persistentDataManager.GetSavedSearches();

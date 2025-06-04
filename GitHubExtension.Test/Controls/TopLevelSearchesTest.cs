@@ -272,7 +272,7 @@ public class TopLevelSearchesTest
         await persistentDataManager.UpdateSearchTopLevelStatus(topLevelSearch, true);
         savedSearchesMediator.AddSearch(topLevelSearch);
 
-        await Task.Delay(DEFAULTTESTDELAYLONGMS);
+        await Task.Delay(100);
 
         // Ensure the test conditions are set up correctly:
         // Only one saved search and it's the one we added
