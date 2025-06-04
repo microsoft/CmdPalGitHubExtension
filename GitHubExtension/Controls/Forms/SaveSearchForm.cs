@@ -31,8 +31,8 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
     public Dictionary<string, string> TemplateSubstitutions => new()
     {
         { "{{SaveSearchFormTitle}}", _resources.GetResource(string.IsNullOrWhiteSpace(_savedSearch.Name) ? "Forms_Save_Search" : "Forms_Edit_Search") },
-        { "{{SavedSearchString}}", _savedSearch.SearchString },
-        { "{{SavedSearchName}}", _savedSearch.Name },
+        { "{{SavedSearchString}}", TemplateHelper.EscapeStringLiteralForJson(_savedSearch.SearchString) },
+        { "{{SavedSearchName}}", TemplateHelper.EscapeStringLiteralForJson(_savedSearch.Name) },
         { "{{IsTopLevel}}", IsTopLevelChecked },
         { "{{EnteredSearchErrorMessage}}", _resources.GetResource("Forms_SaveSearchTemplateEnteredSearchError") },
         { "{{EnteredSearchLabel}}", _resources.GetResource("Forms_SaveSearchTemplateEnteredSearchLabel") },
