@@ -280,7 +280,7 @@ public class GitHubQueryValidationTests
         var payload = CreatePayload(testSearchString, "Test Search");
         saveSearchForm.SubmitForm(payload, string.Empty);
 
-        await Task.Delay(50); // Simulate async operation
+        await Task.Delay(55); // Simulate async operation
 
         // Validate the search
         var searches = await persistentDataManager.GetSavedSearches();
