@@ -12,13 +12,13 @@ jobs:
   build-and-test:
     strategy:
       matrix:
-        configuration: [Release]
-        dotnet-version: ['8.0.x']
         include:
         - os: windows-latest
           platform: x64
         - os: windows-11-arm
           platform: arm64
+        configuration: [Release]
+        dotnet-version: ['8.0.x']
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
