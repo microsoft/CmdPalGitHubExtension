@@ -40,14 +40,4 @@ public static class TemplateHelper
 
         return jsonTemplate;
     }
-
-    public static string EscapeStringLiteralForJson(string input)
-    {
-        if (string.IsNullOrEmpty(input))
-        {
-            return input ?? string.Empty;
-        }
-
-        return input.Replace("\"", "\\\"");
-    }
 }
