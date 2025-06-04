@@ -118,7 +118,7 @@ internal sealed class OAuthRequest : IDisposable
             var request = new OauthTokenRequest(OauthConfiguration.GetClientId(), OauthConfiguration.GetClientSecret(), code);
 
             var tokenTask = _gitHubClient.Oauth.CreateAccessToken(request);
-            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(5));
+            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(5)); // Simulate login
 
             var completedTask = await Task.WhenAny(tokenTask, timeoutTask);
 
