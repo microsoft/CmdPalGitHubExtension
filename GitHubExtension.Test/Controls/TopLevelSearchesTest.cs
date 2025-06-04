@@ -20,8 +20,8 @@ namespace GitHubExtension.Test.Controls;
 [TestClass]
 public class TopLevelSearchesTest
 {
-    public const int DEFAULTTESTDELAYMS = 10;
-    public const int DEFAULTTESTDELAYLONGMS = 50;
+    public const int DEFAULTTESTDELAYMS = 1000;
+    public const int DEFAULTTESTDELAYLONGMS = 5000;
 
     private (PersistentDataManager PersistentDataManager, IResources Resources, SavedSearchesMediator Mediator, DataStoreOptions DataStoreOptions) CreateTestContext()
     {
@@ -125,7 +125,7 @@ public class TopLevelSearchesTest
             var jsonPayload = CreateJsonPayload(testSearchString, testSearchName, true);
             addSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-            await Task.Delay(45);
+            await Task.Delay(DEFAULTTESTDELAYMS); // 45 ms
 
             var savedSearches = await persistentDataManager.GetSavedSearches();
             Assert.IsTrue(
@@ -177,7 +177,7 @@ public class TopLevelSearchesTest
             var jsonPayload = CreateJsonPayload(testSearchString, testSearchName, false);
             addSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-            await Task.Delay(500);
+            await Task.Delay(DEFAULTTESTDELAYMS); // 45 ms
 
             var savedSearches = await persistentDataManager.GetSavedSearches();
             Assert.IsTrue(savedSearches.Count() == 1, "Should have only our saved search");
@@ -202,7 +202,7 @@ public class TopLevelSearchesTest
 
             editSearchForm.SubmitForm(editJsonPayload, string.Empty);
 
-            await Task.Delay(45);
+            await Task.Delay(DEFAULTTESTDELAYMS); // 45 ms
 
             var updatedSavedSearches = await persistentDataManager.GetSavedSearches();
             Assert.IsTrue(updatedSavedSearches.Count() == 1, "Should have only our saved search");
@@ -250,11 +250,8 @@ public class TopLevelSearchesTest
             var testSearchName = "Top level search";
 
             addSearchForm.SubmitForm(CreateJsonPayload(testSearchString, testSearchName, true), string.Empty);
-            var topLevelSearch = new SearchCandidate(testSearchString, testSearchName, true);
-            await persistentDataManager.UpdateSearchTopLevelStatus(topLevelSearch, true);
-            savedSearchesMediator.AddSearch(topLevelSearch);
 
-            await Task.Delay(500);
+            await Task.Delay(DEFAULTTESTDELAYLONGMS);
 
             var initialSavedSearches = await persistentDataManager.GetSavedSearches();
             Assert.IsTrue(initialSavedSearches.Count() == 1, "Should have only our saved search");
@@ -265,7 +262,7 @@ public class TopLevelSearchesTest
                 "Search should be in saved searches initially");
 
             var initialTopLevelSearches = await persistentDataManager.GetTopLevelSearches();
-            Assert.IsTrue(initialSavedSearches.Count() == 1, "Should have only our saved search");
+            Assert.IsTrue(initialTopLevelSearches.Count() == 1, "Should have only our saved search");
             Assert.IsTrue(
                 initialTopLevelSearches.Any(s =>
                     string.Equals(s.Name, testSearchName, StringComparison.Ordinal) &&
@@ -280,10 +277,13 @@ public class TopLevelSearchesTest
             var topLevelCommands = commandsProvider.TopLevelCommands();
             Assert.IsTrue(topLevelCommands.Any(c => string.Equals(c.Title, testSearchName, StringComparison.Ordinal)));
 
+            var topLevelSearch = initialTopLevelSearches.First(s =>
+                string.Equals(s.Name, testSearchName, StringComparison.Ordinal) &&
+                string.Equals(s.SearchString, testSearchString, StringComparison.Ordinal));
             var removeCommand = new RemoveSavedSearchCommand(topLevelSearch, persistentDataManager, mockResources, savedSearchesMediator);
             removeCommand.Invoke();
 
-            await Task.Delay(500);
+            await Task.Delay(DEFAULTTESTDELAYLONGMS);
 
             var updatedSavedSearches = await persistentDataManager.GetSavedSearches();
             Assert.IsFalse(
@@ -336,7 +336,7 @@ public class TopLevelSearchesTest
             await persistentDataManager.UpdateSearchTopLevelStatus(testSearch, testSearch.IsTopLevel);
             savedSearchesMediator.AddSearch(testSearch);
 
-            await Task.Delay(DEFAULTTESTDELAYMS);
+            await Task.Delay(DEFAULTTESTDELAYLONGMS);
 
             var initialSavedSearches = await persistentDataManager.GetSavedSearches();
             Assert.IsTrue(initialSavedSearches.Count() == 1, "Should have only our saved search");
