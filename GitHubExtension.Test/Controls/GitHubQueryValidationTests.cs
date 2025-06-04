@@ -15,8 +15,8 @@ namespace GitHubExtension.Test.Controls;
 [TestClass]
 public class GitHubQueryValidationTests
 {
-    public const int DEFAULTTESTDELAYMS = 10;
-    public const int DEFAULTTESTDELAYLONGMS = 50;
+    public const int DEFAULTTESTDELAYMS = 50;
+    public const int DEFAULTTESTDELAYLONGMS = 100;
 
     public SaveSearchForm CreateSaveSearchForm(PersistentDataManager persistentDataManager)
     {
