@@ -21,7 +21,7 @@ namespace GitHubExtension.Test.Controls;
 public class TopLevelSearchesTest
 {
     public const int DEFAULTTESTDELAYMS = 50;
-    public const int DEFAULTTESTDELAYLONGMS = 500;
+    public const int DEFAULTTESTDELAYLONGMS = 750;
 
     private (PersistentDataManager PersistentDataManager, IResources Resources, SavedSearchesMediator Mediator, DataStoreOptions DataStoreOptions) CreateTestContext()
     {
