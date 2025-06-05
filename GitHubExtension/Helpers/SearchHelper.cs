@@ -63,6 +63,8 @@ public static class SearchHelper
             // case 1: a URL with a query string (e.g. "github.com?q=...")
             var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
             var searchQuery = queryParams["q"];
+            var sort = queryParams["sort"];
+            var order = queryParams["order"];
 
             if (!string.IsNullOrEmpty(searchQuery))
             {
@@ -73,6 +75,14 @@ public static class SearchHelper
                     var repoOwner = pathSegments[0];
                     var repoName = pathSegments[1];
                     searchBuilder.Insert(0, $"repo:{repoOwner}/{repoName}");
+                }
+
+                // Add sort if present
+                if (!string.IsNullOrEmpty(sort))
+                {
+                    // Default order to desc if not specified
+                    var sortOrder = string.IsNullOrEmpty(order) ? "desc" : order.ToLowerInvariant();
+                    searchBuilder.Add($"sort:{sort}-{sortOrder}");
                 }
 
                 return string.Join(" ", searchBuilder);
@@ -107,6 +117,15 @@ public static class SearchHelper
                         searchBuilder.Add("is:open");
                     }
 
+                    // Add sort if present
+                    var sortParam = queryParams["sort"];
+                    var orderParam = queryParams["order"];
+                    if (!string.IsNullOrEmpty(sortParam))
+                    {
+                        var sortOrder = string.IsNullOrEmpty(orderParam) ? "desc" : orderParam.ToLowerInvariant();
+                        searchBuilder.Add($"sort:{sortParam}-{sortOrder}");
+                    }
+
                     return string.Join(" ", searchBuilder);
                 }
 
@@ -128,6 +147,15 @@ public static class SearchHelper
                                 searchBuilder.Add("is:repo");
                                 break;
                         }
+                    }
+
+                    // Add sort if present
+                    var sortParam = queryParams["sort"];
+                    var orderParam = queryParams["order"];
+                    if (!string.IsNullOrEmpty(sortParam))
+                    {
+                        var sortOrder = string.IsNullOrEmpty(orderParam) ? "desc" : orderParam.ToLowerInvariant();
+                        searchBuilder.Add($"sort:{sortParam}-{sortOrder}");
                     }
 
                     return string.Join(" ", searchBuilder);

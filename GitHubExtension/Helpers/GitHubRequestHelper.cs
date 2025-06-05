@@ -11,13 +11,14 @@ public static class GitHubRequestHelper
 {
     public static SearchIssuesRequest GetSearchIssuesRequest(string term)
     {
-        IssueSearchSort sortField = IssueSearchSort.Created;
-        SortDirection sortDirection = SortDirection.Ascending;
-        var result = GitHubRequestHelper.ParseSortFromTerm(term);
-        if (result is (var sortFieldResult, var directionResult))
+        var sortField = IssueSearchSort.Created;
+        var sortDirection = SortDirection.Descending;
+        var result = ParseSortFromTerm(term);
+        if (result is (var sortFieldResult, var directionResult, var updatedTerm))
         {
             sortField = sortFieldResult;
             sortDirection = directionResult;
+            term = updatedTerm;
         }
 
         return new SearchIssuesRequest(term)
@@ -32,13 +33,14 @@ public static class GitHubRequestHelper
 
     public static SearchIssuesRequest GetSearchPullRequestsRequest(string term)
     {
-        IssueSearchSort sortField = IssueSearchSort.Created;
-        SortDirection sortDirection = SortDirection.Ascending;
-        var result = GitHubRequestHelper.ParseSortFromTerm(term);
-        if (result is (var sortFieldResult, var directionResult))
+        var sortField = IssueSearchSort.Created;
+        var sortDirection = SortDirection.Descending;
+        var result = ParseSortFromTerm(term);
+        if (result is (var sortFieldResult, var directionResult, var updatedTerm))
         {
             sortField = sortFieldResult;
             sortDirection = directionResult;
+            term = updatedTerm;
         }
 
         return new SearchIssuesRequest(term)
@@ -51,7 +53,7 @@ public static class GitHubRequestHelper
         };
     }
 
-    public static (IssueSearchSort SortField, SortDirection Direction)? ParseSortFromTerm(string term)
+    public static (IssueSearchSort SortField, SortDirection Direction, string UpdatedTerm)? ParseSortFromTerm(string term)
     {
         if (string.IsNullOrWhiteSpace(term))
         {
@@ -87,6 +89,10 @@ public static class GitHubRequestHelper
         }
 
         var order = direction == "asc" ? SortDirection.Ascending : SortDirection.Descending;
-        return (sortField, order);
+
+        // Remove the sort:field-direction part from the term
+        var updatedTerm = Regex.Replace(term, @"\s*sort:\w+-\w+\s*", string.Empty, RegexOptions.IgnoreCase).Trim();
+
+        return (sortField, order, updatedTerm);
     }
 }
