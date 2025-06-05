@@ -3,8 +3,13 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Globalization;
+using System.Text.Json.Nodes;
+using GitHubExtension.Controls;
 using GitHubExtension.DataModel;
+using GitHubExtension.DataModel.Enums;
+using GitHubExtension.Helpers;
 using GitHubExtension.Test.TestContextSink;
+using Moq;
 using Serilog;
 
 namespace GitHubExtension.Test.Helpers;
@@ -92,5 +97,39 @@ public partial class TestHelpers
     public static void CloseTestLog()
     {
         Log.CloseAndFlush();
+    }
+
+    public static string? CreateJsonPayload(string enteredSearch, string name, bool isTopLevel)
+    {
+        return JsonNode.Parse($@"
+        {{
+            ""EnteredSearch"": ""{enteredSearch}"",
+            ""Name"": ""{name}"",
+            ""IsTopLevel"": ""{isTopLevel.ToString().ToLowerInvariant()}""
+        }}")?.ToString();
+    }
+
+    public static TaskCompletionSource CreateTaskCompletionSource(SavedSearchesMediator savedSearchesMediator)
+    {
+        var tcs = new TaskCompletionSource();
+        EventHandler<object?>? handler = null;
+        handler = (sender, args) =>
+        {
+            savedSearchesMediator.SearchSaved -= handler;
+            tcs.TrySetResult();
+        };
+
+        savedSearchesMediator.SearchSaved += handler;
+        return tcs;
+    }
+
+    public static SearchType GetExpectedSearchType(string enteredSearchString)
+    {
+        return enteredSearchString switch
+        {
+            var s when s.StartsWith("is:issue", StringComparison.OrdinalIgnoreCase) => SearchType.Issues,
+            var s when s.StartsWith("is:pr", StringComparison.OrdinalIgnoreCase) => SearchType.PullRequests,
+            _ => SearchType.IssuesAndPullRequests,
+        };
     }
 }
