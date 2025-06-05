@@ -63,6 +63,11 @@ public class GitHubQueryValidationTests
             Assert.IsTrue(searches.Count() == 1);
             Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, expectedSearchStringIfDifferentFormatThanOriginal ?? testSearchString, StringComparison.OrdinalIgnoreCase)));
         }
+        catch (Exception ex)
+        {
+            // No errors expected
+            Assert.Fail(ex.Message);
+        }
         finally
         {
             persistentDataManager.Dispose();
@@ -99,6 +104,11 @@ public class GitHubQueryValidationTests
             var searches = await persistentDataManager.GetSavedSearches();
             Assert.IsTrue(searches.Count() == 1);
             Assert.IsTrue(searches.Any(s => string.Equals(s.SearchString, expected, StringComparison.OrdinalIgnoreCase) && string.Equals(s.Name, searchName, StringComparison.OrdinalIgnoreCase)));
+        }
+        catch (Exception ex)
+        {
+            // No errors expected
+            Assert.Fail(ex.Message);
         }
         finally
         {

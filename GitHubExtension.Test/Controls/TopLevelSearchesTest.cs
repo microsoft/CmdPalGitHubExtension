@@ -47,6 +47,11 @@ public class TopLevelSearchesTest
             var editSearchForm = new SaveSearchForm(savedSearches.First(), persistentDataManager, resources, mediator);
             Assert.AreEqual(expectedTopLevel, await editSearchForm.GetIsTopLevel());
         }
+        catch (Exception ex)
+        {
+            // No errors expected
+            Assert.Fail(ex.Message);
+        }
         finally
         {
             persistentDataManager.Dispose();
@@ -82,6 +87,11 @@ public class TopLevelSearchesTest
 
             var updatedTopLevelSearches = await persistentDataManager.GetTopLevelSearches();
             Assert.AreEqual(newTopLevel, updatedTopLevelSearches.Any(s => s.Name == searchName && s.SearchString == searchString));
+        }
+        catch (Exception ex)
+        {
+            // No errors expected
+            Assert.Fail(ex.Message);
         }
         finally
         {
@@ -135,6 +145,11 @@ public class TopLevelSearchesTest
 
             var topLevelCommands = commandsProvider.TopLevelCommands();
             Assert.IsTrue(topLevelCommands.Any(c => string.Equals(c.Title, searchName, StringComparison.Ordinal)));
+        }
+        catch (Exception ex)
+        {
+            // No errors expected
+            Assert.Fail(ex.Message);
         }
         finally
         {
