@@ -11,6 +11,8 @@ namespace GitHubExtension.Test.Controls;
 [TestClass]
 public class SignInFormTest
 {
+    private readonly TimeSpan _delayLongerThanTimeout = TimeSpan.FromSeconds(10); // seconds
+
     [TestMethod]
     public async Task HandleOAuthRedirection_ShouldThrowInvalidOperationException_OnTimeout()
     {
@@ -23,7 +25,7 @@ public class SignInFormTest
             .Setup(oauth => oauth.CreateAccessToken(It.IsAny<OauthTokenRequest>()))
             .Returns(async () =>
             {
-                await Task.Delay(TimeSpan.FromSeconds(10)); // Simulate delay longer than timeout
+                await Task.Delay(_delayLongerThanTimeout);
                 return new OauthToken();
             });
 
@@ -36,7 +38,7 @@ public class SignInFormTest
             .Setup(oauth => oauth.CreateAccessToken(It.IsAny<OauthTokenRequest>()))
             .Returns(async () =>
             {
-                await Task.Delay(TimeSpan.FromSeconds(10)); // Simulate delay longer than timeout
+                await Task.Delay(_delayLongerThanTimeout);
                 return new OauthToken();
             });
 
