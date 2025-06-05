@@ -2,12 +2,10 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Text.Json;
 using System.Text.Json.Nodes;
 using GitHubExtension.Controls;
 using GitHubExtension.Controls.Forms;
 using GitHubExtension.Helpers;
-using GitHubExtension.Test.PersistentData;
 using Moq;
 
 namespace GitHubExtension.Test.Controls;
@@ -15,6 +13,8 @@ namespace GitHubExtension.Test.Controls;
 [TestClass]
 public class SaveSearchFormTest
 {
+    private const int DefaultDelay = 100;
+
     [TestMethod]
     public void CreateSearchFromJson_ShouldReturnCorrectSearchCandidate()
     {
@@ -64,7 +64,7 @@ public class SaveSearchFormTest
 
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-        Thread.Sleep(100);
+        Thread.Sleep(DefaultDelay);
 
         Assert.IsNotNull(capturedSearch);
         Assert.AreEqual("is:issue author:username", capturedSearch.SearchString);
@@ -102,7 +102,7 @@ public class SaveSearchFormTest
 
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-        Thread.Sleep(100);
+        Thread.Sleep(DefaultDelay);
 
         Assert.IsNotNull(capturedSearch);
         Assert.AreEqual("is:pr author:username", capturedSearch.SearchString);
@@ -140,7 +140,7 @@ public class SaveSearchFormTest
 
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-        Thread.Sleep(100);
+        Thread.Sleep(DefaultDelay);
 
         Assert.IsNotNull(capturedSearch);
         Assert.AreEqual("author:username", capturedSearch.SearchString);
@@ -175,7 +175,7 @@ public class SaveSearchFormTest
 
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-        Thread.Sleep(100);
+        Thread.Sleep(DefaultDelay);
 
         mockSearchRepository.Verify(
             repo =>
@@ -222,7 +222,7 @@ public class SaveSearchFormTest
 
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-        Thread.Sleep(100);
+        Thread.Sleep(DefaultDelay);
 
         mockSearchRepository.Verify(
             repo =>
@@ -269,7 +269,7 @@ public class SaveSearchFormTest
 
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-        Thread.Sleep(100);
+        Thread.Sleep(DefaultDelay);
 
         mockSearchRepository.Verify(
             repo =>
@@ -316,7 +316,7 @@ public class SaveSearchFormTest
 
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-        Thread.Sleep(100);
+        Thread.Sleep(DefaultDelay);
 
         mockSearchRepository.Verify(
             repo =>

@@ -21,6 +21,8 @@ internal sealed class OAuthRequest : IDisposable
 
     private static readonly ILogger _log = _logger.Value;
 
+    private readonly TimeSpan _authorizationTimeout = TimeSpan.FromSeconds(5);
+
     internal string State { get; private set; }
 
     internal SecureString? AccessToken { get; private set; }
@@ -118,7 +120,7 @@ internal sealed class OAuthRequest : IDisposable
             var request = new OauthTokenRequest(OauthConfiguration.GetClientId(), OauthConfiguration.GetClientSecret(), code);
 
             var tokenTask = _gitHubClient.Oauth.CreateAccessToken(request);
-            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(5));
+            var timeoutTask = Task.Delay(_authorizationTimeout);
 
             var completedTask = await Task.WhenAny(tokenTask, timeoutTask);
 
