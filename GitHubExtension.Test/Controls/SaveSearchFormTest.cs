@@ -13,8 +13,6 @@ namespace GitHubExtension.Test.Controls;
 [TestClass]
 public class SaveSearchFormTest
 {
-    private const int DefaultDelay = 100;
-
     [TestMethod]
     public void CreateSearchFromJson_ShouldReturnCorrectSearchCandidate()
     {
@@ -34,7 +32,7 @@ public class SaveSearchFormTest
     }
 
     [TestMethod]
-    public void SubmitForm_ShouldSaveIssueSearch_WhenIssueSearchIsProvided()
+    public async Task SubmitForm_ShouldSaveIssueSearch_WhenIssueSearchIsProvided()
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         mockSearchRepository
@@ -62,9 +60,9 @@ public class SaveSearchFormTest
                 ""IsTopLevel"": ""false""
             }")?.ToString();
 
+        var tcs = CreateTaskCompletionSource(savedSearchesMediator);
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
-
-        Thread.Sleep(DefaultDelay);
+        await tcs.Task;
 
         Assert.IsNotNull(capturedSearch);
         Assert.AreEqual("is:issue author:username", capturedSearch.SearchString);
@@ -72,7 +70,7 @@ public class SaveSearchFormTest
     }
 
     [TestMethod]
-    public void SubmitForm_ShouldSavePullRequestSearch_WhenPRSearchIsProvided()
+    public async Task SubmitForm_ShouldSavePullRequestSearch_WhenPRSearchIsProvided()
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         mockSearchRepository
@@ -102,7 +100,9 @@ public class SaveSearchFormTest
 
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-        Thread.Sleep(DefaultDelay);
+        var tcs = CreateTaskCompletionSource(savedSearchesMediator);
+        saveSearchForm.SubmitForm(jsonPayload, string.Empty);
+        await tcs.Task;
 
         Assert.IsNotNull(capturedSearch);
         Assert.AreEqual("is:pr author:username", capturedSearch.SearchString);
@@ -110,7 +110,7 @@ public class SaveSearchFormTest
     }
 
     [TestMethod]
-    public void SubmitForm_ShouldSaveCombinedSearch_WhenNoTypeIsProvided()
+    public async Task SubmitForm_ShouldSaveCombinedSearch_WhenNoTypeIsProvided()
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         mockSearchRepository
@@ -138,9 +138,9 @@ public class SaveSearchFormTest
                 ""IsTopLevel"": ""false""
             }")?.ToString();
 
+        var tcs = CreateTaskCompletionSource(savedSearchesMediator);
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
-
-        Thread.Sleep(DefaultDelay);
+        await tcs.Task;
 
         Assert.IsNotNull(capturedSearch);
         Assert.AreEqual("author:username", capturedSearch.SearchString);
@@ -148,7 +148,7 @@ public class SaveSearchFormTest
     }
 
     [TestMethod]
-    public void SubmitForm_ShouldEditSearchString_WhenUpdatingExistingSearch()
+    public async Task SubmitForm_ShouldEditSearchString_WhenUpdatingExistingSearch()
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         mockSearchRepository
@@ -173,9 +173,9 @@ public class SaveSearchFormTest
                 ""IsTopLevel"": ""false""
             }")?.ToString();
 
+        var tcs = CreateTaskCompletionSource(savedSearchesMediator);
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
-
-        Thread.Sleep(DefaultDelay);
+        await tcs.Task;
 
         mockSearchRepository.Verify(
             repo =>
@@ -195,7 +195,7 @@ public class SaveSearchFormTest
     }
 
     [TestMethod]
-    public void SubmitForm_ShouldEditSearchName_WhenUpdatingExistingSearch()
+    public async Task SubmitForm_ShouldEditSearchName_WhenUpdatingExistingSearch()
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         mockSearchRepository
@@ -220,9 +220,9 @@ public class SaveSearchFormTest
                 ""IsTopLevel"": ""false""
             }")?.ToString();
 
+        var tcs = CreateTaskCompletionSource(savedSearchesMediator);
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
-
-        Thread.Sleep(DefaultDelay);
+        await tcs.Task;
 
         mockSearchRepository.Verify(
             repo =>
@@ -242,7 +242,7 @@ public class SaveSearchFormTest
     }
 
     [TestMethod]
-    public void SubmitForm_ShouldEditBothNameAndString_WhenUpdatingExistingSearch()
+    public async Task SubmitForm_ShouldEditBothNameAndString_WhenUpdatingExistingSearch()
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         mockSearchRepository
@@ -267,9 +267,9 @@ public class SaveSearchFormTest
                 ""IsTopLevel"": ""false""
             }")?.ToString();
 
+        var tcs = CreateTaskCompletionSource(savedSearchesMediator);
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
-
-        Thread.Sleep(DefaultDelay);
+        await tcs.Task;
 
         mockSearchRepository.Verify(
             repo =>
