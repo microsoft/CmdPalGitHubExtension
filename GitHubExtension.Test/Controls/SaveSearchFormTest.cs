@@ -81,7 +81,7 @@ public class SaveSearchFormTest
 
     [TestMethod]
     [DataRow("old search", "My Search", false, "new search", "my search", false)]
-
+    [DataRow("my search", "My Search", false, "my search", "My Search", true)]
     public async Task SubmitForm_EditsCorrectly(string previousSearchString, string previousSearchName, bool previousSearchIsTopLevel, string newSearchString, string newSearchName, bool newSearchIsTopLevel)
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
@@ -120,54 +120,6 @@ public class SaveSearchFormTest
             repo.RemoveSavedSearch(It.Is<ISearch>(s =>
                 s.SearchString == previousSearchString &&
                 s.Name == previousSearchName)),
-            Times.Once);
-    }
-
-    [TestMethod]
-    public async Task SubmitForm_ShouldOnlyUpdateTopLevel_WhenNothingElseChanges()
-    {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        mockSearchRepository
-            .Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>()))
-            .Returns(Task.CompletedTask);
-        mockSearchRepository
-            .Setup(repo => repo.UpdateSearchTopLevelStatus(It.IsAny<ISearch>(), false))
-            .Returns(Task.CompletedTask);
-        mockSearchRepository
-            .Setup(repo => repo.RemoveSavedSearch(It.IsAny<ISearch>()))
-            .Returns(Task.CompletedTask);
-
-        var existingSearch = new SearchCandidate("my search", "My Search", false);
-        var stubResources = new Mock<IResources>().Object;
-        var savedSearchesMediator = new SavedSearchesMediator();
-        var saveSearchForm = new SaveSearchForm(existingSearch, mockSearchRepository.Object, stubResources, savedSearchesMediator);
-
-        var jsonPayload = JsonNode.Parse(@"
-            {
-                ""EnteredSearch"": ""my search"",
-                ""Name"": ""My Search"",
-                ""IsTopLevel"": ""true""
-            }")?.ToString();
-
-        var tcs = CreateTaskCompletionSource(savedSearchesMediator);
-        saveSearchForm.SubmitForm(jsonPayload, string.Empty);
-        await tcs.Task;
-
-        mockSearchRepository.Verify(
-            repo =>
-            repo.UpdateSearchTopLevelStatus(
-                It.Is<SearchCandidate>(s =>
-                s.SearchString == "my search" &&
-                s.Name == "My Search" &&
-                s.IsTopLevel == true),
-                true),
-            Times.Once);
-
-        mockSearchRepository.Verify(
-            repo =>
-            repo.RemoveSavedSearch(It.Is<ISearch>(s =>
-                s.SearchString == "my search" &&
-                s.Name == "My Search")),
             Times.Once);
     }
 
