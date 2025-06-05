@@ -289,7 +289,7 @@ public class SaveSearchFormTest
     }
 
     [TestMethod]
-    public void SubmitForm_ShouldOnlyUpdateTopLevel_WhenNothingElseChanges()
+    public async Task SubmitForm_ShouldOnlyUpdateTopLevel_WhenNothingElseChanges()
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         mockSearchRepository
@@ -314,9 +314,9 @@ public class SaveSearchFormTest
                 ""IsTopLevel"": ""true""
             }")?.ToString();
 
+        var tcs = CreateTaskCompletionSource(savedSearchesMediator);
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
-
-        Thread.Sleep(DefaultDelay);
+        await tcs.Task;
 
         mockSearchRepository.Verify(
             repo =>
@@ -334,5 +334,19 @@ public class SaveSearchFormTest
                 s.SearchString == "my search" &&
                 s.Name == "My Search")),
             Times.Once);
+    }
+
+    private static TaskCompletionSource CreateTaskCompletionSource(SavedSearchesMediator savedSearchesMediator)
+    {
+        var tcs = new TaskCompletionSource();
+        EventHandler<object?>? handler = null;
+        handler = (sender, args) =>
+        {
+            savedSearchesMediator.SearchSaved -= handler;
+            tcs.TrySetResult();
+        };
+
+        savedSearchesMediator.SearchSaved += handler;
+        return tcs;
     }
 }
