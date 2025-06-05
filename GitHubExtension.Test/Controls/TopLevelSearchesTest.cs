@@ -20,7 +20,7 @@ namespace GitHubExtension.Test.Controls;
 [TestClass]
 public class TopLevelSearchesTest
 {
-    public const int DEFAULTTESTDELAYMS = 1000;
+    public const int DEFAULTTESTDELAYMS = 50;
     public const int DEFAULTTESTDELAYLONGMS = 5000;
 
     private (PersistentDataManager PersistentDataManager, IResources Resources, SavedSearchesMediator Mediator, DataStoreOptions DataStoreOptions) CreateTestContext()
@@ -125,7 +125,7 @@ public class TopLevelSearchesTest
             var jsonPayload = CreateJsonPayload(testSearchString, testSearchName, true);
             addSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-            await Task.Delay(DEFAULTTESTDELAYMS); // 45 ms
+            await Task.Delay(DEFAULTTESTDELAYMS);
 
             var savedSearches = await persistentDataManager.GetSavedSearches();
             Assert.IsTrue(
@@ -177,7 +177,7 @@ public class TopLevelSearchesTest
             var jsonPayload = CreateJsonPayload(testSearchString, testSearchName, false);
             addSearchForm.SubmitForm(jsonPayload, string.Empty);
 
-            await Task.Delay(DEFAULTTESTDELAYMS); // 45 ms
+            await Task.Delay(DEFAULTTESTDELAYLONGMS);
 
             var savedSearches = await persistentDataManager.GetSavedSearches();
             Assert.IsTrue(savedSearches.Count() == 1, "Should have only our saved search");
@@ -202,7 +202,7 @@ public class TopLevelSearchesTest
 
             editSearchForm.SubmitForm(editJsonPayload, string.Empty);
 
-            await Task.Delay(DEFAULTTESTDELAYMS); // 45 ms
+            await Task.Delay(DEFAULTTESTDELAYMS);
 
             var updatedSavedSearches = await persistentDataManager.GetSavedSearches();
             Assert.IsTrue(updatedSavedSearches.Count() == 1, "Should have only our saved search");
