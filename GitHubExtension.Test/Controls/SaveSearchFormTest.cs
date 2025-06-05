@@ -5,6 +5,7 @@
 using System.Text.Json.Nodes;
 using GitHubExtension.Controls;
 using GitHubExtension.Controls.Forms;
+using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Helpers;
 using Moq;
 
@@ -31,8 +32,11 @@ public class SaveSearchFormTest
         Assert.IsTrue(searchCandidate.IsTopLevel);
     }
 
+    [DataRow("is:issue author:testuser", "ShouldSaveIssueSearch_WhenIssueSearchIsProvided", true)]
+    [DataRow("is:pr author:testuser", "ShouldSavePullRequestSearch_WhenPRSearchIsProvided", false)]
+    [DataRow("author:testuser", "ShouldSaveCombinedSearch_WhenCombinedSearchIsProvided", false)]
     [TestMethod]
-    public async Task SubmitForm_ShouldSaveIssueSearch_WhenIssueSearchIsProvided()
+    public async Task Submit_FormSavesSearchCorrectly(string enteredSearchString, string enteredSearchName, bool enteredSearchIsTopLevel)
     {
         var mockSearchRepository = new Mock<ISearchRepository>();
         mockSearchRepository
@@ -40,111 +44,39 @@ public class SaveSearchFormTest
             .Returns(Task.CompletedTask);
 
         ISearch? capturedSearch = null;
+        bool? capturedSearchIsTopLevel = null;
+        SearchType? capturedSearchType = null;
         mockSearchRepository
-            .Setup(repo => repo.UpdateSearchTopLevelStatus(It.IsAny<SearchCandidate>(), false))
-            .Callback<ISearch, bool>((s, isTopLevel) => capturedSearch = s)
+            .Setup(repo => repo.UpdateSearchTopLevelStatus(It.IsAny<SearchCandidate>(), It.IsAny<bool>()))
+            .Callback<ISearch, bool>((s, isTopLevel) =>
+            {
+                capturedSearch = s;
+                capturedSearchIsTopLevel = isTopLevel;
+                capturedSearchType = s.Type;
+            })
             .Returns(Task.CompletedTask);
 
         mockSearchRepository
             .Setup(repo => repo.RemoveSavedSearch(It.IsAny<ISearch>()))
             .Returns(Task.CompletedTask);
 
+        var expectedSearchType = GetExpectedSearchType(enteredSearchString);
+
         var stubResources = new Mock<IResources>().Object;
         var savedSearchesMediator = new SavedSearchesMediator();
         var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, stubResources, savedSearchesMediator);
 
-        var jsonPayload = JsonNode.Parse(@"
-            {
-                ""EnteredSearch"": ""is:issue author:username"",
-                ""Name"": ""My Issue Search"",
-                ""IsTopLevel"": ""false""
-            }")?.ToString();
+        var jsonPayload = CreateJsonPayload(enteredSearchString, enteredSearchName, enteredSearchIsTopLevel);
 
         var tcs = CreateTaskCompletionSource(savedSearchesMediator);
         saveSearchForm.SubmitForm(jsonPayload, string.Empty);
         await tcs.Task;
 
         Assert.IsNotNull(capturedSearch);
-        Assert.AreEqual("is:issue author:username", capturedSearch.SearchString);
-        Assert.AreEqual("My Issue Search", capturedSearch.Name);
-    }
-
-    [TestMethod]
-    public async Task SubmitForm_ShouldSavePullRequestSearch_WhenPRSearchIsProvided()
-    {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        mockSearchRepository
-            .Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>()))
-            .Returns(Task.CompletedTask);
-
-        ISearch? capturedSearch = null;
-        mockSearchRepository
-            .Setup(repo => repo.UpdateSearchTopLevelStatus(It.IsAny<SearchCandidate>(), false))
-            .Callback<ISearch, bool>((s, isTopLevel) => capturedSearch = s)
-            .Returns(Task.CompletedTask);
-
-        mockSearchRepository
-            .Setup(repo => repo.RemoveSavedSearch(It.IsAny<ISearch>()))
-            .Returns(Task.CompletedTask);
-
-        var stubResources = new Mock<IResources>().Object;
-        var savedSearchesMediator = new SavedSearchesMediator();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, stubResources, savedSearchesMediator);
-
-        var jsonPayload = JsonNode.Parse(@"
-            {
-                ""EnteredSearch"": ""is:pr author:username"",
-                ""Name"": ""My PR Search"",
-                ""IsTopLevel"": ""false""
-            }")?.ToString();
-
-        saveSearchForm.SubmitForm(jsonPayload, string.Empty);
-
-        var tcs = CreateTaskCompletionSource(savedSearchesMediator);
-        saveSearchForm.SubmitForm(jsonPayload, string.Empty);
-        await tcs.Task;
-
-        Assert.IsNotNull(capturedSearch);
-        Assert.AreEqual("is:pr author:username", capturedSearch.SearchString);
-        Assert.AreEqual("My PR Search", capturedSearch.Name);
-    }
-
-    [TestMethod]
-    public async Task SubmitForm_ShouldSaveCombinedSearch_WhenNoTypeIsProvided()
-    {
-        var mockSearchRepository = new Mock<ISearchRepository>();
-        mockSearchRepository
-            .Setup(repo => repo.ValidateSearch(It.IsAny<ISearch>()))
-            .Returns(Task.CompletedTask);
-
-        ISearch? capturedSearch = null;
-        mockSearchRepository
-            .Setup(repo => repo.UpdateSearchTopLevelStatus(It.IsAny<SearchCandidate>(), false))
-            .Callback<ISearch, bool>((s, isTopLevel) => capturedSearch = s)
-            .Returns(Task.CompletedTask);
-
-        mockSearchRepository
-            .Setup(repo => repo.RemoveSavedSearch(It.IsAny<ISearch>()))
-            .Returns(Task.CompletedTask);
-
-        var stubResources = new Mock<IResources>().Object;
-        var savedSearchesMediator = new SavedSearchesMediator();
-        var saveSearchForm = new SaveSearchForm(mockSearchRepository.Object, stubResources, savedSearchesMediator);
-
-        var jsonPayload = JsonNode.Parse(@"
-            {
-                ""EnteredSearch"": ""author:username"",
-                ""Name"": ""My Combined Search"",
-                ""IsTopLevel"": ""false""
-            }")?.ToString();
-
-        var tcs = CreateTaskCompletionSource(savedSearchesMediator);
-        saveSearchForm.SubmitForm(jsonPayload, string.Empty);
-        await tcs.Task;
-
-        Assert.IsNotNull(capturedSearch);
-        Assert.AreEqual("author:username", capturedSearch.SearchString);
-        Assert.AreEqual("My Combined Search", capturedSearch.Name);
+        Assert.AreEqual(enteredSearchString, capturedSearch.SearchString);
+        Assert.AreEqual(enteredSearchName, capturedSearch.Name);
+        Assert.AreEqual(enteredSearchIsTopLevel, capturedSearchIsTopLevel);
+        Assert.AreEqual(expectedSearchType, capturedSearchType);
     }
 
     [TestMethod]
@@ -334,6 +266,26 @@ public class SaveSearchFormTest
                 s.SearchString == "my search" &&
                 s.Name == "My Search")),
             Times.Once);
+    }
+
+    private SearchType GetExpectedSearchType(string enteredSearchString)
+    {
+        return enteredSearchString switch
+        {
+            var s when s.StartsWith("is:issue", StringComparison.OrdinalIgnoreCase) => SearchType.Issues,
+            var s when s.StartsWith("is:pr", StringComparison.OrdinalIgnoreCase) => SearchType.PullRequests,
+            _ => SearchType.IssuesAndPullRequests,
+        };
+    }
+
+    private string? CreateJsonPayload(string enteredSearch, string name, bool isTopLevel)
+    {
+        return JsonNode.Parse($@"
+        {{
+            ""EnteredSearch"": ""{enteredSearch}"",
+            ""Name"": ""{name}"",
+            ""IsTopLevel"": ""{isTopLevel.ToString().ToLowerInvariant()}""
+        }}")?.ToString();
     }
 
     private static TaskCompletionSource CreateTaskCompletionSource(SavedSearchesMediator savedSearchesMediator)
