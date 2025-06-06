@@ -9,7 +9,7 @@ namespace GitHubExtension.Controls;
 public interface ICacheDataManager
 {
     // Not sure about this yet. Exposing event from another layer.
-    event CacheManagerUpdateEventHandler? OnUpdate;
+    event EventHandler<CacheManagerUpdateEventArgs>? OnUpdateWeak;
 
     Task<IEnumerable<IIssue>> GetIssues(ISearch search);
 

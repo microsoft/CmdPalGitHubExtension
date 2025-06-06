@@ -31,13 +31,15 @@ public abstract partial class SearchPage<T> : ListPage
         Logger = Log.ForContext("SourceContext", $"Pages/{GetType().Name}");
         CacheDataManager = cacheDataManager;
         Resources = resources;
+
+        CacheDataManager.OnUpdateWeak += CacheManagerUpdateHandler;
     }
 
     public override IListItem[] GetItems() => DoGetItems(SearchText).GetAwaiter().GetResult();
 
-    protected void CacheManagerUpdateHandler(object? source, CacheManagerUpdateEventArgs e)
+    private void CacheManagerUpdateHandler(object? source, CacheManagerUpdateEventArgs e)
     {
-        if (e.Kind == CacheManagerUpdateKind.Updated)
+        if (e.Kind == CacheManagerUpdateKind.Updated && (e.Search == null || e.Search == CurrentSearch))
         {
             Logger.Information($"Received cache manager update event.");
             RaiseItemsChanged(0);
@@ -101,8 +103,6 @@ public abstract partial class SearchPage<T> : ListPage
 
     private async Task<IEnumerable<T>> GetSearchItemsAsync()
     {
-        CacheDataManager.OnUpdate += CacheManagerUpdateHandler;
-
         var items = await LoadContentData();
 
         Logger.Information($"Found {items.Count()} items matching search query \"{CurrentSearch.Name}\"");

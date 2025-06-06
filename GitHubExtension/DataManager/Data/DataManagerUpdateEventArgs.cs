@@ -2,6 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using GitHubExtension.Controls;
 using GitHubExtension.DataManager.Enums;
 
 namespace GitHubExtension.DataManager.Data;
@@ -17,26 +18,22 @@ public enum DataManagerUpdateKind
 
 public class DataManagerUpdateEventArgs : EventArgs
 {
-    private readonly string _description;
-    private readonly string[] _context;
     private readonly DataManagerUpdateKind _kind;
     private readonly UpdateType _updateType;
+    private readonly ISearch? _search;
     private readonly Exception? _exception;
 
-    public DataManagerUpdateEventArgs(DataManagerUpdateKind updateKind, UpdateType updateType, string updateDescription, string[] updateContext, Exception? exception = null)
+    public DataManagerUpdateEventArgs(DataManagerUpdateKind updateKind, UpdateType updateType, ISearch? search = null, Exception? exception = null)
     {
         _kind = updateKind;
-        _description = updateDescription;
-        _context = updateContext;
         _updateType = updateType;
+        _search = search;
         _exception = exception;
     }
 
     public DataManagerUpdateKind Kind => _kind;
 
-    public string Description => _description;
-
-    public string[] Context => _context;
+    public ISearch? Search => _search;
 
     public UpdateType UpdateType => _updateType;
 
