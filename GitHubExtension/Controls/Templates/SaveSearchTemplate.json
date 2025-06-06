@@ -7,7 +7,7 @@
       "type": "TextBlock",
       "size": "Medium",
       "weight": "Bolder",
-      "text": "{{SaveSearchFormTitle}}",
+      "text": {{SaveSearchFormTitle}},
       "horizontalAlignment": "Center",
       "wrap": true,
       "style": "heading"
@@ -15,18 +15,18 @@
     {
       "type": "Input.Text",
       "id": "Name",
-      "label": "{{NameLabel}}",
+      "label": {{NameLabel}},
       "isRequired": true,
-      "errorMessage": "{{NameErrorMessage}}",
-      "value": "{{SavedSearchName}}"
+      "errorMessage": {{NameErrorMessage}},
+      "value": {{SavedSearchName}}
     },
     {
       "type": "Input.Text",
       "id": "EnteredSearch",
-      "label": "{{EnteredSearchLabel}}",
+      "label": {{EnteredSearchLabel}},
       "isRequired": true,
-      "errorMessage": "{{EnteredSearchErrorMessage}}",
-      "value": "{{SavedSearchString}}"
+      "errorMessage": {{EnteredSearchErrorMessage}},
+      "value": {{SavedSearchString}}
     },
     {
       "type": "ColumnSet",
@@ -39,10 +39,10 @@
             {
               "type": "Input.Toggle",
               "id": "IsTopLevel",
-              "title": "{{IsTopLevelTitle}}",
+              "title": {{IsTopLevelTitle}},
               "valueOn": "true",
               "valueOff": "false",
-              "value": "{{IsTopLevel}}"
+              "value": {{IsTopLevel}}
             }
           ]
         }
@@ -52,7 +52,7 @@
   "actions": [
     {
       "type": "Action.Submit",
-      "title": "{{SaveSearchActionTitle}}",
+      "title": {{SaveSearchActionTitle}},
       "data": {
         "id": "SaveSearchAction"
       }

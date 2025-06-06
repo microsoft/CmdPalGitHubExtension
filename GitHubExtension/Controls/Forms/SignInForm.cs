@@ -2,7 +2,7 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Globalization;
+using System.Text.Json;
 using GitHubExtension.Controls.Commands;
 using GitHubExtension.DeveloperIds;
 using GitHubExtension.Helpers;
@@ -19,9 +19,6 @@ public partial class SignInForm : FormContent, IDisposable
     private readonly SignInCommand _signInCommand;
 
     private bool _isButtonEnabled = true;
-
-    private string IsButtonEnabled =>
-        _isButtonEnabled.ToString(CultureInfo.InvariantCulture).ToLower(CultureInfo.InvariantCulture);
 
     public SignInForm(AuthenticationMediator authenticationMediator, IResources resources, IDeveloperIdProvider developerIdProvider, SignInCommand signInCommand)
     {
@@ -75,11 +72,11 @@ public partial class SignInForm : FormContent, IDisposable
 
     public Dictionary<string, string> TemplateSubstitutions => new()
     {
-        { "{{AuthTitle}}", _resources.GetResource("Forms_Sign_In") },
-        { "{{AuthButtonTitle}}", _resources.GetResource("Forms_Sign_In") },
-        { "{{AuthIcon}}", $"data:image/png;base64,{GitHubIcon.GetBase64Icon(GitHubIcon.LogoWithBackplatePath)}" },
-        { "{{AuthButtonTooltip}}", _resources.GetResource("Forms_Sign_In_Tooltip") },
-        { "{{ButtonIsEnabled}}", IsButtonEnabled },
+        { "{{AuthTitle}}", JsonSerializer.Serialize(_resources.GetResource("Forms_Sign_In")) },
+        { "{{AuthButtonTitle}}", JsonSerializer.Serialize(_resources.GetResource("Forms_Sign_In")) },
+        { "{{AuthIcon}}", JsonSerializer.Serialize($"data:image/png;base64,{GitHubIcon.GetBase64Icon(GitHubIcon.LogoWithBackplatePath)}") },
+        { "{{AuthButtonTooltip}}", JsonSerializer.Serialize(_resources.GetResource("Forms_Sign_In_Tooltip")) },
+        { "{{ButtonIsEnabled}}", JsonSerializer.Serialize(_isButtonEnabled) },
     };
 
     public override string TemplateJson => TemplateHelper.LoadTemplateJsonFromTemplateName("AuthTemplate", TemplateSubstitutions);
