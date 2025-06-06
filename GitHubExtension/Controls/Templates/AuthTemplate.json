@@ -9,7 +9,7 @@
       "items": [
         {
           "type": "TextBlock",
-          "text": "{{AuthTitle}}",
+          "text": {{AuthTitle}},
           "wrap": true,
           "horizontalAlignment": "center",
           "height": "stretch",
@@ -18,7 +18,7 @@
         },
         {
           "type": "Image",
-          "url": "{{AuthIcon}}",
+          "url": {{AuthIcon}},
           "horizontalAlignment": "center",
           "size": "large"
         },
@@ -37,8 +37,8 @@
                   "type": "ActionSet",
                   "actions": [
                     {
-                      "title": "{{AuthButtonTitle}}",
-                      "tooltip": "{{AuthButtonTooltip}}",
+                      "title": {{AuthButtonTitle}},
+                      "tooltip": {{AuthButtonTooltip}},
                       "type": "Action.Submit",
                       "isEnabled": {{ButtonIsEnabled}}
                     }
