@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Globalization;
+using System.Text.Json;
 using GitHubExtension.Controls.Commands;
 using GitHubExtension.DeveloperIds;
 using GitHubExtension.Helpers;
@@ -18,9 +19,6 @@ public partial class SignOutForm : FormContent, IDisposable
     private readonly AuthenticationMediator _authenticationMediator;
     private readonly IDeveloperIdProvider _developerIdProvider;
     private bool _isButtonEnabled = true;
-
-    private string IsButtonEnabled =>
-    _isButtonEnabled.ToString(CultureInfo.InvariantCulture).ToLower(CultureInfo.InvariantCulture);
 
     public SignOutForm(IResources resources, AuthenticationMediator authenticationMediator, SignOutCommand signOutCommand, IDeveloperIdProvider developerIdProvider)
     {
@@ -55,11 +53,11 @@ public partial class SignOutForm : FormContent, IDisposable
 
     public Dictionary<string, string> TemplateSubstitutions => new()
     {
-        { "{{AuthTitle}}", _resources.GetResource("Forms_Sign_Out_Title") },
-        { "{{AuthButtonTitle}}", $"{_resources.GetResource("Forms_Sign_Out_Button_Title")} {_developerIdProvider.GetLoggedInDeveloperId()?.LoginId ?? string.Empty}" },
-        { "{{AuthIcon}}", $"data:image/png;base64,{GitHubIcon.GetBase64Icon(GitHubIcon.LogoWithBackplatePath)}" },
-        { "{{AuthButtonTooltip}}", _resources.GetResource("Forms_Sign_Out_Tooltip") },
-        { "{{ButtonIsEnabled}}", IsButtonEnabled },
+        { "{{AuthTitle}}", JsonSerializer.Serialize(_resources.GetResource("Forms_Sign_Out_Title")) },
+        { "{{AuthButtonTitle}}", JsonSerializer.Serialize($"{_resources.GetResource("Forms_Sign_Out_Button_Title")} {_developerIdProvider.GetLoggedInDeveloperId()?.LoginId ?? string.Empty}") },
+        { "{{AuthIcon}}", JsonSerializer.Serialize($"data:image/png;base64,{GitHubIcon.GetBase64Icon(GitHubIcon.LogoWithBackplatePath)}") },
+        { "{{AuthButtonTooltip}}", JsonSerializer.Serialize(_resources.GetResource("Forms_Sign_Out_Tooltip")) },
+        { "{{ButtonIsEnabled}}", JsonSerializer.Serialize(_isButtonEnabled) },
     };
 
     public override string TemplateJson => TemplateHelper.LoadTemplateJsonFromTemplateName("AuthTemplate", TemplateSubstitutions);
