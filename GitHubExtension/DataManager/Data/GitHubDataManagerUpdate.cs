@@ -14,7 +14,7 @@ public partial class GitHubDataManager
     public event DataManagerUpdateEventHandler? OnUpdate;
 
     // rate limit exception gets thrown here
-    private async Task PerformUpdateAsync(DataStoreOperationParameters parameters, Func<Task> asyncOperation)
+    private async Task PerformUpdateAsync(DataUpdateParameters parameters, Func<Task> asyncOperation)
     {
         using var tx = DataStore.Connection!.BeginTransaction();
 
@@ -34,31 +34,20 @@ public partial class GitHubDataManager
         {
             tx.Rollback();
             _log.Information($"Update cancelled: {parameters}");
-            SendCancelUpdateEvent(this, parameters.UpdateType);
+            SendCancelUpdateEvent(parameters);
             return;
         }
         catch (Exception ex)
         {
             tx.Rollback();
             _log.Error(ex, $"Error during update: {ex.Message}");
-            SendErrorUpdateEvent(this, parameters.UpdateType, ex);
+            SendErrorUpdateEvent(parameters, ex);
             return;
         }
 
         tx.Commit();
 
-        if (parameters.UpdateType == UpdateType.Search)
-        {
-            // Maybe we don't need this. Only the open page can raise
-            // the ItemsChanged event. So if a search is updated in the background,
-            // the open page is the only one that could have requested it.
-            // So having the name might not matter at all.
-            SendSearchSuccessUpdateEvent(this, parameters.SearchName!, parameters.SearchType);
-        }
-        else
-        {
-            SendSuccessUpdateEvent(this, parameters.UpdateType);
-        }
+        SendSuccessUpdateEvent(parameters);
 
         _log.Information($"Update complete: {parameters}");
     }
@@ -66,7 +55,7 @@ public partial class GitHubDataManager
     public async Task RequestAllUpdateAsync(List<ISearch> searches, RequestOptions options)
     {
         _log.Information("Updating all data");
-        var parameters = new DataStoreOperationParameters
+        var parameters = new DataUpdateParameters
         {
             OperationName = nameof(RequestAllUpdateAsync),
             RequestOptions = options,
@@ -86,13 +75,12 @@ public partial class GitHubDataManager
     public async Task RequestSearchUpdateAsync(ISearch search, RequestOptions options)
     {
         _log.Information("Updating search data");
-        var parameters = new DataStoreOperationParameters
+        var parameters = new DataUpdateParameters
         {
             OperationName = nameof(RequestSearchUpdateAsync),
             RequestOptions = options,
             UpdateType = UpdateType.Search,
-            SearchName = search.Name,
-            SearchType = search.Type,
+            Search = search,
         };
         await PerformUpdateAsync(
             parameters,
@@ -101,35 +89,25 @@ public partial class GitHubDataManager
         LastUpdated = DateTime.UtcNow;
     }
 
-    private void SendUpdateEvent(object? source, DataManagerUpdateKind kind, UpdateType updateType, string? info = null, string[]? context = null, Exception? ex = null)
+    private void SendUpdateEvent(DataManagerUpdateKind kind, UpdateType updateType, ISearch? search, Exception? ex = null)
     {
-        if (OnUpdate != null)
-        {
-            info ??= string.Empty;
-            context ??= Array.Empty<string>();
-            _log.Information($"Sending Update Event: {kind}  Type: {updateType} Info: {info}  Context: {string.Join(",", context)}");
-            OnUpdate.Invoke(source, new DataManagerUpdateEventArgs(kind, updateType, info, context, ex));
-        }
+        _log.Information($"Sending Update Event: {kind}  Type: {updateType}");
+        OnUpdate?.Invoke(this, new DataManagerUpdateEventArgs(kind, updateType, search, ex));
     }
 
-    private void SendSuccessUpdateEvent(object? source, UpdateType updateType)
+    private void SendSuccessUpdateEvent(DataUpdateParameters parameters)
     {
-        SendUpdateEvent(source, DataManagerUpdateKind.Success, updateType, null, null);
+        SendUpdateEvent(DataManagerUpdateKind.Success, parameters.UpdateType, parameters.Search, null);
     }
 
-    private void SendSearchSuccessUpdateEvent(object? source, string searchName, SearchType searchType)
+    private void SendCancelUpdateEvent(DataUpdateParameters parameters)
     {
-        SendUpdateEvent(source, DataManagerUpdateKind.Success, UpdateType.Search, $"{searchName}:{searchType}", null);
+        SendUpdateEvent(DataManagerUpdateKind.Cancel, parameters.UpdateType, parameters.Search, null);
     }
 
-    private void SendCancelUpdateEvent(object? source, UpdateType updateType)
+    private void SendErrorUpdateEvent(DataUpdateParameters parameters, Exception ex)
     {
-        SendUpdateEvent(source, DataManagerUpdateKind.Cancel, updateType, null, null);
-    }
-
-    private void SendErrorUpdateEvent(object? source, UpdateType updateType, Exception ex)
-    {
-        SendUpdateEvent(source, DataManagerUpdateKind.Error, updateType, null, null, ex);
+        SendUpdateEvent(DataManagerUpdateKind.Error, parameters.UpdateType, parameters.Search, ex);
     }
 
     public void PurgeAllData()

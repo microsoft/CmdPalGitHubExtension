@@ -5,6 +5,7 @@
 using GitHubExtension.Controls;
 using GitHubExtension.DataManager.Cache;
 using GitHubExtension.DataModel.DataObjects;
+using GitHubExtension.Helpers;
 
 namespace GitHubExtension.DataManager;
 
@@ -24,31 +25,17 @@ public sealed class CacheDataManagerFacade : ICacheDataManager, IDisposable
         _cacheManager.OnUpdate += CacheManagerOnOnUpdate;
     }
 
-    private CacheManagerUpdateEventHandler? _onUpdate;
+    private readonly WeakEventSource<CacheManagerUpdateEventArgs> _onUpdateWeakSource = new();
 
-    public event CacheManagerUpdateEventHandler? OnUpdate
+    public event EventHandler<CacheManagerUpdateEventArgs>? OnUpdateWeak
     {
-        add
-        {
-            lock (_stateLock)
-            {
-                // Ensuring only one page is listening to the event.
-                _onUpdate = value;
-            }
-        }
-
-        remove
-        {
-            lock (_stateLock)
-            {
-                _onUpdate -= value;
-            }
-        }
+        add => _onUpdateWeakSource.Subscribe(value);
+        remove => _onUpdateWeakSource.Unsubscribe(value);
     }
 
     private void CacheManagerOnOnUpdate(object? source, CacheManagerUpdateEventArgs e)
     {
-        _onUpdate?.Invoke(source, e);
+        _onUpdateWeakSource.Raise(source, e);
     }
 
     public async Task<IEnumerable<IIssue>> GetIssues(ISearch search)
