@@ -3,8 +3,19 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Globalization;
+using System.Text.Json.Nodes;
+using GitHubExtension.Controls;
+using GitHubExtension.Controls.Commands;
+using GitHubExtension.Controls.Forms;
+using GitHubExtension.Controls.Pages;
 using GitHubExtension.DataModel;
+using GitHubExtension.DataModel.Enums;
+using GitHubExtension.DeveloperIds;
+using GitHubExtension.Helpers;
+using GitHubExtension.PersistentData;
 using GitHubExtension.Test.TestContextSink;
+using Microsoft.CommandPalette.Extensions;
+using Moq;
 using Serilog;
 
 namespace GitHubExtension.Test.Helpers;
@@ -92,5 +103,73 @@ public partial class TestHelpers
     public static void CloseTestLog()
     {
         Log.CloseAndFlush();
+    }
+
+    public static string? CreateJsonPayload(string enteredSearch, string name, bool isTopLevel)
+    {
+        return JsonNode.Parse($@"
+        {{
+            ""EnteredSearch"": ""{enteredSearch}"",
+            ""Name"": ""{name}"",
+            ""IsTopLevel"": ""{isTopLevel.ToString().ToLowerInvariant()}""
+        }}")?.ToString();
+    }
+
+    public static TaskCompletionSource CreateTaskCompletionSource(SavedSearchesMediator savedSearchesMediator)
+    {
+        var tcs = new TaskCompletionSource();
+        EventHandler<object?>? handler = null;
+        handler = (sender, args) =>
+        {
+            savedSearchesMediator.SearchSaved -= handler;
+            tcs.TrySetResult();
+        };
+
+        savedSearchesMediator.SearchSaved += handler;
+        return tcs;
+    }
+
+    public static SearchType GetExpectedSearchType(string enteredSearchString)
+    {
+        return enteredSearchString switch
+        {
+            var s when s.StartsWith("is:issue", StringComparison.OrdinalIgnoreCase) => SearchType.Issues,
+            var s when s.StartsWith("is:pr", StringComparison.OrdinalIgnoreCase) => SearchType.PullRequests,
+            _ => SearchType.IssuesAndPullRequests,
+        };
+    }
+
+    public static IDeveloperIdProvider CreateMockDeveloperIdProvider()
+    {
+        var mockDeveloperIdProvider = new Mock<IDeveloperIdProvider>();
+        mockDeveloperIdProvider
+            .Setup(provider => provider.IsSignedIn())
+            .Returns(true);
+        return mockDeveloperIdProvider.Object;
+    }
+
+    public static IListItem CreateMockAddSearchListItem()
+    {
+        var mockAddSearchListItem = new Mock<IListItem>();
+        mockAddSearchListItem.Setup(item => item.Title).Returns("Add Saved Search");
+        return mockAddSearchListItem.Object;
+    }
+
+    public static PersistentDataManager CreatePersistentDataManager(DataStoreOptions dataStoreOptions)
+    {
+        var stubValidator = new Mock<IGitHubValidator>().Object;
+        return new PersistentDataManager(stubValidator, dataStoreOptions);
+    }
+
+    public static GitHubExtensionCommandsProvider CreateGitHubExtensionCommandsProvider(IDeveloperIdProvider mockDeveloperIdProvider, IResources mockResources, SavedSearchesPage savedSearchesPage, PersistentDataManager persistentDataManager, SavedSearchesMediator savedSearchesMediator, ISearchPageFactory searchPageFactory)
+    {
+        var mockAuthenticationMediator = new Mock<AuthenticationMediator>().Object;
+        var mockSignOutCommand = new Mock<SignOutCommand>(mockResources, mockDeveloperIdProvider, mockAuthenticationMediator).Object;
+        var mockSignInCommand = new Mock<SignInCommand>(mockResources, mockDeveloperIdProvider, mockAuthenticationMediator).Object;
+        var mockSignOutForm = new Mock<SignOutForm>(mockResources, mockAuthenticationMediator, mockSignOutCommand, mockDeveloperIdProvider).Object;
+        var mockSignInForm = new Mock<SignInForm>(mockAuthenticationMediator, mockResources, mockDeveloperIdProvider, mockSignInCommand).Object;
+        var signOutPage = new SignOutPage(mockResources, mockSignOutForm, mockSignOutCommand, mockAuthenticationMediator);
+        var signInPage = new SignInPage(mockSignInForm, mockResources, mockSignInCommand, mockAuthenticationMediator);
+        return new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, mockDeveloperIdProvider, persistentDataManager, mockResources, searchPageFactory, savedSearchesMediator, mockAuthenticationMediator);
     }
 }

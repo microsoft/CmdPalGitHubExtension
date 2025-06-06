@@ -9,36 +9,13 @@ namespace GitHubExtension.Test.HelpersTests;
 [TestClass]
 public class StringHelperTests
 {
+    [DataRow("refs/heads/feature:branch", "refs/heads/feature/branch")]
+    [DataRow("refs/heads/feature-branch", "refs/heads/feature-branch")]
+    [DataRow("", "")]
     [TestMethod]
-    public void SwapGitColonsForForwardSlashes_ReplacesColonsWithForwardSlashes()
+    public void SwapGitColonsForForwardSlashes_ReturnsExpectedResult(string input, string expected)
     {
-        var input = "refs/heads/feature:branch";
-        var expected = "refs/heads/feature/branch";
-
         var result = StringHelper.SwapGitColonsForForwardSlashes(input);
-
-        Assert.AreEqual(expected, result);
-    }
-
-    [TestMethod]
-    public void SwapGitColonsForForwardSlashes_NoColons_ReturnsSameString()
-    {
-        var input = "refs/heads/feature-branch";
-        var expected = "refs/heads/feature-branch";
-
-        var result = StringHelper.SwapGitColonsForForwardSlashes(input);
-
-        Assert.AreEqual(expected, result);
-    }
-
-    [TestMethod]
-    public void SwapGitColonsForForwardSlashes_EmptyString_ReturnsEmptyString()
-    {
-        var input = string.Empty;
-        var expected = string.Empty;
-
-        var result = StringHelper.SwapGitColonsForForwardSlashes(input);
-
         Assert.AreEqual(expected, result);
     }
 }

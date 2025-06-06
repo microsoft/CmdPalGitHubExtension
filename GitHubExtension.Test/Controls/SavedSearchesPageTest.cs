@@ -13,71 +13,60 @@ namespace GitHubExtension.Test.Controls;
 [TestClass]
 public class SavedSearchesPageTest
 {
+    private (Mock<ISearchPageFactory> SearchPageFactory, Mock<ISearchRepository> SearchRepository, Mock<IListItem> AddSearchListItem, Mock<IResources> Resources, SavedSearchesMediator Mediator) CreateMocks()
+    {
+        var searchPageFactory = new Mock<ISearchPageFactory>();
+        var searchRepository = new Mock<ISearchRepository>();
+        var addSearchListItem = new Mock<IListItem>();
+        var resources = new Mock<IResources>();
+        var mediator = new SavedSearchesMediator();
+        return (searchPageFactory, searchRepository, addSearchListItem, resources, mediator);
+    }
+
     [TestMethod]
     [TestCategory("Unit")]
-    public void SavedSearchesPageCreate()
+    public void SavedSearchesPageCreate_NotNull()
     {
-        var stubSearchPageFactory = new Mock<ISearchPageFactory>().Object;
-        var stubSearchRepository = new Mock<ISearchRepository>().Object;
-        var stubAddSearchListItem = new Mock<IListItem>().Object;
-        var stubResources = new Mock<IResources>().Object;
-        var savedSearchesMediator = new Mock<SavedSearchesMediator>().Object;
-        var savedSearchesPage = new SavedSearchesPage(stubSearchPageFactory, stubSearchRepository, stubResources, stubAddSearchListItem, savedSearchesMediator);
+        var (searchPageFactory, searchRepository, addSearchListItem, resources, mediator) = CreateMocks();
+        var savedSearchesPage = new SavedSearchesPage(searchPageFactory.Object, searchRepository.Object, resources.Object, addSearchListItem.Object, mediator);
         Assert.IsNotNull(savedSearchesPage);
     }
 
+    [DataRow(2, 3)]
+    [DataRow(0, 1)]
     [TestMethod]
     [TestCategory("Unit")]
-    public void GetItemsFromSavedSearchesPage()
+    public void GetItemsFromSavedSearchesPage_ReturnsExpectedCount(int searchCount, int expectedItemCount)
     {
-        var stubSearchPageFactory = new Mock<ISearchPageFactory>();
-        var stubSearchRepository = new Mock<ISearchRepository>();
-        var stubAddSearchListItem = new Mock<IListItem>();
-        var stubResources = new Mock<IResources>();
-        var savedSearchesMediator = new Mock<SavedSearchesMediator>().Object;
-        var savedSearchesPage = new SavedSearchesPage(stubSearchPageFactory.Object, stubSearchRepository.Object, stubResources.Object, stubAddSearchListItem.Object, savedSearchesMediator);
-        var savedSearches = new List<ISearch>
+        var (searchPageFactory, searchRepository, addSearchListItem, resources, mediator) = CreateMocks();
+        var savedSearchesPage = new SavedSearchesPage(searchPageFactory.Object, searchRepository.Object, resources.Object, addSearchListItem.Object, mediator);
+
+        var savedSearches = new List<ISearch>();
+        for (var i = 0; i < searchCount; i++)
         {
-            new Mock<ISearch>().Object,
-            new Mock<ISearch>().Object,
-        };
-        stubSearchRepository.Setup(x => x.GetSavedSearches()).ReturnsAsync(savedSearches);
+            savedSearches.Add(new Mock<ISearch>().Object);
+        }
+
+        searchRepository.Setup(x => x.GetSavedSearches()).ReturnsAsync(savedSearches);
+
         var items = savedSearchesPage.GetItems();
-        Assert.AreEqual(savedSearches.Count + 1, items.Length);
+        Assert.AreEqual(expectedItemCount, items.Length);
     }
 
     [TestMethod]
     [TestCategory("Unit")]
-    public void GetItemsFromSavedSearchesPageWhenNoSearches()
+    public void RemoveSavedSearch_RemovesAndUpdatesItems()
     {
-        var stubSearchPageFactory = new Mock<ISearchPageFactory>();
-        var stubSearchRepository = new Mock<ISearchRepository>();
-        var stubAddSearchListItem = new Mock<IListItem>();
-        var stubResources = new Mock<IResources>();
-        var savedSearchesMediator = new Mock<SavedSearchesMediator>().Object;
-        var savedSearchesPage = new SavedSearchesPage(stubSearchPageFactory.Object, stubSearchRepository.Object, stubResources.Object, stubAddSearchListItem.Object, savedSearchesMediator);
-        var items = savedSearchesPage.GetItems();
-        Assert.AreEqual(1, items.Length);
-    }
-
-    [TestMethod]
-    [TestCategory("Unit")]
-    public void RemoveSavedSearch()
-    {
-        var stubSearchPageFactory = new Mock<ISearchPageFactory>();
-        var stubSearchRepository = new Mock<ISearchRepository>();
-        var stubAddSearchListItem = new Mock<IListItem>();
-        var stubResources = new Mock<IResources>();
-        var savedSearchesMediator = new SavedSearchesMediator();
-        var savedSearchesPage = new SavedSearchesPage(stubSearchPageFactory.Object, stubSearchRepository.Object, stubResources.Object, stubAddSearchListItem.Object, savedSearchesMediator);
+        var (searchPageFactory, searchRepository, addSearchListItem, resources, mediator) = CreateMocks();
+        var savedSearchesPage = new SavedSearchesPage(searchPageFactory.Object, searchRepository.Object, resources.Object, addSearchListItem.Object, mediator);
         var search = new Mock<ISearch>().Object;
         var savedSearchesPostRemove = new List<ISearch>();
 
         var mockArgs = new SavedSearchRemovedEventArgs(true, null, search);
-        savedSearchesMediator.RemoveSearch(mockArgs);
-        stubSearchRepository.Setup(x => x.GetSavedSearches()).ReturnsAsync(savedSearchesPostRemove);
+        mediator.RemoveSearch(mockArgs);
+        searchRepository.Setup(x => x.GetSavedSearches()).ReturnsAsync(savedSearchesPostRemove);
 
         var items = savedSearchesPage.GetItems();
-        Assert.AreEqual(savedSearchesPostRemove.Count + 1, items.Length); // +1 for the add search item
+        Assert.AreEqual(1, items.Length); // Only the add search item remains
     }
 }
