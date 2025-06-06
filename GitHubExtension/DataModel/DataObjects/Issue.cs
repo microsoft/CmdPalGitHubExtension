@@ -311,7 +311,7 @@ public class Issue : IIssue
         // updated, but ascending to get them in the order in which they were received in the search.
         // This is how we preserve whatever ordering the search had for these items without knowing
         // what that search ordering actually was.
-        var sql = @"SELECT * FROM Issue WHERE Id IN (SELECT Issue FROM SearchIssue WHERE Search = @SearchId ORDER BY TimeUpdated ASC)";
+        var sql = @"SELECT Issue.* FROM Issue JOIN SearchIssue ON Issue.Id = SearchIssue.Issue WHERE SearchIssue.Search = @SearchId ORDER BY SearchIssue.TimeUpdated ASC";
         var param = new
         {
             SearchId = search.Id,

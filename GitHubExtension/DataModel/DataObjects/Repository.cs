@@ -222,7 +222,7 @@ public class Repository
 
     public static IEnumerable<Repository> GetAllForSearch(DataStore dataStore, Search search)
     {
-        var sql = @"SELECT * FROM Repository WHERE Id IN (SELECT Repository FROM SearchRepository WHERE SearchId = @SearchId ORDER BY TimeUpdated ASC);";
+        var sql = @"SELECT Repository.* FROM Repository JOIN SearchRepository ON Repository.Id = SearchRepository.Repository WHERE SearchRepository.Search = @SearchId ORDER BY SearchRepository.TimeUpdated ASC";
         var param = new
         {
             SearchId = search.Id,
