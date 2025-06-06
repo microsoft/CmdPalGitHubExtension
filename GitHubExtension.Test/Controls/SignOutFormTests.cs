@@ -91,7 +91,6 @@ public class SignOutFormTests
         Assert.IsTrue(JsonSerializer.Deserialize<string>(dict["{{AuthIcon}}"])?.StartsWith("data:image/png;base64,", StringComparison.Ordinal));
         Assert.AreEqual(expectedTooltip, JsonSerializer.Deserialize<string>(dict["{{AuthButtonTooltip}}"]));
 
-        // Deserialize as bool for ButtonIsEnabled
         Assert.AreEqual(expectedButtonEnabled, JsonSerializer.Deserialize<bool>(dict["{{ButtonIsEnabled}}"]));
     }
 
@@ -126,7 +125,7 @@ public class SignOutFormTests
         method!.Invoke(ctx.Form, new object[] { isEnabled });
 
         var dict = ctx.Form.TemplateSubstitutions;
-        Assert.AreEqual(expected.ToString().ToLowerInvariant(), JsonSerializer.Deserialize<string>(dict["{{ButtonIsEnabled}}"]));
+        Assert.AreEqual(expected, JsonSerializer.Deserialize<bool>(dict["{{ButtonIsEnabled}}"]));
     }
 
     [TestMethod]
@@ -138,7 +137,7 @@ public class SignOutFormTests
         method!.Invoke(ctx.Form, new object?[] { null, args });
 
         var dict = ctx.Form.TemplateSubstitutions;
-        Assert.AreEqual("false", JsonSerializer.Deserialize<string>(dict["{{ButtonIsEnabled}}"]));
+        Assert.AreEqual(false, JsonSerializer.Deserialize<bool>(dict["{{ButtonIsEnabled}}"]));
     }
 
     [TestMethod]
@@ -149,7 +148,7 @@ public class SignOutFormTests
         method!.Invoke(ctx.Form, new object[] { new(), true });
 
         var dict = ctx.Form.TemplateSubstitutions;
-        Assert.AreEqual("false", JsonSerializer.Deserialize<string>(dict["{{ButtonIsEnabled}}"]));
+        Assert.AreEqual(false, JsonSerializer.Deserialize<bool>(dict["{{ButtonIsEnabled}}"]));
     }
 
     [TestMethod]
