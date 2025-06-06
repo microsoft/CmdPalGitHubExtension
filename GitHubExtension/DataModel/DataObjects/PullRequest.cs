@@ -417,13 +417,13 @@ public class PullRequest : IPullRequest
 
     public static IEnumerable<PullRequest> GetForSearch(DataStore dataStore, Search search)
     {
-        // Order the resulting set by TimeUpdated on the SearchIssue table. Items returned first in
+        // Order the resulting set by TimeUpdated on the SearchPullRequest table. Items returned first in
         // a search result will be processed first, and added first to the datastore. This means the
         // newest timestamp entry is the last one in the list. So we must order the results by time
         // updated, but ascending to get them in the order in which they were received in the search.
         // This is how we preserve whatever ordering the search had for these items without knowing
         // what that search ordering actually was.
-        var sql = @"SELECT * FROM PullRequest WHERE Id IN (SELECT PullRequest FROM SearchPullRequest WHERE Search = @SearchId ORDER BY TimeUpdated ASC)";
+        var sql = @"SELECT PullRequest.* FROM PullRequest JOIN SearchPullRequest ON PullRequest.Id = SearchPullRequest.PullRequest WHERE SearchPullRequest.Search = @SearchId ORDER BY SearchPullRequest.TimeUpdated ASC";
         var param = new
         {
             SearchId = search.Id,

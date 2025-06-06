@@ -3,7 +3,9 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Globalization;
+using System.Text.RegularExpressions;
 using GitHubExtension.DataModel.Enums;
+using Octokit;
 
 namespace GitHubExtension.Helpers;
 
@@ -63,6 +65,8 @@ public static class SearchHelper
             // case 1: a URL with a query string (e.g. "github.com?q=...")
             var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
             var searchQuery = queryParams["q"];
+            var sort = queryParams["sort"];
+            var order = queryParams["order"];
 
             if (!string.IsNullOrEmpty(searchQuery))
             {
@@ -73,6 +77,14 @@ public static class SearchHelper
                     var repoOwner = pathSegments[0];
                     var repoName = pathSegments[1];
                     searchBuilder.Insert(0, $"repo:{repoOwner}/{repoName}");
+                }
+
+                // Add sort if present
+                if (!string.IsNullOrEmpty(sort))
+                {
+                    // Default order to desc if not specified
+                    var sortOrder = string.IsNullOrEmpty(order) ? "desc" : order.ToLowerInvariant();
+                    searchBuilder.Add($"sort:{sort}-{sortOrder}");
                 }
 
                 return string.Join(" ", searchBuilder);
@@ -107,6 +119,15 @@ public static class SearchHelper
                         searchBuilder.Add("is:open");
                     }
 
+                    // Add sort if present
+                    var sortParam = queryParams["sort"];
+                    var orderParam = queryParams["order"];
+                    if (!string.IsNullOrEmpty(sortParam))
+                    {
+                        var sortOrder = string.IsNullOrEmpty(orderParam) ? "desc" : orderParam.ToLowerInvariant();
+                        searchBuilder.Add($"sort:{sortParam}-{sortOrder}");
+                    }
+
                     return string.Join(" ", searchBuilder);
                 }
 
@@ -130,6 +151,15 @@ public static class SearchHelper
                         }
                     }
 
+                    // Add sort if present
+                    var sortParam = queryParams["sort"];
+                    var orderParam = queryParams["order"];
+                    if (!string.IsNullOrEmpty(sortParam))
+                    {
+                        var sortOrder = string.IsNullOrEmpty(orderParam) ? "desc" : orderParam.ToLowerInvariant();
+                        searchBuilder.Add($"sort:{sortParam}-{sortOrder}");
+                    }
+
                     return string.Join(" ", searchBuilder);
                 }
             }
@@ -140,6 +170,53 @@ public static class SearchHelper
         {
             return null;
         }
+    }
+
+    public static (IssueSearchSort SortField, SortDirection Direction, string UpdatedTerm)? ParseSortFromTerm(string term)
+    {
+        if (string.IsNullOrWhiteSpace(term))
+        {
+            return null;
+        }
+
+        // Regex to match sort:field-direction (e.g., sort:created-asc)
+        var match = Regex.Match(term, @"sort:(\w+)-(asc|desc)", RegexOptions.IgnoreCase);
+        if (!match.Success)
+        {
+            return null;
+        }
+
+        var field = match.Groups[1].Value.ToLowerInvariant();
+        var direction = match.Groups[2].Value.ToLowerInvariant();
+
+        IssueSearchSort sortField;
+
+        // reactions and interactions are not supported in the Octokit API
+        switch (field)
+        {
+            case "created":
+                sortField = IssueSearchSort.Created;
+                break;
+            case "updated":
+                sortField = IssueSearchSort.Updated;
+                break;
+            case "comments":
+                sortField = IssueSearchSort.Comments;
+                break;
+            default:
+                return null;
+        }
+
+        var order = direction == "asc" ? SortDirection.Ascending : SortDirection.Descending;
+
+        // Remove the sort:field-direction part from the term, preserving single spaces between terms
+        var updatedTerm = Regex.Replace(term, @"\s*sort:\w+-\w+\s*", " ", RegexOptions.IgnoreCase)
+            .Trim();
+
+        // Replace multiple spaces with a single space
+        updatedTerm = Regex.Replace(updatedTerm, @"\s{2,}", " ");
+
+        return (sortField, order, updatedTerm);
     }
 
     private static readonly Dictionary<string, SearchType> SearchTypeMappings = new()

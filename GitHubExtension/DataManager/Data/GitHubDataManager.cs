@@ -241,7 +241,8 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
     public IEnumerable<Issue> GetIssuesForSearch(string name, string searchString)
     {
         ValidateDataStore();
-        return GetSearch(name, searchString)?.Issues ?? [];
+        var search = GetSearch(name, searchString);
+        return search?.Issues ?? [];
     }
 
     public IEnumerable<PullRequest> GetPullRequestsForSearch(string name, string searchString)
