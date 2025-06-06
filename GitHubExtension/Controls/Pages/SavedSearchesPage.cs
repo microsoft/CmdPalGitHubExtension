@@ -56,12 +56,12 @@ public partial class SavedSearchesPage : ListPage, IDisposable
 
             toast.Show();
         }
-        else if (args.Status && args.Search != null)
+        else if (args.RemoveSucceeded && args.Search != null)
         {
             RaiseItemsChanged(0);
             ToastHelper.ShowToast($"{_resources.GetResource("Pages_Saved_Searches_RemovedSavedSearchSuccess")} {args.Search?.Name}", MessageState.Success);
         }
-        else if (!args.Status)
+        else if (!args.RemoveSucceeded)
         {
             var toast = new ToastStatusMessage(new StatusMessage()
             {

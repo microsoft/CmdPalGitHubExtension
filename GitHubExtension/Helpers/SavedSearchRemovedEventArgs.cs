@@ -8,7 +8,7 @@ namespace GitHubExtension.Helpers;
 
 public class SavedSearchRemovedEventArgs : EventArgs
 {
-    public bool Status { get; }
+    public bool RemoveSucceeded { get; }
 
     public Exception? Exception { get; }
 
@@ -16,7 +16,7 @@ public class SavedSearchRemovedEventArgs : EventArgs
 
     public SavedSearchRemovedEventArgs(bool status, Exception? ex, ISearch search)
     {
-        Status = status;
+        RemoveSucceeded = status;
         Exception = ex;
         Search = search;
     }
