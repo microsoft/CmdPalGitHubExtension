@@ -27,6 +27,7 @@ public static class SearchHelper
         }
 
         // parse "is:typeName" if it's in the string
+        // e.g. "is:repo"
         var isQualifiers = GetIsQualifiers(searchString);
         if (isQualifiers != null)
         {
@@ -172,7 +173,7 @@ public static class SearchHelper
         }
     }
 
-    public static (IssueSearchSort SortField, SortDirection Direction, string UpdatedTerm)? ParseSortFromTerm(string term)
+    public static (IssueSearchSort SortField, SortDirection Direction, string UpdatedTerm)? ParseIssuesAndPullRequestsSortFromTerm(string term)
     {
         if (string.IsNullOrWhiteSpace(term))
         {
@@ -202,6 +203,53 @@ public static class SearchHelper
                 break;
             case "comments":
                 sortField = IssueSearchSort.Comments;
+                break;
+            default:
+                return null;
+        }
+
+        var order = direction == "asc" ? SortDirection.Ascending : SortDirection.Descending;
+
+        // Remove the sort:field-direction part from the term, preserving single spaces between terms
+        var updatedTerm = Regex.Replace(term, @"\s*sort:\w+-\w+\s*", " ", RegexOptions.IgnoreCase)
+            .Trim();
+
+        // Replace multiple spaces with a single space
+        updatedTerm = Regex.Replace(updatedTerm, @"\s{2,}", " ");
+
+        return (sortField, order, updatedTerm);
+    }
+
+    public static (RepoSearchSort SortField, SortDirection Direction, string UpdatedTerm)? ParseRepoSortFromTerm(string term)
+    {
+        if (string.IsNullOrWhiteSpace(term))
+        {
+            return null;
+        }
+
+        // Regex to match sort:field-direction (e.g., sort:created-asc)
+        var match = Regex.Match(term, @"sort:(\w+)-(asc|desc)", RegexOptions.IgnoreCase);
+        if (!match.Success)
+        {
+            return null;
+        }
+
+        var field = match.Groups[1].Value.ToLowerInvariant();
+        var direction = match.Groups[2].Value.ToLowerInvariant();
+
+        RepoSearchSort sortField;
+
+        // reactions and interactions are not supported in the Octokit API
+        switch (field)
+        {
+            case "stars":
+                sortField = RepoSearchSort.Stars;
+                break;
+            case "updated":
+                sortField = RepoSearchSort.Updated;
+                break;
+            case "forks":
+                sortField = RepoSearchSort.Forks;
                 break;
             default:
                 return null;

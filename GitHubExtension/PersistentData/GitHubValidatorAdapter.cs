@@ -6,6 +6,7 @@ using GitHubExtension.Client;
 using GitHubExtension.Controls;
 using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Helpers;
+using Octokit;
 
 namespace GitHubExtension.PersistentData;
 
@@ -34,7 +35,9 @@ public class GitHubValidatorAdapter : IGitHubValidator
                 await client.Search.SearchIssues(searchPullRequestsRequest);
                 break;
             case SearchType.Repositories:
-                throw new NotImplementedException();
+                var searchRepositoriesRequest = GitHubRequestHelper.GetSearchRepositoriesRequest(search.SearchString);
+                await client.Search.SearchRepo(searchRepositoriesRequest);
+                break;
             default:
                 throw new ArgumentException("Invalid search type");
         }
