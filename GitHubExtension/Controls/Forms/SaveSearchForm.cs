@@ -31,16 +31,16 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
 
     public Dictionary<string, string> TemplateSubstitutions => new()
     {
-        { "{{SaveSearchFormTitle}}", _resources.GetResource(string.IsNullOrWhiteSpace(_savedSearch.Name) ? "Forms_Save_Search" : "Forms_Edit_Search") },
+        { "{{SaveSearchFormTitle}}", JsonSerializer.Serialize(_resources.GetResource(string.IsNullOrWhiteSpace(_savedSearch.Name) ? "Forms_Save_Search" : "Forms_Edit_Search")) },
         { "{{SavedSearchString}}", JsonSerializer.Serialize(_savedSearch.SearchString) },
         { "{{SavedSearchName}}", JsonSerializer.Serialize(_savedSearch.Name) },
-        { "{{IsTopLevel}}", IsTopLevelChecked },
-        { "{{EnteredSearchErrorMessage}}", _resources.GetResource("Forms_SaveSearchTemplateEnteredSearchError") },
-        { "{{EnteredSearchLabel}}", _resources.GetResource("Forms_SaveSearchTemplateEnteredSearchLabel") },
-        { "{{NameLabel}}", _resources.GetResource("Forms_SaveSearchTemplateNameLabel") },
-        { "{{NameErrorMessage}}", _resources.GetResource("Forms_SaveSearchTemplateNameError") },
-        { "{{IsTopLevelTitle}}", _resources.GetResource("Forms_SaveSearchTemplateIsTopLevelTitle") },
-        { "{{SaveSearchActionTitle}}", _resources.GetResource(string.IsNullOrWhiteSpace(_savedSearch.Name) ? "Forms_SaveSearchTemplateSaveSearchActionTitle" : "Forms_SaveSearchTemplateEditSearchActionTitle") },
+        { "{{IsTopLevel}}", JsonSerializer.Serialize(IsTopLevelChecked) },
+        { "{{EnteredSearchErrorMessage}}", JsonSerializer.Serialize(_resources.GetResource("Forms_SaveSearchTemplateEnteredSearchError")) },
+        { "{{EnteredSearchLabel}}", JsonSerializer.Serialize(_resources.GetResource("Forms_SaveSearchTemplateEnteredSearchLabel")) },
+        { "{{NameLabel}}", JsonSerializer.Serialize(_resources.GetResource("Forms_SaveSearchTemplateNameLabel")) },
+        { "{{NameErrorMessage}}", JsonSerializer.Serialize(_resources.GetResource("Forms_SaveSearchTemplateNameError")) },
+        { "{{IsTopLevelTitle}}", JsonSerializer.Serialize(_resources.GetResource("Forms_SaveSearchTemplateIsTopLevelTitle")) },
+        { "{{SaveSearchActionTitle}}", JsonSerializer.Serialize(_resources.GetResource(string.IsNullOrWhiteSpace(_savedSearch.Name) ? "Forms_SaveSearchTemplateSaveSearchActionTitle" : "Forms_SaveSearchTemplateEditSearchActionTitle")) },
     };
 
     // for saving a new query
