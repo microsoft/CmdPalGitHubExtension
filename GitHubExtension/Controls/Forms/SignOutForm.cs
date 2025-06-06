@@ -20,9 +20,6 @@ public partial class SignOutForm : FormContent, IDisposable
     private readonly IDeveloperIdProvider _developerIdProvider;
     private bool _isButtonEnabled = true;
 
-    private string IsButtonEnabled =>
-    _isButtonEnabled.ToString(CultureInfo.InvariantCulture).ToLower(CultureInfo.InvariantCulture);
-
     public SignOutForm(IResources resources, AuthenticationMediator authenticationMediator, SignOutCommand signOutCommand, IDeveloperIdProvider developerIdProvider)
     {
         _resources = resources;
@@ -60,7 +57,7 @@ public partial class SignOutForm : FormContent, IDisposable
         { "{{AuthButtonTitle}}", JsonSerializer.Serialize($"{_resources.GetResource("Forms_Sign_Out_Button_Title")} {_developerIdProvider.GetLoggedInDeveloperId()?.LoginId ?? string.Empty}") },
         { "{{AuthIcon}}", JsonSerializer.Serialize($"data:image/png;base64,{GitHubIcon.GetBase64Icon(GitHubIcon.LogoWithBackplatePath)}") },
         { "{{AuthButtonTooltip}}", JsonSerializer.Serialize(_resources.GetResource("Forms_Sign_Out_Tooltip")) },
-        { "{{ButtonIsEnabled}}", JsonSerializer.Serialize(IsButtonEnabled) },
+        { "{{ButtonIsEnabled}}", JsonSerializer.Serialize(_isButtonEnabled) },
     };
 
     public override string TemplateJson => TemplateHelper.LoadTemplateJsonFromTemplateName("AuthTemplate", TemplateSubstitutions);

@@ -90,7 +90,9 @@ public class SignOutFormTests
 
         Assert.IsTrue(JsonSerializer.Deserialize<string>(dict["{{AuthIcon}}"])?.StartsWith("data:image/png;base64,", StringComparison.Ordinal));
         Assert.AreEqual(expectedTooltip, JsonSerializer.Deserialize<string>(dict["{{AuthButtonTooltip}}"]));
-        Assert.AreEqual(expectedButtonEnabled.ToString().ToLowerInvariant(), JsonSerializer.Deserialize<string>(dict["{{ButtonIsEnabled}}"]));
+
+        // Deserialize as bool for ButtonIsEnabled
+        Assert.AreEqual(expectedButtonEnabled, JsonSerializer.Deserialize<bool>(dict["{{ButtonIsEnabled}}"]));
     }
 
     [TestMethod]
