@@ -137,7 +137,7 @@ public class SignOutFormTests
         method!.Invoke(ctx.Form, new object?[] { null, args });
 
         var dict = ctx.Form.TemplateSubstitutions;
-        Assert.AreEqual(false, JsonSerializer.Deserialize<bool>(dict["{{ButtonIsEnabled}}"]));
+        Assert.IsFalse(JsonSerializer.Deserialize<bool>(dict["{{ButtonIsEnabled}}"]));
     }
 
     [TestMethod]
@@ -148,7 +148,7 @@ public class SignOutFormTests
         method!.Invoke(ctx.Form, new object[] { new(), true });
 
         var dict = ctx.Form.TemplateSubstitutions;
-        Assert.AreEqual(false, JsonSerializer.Deserialize<bool>(dict["{{ButtonIsEnabled}}"]));
+        Assert.IsFalse(JsonSerializer.Deserialize<bool>(dict["{{ButtonIsEnabled}}"]));
     }
 
     [TestMethod]
