@@ -57,9 +57,9 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         _ = UpdateSignInStatus(_developerIdProvider.IsSignedIn());
     }
 
-    private void OnSearchRemoved(object? sender, object? args)
+    private void OnSearchRemoved(object? sender, SavedSearchRemovedEventArgs args)
     {
-        if (args is bool isRemoved && isRemoved)
+        if (args.RemoveSucceeded)
         {
             RaiseItemsChanged(0);
         }
