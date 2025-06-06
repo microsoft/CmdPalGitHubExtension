@@ -2,19 +2,14 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
 using System.Reflection;
 using GitHubExtension.Controls;
 using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
 using GitHubExtension.DeveloperIds;
 using GitHubExtension.Helpers;
-using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Octokit;
 
 namespace GitHubExtension.Test.Controls;
 
@@ -22,13 +17,13 @@ namespace GitHubExtension.Test.Controls;
 public class SignOutFormTests
 {
     private sealed record TestContext(
-    Mock<IResources> ResourcesMock,
-    Mock<SignOutCommand> SignOutCommandMock,
-    Mock<AuthenticationMediator> AuthMediatorMock,
-    Mock<IDeveloperIdProvider> DeveloperIdProviderMock,
-    SignOutForm Form,
-    string AssetsPath
-);
+        Mock<IResources> ResourcesMock,
+        Mock<SignOutCommand> SignOutCommandMock,
+        Mock<AuthenticationMediator> AuthMediatorMock,
+        Mock<IDeveloperIdProvider> DeveloperIdProviderMock,
+        SignOutForm Form,
+        string AssetsPath
+    );
 
     private TestContext CreateTestContext(
         string? developerId = "user1",
@@ -50,7 +45,7 @@ public class SignOutFormTests
                 "Display Name",
                 "user1@example.com",
                 "https://github.com/user1",
-                new GitHubClient(new Octokit.ProductHeaderValue("TestApp")));
+                new Octokit.GitHubClient(new Octokit.ProductHeaderValue("TestApp")));
             mockDeveloperIdProvider.Setup(d => d.GetLoggedInDeveloperId()).Returns(devId);
         }
         else
@@ -64,11 +59,7 @@ public class SignOutFormTests
             mockSignOutCommand.Object,
             mockDeveloperIdProvider.Object);
 
-        // Dynamically resolve the path to the Assets folder
-        var assetsPath = Path.Combine(
-            AppContext.BaseDirectory,
-            "Assets");
-        assetsPath = Path.GetFullPath(assetsPath);
+        var assetsPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "Assets"));
 
         return new TestContext(mockResources, mockSignOutCommand, mockAuthenticationMediator, mockDeveloperIdProvider, form, assetsPath);
     }
@@ -77,25 +68,27 @@ public class SignOutFormTests
     public void Constructor_RegistersEventHandlers()
     {
         // Just verify events exist (event handler registration is not directly testable without raising events)
-        var loadingStateChanged = typeof(AuthenticationMediator).GetEvent("LoadingStateChanged");
-        var signInAction = typeof(AuthenticationMediator).GetEvent("SignInAction");
-        var signOutAction = typeof(AuthenticationMediator).GetEvent("SignOutAction");
-
-        Assert.IsNotNull(loadingStateChanged);
-        Assert.IsNotNull(signInAction);
-        Assert.IsNotNull(signOutAction);
+        Assert.IsNotNull(typeof(AuthenticationMediator).GetEvent("LoadingStateChanged"));
+        Assert.IsNotNull(typeof(AuthenticationMediator).GetEvent("SignInAction"));
+        Assert.IsNotNull(typeof(AuthenticationMediator).GetEvent("SignOutAction"));
     }
 
+    [DataRow("user1", "res_Forms_Sign_Out_Title", true, "res_Forms_Sign_Out_Tooltip", "true")]
+    [DataRow(null, "res_Forms_Sign_Out_Title", false, "res_Forms_Sign_Out_Tooltip", "true")]
     [TestMethod]
-    public void TemplateSubstitutions_ReturnsExpectedValues()
+    public void TemplateSubstitutions_ReturnsExpectedValues(string? developerId, string expectedTitle, bool expectUserName, string expectedTooltip, string expectedButtonEnabled)
     {
-        var ctx = CreateTestContext();
+        var ctx = CreateTestContext(developerId: developerId);
         var dict = ctx.Form.TemplateSubstitutions;
-        Assert.AreEqual("res_Forms_Sign_Out_Title", dict["{{AuthTitle}}"]);
-        Assert.IsTrue(dict["{{AuthButtonTitle}}"].Contains("user1"));
+        Assert.AreEqual(expectedTitle, dict["{{AuthTitle}}"]);
+        if (expectUserName)
+        {
+            Assert.IsTrue(dict["{{AuthButtonTitle}}"].Contains("user1"));
+        }
+
         Assert.IsTrue(dict["{{AuthIcon}}"].StartsWith("data:image/png;base64,", StringComparison.Ordinal));
-        Assert.AreEqual("res_Forms_Sign_Out_Tooltip", dict["{{AuthButtonTooltip}}"]);
-        Assert.AreEqual("true", dict["{{ButtonIsEnabled}}"]);
+        Assert.AreEqual(expectedTooltip, dict["{{AuthButtonTooltip}}"]);
+        Assert.AreEqual(expectedButtonEnabled, dict["{{ButtonIsEnabled}}"]);
     }
 
     [TestMethod]
@@ -119,15 +112,17 @@ public class SignOutFormTests
         Assert.IsNotNull(result);
     }
 
+    [DataRow(false, "false")]
+    [DataRow(true, "true")]
     [TestMethod]
-    public void SetButtonEnabled_UpdatesButtonState()
+    public void SetButtonEnabled_UpdatesButtonState(bool isEnabled, string expected)
     {
         var ctx = CreateTestContext();
         var method = typeof(SignOutForm).GetMethod("SetButtonEnabled", BindingFlags.NonPublic | BindingFlags.Instance);
-        method!.Invoke(ctx.Form, new object[] { false });
+        method!.Invoke(ctx.Form, new object[] { isEnabled });
 
         var dict = ctx.Form.TemplateSubstitutions;
-        Assert.AreEqual("false", dict["{{ButtonIsEnabled}}"]);
+        Assert.AreEqual(expected, dict["{{ButtonIsEnabled}}"]);
     }
 
     [TestMethod]
@@ -154,14 +149,6 @@ public class SignOutFormTests
     }
 
     [TestMethod]
-    public void TemplateSubstitutions_HandlesNullDeveloperId()
-    {
-        var ctx = CreateTestContext(developerId: null);
-        var dict = ctx.Form.TemplateSubstitutions;
-        Assert.IsFalse(dict["{{AuthButtonTitle}}"].Contains("null"));
-    }
-
-    [TestMethod]
     public void TemplateSubstitutions_HandlesResourceLookupFailure()
     {
         var ctx = CreateTestContext(resourceFunc: _ => null);
@@ -176,18 +163,11 @@ public class SignOutFormTests
         var ctx = CreateTestContext();
 
         var oldTemplateJson = ctx.Form.TemplateJson;
-        var propertyChangedCalled = false;
-
         var method = typeof(SignOutForm).GetMethod("SetButtonEnabled", BindingFlags.NonPublic | BindingFlags.Instance);
         method!.Invoke(ctx.Form, new object[] { false });
 
         var newTemplateJson = ctx.Form.TemplateJson;
-        if (!Equals(oldTemplateJson, newTemplateJson))
-        {
-            propertyChangedCalled = true;
-        }
-
-        Assert.IsTrue(propertyChangedCalled);
+        Assert.AreNotEqual(oldTemplateJson, newTemplateJson);
         Assert.IsNotNull(ctx.Form.TemplateJson);
     }
 }

@@ -11,6 +11,8 @@ namespace GitHubExtension.Test.DeveloperIdTests;
 [TestClass]
 public class OAuthRequestTest
 {
+    private readonly TimeSpan _delayLongerThanTimeout = TimeSpan.FromSeconds(10);
+
     [TestMethod]
     public async Task CompleteOAuthAsync_ShouldThrowInvalidOperationException_OnTimeout()
     {
@@ -23,7 +25,7 @@ public class OAuthRequestTest
             .Setup(oauth => oauth.CreateAccessToken(It.IsAny<OauthTokenRequest>()))
             .Returns(async () =>
             {
-                await Task.Delay(TimeSpan.FromSeconds(10)); // Simulate delay longer than timeout
+                await Task.Delay(_delayLongerThanTimeout);
                 return new OauthToken();
             });
 
