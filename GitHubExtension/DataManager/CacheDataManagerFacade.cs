@@ -42,7 +42,24 @@ public sealed class CacheDataManagerFacade : ICacheDataManager, IDisposable
     {
         if (_dataRequester.GetSearch(search.Name, search.SearchString) == null)
         {
-            await _cacheManager.RequestRefresh(search);
+            _ = _cacheManager.RequestRefresh(search);
+
+            var tcs = new TaskCompletionSource();
+
+            CacheManagerUpdateEventHandler? handler = null;
+
+            handler = (s, e) =>
+            {
+                if (e.Kind == CacheManagerUpdateKind.Updated && (e.Search == null || e.Search == search))
+                {
+                    tcs.TrySetResult();
+                    _cacheManager.OnUpdate -= handler;
+                }
+            };
+
+            _cacheManager.OnUpdate += handler;
+
+            await tcs.Task;
         }
 
         var res = _dataRequester.GetIssuesForSearch(search.Name, search.SearchString);
