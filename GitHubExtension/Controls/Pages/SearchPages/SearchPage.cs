@@ -61,27 +61,14 @@ public abstract partial class SearchPage<T> : ListPage
             }
             else
             {
-                return !items.Any()
-                    ? new ListItem[]
+                return new ListItem[]
+                {
+                    new(new NoOpCommand())
                     {
-                            new(new NoOpCommand())
-                            {
-                                Title = Resources.GetResource("Pages_No_Items_Found"),
-                                Icon = GitHubIcon.IconDictionary[iconString],
-                            },
-                    }
-                    :
-                    [
-                            new ListItem(new NoOpCommand())
-                            {
-                                Title = Resources.GetResource("Pages_Error_Title"),
-                                Details = new Details()
-                                {
-                                    Body = Resources.GetResource("Pages_Error_Body"),
-                                },
-                                Icon = GitHubIcon.IconDictionary[iconString],
-                            },
-                    ];
+                        Title = Resources.GetResource("Pages_No_Items_Found"),
+                        Icon = GitHubIcon.IconDictionary[iconString],
+                    },
+                };
             }
         }
         catch (Exception ex)
