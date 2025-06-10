@@ -38,16 +38,13 @@ public sealed class CacheDataManagerFacade : ICacheDataManager, IDisposable
         _onUpdateWeakSource.Raise(source, e);
     }
 
-    public async Task<IEnumerable<IIssue>> GetIssues(ISearch search)
+    private async Task DownloadSearch(ISearch search)
     {
         if (_dataRequester.GetSearch(search.Name, search.SearchString) == null)
         {
             _ = _cacheManager.RequestRefresh(search);
-
             var tcs = new TaskCompletionSource();
-
             CacheManagerUpdateEventHandler? handler = null;
-
             handler = (s, e) =>
             {
                 if (e.Kind == CacheManagerUpdateKind.Updated && (e.Search == null || e.Search == search))
@@ -56,11 +53,14 @@ public sealed class CacheDataManagerFacade : ICacheDataManager, IDisposable
                     _cacheManager.OnUpdate -= handler;
                 }
             };
-
             _cacheManager.OnUpdate += handler;
-
             await tcs.Task;
         }
+    }
+
+    public async Task<IEnumerable<IIssue>> GetIssues(ISearch search)
+    {
+        await DownloadSearch(search);
 
         var res = _dataRequester.GetIssuesForSearch(search.Name, search.SearchString);
 
@@ -70,10 +70,7 @@ public sealed class CacheDataManagerFacade : ICacheDataManager, IDisposable
 
     public async Task<IEnumerable<IPullRequest>> GetPullRequests(ISearch search)
     {
-        if (_dataRequester.GetSearch(search.Name, search.SearchString) == null)
-        {
-            await _cacheManager.RequestRefresh(search);
-        }
+        await DownloadSearch(search);
 
         var intermediateRes = _dataRequester.GetPullRequestsForSearch(search.Name, search.SearchString);
         _ = _cacheManager.RequestRefresh(search);
@@ -116,10 +113,7 @@ public sealed class CacheDataManagerFacade : ICacheDataManager, IDisposable
 
     public async Task<IEnumerable<IIssue>> GetIssuesAndPullRequests(ISearch search)
     {
-        if (_dataRequester.GetSearch(search.Name, search.SearchString) == null)
-        {
-            await _cacheManager.RequestRefresh(search);
-        }
+        await DownloadSearch(search);
 
         var issues = _dataRequester.GetIssuesForSearch(search.Name, search.SearchString);
         var pullRequests = _dataRequester.GetPullRequestsForSearch(search.Name, search.SearchString);
