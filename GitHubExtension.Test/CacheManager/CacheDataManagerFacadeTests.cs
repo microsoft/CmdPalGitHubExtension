@@ -29,15 +29,16 @@ public class CacheDataManagerFacadeTests
     [TestCategory("Unit")]
     public async Task GetIssues()
     {
-        var stubCacheManager = new Mock<ICacheManager>().Object;
+        var mockCacheManager = new Mock<ICacheManager>();
         var mockGitHubDataManager = new Mock<IDataRequester>();
         var stubDecoratorFactory = new Mock<IDecoratorFactory>().Object;
-        var cacheDataManagerFacade = new CacheDataManagerFacade(stubCacheManager, mockGitHubDataManager.Object, stubDecoratorFactory);
+        var cacheDataManagerFacade = new CacheDataManagerFacade(mockCacheManager.Object, mockGitHubDataManager.Object, stubDecoratorFactory);
         Assert.IsNotNull(cacheDataManagerFacade);
 
         var search = new Mock<ISearch>().Object;
         var mockIssues = new Mock<IEnumerable<Issue>>();
 
+        mockCacheManager.Setup(x => x.RequestRefresh(It.IsAny<ISearch>())).Callback(() => mockCacheManager.Raise(x => x.OnUpdate += null, new CacheManagerUpdateEventArgs(CacheManagerUpdateKind.Updated, search)));
         mockGitHubDataManager.Setup(x => x.GetIssuesForSearch(It.IsAny<string>(), It.IsAny<string>())).Returns(mockIssues.Object);
 
         var issues = await cacheDataManagerFacade.GetIssues(search);
@@ -48,10 +49,10 @@ public class CacheDataManagerFacadeTests
     [TestCategory("Unit")]
     public async Task GetPullRequests()
     {
-        var stubCacheManager = new Mock<ICacheManager>().Object;
+        var mockCacheManager = new Mock<ICacheManager>();
         var mockGitHubDataManager = new Mock<IDataRequester>();
         var mockDecoratorFactory = new Mock<IDecoratorFactory>();
-        var cacheDataManagerFacade = new CacheDataManagerFacade(stubCacheManager, mockGitHubDataManager.Object, mockDecoratorFactory.Object);
+        var cacheDataManagerFacade = new CacheDataManagerFacade(mockCacheManager.Object, mockGitHubDataManager.Object, mockDecoratorFactory.Object);
         Assert.IsNotNull(cacheDataManagerFacade);
 
         mockDecoratorFactory.Setup(x => x.DecorateSearchBranch(It.IsAny<IPullRequest>()))
@@ -60,6 +61,7 @@ public class CacheDataManagerFacadeTests
         var search = new Mock<ISearch>().Object;
         var mockPullRequests = new List<PullRequest> { };
 
+        mockCacheManager.Setup(x => x.RequestRefresh(It.IsAny<ISearch>())).Callback(() => mockCacheManager.Raise(x => x.OnUpdate += null, new CacheManagerUpdateEventArgs(CacheManagerUpdateKind.Updated, search)));
         mockGitHubDataManager.Setup(x => x.GetPullRequestsForSearch(It.IsAny<string>(), It.IsAny<string>())).Returns(mockPullRequests);
 
         var pullRequests = await cacheDataManagerFacade.GetPullRequests(search);
@@ -70,10 +72,10 @@ public class CacheDataManagerFacadeTests
     [TestCategory("Unit")]
     public async Task GetIssuesAndPullRequests()
     {
-        var stubCacheManager = new Mock<ICacheManager>().Object;
+        var mockCacheManager = new Mock<ICacheManager>();
         var mockGitHubDataManager = new Mock<IDataRequester>();
         var mockDecoratorFactory = new Mock<IDecoratorFactory>();
-        var cacheDataManagerFacade = new CacheDataManagerFacade(stubCacheManager, mockGitHubDataManager.Object, mockDecoratorFactory.Object);
+        var cacheDataManagerFacade = new CacheDataManagerFacade(mockCacheManager.Object, mockGitHubDataManager.Object, mockDecoratorFactory.Object);
         Assert.IsNotNull(cacheDataManagerFacade);
 
         mockDecoratorFactory.Setup(x => x.DecorateSearchBranch(It.IsAny<IPullRequest>()))
@@ -96,6 +98,7 @@ public class CacheDataManagerFacadeTests
 
         mockGitHubDataManager.Setup(x => x.GetIssuesForSearch(It.IsAny<string>(), It.IsAny<string>())).Returns(mockIssues);
         mockGitHubDataManager.Setup(x => x.GetPullRequestsForSearch(It.IsAny<string>(), It.IsAny<string>())).Returns(mockPullRequests);
+        mockCacheManager.Setup(x => x.RequestRefresh(It.IsAny<ISearch>())).Callback(() => mockCacheManager.Raise(x => x.OnUpdate += null, new CacheManagerUpdateEventArgs(CacheManagerUpdateKind.Updated, search)));
         var issuesAndPullRequests = await cacheDataManagerFacade.GetIssuesAndPullRequests(search);
 
         Assert.AreEqual(6, issuesAndPullRequests.Count());
