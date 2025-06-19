@@ -4,6 +4,14 @@ trigger:
 - release
 
 parameters:
+  - name: EnableLocalization
+    displayName: Enable Localization
+    type: boolean
+    default: true
+  - name: UpdateLocalization
+    displayName: Update Localization
+    type: boolean
+    default: true
   - name: Platforms
     type: object
     default:
@@ -57,7 +65,7 @@ extends:
 
                 - task: TouchdownBuildTask@5
                   displayName: Send and Download Localization Files for Artifacts
-                  condition: and(eq(variables['EnableLocalization'], 'true'), eq(variables['UpdateLocalization'], 'true'))
+                  condition: ${{and(eq(parameters.EnableLocalization, 'true'), eq(parameters.UpdateLocalization, 'true'))}}
                   inputs:
                     resourceFilePath: |
                       **\en-US\*.resw
@@ -72,7 +80,7 @@ extends:
 
                 - task: TouchdownBuildTask@5
                   displayName: Download and Use Localization Files
-                  condition: eq(variables['EnableLocalization'], 'true')
+                  condition: ${{eq(parameters.EnableLocalization, 'true')}}
                   inputs:
                     resourceFilePath: |
                       **\en-US\*.resw
@@ -86,7 +94,7 @@ extends:
 
                 - task: PowerShell@2
                   displayName: Move Loc files one level up
-                  condition: eq(variables['EnableLocalization'], 'true')
+                  condition: ${{eq(parameters.EnableLocalization, 'true')}}
                   inputs:
                     targetType: inline
                     script: >-
@@ -101,7 +109,7 @@ extends:
 
                 - task: PowerShell@2
                   displayName: Archive Loc Output for Submission
-                  condition: and(eq(variables['EnableLocalization'], 'true'), eq(variables['UpdateLocalization'], 'true'))
+                  condition: ${{and(eq(parameters.EnableLocalization, 'true'), eq(parameters.UpdateLocalization, 'true'))}}
                   inputs:
                     PathtoPublish: LocOutput.tar.gz
                     ArtifactName: LocOutput
@@ -206,8 +214,8 @@ extends:
                       artifactName: drop_${{ platform }}_${{ configuration }}
                     - output: pipelineArtifact
                       displayName: 'Publish Artifact: LocOutput'
-                      condition: and(eq(variables['EnableLocalization'], 'true'), eq(variables['UpdateLocalization'], 'true'))
+                      condition: ${{and(eq(parameters.EnableLocalization, 'true'), eq(parameters.UpdateLocalization, 'true'))}}
                       artifactName: LocOutput_${{ platform }}_${{ configuration }}
                       targetPath: LocArchive
-                      sbomPackageName: devhomegithubextension.locoutput
+                      sbomPackageName: cmdpalgithubextension.locoutput
                       sbomPackageVersion: $(MSIXVersion)
