@@ -40,7 +40,6 @@ public sealed partial class SaveSearchForm : FormContent, IGitHubForm
         { "{{EnteredSearchPlaceholder}}", JsonSerializer.Serialize(_resources.GetResource("Forms_SaveSearchTemplateEnteredSearchPlaceholder")) },
         { "{{NameLabel}}", JsonSerializer.Serialize(_resources.GetResource("Forms_SaveSearchTemplateNameLabel")) },
         { "{{NamePlaceholder}}", JsonSerializer.Serialize(_resources.GetResource("Forms_SaveSearchTemplateNamePlaceholder")) },
-        { "{{NameErrorMessage}}", JsonSerializer.Serialize(_resources.GetResource("Forms_SaveSearchTemplateNameError")) },
         { "{{IsTopLevelTitle}}", JsonSerializer.Serialize(_resources.GetResource("Forms_SaveSearchTemplateIsTopLevelTitle")) },
         { "{{SaveSearchActionTitle}}", JsonSerializer.Serialize(_resources.GetResource(string.IsNullOrWhiteSpace(_savedSearch.Name) ? "Forms_SaveSearchTemplateSaveSearchActionTitle" : "Forms_SaveSearchTemplateEditSearchActionTitle")) },
     };
