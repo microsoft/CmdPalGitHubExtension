@@ -16,7 +16,8 @@
       "type": "Input.Text",
       "id": "Name",
       "label": {{NameLabel}},
-      "isRequired": true,
+      "placeholder": {{NamePlaceholder}},
+      "isRequired": false,
       "errorMessage": {{NameErrorMessage}},
       "value": {{SavedSearchName}}
     },
@@ -24,6 +25,7 @@
       "type": "Input.Text",
       "id": "EnteredSearch",
       "label": {{EnteredSearchLabel}},
+      "placeholder": {{EnteredSearchPlaceholder}},
       "isRequired": true,
       "errorMessage": {{EnteredSearchErrorMessage}},
       "value": {{SavedSearchString}}

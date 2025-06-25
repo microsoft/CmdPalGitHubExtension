@@ -385,4 +385,12 @@
     <value>Search removed successfully! Search removed:</value>
     <comment>Message shown on the SavedSearchesPage if a search was removed successfully</comment>
   </data>
+  <data name="Forms_SaveSearchTemplateEnteredSearchPlaceholder" xml:space="preserve">
+    <value>Enter a query URL or a string in GitHub search syntax</value>
+    <comment>The placeholder for the "Add a query" form</comment>
+  </data>
+  <data name="Forms_SaveSearchTemplateNamePlaceholder" xml:space="preserve">
+    <value>Defaults to the entered search</value>
+    <comment>The placeholder for a name in the "Add a query" form</comment>
+  </data>
 </root>
