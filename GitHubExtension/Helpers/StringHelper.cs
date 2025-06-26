@@ -3,8 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Text.Json;
-using GitHubExtension.Client;
-using GitHubExtension.PersistentData;
 
 namespace GitHubExtension.Helpers;
 
