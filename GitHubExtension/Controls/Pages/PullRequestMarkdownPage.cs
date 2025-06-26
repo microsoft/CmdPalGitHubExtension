@@ -26,9 +26,9 @@ internal sealed partial class PullRequestContentPage : ContentPage
         Commands = new CommandContextItem[]
         {
             new(new LinkCommand(pullRequest, resources)),
-            new(new CopyCommand(pullRequest.HtmlUrl, _resources.GetResource("Commands_CopyURL"))),
-            new(new CopyCommand(pullRequest.Title, _resources.GetResource("Commands_CopyPullRequestTitle"))),
-            new(new CopyCommand(pullRequest.Number.ToString(CultureInfo.InvariantCulture), _resources.GetResource("Commands_CopyPullRequestNumber"))),
+            new(new CopyCommand(pullRequest.HtmlUrl, _resources.GetResource("Commands_CopyURL"), _resources)),
+            new(new CopyCommand(pullRequest.Title, _resources.GetResource("Commands_CopyPullRequestTitle"), _resources)),
+            new(new CopyCommand(pullRequest.Number.ToString(CultureInfo.InvariantCulture), _resources.GetResource("Commands_CopyPullRequestNumber"), _resources)),
         };
 #pragma warning restore IDE0300 // Simplify collection initialization
     }

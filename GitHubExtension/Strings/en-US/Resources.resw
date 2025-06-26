@@ -389,4 +389,12 @@
     <value>Defaults to the entered search</value>
     <comment>The placeholder for a name in the "Add a query" form</comment>
   </data>
+  <data name="Message_CopyCommand_Success" xml:space="preserve">
+    <value>Copied!</value>
+    <comment>The message displayed to a user when a value is copied successfully</comment>
+  </data>
+  <data name="Commands_Copy_GitCheckoutCommand" xml:space="preserve">
+    <value>git checkout {0}</value>
+    <comment>The git checkout command where {0} is the pull request's source branch</comment>
+  </data>
 </root>
