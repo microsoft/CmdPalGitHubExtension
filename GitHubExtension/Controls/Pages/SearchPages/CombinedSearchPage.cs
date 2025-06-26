@@ -23,18 +23,18 @@ public sealed partial class CombinedSearchPage(ISearch search, ICacheDataManager
             MoreCommands = item is IPullRequest prItem
                 ? new CommandContextItem[]
                 {
-                    new(new CopyGitCheckoutCommand(prItem, $"{Resources.GetResource("Commands_Copy_Checkout")}")),
-                    new(new CopySourceBranchCommand(prItem, $"{Resources.GetResource("Commands_Copy_Source_Branch")}")),
-                    new(new CopyCommand(prItem.HtmlUrl, $"{Resources.GetResource("Commands_CopyURL")}")),
-                    new(new CopyCommand(prItem.Title, $"{Resources.GetResource("Commands_Copy")} {Resources.GetResource("Pages_PullRequest_Title")}")),
-                    new(new CopyCommand(prItem.Number.ToString(CultureInfo.InvariantCulture), $"{Resources.GetResource("Commands_CopyPullRequestNumber")}")),
+                    new(new CopyCommand(string.Format(CultureInfo.CurrentCulture, Resources.GetResource("Commands_Copy_GitCheckoutCommand"), prItem.SourceBranch), Resources.GetResource("Commands_Copy_Checkout"), Resources)),
+                    new(new CopyCommand(prItem.SourceBranch, Resources.GetResource("Commands_Copy_Source_Branch"), Resources)),
+                    new(new CopyCommand(prItem.HtmlUrl, $"{Resources.GetResource("Commands_CopyURL")}", Resources)),
+                    new(new CopyCommand(prItem.Title, $"{Resources.GetResource("Commands_Copy")} {Resources.GetResource("Pages_PullRequest_Title")}", Resources)),
+                    new(new CopyCommand(prItem.Number.ToString(CultureInfo.InvariantCulture), $"{Resources.GetResource("Commands_CopyPullRequestNumber")}", Resources)),
                     new(new PullRequestContentPage(prItem, Resources)),
                 }
                 : new CommandContextItem[]
                 {
-                    new(new CopyCommand(item.HtmlUrl, $"{Resources.GetResource("Commands_CopyURL")}")),
-                    new(new CopyCommand(item.Title, $"{Resources.GetResource("Commands_CopyIssueTitle")}")),
-                    new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), $"{Resources.GetResource("Commands_CopyIssueNumber")}")),
+                    new(new CopyCommand(item.HtmlUrl, $"{Resources.GetResource("Commands_CopyURL")}", Resources)),
+                    new(new CopyCommand(item.Title, $"{Resources.GetResource("Commands_CopyIssueTitle")}", Resources)),
+                    new(new CopyCommand(item.Number.ToString(CultureInfo.InvariantCulture), $"{Resources.GetResource("Commands_CopyIssueNumber")}", Resources)),
                     new(new IssueContentPage(item, Resources)),
                 },
             Tags = GetTags(item),
