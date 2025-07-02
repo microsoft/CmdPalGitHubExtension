@@ -16,7 +16,7 @@ The Command Palette GitHub Extension requires:
 * Windows 11
 * An ARM64 or x64 processor
 
-## Command Palette [Recommended]
+### Command Palette [Recommended]
 
 * In Command Palette, search for "Install Command Palette extensions" and press Enter.
 * Search for "Command Palette GitHub Extension (Preview)".
@@ -42,6 +42,43 @@ The Command Palette GitHub Extension is coming to the Microsoft Store. Stay tune
 #### Via GitHub
 
 For users who are unable to install the Command Palette GitHub Extension from the winget or the Microsoft Store, released builds can be manually downloaded from this repository's [Releases page](https://github.com/microsoft/CmdPalGitHubExtension/releases).
+
+
+## Using the extension
+
+The standard Windows command to open Command Palette is `Win+Alt+Space`. You can also open if from the Windows Start Menu.
+
+### Sign in to your GitHub account
+
+In your first time using the extension, sign in using the "Sign in" command of the extension. You can type "Sign in" in the Command Palette's search bar to see this command as in the image below:
+
+Press enter or click it to run the command and sign in to our account:
+
+### Consult one of the pre-defined searches
+
+After signing in, you will be able to see the following commands:
+* Saved queries
+* Assigned to me
+* Created issues
+* My pull requests
+* Mentions me
+
+You can type any of them on the Command Palette's search bar. Press enter or click it to run the command and see a list of items related to the selected search:
+
+### Add a new search to the extension
+
+You can also add custom searches to the extension. The simplest way of doing that is going to the GitHub webpage and doing a search, adding any filters you want as the image below shows:
+
+The highlighted string is the "search string". This is the string we will use to save the search to the extension in Command Palette.
+
+On Command Palette, run the command "Saved GitHub searches" and then "Add a search". The following form will be shown:
+
+On the "Search name" field, put anything you would like. This will be the display name of your search in Command Palette, and can be used by you to quickly find it.
+On the second input, we will paste the "search string".
+
+The check box can be marked if you want the search to appear in the top level page (or the main page) of Command Palette. Otherwise, the search will be only listed inside the "Saved GitHub searches" page.
+
+Finally, just click save. The search is now saved in the extension and you can consult it in Command Palette anytime you want!
 
 ---
 
