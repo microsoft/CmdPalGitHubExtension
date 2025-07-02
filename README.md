@@ -51,35 +51,61 @@ In order to use the extension, open Command Palette by pressing `Win+Alt+Space` 
 ### Sign in to your GitHub account
 
 Sign in to the GitHub extension by typing "Sign in" in the Command Palette's search bar and selecting this command:
-![a screenshot of the Command Palette where the "Sign in" command for the GitHub extension is highlighted](image.png)
+![a screenshot of the Command Palette where the "Sign in" command for the GitHub extension is highlighted](image-2.png)
 
-Press enter or click it to run the command and sign in to our account:
+Press enter or click the "Sign In" button to sign in on github.com:
+![a screenshot of the Command Palette GitHub Extension (Preview)'s Sign In](image-3.png)
 
-### Consult one of the pre-defined searches
+### Get started with the default queries
 
-After signing in, you will be able to see the following commands:
-* Saved queries
-* Assigned to me
-* Created issues
-* My pull requests
-* Mentions me
+After signing in, you will see the following commands:
 
-You can type any of them on the Command Palette's search bar. Press enter or click it to run the command and see a list of items related to the selected search:
+![a screenshot of the default commands in the Command Palette GitHub extension: Sign out of the GitHub Extension (Preview), Saved Queries, Assigned to me, Created issues, My pull requests, and Mentions me](image-4.png)
 
-### Add a new search to the extension
+You can type any of them on the Command Palette's search bar. Press enter or click it to run the command and see a list of items related to the selected query:
 
-You can also add custom searches to the extension. The simplest way of doing that is going to the GitHub webpage and doing a search, adding any filters you want as the image below shows:
+![User lauren-ciha's issues in the "Created issues" query](image-5.png)
 
-The highlighted string is the "search string". This is the string we will use to save the search to the extension in Command Palette.
+If these queries aren't quite what you need, take a look at adding or editing a query below.
 
-On Command Palette, run the command "Saved GitHub searches" and then "Add a search". The following form will be shown:
+### Add a query
 
-On the "Search name" field, put anything you would like. This will be the display name of your search in Command Palette, and can be used by you to quickly find it.
-On the second input, we will paste the "search string".
+You can also add custom queries to the extension. The fastest way is to find or create the query on github.com:
 
-The check box can be marked if you want the search to appear in the top level page (or the main page) of Command Palette. Otherwise, the search will be only listed inside the "Saved GitHub searches" page.
+![A screenshot of the following search on https://github.com: "repo:microsoft/CmdPalGitHubExtension is:issue state:open -author:lauren-ciha sort:reactions-desc"](image-6.png)
 
-Finally, just click save. The search is now saved in the extension and you can consult it in Command Palette anytime you want!
+Once you set what you'd like, you can either:
+* Copy the URL from the browser (not shown in the screenshot) or 
+* Copy the text in the search bar. This "search string" uses the [GitHub search syntax](https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests)
+
+On Command Palette, select "Saved GitHub queries" and then "Add a query". The following form will be shown:
+![A screenshot of the Add a query page](image-7.png)
+
+On the "Query name" field, put anything you would like. This will be the display name of your query in Command Palette, and can be used by you to quickly find it.
+On the second input, we will paste the "query string" or URL and select "Save query":
+
+The check box can be marked if you want the query to appear in the top level (or main) page of Command Palette. Otherwise, the query will be only listed inside the "Saved GitHub queries" page.
+
+Finally, click save. The query is now saved in the extension and you can reference it in Command Palette anytime you want!
+
+![A screenshot of the "Add a query" page showing the query saved successfully](image-8.png)
+
+### Using a query
+
+
+### Edit a query
+
+If you ever want to change an exisitng query, find the query and, once highlighted, enter `Ctrl`+`K` (Command Palette's keyboard shortcut for opening additional commands) and then select "Edit query":
+
+![A screenshot of the 'Vox populi' query highlighted with the 'Edit query' command highlighted in the query's context menu](image-11.png)
+
+This will open a similar form to "Add a query". Update the fields you want and select "Save edited query" to update the query:
+
+### Other actions to explore:
+* If you no longer want a query saved on the extension, navigate to it, press `Ctrl`+`K`, then select "Remove saved query". You can also use the shortcuts that are shown in the Command Palette.
+* 
+
+### Settings and Shortcuts
 
 ---
 
