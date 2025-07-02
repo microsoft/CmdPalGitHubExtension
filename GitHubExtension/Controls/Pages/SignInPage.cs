@@ -21,10 +21,8 @@ public sealed partial class SignInPage : ContentPage, IDisposable
     {
         _signInForm = signInForm;
         _resources = resources;
-        Title = _resources.GetResource("ExtensionTitle");
+        Title = _resources.GetResource("Pages_SignIn_Title");
         Name = Title; // Name is for the command, Title is for the page
-
-        // Subtitle in CommandProvider is _resources.GetResource("Forms_Sign_In"),
         Icon = GitHubIcon.IconDictionary["logo"];
 
         _signInCommand = signInCommand;

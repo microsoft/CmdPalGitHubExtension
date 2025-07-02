@@ -397,4 +397,8 @@
     <value>git checkout {0}</value>
     <comment>The git checkout command where {0} is the pull request's source branch</comment>
   </data>
+  <data name="Pages_SignIn_Title" xml:space="preserve">
+    <value>Sign in to the GitHub Extension (Preview)</value>
+    <comment>The title for the SignInPage</comment>
+  </data>
 </root>

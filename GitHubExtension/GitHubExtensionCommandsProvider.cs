@@ -85,10 +85,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         {
             return new[]
             {
-                new CommandItem(_signInPage)
-                {
-                    Subtitle = _resources.GetResource("Forms_Sign_In"),
-                },
+                new CommandItem(_signInPage),
             };
         }
 
