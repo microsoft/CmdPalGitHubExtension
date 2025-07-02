@@ -46,11 +46,12 @@ For users who are unable to install the Command Palette GitHub Extension from th
 
 ## Using the extension
 
-The standard Windows command to open Command Palette is `Win+Alt+Space`. You can also open if from the Windows Start Menu.
+In order to use the extension, open Command Palette by pressing `Win+Alt+Space` or opening it from the Windows Start Menu. Learn more about using Command Palette by reading [this guide](https://learn.microsoft.com/en-us/windows/powertoys/command-palette/overview).
 
 ### Sign in to your GitHub account
 
-In your first time using the extension, sign in using the "Sign in" command of the extension. You can type "Sign in" in the Command Palette's search bar to see this command as in the image below:
+Sign in to the GitHub extension by typing "Sign in" in the Command Palette's search bar and selecting this command:
+![a screenshot of the Command Palette where the "Sign in" command for the GitHub extension is highlighted](image.png)
 
 Press enter or click it to run the command and sign in to our account:
 
