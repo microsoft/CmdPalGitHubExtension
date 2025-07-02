@@ -134,7 +134,7 @@
     <comment>Title for command to open an item in the browser</comment>
   </data>
   <data name="Commands_Remove_Saved_Search" xml:space="preserve">
-    <value>Remove saved search</value>
+    <value>Remove query</value>
     <comment>Title for command to remove a saved query</comment>
   </data>
   <data name="Forms_Save_Search" xml:space="preserve">
