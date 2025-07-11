@@ -4,7 +4,7 @@ Welcome to the Command Palette GitHub Extension (Preview) Quick Start Guide! Bel
 
 ## Signing in
 
-Open Command Palette by pressing `Win`+`Alt`+`Space` or your custom keyboard shortcut. Then, search for "github" in the search box. Select the "Sign in to the GitHub extension (Preview)" command:
+Open Command Palette by pressing `Win`+`Alt`+`Space` or your custom keyboard shortcut. Then, search for "github" in the search box. Select the "GitHub Extension (Preview)" command:
 
 ![A screenshot of the Command Palette with "github" in the search bar. The command "GitHub Extension (Preview)" is highlighted](assets/sign_in_command.png)
 
@@ -12,7 +12,7 @@ Then press enter or select the "Sign in" button to sign in on github.com:
 
 ![Screenshot of the sign in page](assets/sign_in_page.png)
 
-Once signed in, you can go back to the main screen (also known as the "top level") by selecting the back arrow or navigating to the search bar and pressing `Esc`.
+Once you've signed in, you can go back to the top level (or home screen) by selecting the back arrow or navigating to the search bar and pressing `Esc`.
 
 Now, at the top level, search "github" again. You should see the following commands:
 
@@ -24,12 +24,12 @@ Now, at the top level, search "github" again. You should see the following comma
 
 Let's see what these queries can do. Select any query you'd like. 
 
-This opens a page to view the relevant results from GitHub:
+Each query opens a page with the relevant results from GitHub:
 
 ![A screenshot of pull requests lauren-ciha created](assets/my_pull_requests.png)
 
 
-With each item, you can open the context menu (click on the three little dots or press `Ctrl`+`K`) to see the actions you can perform. Some examples include:
+You can use the search bar at the top to search for what you need. With each item, you can open the context menu (click on the three little dots in the bottom right or press `Ctrl`+`K`) to see the actions you can perform. Some examples include:
 * Opening the item link in your browser
 * Copying the item title and URL
 * View item in Command Palette - displays the message Markdown in Command Palette.
@@ -46,9 +46,9 @@ Now that you've seen what you can do with queries, add your own! Follow these st
 
     ![A screenshot of the save query page](assets/save_query_page.png)
 
-    Here's an overview of what may be needed:
+    Here's an overview of what you'll need:
     * **Query name:** The name for the search in Command Palette
-    *  **Query string or URL:** Either the search terms using the [GitHub search syntax]() (e.g. ```repo:microsoft/PowerToys is:issue label:"Product-CommandPalette"```) or the URL for the query on github.com. Use the URL for best results.
+    *  **Query string or URL:** Either the search terms using the [GitHub search syntax]() (e.g. ```repo:microsoft/PowerToys is:issue label:"Product-CommandPalette"```) or the URL for the query on github.com. Notice that the search string doesn't include the item type or repository. In this case, use the URL for best results.
     ![A screenshot showing a webpage search for "repo:microsoft/powertoys is:issue is:open label:"Product-CommandPalette"" the search url in the browser address bar and the search string in the search box](assets/search_string_and_url.png)
     * **Pin query to top-level commands:** Select this checkbox if you want to access the item from the top level (the same place you found the "Sign in to the GitHub extension (Preview)" command). If this checkbox is unselected when saving, you can find the saved search in the list under the "Saved GitHub queries" command.
 * Press Save query
@@ -58,7 +58,7 @@ Now that you've seen what you can do with queries, add your own! Follow these st
 ## Editing queries
 
 If you'd like to update a query (e.g. move it to the top level), find the query at the top level or in "Saved GitHub queries", press `Ctrl`+`K` or click on the three little dots in the right corner and select "Edit query". This will open to an edit page similar to the "Save query" page above. Update what you'd like and press "Save edited query".
-> There's a known bug that success and error notifications will not appear on the edit page if the page was opened from the top level commands [(you can track its status here)](https://github.com/microsoft/PowerToys/issues/39936). Edit from the Saved GitHub queries page for best results.
+> There's a known bug that success and error notifications will not appear on the edit page if the page was opened from a top level command [(you can track its status here)](https://github.com/microsoft/PowerToys/issues/39936). Edit from the Saved GitHub queries page for best results.
 
 ## Troubleshooting
 
