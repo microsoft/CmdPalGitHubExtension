@@ -48,7 +48,7 @@ Now that you've seen what you can do with queries, add your own! Follow these st
 
     Here's an overview of what you'll need:
     * **Query name:** The name for the search in Command Palette. Defaults to the saved query's string.
-    *  **Query string or URL:** Either the search terms using the [GitHub search syntax]() (e.g. ```repo:microsoft/PowerToys is:issue label:"Product-CommandPalette"```) or the URL for the query on github.com. Notice that the search string doesn't include the item type or repository. In this case, use the URL for best results.
+    *  **Query string or URL:** Either the search terms using the [GitHub search syntax](https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests) (e.g. ```repo:microsoft/PowerToys is:issue label:"Product-CommandPalette"```) or the URL for the query on github.com. Notice that the search string doesn't include the item type or repository. In this case, use the URL for best results.
     ![A screenshot showing a webpage search for "repo:microsoft/powertoys is:issue is:open label:"Product-CommandPalette"" the search url in the browser address bar and the search string in the search box](assets/search_string_and_url.png)
     * **Pin query to top-level commands:** Select this checkbox if you want to access the item from the top level (the same place you found the "Sign in to the GitHub extension (Preview)" command). Every query can be found under the "Saved GitHub queries" command.
 * Press Save query
