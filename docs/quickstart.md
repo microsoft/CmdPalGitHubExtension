@@ -29,7 +29,7 @@ Each query opens a page with the relevant results from GitHub:
 ![A screenshot of pull requests lauren-ciha created](assets/my_pull_requests.png)
 
 
-You can use the search bar at the top to search for what you need. With each item, you can open the context menu (click on the three little dots in the bottom right corner or press `Ctrl`+`K`) to see the actions you can perform. Some examples include:
+You can use the search bar at the top to search for what you need. With each item, you can open the context menu (press `Ctrl`+`K` or click on the three little dots in the bottom right corner) to see the actions you can perform. Some examples include:
 * Opening the item link in your browser
 * Copying the item title and URL
 * View item in Command Palette - displays the message Markdown in Command Palette.
@@ -50,9 +50,9 @@ Now that you've seen what you can do with queries, add your own! Follow these st
     * **Query name:** The name for the search in Command Palette. Defaults to the saved query's string.
     *  **Query string or URL:** Either the search terms using the [GitHub search syntax]() (e.g. ```repo:microsoft/PowerToys is:issue label:"Product-CommandPalette"```) or the URL for the query on github.com. Notice that the search string doesn't include the item type or repository. In this case, use the URL for best results.
     ![A screenshot showing a webpage search for "repo:microsoft/powertoys is:issue is:open label:"Product-CommandPalette"" the search url in the browser address bar and the search string in the search box](assets/search_string_and_url.png)
-    * **Pin query to top-level commands:** Select this checkbox if you want to access the item from the top level (the same place you found the "Sign in to the GitHub extension (Preview)" command). If this checkbox is unselected when saving, you can find the saved search in the list under the "Saved GitHub queries" command.
+    * **Pin query to top-level commands:** Select this checkbox if you want to access the item from the top level (the same place you found the "Sign in to the GitHub extension (Preview)" command). Every query can be found under the "Saved GitHub queries" command.
 * Press Save query
-* You can now find your saved search by navigating back (either by clicking on the back arrow or bringing the cursor back to the search bar and pressing `Esc`):
+* You can now find your saved search by navigating back (either by navigating to the search bar and pressing `Esc` or clicking on the back arrow):
     ![A screenshot of the "Saved GitHub queries" page. In a green box, the new "Command Palette open issues" query has been added.](assets/saved_query.png)
 
 ## Editing queries
@@ -62,7 +62,7 @@ If you'd like to update a query (e.g. move it to the top level), find the query 
 
 ## Troubleshooting
 
-If you're not seeing the extension when searching for "GitHub", you can reload your Command Palette extensions by typing in "reload" and selecting the "Reload Command Palette extensions" command:
+If you're not seeing the extension when searching for "GitHub" or facing another issue, you can reload your Command Palette extensions by typing in "reload" and selecting the "Reload Command Palette extensions" command:
 
 ![A screenshot of the Command Palette with "reload" in the search bar. The command "Reload Command Palette extensions" is highlighted](assets/reload_command.png)
 
