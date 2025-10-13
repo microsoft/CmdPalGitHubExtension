@@ -1,0 +1,100 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "Image",
+                  "url": {{CopilotIcon}},
+                  "size": "Small",
+                  "style": "Person"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": {{CopilotTitle}},
+                  "weight": "Bolder",
+                  "size": "Medium"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": {{CopilotDescription}},
+                  "isSubtle": true,
+                  "wrap": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "separator": true,
+      "items": [
+        {
+          "type": "Input.Text",
+          "id": "UserMessage",
+          "label": {{InputLabel}},
+          "placeholder": {{InputPlaceholder}},
+          "isMultiline": true,
+          "maxLength": 2000,
+          "isRequired": true,
+          "errorMessage": {{InputErrorMessage}}
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "ResponseContainer",
+      "isVisible": {{HasResponse}},
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": {{ResponseLabel}},
+          "weight": "Bolder",
+          "color": "Good"
+        },
+        {
+          "type": "TextBlock",
+          "text": {{ResponseText}},
+          "wrap": true,
+          "spacing": "Small"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": {{SendButtonTitle}},
+      "data": {
+        "id": "SendMessage"
+      }
+    },
+    {
+      "type": "Action.Submit",
+      "title": {{ClearButtonTitle}},
+      "data": {
+        "id": "ClearResponse"
+      },
+      "isEnabled": {{HasResponse}}
+    }
+  ]
+}

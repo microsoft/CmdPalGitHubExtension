@@ -13,6 +13,7 @@ using GitHubExtension.DataModel.Enums;
 using GitHubExtension.DeveloperIds;
 using GitHubExtension.Helpers;
 using GitHubExtension.PersistentData;
+using GitHubExtension.Services;
 using GitHubExtension.Test.TestContextSink;
 using Microsoft.CommandPalette.Extensions;
 using Moq;
@@ -170,6 +171,14 @@ public partial class TestHelpers
         var mockSignInForm = new Mock<SignInForm>(mockAuthenticationMediator, mockResources, mockDeveloperIdProvider, mockSignInCommand).Object;
         var signOutPage = new SignOutPage(mockResources, mockSignOutForm, mockSignOutCommand, mockAuthenticationMediator);
         var signInPage = new SignInPage(mockSignInForm, mockResources, mockSignInCommand, mockAuthenticationMediator);
-        return new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, mockDeveloperIdProvider, persistentDataManager, mockResources, searchPageFactory, savedSearchesMediator, mockAuthenticationMediator);
+
+        // Create a mock GitHubCopilotService
+        var mockCopilotService = new Mock<IGitHubCopilotService>().Object;
+        var gitHubCopilotPage = new GitHubCopilotPage(mockResources, mockCopilotService);
+
+        // Create GitHubMcpPage
+        var gitHubMcpPage = new GitHubMcpPage(mockResources, mockDeveloperIdProvider, mockCopilotService);
+
+        return new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, gitHubCopilotPage, gitHubMcpPage, mockDeveloperIdProvider, persistentDataManager, mockResources, searchPageFactory, savedSearchesMediator, mockAuthenticationMediator, mockCopilotService);
     }
 }

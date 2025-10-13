@@ -14,6 +14,7 @@ using GitHubExtension.DataManager.Data;
 using GitHubExtension.DeveloperIds;
 using GitHubExtension.Helpers;
 using GitHubExtension.PersistentData;
+using GitHubExtension.Services;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
 using Microsoft.Extensions.Configuration;
@@ -130,6 +131,9 @@ public class Program
         var decoratorFactory = new DecoratorFactory(gitHubDataManager);
         using var cacheDataManager = new CacheDataManagerFacade(cacheManager, gitHubDataManager, decoratorFactory);
 
+        // Register GitHub Copilot service
+        var copilotService = new GitHubCopilotService(developerIdProvider);
+
         var savedSearchesMediator = new SavedSearchesMediator();
 
         var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository, resources, savedSearchesMediator);
@@ -146,7 +150,12 @@ public class Program
         using var signInForm = new SignInForm(authenticationMediator, resources, developerIdProvider, signInCommand);
         using var signInPage = new SignInPage(signInForm, resources, signInCommand, authenticationMediator);
 
-        using var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator, authenticationMediator);
+        using var gitHubCopilotPage = new GitHubCopilotPage(resources, copilotService);
+
+        // Create GitHub Copilot Workspace page (MCP - Model Context Protocol tasks)
+        using var gitHubMcpPage = new GitHubMcpPage(resources, developerIdProvider, copilotService);
+
+        using var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, gitHubCopilotPage, gitHubMcpPage, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator, authenticationMediator, copilotService);
         var extensionInstance = new GitHubExtension(extensionDisposedEvent, commandProvider);
 
         // We are instantiating an extension instance once above, and returning it every time the callback in RegisterExtension below is called.

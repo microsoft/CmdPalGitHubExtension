@@ -14,6 +14,9 @@ public static class TemplateHelper
         {
             "AuthTemplate" => "Controls\\Templates\\AuthTemplate.json",
             "SaveSearch" => "Controls\\Templates\\SaveSearchTemplate.json",
+            "CopilotChatTemplate" => "Controls\\Templates\\CopilotChatTemplate.json",
+            "GitHubCopilotTemplate" => "Controls\\Templates\\GitHubCopilotTemplate.json",
+            "GitHubMcpTemplate" => "Controls\\Templates\\GitHubMcpTemplate.json",
             _ => throw new NotImplementedException($"Template for page '{page}' is not implemented."),
         };
     }

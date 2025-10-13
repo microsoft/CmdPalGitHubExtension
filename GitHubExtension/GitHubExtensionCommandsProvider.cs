@@ -4,11 +4,14 @@
 
 using System.Diagnostics;
 using GitHubExtension.Controls;
+using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Pages;
 using GitHubExtension.DeveloperIds;
 using GitHubExtension.Helpers;
+using GitHubExtension.Services;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using Serilog;
 
 namespace GitHubExtension;
 
@@ -17,33 +20,44 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
     private readonly SavedSearchesPage _savedSearchesPage;
     private readonly SignOutPage _signOutPage;
     private readonly SignInPage _signInPage;
+    private readonly GitHubCopilotPage _gitHubCopilotPage;
+    private readonly GitHubMcpPage _gitHubMcpPage;
     private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly ISearchRepository _persistentDataManager;
     private readonly ISearchPageFactory _searchPageFactory;
     private readonly IResources _resources;
     private readonly SavedSearchesMediator _savedSearchesMediator;
     private readonly AuthenticationMediator _authenticationMediator;
+    private readonly IGitHubCopilotService _copilotService;
+    private readonly ILogger _logger;
 
     public GitHubExtensionCommandsProvider(
         SavedSearchesPage savedSearchesPage,
         SignOutPage signOutPage,
         SignInPage signInPage,
+        GitHubCopilotPage gitHubCopilotPage,
+        GitHubMcpPage gitHubMcpPage,
         IDeveloperIdProvider developerIdProvider,
         ISearchRepository persistentDataManager,
         IResources resources,
         ISearchPageFactory searchPageFactory,
         SavedSearchesMediator savedSearchesMediator,
-        AuthenticationMediator authenticationMediator)
+        AuthenticationMediator authenticationMediator,
+        IGitHubCopilotService copilotService)
     {
         _savedSearchesPage = savedSearchesPage;
         _signOutPage = signOutPage;
         _signInPage = signInPage;
+        _gitHubCopilotPage = gitHubCopilotPage;
+        _gitHubMcpPage = gitHubMcpPage;
         _developerIdProvider = developerIdProvider;
         _persistentDataManager = persistentDataManager;
         _resources = resources;
         _searchPageFactory = searchPageFactory;
         _savedSearchesMediator = savedSearchesMediator;
         _authenticationMediator = authenticationMediator;
+        _copilotService = copilotService;
+        _logger = Log.ForContext("SourceContext", nameof(GitHubExtensionCommandsProvider));
 
         DisplayName = _resources.GetResource("ExtensionTitle");
 
@@ -90,14 +104,50 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         }
 
         var commands = GetTopLevelSearchCommands().GetAwaiter().GetResult().ToList();
+
         var defaultCommands = new List<CommandItem>
         {
             new(_savedSearchesPage),
+            new(_gitHubCopilotPage),
+            new(_gitHubMcpPage),
             new(_signOutPage),
         };
 
         commands.AddRange(defaultCommands);
         return commands.ToArray();
+    }
+
+    private bool IsLikelyQuestion(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text) || text.Length < 10)
+        {
+            return false;
+        }
+
+        // Check for question patterns
+        var questionWords = new[] { "how", "what", "why", "when", "where", "who", "which", "can", "could", "should", "would", "is", "are", "do", "does", "did" };
+        var lowerText = text.ToLowerInvariant();
+
+        // Starts with a question word
+        if (questionWords.Any(word => lowerText.StartsWith(word + " ", StringComparison.OrdinalIgnoreCase)))
+        {
+            return true;
+        }
+
+        // Ends with a question mark
+        if (text.EndsWith("?", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        // Contains certain GitHub/development related keywords
+        var gitHubKeywords = new[] { "github", "git", "repository", "repo", "issue", "pull request", "pr", "commit", "branch", "merge", "code", "bug", "feature" };
+        if (gitHubKeywords.Any(keyword => lowerText.Contains(keyword)))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     public async Task UpdateSignInStatus(bool isSignedIn)
@@ -179,6 +229,8 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
                 _authenticationMediator.SignOutAction -= OnSignInStatusChanged;
                 _savedSearchesMediator.SearchSaved -= OnSearchSaved;
                 _savedSearchesMediator.SearchRemoved -= OnSearchRemoved;
+                _gitHubCopilotPage?.Dispose();
+                _gitHubMcpPage?.Dispose();
             }
 
             _disposed = true;

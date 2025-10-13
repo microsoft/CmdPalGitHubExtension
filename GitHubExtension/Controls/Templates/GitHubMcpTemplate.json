@@ -1,0 +1,51 @@
+{
+  "version": "1.0",
+  "content": [
+    {
+      "type": "GroupBox",
+      "icon": {{McpIcon}},
+      "title": {{McpTitle}},
+      "description": {{McpDescription}},
+      "content": [
+        {
+          "type": "TextBox",
+          "id": "Repository",
+          "label": {{RepositoryLabel}},
+          "placeholder": {{RepositoryPlaceholder}},
+          "isRequired": true,
+          "errorMessage": {{RepositoryErrorMessage}}
+        },
+        {
+          "type": "TextBox",
+          "id": "BaseBranch",
+          "label": {{BaseBranchLabel}},
+          "placeholder": {{BaseBranchPlaceholder}},
+          "defaultValue": "main"
+        },
+        {
+          "type": "TextBox",
+          "id": "Title",
+          "label": {{TitleLabel}},
+          "placeholder": {{TitlePlaceholder}},
+          "isRequired": true,
+          "errorMessage": {{TitleErrorMessage}}
+        },
+        {
+          "type": "TextBox",
+          "id": "Description",
+          "label": {{DescriptionLabel}},
+          "placeholder": {{DescriptionPlaceholder}},
+          "multiline": true,
+          "rows": 5
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "SubmitButton",
+      "id": "CreateTask",
+      "title": {{SubmitButtonTitle}}
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "Image",
+                  "url": {{CopilotIcon}},
+                  "size": "Small",
+                  "style": "Person"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": {{CopilotTitle}},
+                  "weight": "Bolder",
+                  "size": "Medium"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": {{CopilotDescription}},
+                  "isSubtle": true,
+                  "wrap": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "separator": true,
+      "items": [
+        {
+          "type": "Input.Text",
+          "id": "Prompt",
+          "label": {{PromptLabel}},
+          "placeholder": {{PromptPlaceholder}},
+          "isMultiline": true,
+          "maxLength": 2000,
+          "isRequired": true,
+          "errorMessage": {{PromptErrorMessage}},
+          "value": {{PromptValue}}
+        },
+        {
+          "type": "Input.Text",
+          "id": "Repository",
+          "label": {{RepositoryLabel}},
+          "placeholder": {{RepositoryPlaceholder}},
+          "maxLength": 500,
+          "value": {{RepositoryValue}}
+        },
+        {
+          "type": "Input.Text",
+          "id": "BaseBranch",
+          "label": {{BaseBranchLabel}},
+          "placeholder": {{BaseBranchPlaceholder}},
+          "maxLength": 200,
+          "value": {{BaseBranchValue}}
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "id": "ResponseContainer",
+      "isVisible": {{HasResponse}},
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": {{ResponseLabel}},
+          "weight": "Bolder",
+          "color": "Good"
+        },
+        {
+          "type": "TextBlock",
+          "text": {{ResponseText}},
+          "wrap": true,
+          "spacing": "Small"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": {{SubmitButtonTitle}},
+      "data": {
+        "id": "SubmitRequest"
+      }
+    },
+    {
+      "type": "Action.Submit",
+      "title": {{ClearButtonTitle}},
+      "data": {
+        "id": "ClearResponse"
+      },
+      "isEnabled": {{HasResponse}}
+    }
+  ]
+}

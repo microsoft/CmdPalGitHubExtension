@@ -401,4 +401,172 @@
     <value>Sign in to the GitHub Extension (Preview)</value>
     <comment>The title for the SignInPage</comment>
   </data>
+  <data name="Pages_GitHubCopilot_Title" xml:space="preserve">
+    <value>GitHub Copilot</value>
+    <comment>The title for the GitHub Copilot page</comment>
+  </data>
+  <data name="Pages_GitHubCopilot_Description" xml:space="preserve">
+    <value>Access GitHub functionality through GitHub Copilot integration.</value>
+    <comment>The description for the GitHub Copilot page</comment>
+  </data>
+  <data name="Commands_GitHub_Copilot" xml:space="preserve">
+    <value>GitHub Copilot Assistant</value>
+    <comment>Name for the GitHub Copilot command</comment>
+  </data>
+  <data name="Pages_GitHub_Copilot_Title" xml:space="preserve">
+    <value>GitHub Copilot Assistant</value>
+    <comment>Title for the GitHub Copilot page</comment>
+  </data>
+  <data name="Pages_GitHub_Copilot_Description" xml:space="preserve">
+    <value>Get AI-powered assistance for GitHub workflows, code suggestions, and development best practices.</value>
+    <comment>Description for the GitHub Copilot page</comment>
+  </data>
+  <data name="Commands_GitHub_Copilot_Prompt" xml:space="preserve">
+    <value>Type a question in the command palette to get GitHub Copilot assistance!</value>
+    <comment>Prompt message for GitHub Copilot command</comment>
+  </data>
+  <data name="Pages_GitHub_Copilot_Response" xml:space="preserve">
+    <value>GitHub Copilot Response</value>
+    <comment>Title for the GitHub Copilot response page</comment>
+  </data>
+  <data name="Forms_GitHubCopilot_Title" xml:space="preserve">
+    <value>GitHub Copilot Assistant</value>
+    <comment>The title for the GitHub Copilot form</comment>
+  </data>
+  <data name="Forms_GitHubCopilot_Description" xml:space="preserve">
+    <value>Enter your prompt, repository, and base branch for context-aware GitHub assistance.</value>
+    <comment>The description for the GitHub Copilot form</comment>
+  </data>
+  <data name="Forms_GitHubCopilot_PromptLabel" xml:space="preserve">
+    <value>Prompt</value>
+    <comment>The label for the prompt input field</comment>
+  </data>
+  <data name="Forms_GitHubCopilot_PromptPlaceholder" xml:space="preserve">
+    <value>Enter your prompt or question...</value>
+    <comment>The placeholder text for the prompt input field</comment>
+  </data>
+  <data name="Forms_GitHubCopilot_PromptError" xml:space="preserve">
+    <value>Please enter a prompt</value>
+    <comment>Error message when no prompt is provided</comment>
+  </data>
+  <data name="Forms_GitHubCopilot_RepositoryLabel" xml:space="preserve">
+    <value>Repository</value>
+    <comment>The label for the repository input field</comment>
+  </data>
+  <data name="Forms_GitHubCopilot_RepositoryPlaceholder" xml:space="preserve">
+    <value>owner/repository-name (optional)</value>
+    <comment>The placeholder text for the repository input field</comment>
+  </data>
+  <data name="Forms_GitHubCopilot_RepositoryError" xml:space="preserve">
+    <value>Invalid repository format</value>
+    <comment>Error message when repository format is invalid</comment>
+  </data>
+  <data name="Forms_GitHubCopilot_BaseBranchLabel" xml:space="preserve">
+    <value>Base Branch</value>
+    <comment>The label for the base branch input field</comment>
+  </data>
+  <data name="Forms_GitHubCopilot_BaseBranchPlaceholder" xml:space="preserve">
+    <value>main, develop, etc. (optional)</value>
+    <comment>The placeholder text for the base branch input field</comment>
+  </data>
+  <data name="Forms_GitHubCopilot_ResponseLabel" xml:space="preserve">
+    <value>GitHub Copilot Response:</value>
+    <comment>Label for the Copilot response section</comment>
+  </data>
+  <data name="Forms_GitHubCopilot_SubmitButton" xml:space="preserve">
+    <value>Submit Request</value>
+    <comment>Text for the submit request button</comment>
+  </data>
+  <data name="Forms_GitHubCopilot_ClearButton" xml:space="preserve">
+    <value>Clear Response</value>
+    <comment>Text for the clear response button</comment>
+  </data>
+  <data name="Forms_GitHubCopilot_Processing" xml:space="preserve">
+    <value>Processing your request... Please wait.</value>
+    <comment>Message shown while processing Copilot request</comment>
+  </data>
+  <data name="Commands_GitHub_Copilot_ViewTask" xml:space="preserve">
+    <value>View Tasks</value>
+    <comment>Name for the GitHub Copilot View Task command</comment>
+  </data>
+  <data name="Commands_GitHub_Copilot_CreateTask" xml:space="preserve">
+    <value>Create Task</value>
+    <comment>Name for the GitHub Copilot Create Task command</comment>
+  </data>
+  <data name="Pages_GitHub_Copilot_ViewTask_Description" xml:space="preserve">
+    <value>View your GitHub Copilot coding agent tasks</value>
+    <comment>Description for the View Task list item</comment>
+  </data>
+  <data name="Pages_GitHub_Copilot_CreateTask_Description" xml:space="preserve">
+    <value>Access the Copilot interface to submit requests with context</value>
+    <comment>Description for the Create Task list item</comment>
+  </data>
+  <data name="Commands_View_Task_Details" xml:space="preserve">
+    <value>View Task Details</value>
+    <comment>Command name for viewing detailed information about a Copilot task</comment>
+  </data>
+  <data name="Forms_GitHubMcp_Title" xml:space="preserve">
+    <value>Create Copilot Workspace Task</value>
+    <comment>The title for the GitHub Copilot Workspace task creation form</comment>
+  </data>
+  <data name="Forms_GitHubMcp_Description" xml:space="preserve">
+    <value>Create a new task and assign it to GitHub Copilot Workspace coding agent</value>
+    <comment>The description for the GitHub Copilot Workspace task creation form</comment>
+  </data>
+  <data name="Forms_GitHubMcp_RepositoryLabel" xml:space="preserve">
+    <value>Repository</value>
+    <comment>The label for the repository input field</comment>
+  </data>
+  <data name="Forms_GitHubMcp_RepositoryPlaceholder" xml:space="preserve">
+    <value>owner/repository-name</value>
+    <comment>The placeholder text for the repository input field</comment>
+  </data>
+  <data name="Forms_GitHubMcp_RepositoryError" xml:space="preserve">
+    <value>Repository is required (format: owner/repository)</value>
+    <comment>Error message when repository is not provided or invalid</comment>
+  </data>
+  <data name="Forms_GitHubMcp_BaseBranchLabel" xml:space="preserve">
+    <value>Base Branch</value>
+    <comment>The label for the base branch input field</comment>
+  </data>
+  <data name="Forms_GitHubMcp_BaseBranchPlaceholder" xml:space="preserve">
+    <value>main, develop, etc.</value>
+    <comment>The placeholder text for the base branch input field</comment>
+  </data>
+  <data name="Forms_GitHubMcp_TitleLabel" xml:space="preserve">
+    <value>Task Title</value>
+    <comment>The label for the task title input field</comment>
+  </data>
+  <data name="Forms_GitHubMcp_TitlePlaceholder" xml:space="preserve">
+    <value>Describe what you want Copilot to build...</value>
+    <comment>The placeholder text for the task title input field</comment>
+  </data>
+  <data name="Forms_GitHubMcp_TitleError" xml:space="preserve">
+    <value>Task title is required</value>
+    <comment>Error message when task title is not provided</comment>
+  </data>
+  <data name="Forms_GitHubMcp_DescriptionLabel" xml:space="preserve">
+    <value>Task Description (Optional)</value>
+    <comment>The label for the task description input field</comment>
+  </data>
+  <data name="Forms_GitHubMcp_DescriptionPlaceholder" xml:space="preserve">
+    <value>Provide additional details about the task...</value>
+    <comment>The placeholder text for the task description input field</comment>
+  </data>
+  <data name="Forms_GitHubMcp_SubmitButton" xml:space="preserve">
+    <value>Create Task</value>
+    <comment>Text for the create task submit button</comment>
+  </data>
+  <data name="Message_CreateTask_Success" xml:space="preserve">
+    <value>Task created successfully! Opening Copilot Workspace...</value>
+    <comment>Success message when a Copilot Workspace task is created</comment>
+  </data>
+  <data name="Message_CreateTask_Failed" xml:space="preserve">
+    <value>Failed to create task:</value>
+    <comment>Error message prefix when task creation fails</comment>
+  </data>
+  <data name="Commands_GitHub_Mcp" xml:space="preserve">
+    <value>GitHub Copilot Workspace</value>
+    <comment>Name for the GitHub Copilot Workspace (MCP) main command</comment>
+  </data>
 </root>
