@@ -38,6 +38,8 @@ public class SearchHelperTests
     [DataRow("https://github.com/microsoft/PowerToys/issues?q=is%3Aopen%20is%3Aissue%20label%3A%22Product-Command%20Palette%22%20-label%3ARun-Plugin", "repo:microsoft/PowerToys is:open is:issue label:\"Product-Command Palette\" -label:Run-Plugin")]
     [DataRow("https://github.com/microsoft/PowerToys/issues?q=is%3Aopen%20is%3Aissue%20label%3A%22Good%20first%20issue%22", "repo:microsoft/PowerToys is:open is:issue label:\"Good first issue\"")]
     [DataRow("https://github.com/search?q=repo:microsoft/terminal+repo:microsoft/PowerToys+repo:microsoft/vscode+is:open+is:issue", "repo:microsoft/terminal repo:microsoft/PowerToys repo:microsoft/vscode is:open is:issue")]
+    [DataRow("https://github.com/microsoft/devhome/pulls/lauren-ciha", "repo:microsoft/devhome is:pr is:open author:lauren-ciha")]
+    [DataRow("https://github.com/microsoft/PowerToys/issues/octocat", "repo:microsoft/PowerToys is:issue is:open author:octocat")]
     [TestMethod]
     public void ParseSearchStringFromUri_ValidInput_ReturnsExpectedSearchString(string uriString, string expected)
     {
