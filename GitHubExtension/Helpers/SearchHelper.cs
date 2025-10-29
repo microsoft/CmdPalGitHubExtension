@@ -120,7 +120,7 @@ public static class SearchHelper
                     }
 
                     // Add author if present (4th path segment)
-                    if (pathSegments.Length >= 4)
+                    if (pathSegments.Length >= 4 && !string.IsNullOrWhiteSpace(pathSegments[3]))
                     {
                         searchBuilder.Add($"author:{pathSegments[3]}");
                     }
