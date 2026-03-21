@@ -23,6 +23,8 @@ public class SearchPagesTests
         search.Setup(x => x.Name).Returns("Name");
         search.Setup(x => x.SearchString).Returns(searchString);
         search.Setup(x => x.Type).Returns(type);
+        resources.Setup(x => x.GetResource(It.IsAny<string>(), null)).Returns("Mocked Resource");
+        resources.Setup(x => x.GetResource("Commands_Copy_GitCheckoutCommand", null)).Returns("git checkout {0}");
         return (cacheDataManager, resources, search);
     }
 
@@ -55,9 +57,11 @@ public class SearchPagesTests
             pull1.Setup(x => x.Title).Returns("Title1");
             pull1.Setup(x => x.HtmlUrl).Returns("mock/url1");
             pull1.Setup(x => x.Number).Returns(1);
+            pull1.Setup(pull1 => pull1.SourceBranch).Returns("source-branch1");
             pull2.Setup(x => x.Title).Returns("Title2");
             pull2.Setup(x => x.HtmlUrl).Returns("mock/url2");
             pull2.Setup(x => x.Number).Returns(2);
+            pull2.Setup(pull2 => pull2.SourceBranch).Returns("source-branch2");
             var pulls = new List<IPullRequest> { pull1.Object, pull2.Object };
             cacheDataManager.Setup(x => x.GetPullRequests(search.Object)).ReturnsAsync(pulls);
 

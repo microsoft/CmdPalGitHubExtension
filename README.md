@@ -12,9 +12,8 @@ Related repositories include:
 
 ### Requirements
 The Command Palette GitHub Extension requires:
-* PowerToys with Command Palette included
+* [Microsoft PowerToys](https://aka.ms/installpowertoys)
 * Windows 11
-* An ARM64 or x64 processor
 
 ## Command Palette [Recommended]
 
@@ -31,7 +30,9 @@ The Command Palette GitHub Extension requires:
 
 ### WinGet
 
-More instructions coming soon!
+```powershell
+winget install Microsoft.CmdPalGitHubExtension
+```
 
 ### Microsoft Store
 
@@ -42,6 +43,10 @@ The Command Palette GitHub Extension is coming to the Microsoft Store. Stay tune
 #### Via GitHub
 
 For users who are unable to install the Command Palette GitHub Extension from the winget or the Microsoft Store, released builds can be manually downloaded from this repository's [Releases page](https://github.com/microsoft/CmdPalGitHubExtension/releases).
+
+## Using the extension
+
+Check out this [quick start guide](docs/quickstart.md) to get started.
 
 ---
 
