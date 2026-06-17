@@ -346,7 +346,7 @@
     <comment>The name of the SignOut command</comment>
   </data>
   <data name="Commands_CopyURL" xml:space="preserve">
-    <value>Copy URL</value>
+    <value>Link copied to clipboard</value>
     <comment>The command name for copying a URL</comment>
   </data>
   <data name="Commands_CopyIssueTitle" xml:space="preserve">
@@ -390,7 +390,7 @@
     <comment>The placeholder for a name in the "Add a query" form</comment>
   </data>
   <data name="Message_CopyCommand_Success" xml:space="preserve">
-    <value>Copied!</value>
+    <value>Copied to clipboard!</value>
     <comment>The message displayed to a user when a value is copied successfully</comment>
   </data>
   <data name="Commands_Copy_GitCheckoutCommand" xml:space="preserve">

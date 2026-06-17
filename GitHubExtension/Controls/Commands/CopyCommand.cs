@@ -26,7 +26,6 @@ internal sealed partial class CopyCommand : InvokableCommand
 
         ToastHelper.ShowSuccessToast(_resources.GetResource("Message_CopyCommand_Success"));
 
-        Thread.Sleep(1500); // Wait for the toast to show before dismissing the command
-        return CommandResult.Dismiss();
+        return CommandResult.KeepOpen();
     }
 }
