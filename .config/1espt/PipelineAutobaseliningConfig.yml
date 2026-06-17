@@ -7,21 +7,21 @@ pipelines:
         credscan:
           lastModifiedDate: 2025-03-13
         eslint:
-          lastModifiedDate: 2025-03-13
+          lastModifiedDate: 2026-06-17
         bandit:
-          lastModifiedDate: 2025-03-13
+          lastModifiedDate: 2026-06-17
         psscriptanalyzer:
-          lastModifiedDate: 2025-03-13
+          lastModifiedDate: 2026-06-17
         armory:
-          lastModifiedDate: 2025-03-13
+          lastModifiedDate: 2026-06-17
         policheck:
-          lastModifiedDate: 2025-05-20
+          lastModifiedDate: 2026-06-17
       binary:
         credscan:
           lastModifiedDate: 2025-03-13
         binskim:
-          lastModifiedDate: 2025-03-13
+          lastModifiedDate: 2026-06-17
         spotbugs:
-          lastModifiedDate: 2025-03-13
+          lastModifiedDate: 2026-06-17
         roslyn:
-          lastModifiedDate: 2025-03-13
+          lastModifiedDate: 2026-06-17
