@@ -118,15 +118,15 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Commands_Copy_Source_Branch" xml:space="preserve">
-    <value>Source branch copied to clipboard</value>
+    <value>Copy source branch</value>
     <comment>Title for command to copy source branch of a pull request</comment>
   </data>
   <data name="Commands_Copy_Checkout" xml:space="preserve">
-    <value>Checkout command copied to clipboard</value>
+    <value>Copy checkout command</value>
     <comment>Title for copy checkout command</comment>
   </data>
   <data name="Commands_Copy" xml:space="preserve">
-    <value>Copied to clipboard</value>
+    <value>Copy</value>
     <comment>Title of Copy command, shown in pages menu options</comment>
   </data>
   <data name="Commands_Open_Link" xml:space="preserve">
@@ -350,15 +350,15 @@
     <comment>The command name for copying a URL</comment>
   </data>
   <data name="Commands_CopyIssueTitle" xml:space="preserve">
-    <value>Issue title copied to clipboard</value>
+    <value>Copy issue title</value>
     <comment>The command name for copying an issue title</comment>
   </data>
   <data name="Commands_CopyIssueNumber" xml:space="preserve">
-    <value>Issue number copied to clipboard</value>
+    <value>Copy issue number</value>
     <comment>Command name for copying an issue number</comment>
   </data>
   <data name="Commands_CopyPullRequestNumber" xml:space="preserve">
-    <value>Pull request number copied to clipboard</value>
+    <value>Copy pull request number</value>
     <comment>Name for the copy pull request number command</comment>
   </data>
   <data name="Pages_SaveSearch" xml:space="preserve">
@@ -366,7 +366,7 @@
     <comment>Title of SaveSearchPage</comment>
   </data>
   <data name="Commands_CopyPullRequestTitle" xml:space="preserve">
-    <value>Pull request title copied to clipboard</value>
+    <value>Copy pull request title</value>
     <comment>The name of the copy pull request title command</comment>
   </data>
   <data name="Forms_SaveSearchTemplateEditSearchActionTitle" xml:space="preserve">
