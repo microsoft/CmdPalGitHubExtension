@@ -9,6 +9,7 @@
     <Nullable>enable</Nullable>
     <UseWinUI>true</UseWinUI>
     <ProjectPriFileName>resources.pri</ProjectPriFileName>
+    <WindowsAppSdkDeploymentManagerInitialize>false</WindowsAppSdkDeploymentManagerInitialize>
   </PropertyGroup>
 
   <ItemGroup>
