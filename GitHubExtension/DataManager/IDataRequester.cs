@@ -14,4 +14,6 @@ public interface IDataRequester
     IEnumerable<Issue> GetIssuesForSearch(string name, string searchString);
 
     IEnumerable<PullRequest> GetPullRequestsForSearch(string name, string searchString);
+
+    IEnumerable<Repository> GetRepositoriesForSearch(string name, string searchString);
 }

@@ -4,6 +4,7 @@
 
 using Dapper;
 using Dapper.Contrib.Extensions;
+using GitHubExtension.Controls;
 using GitHubExtension.Helpers;
 using Octokit;
 using Serilog;
@@ -11,7 +12,7 @@ using Serilog;
 namespace GitHubExtension.DataModel.DataObjects;
 
 [Table("Repository")]
-public class Repository
+public class Repository : IRepository
 {
     private static readonly Lazy<ILogger> _logger = new(() => Serilog.Log.ForContext("SourceContext", $"DataModel/{nameof(Repository)}"));
 
@@ -64,6 +65,18 @@ public class Repository
     [Write(false)]
     [Computed]
     public string FullName => Owner.Login + '/' + Name;
+
+    [Write(false)]
+    [Computed]
+    public string OwnerLogin => Owner.Login;
+
+    [Write(false)]
+    [Computed]
+    public bool IsPrivate => Private == 1;
+
+    [Write(false)]
+    [Computed]
+    public bool IsFork => Fork == 1;
 
     [Write(false)]
     [Computed]

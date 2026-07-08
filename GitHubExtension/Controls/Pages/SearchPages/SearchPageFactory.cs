@@ -32,6 +32,7 @@ public class SearchPageFactory : ISearchPageFactory
         {
             SearchType.PullRequests => new PullRequestsSearchPage(search, _cacheDataManager, _resources),
             SearchType.Issues => new IssuesSearchPage(search, _cacheDataManager, _resources),
+            SearchType.Repositories => new RepositoriesSearchPage(search, _cacheDataManager, _resources),
             _ => new CombinedSearchPage(search, _cacheDataManager, _resources),
         };
     }

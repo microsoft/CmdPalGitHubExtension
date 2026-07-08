@@ -16,4 +16,6 @@ public interface ICacheDataManager
     Task<IEnumerable<IPullRequest>> GetPullRequests(ISearch search);
 
     Task<IEnumerable<IIssue>> GetIssuesAndPullRequests(ISearch search);
+
+    Task<IEnumerable<IRepository>> GetRepositories(ISearch search);
 }
