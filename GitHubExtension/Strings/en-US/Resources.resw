@@ -325,6 +325,10 @@
     <value>My pull requests</value>
     <comment>Title for search "state:open is:pr author:{login} archived:false"</comment>
   </data>
+  <data name="CommandsProvider_MyLatestRepositoriesCommandName" xml:space="preserve">
+    <value>My latest repositories</value>
+    <comment>Title for search "user:{login} sort:updated-desc type:repository"</comment>
+  </data>
   <data name="ExtensionTitle" xml:space="preserve">
     <value>GitHub Extension (Preview)</value>
     <comment>Title for the extension</comment>

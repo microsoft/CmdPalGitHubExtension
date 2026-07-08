@@ -4,6 +4,7 @@
 
 using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Helpers;
+using Octokit;
 
 namespace GitHubExtension.Test.HelpersTests;
 
@@ -44,5 +45,53 @@ public class SearchHelperTests
         var uri = new Uri(uriString);
         var result = SearchHelper.ParseSearchStringFromUri(uri);
         Assert.AreEqual(expected, result);
+    }
+
+    [DataRow("user:octocat type:repository", "user:octocat")]
+    [DataRow("type:repo user:octocat", "user:octocat")]
+    [DataRow("user:octocat", "user:octocat")]
+    [DataRow("", "")]
+    [TestMethod]
+    public void RemoveTypeQualifier_StripsTypeToken(string input, string expected)
+    {
+        var result = SearchHelper.RemoveTypeQualifier(input);
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void ParseRepoSortFromTerm_ParsesFieldDirectionAndStripsToken()
+    {
+        var result = SearchHelper.ParseRepoSortFromTerm("user:octocat sort:updated-desc type:repository");
+        Assert.IsNotNull(result);
+        Assert.AreEqual(RepoSearchSort.Updated, result.Value.SortField);
+        Assert.AreEqual(SortDirection.Descending, result.Value.Direction);
+        Assert.AreEqual("user:octocat type:repository", result.Value.UpdatedTerm);
+    }
+
+    [DataRow("stars", RepoSearchSort.Stars)]
+    [DataRow("forks", RepoSearchSort.Forks)]
+    [DataRow("updated", RepoSearchSort.Updated)]
+    [TestMethod]
+    public void ParseRepoSortFromTerm_MapsKnownFields(string field, RepoSearchSort expected)
+    {
+        var result = SearchHelper.ParseRepoSortFromTerm($"sort:{field}-asc");
+        Assert.IsNotNull(result);
+        Assert.AreEqual(expected, result.Value.SortField);
+        Assert.AreEqual(SortDirection.Ascending, result.Value.Direction);
+    }
+
+    [TestMethod]
+    public void ParseRepoSortFromTerm_NoSort_ReturnsNull()
+    {
+        Assert.IsNull(SearchHelper.ParseRepoSortFromTerm("user:octocat"));
+    }
+
+    [TestMethod]
+    public void GetSearchRepositoriesRequest_AppliesSortFromTerm()
+    {
+        var request = GitHubRequestHelper.GetSearchRepositoriesRequest("user:octocat sort:updated-desc type:repository");
+        Assert.AreEqual(RepoSearchSort.Updated, request.SortField);
+        Assert.AreEqual(SortDirection.Descending, request.Order);
+        Assert.AreEqual(ExtensionConstants.PerPage, request.PerPage);
     }
 }
