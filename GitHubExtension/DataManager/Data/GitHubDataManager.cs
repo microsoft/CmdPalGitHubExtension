@@ -251,6 +251,12 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
         return GetSearch(name, searchString)?.PullRequests ?? [];
     }
 
+    public IEnumerable<Repository> GetRepositoriesForSearch(string name, string searchString)
+    {
+        ValidateDataStore();
+        return GetSearch(name, searchString)?.Repositories ?? [];
+    }
+
     // Removes unused data from the datastore.
     private void PruneObsoleteData()
     {

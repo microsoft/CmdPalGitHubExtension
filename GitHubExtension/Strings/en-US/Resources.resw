@@ -121,6 +121,10 @@
     <value>Copy source branch</value>
     <comment>Title for command to copy source branch of a pull request</comment>
   </data>
+  <data name="Commands_Copy_CloneUrl" xml:space="preserve">
+    <value>Copy clone URL</value>
+    <comment>Title for command to copy the clone URL of a repository</comment>
+  </data>
   <data name="Commands_Copy_Checkout" xml:space="preserve">
     <value>Copy checkout command</value>
     <comment>Title for copy checkout command</comment>

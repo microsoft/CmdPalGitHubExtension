@@ -39,6 +39,37 @@ public class SearchPagesTests
         search.Setup(x => x.Type).Returns(SearchType.PullRequests);
         var pullRequestsSearchPage = new PullRequestsSearchPage(search.Object, cacheDataManager.Object, resources.Object);
         Assert.IsNotNull(pullRequestsSearchPage);
+
+        search.Setup(x => x.Type).Returns(SearchType.Repositories);
+        var repositoriesSearchPage = new RepositoriesSearchPage(search.Object, cacheDataManager.Object, resources.Object);
+        Assert.IsNotNull(repositoriesSearchPage);
+    }
+
+    [TestMethod]
+    [TestCategory("Unit")]
+    public void GetItemsFromRepositoriesSearchPage_ReturnsExpectedItems()
+    {
+        var (cacheDataManager, resources, search) = CreateCommonMocks(SearchType.Repositories, "test search string type:repository");
+
+        var page = new RepositoriesSearchPage(search.Object, cacheDataManager.Object, resources.Object);
+
+        var repo1 = new Mock<IRepository>();
+        var repo2 = new Mock<IRepository>();
+        repo1.Setup(x => x.FullName).Returns("owner/repo1");
+        repo1.Setup(x => x.Description).Returns("Description1");
+        repo1.Setup(x => x.HtmlUrl).Returns("mock/url1");
+        repo1.Setup(x => x.CloneUrl).Returns("mock/url1.git");
+        repo2.Setup(x => x.FullName).Returns("owner/repo2");
+        repo2.Setup(x => x.Description).Returns("Description2");
+        repo2.Setup(x => x.HtmlUrl).Returns("mock/url2");
+        repo2.Setup(x => x.CloneUrl).Returns("mock/url2.git");
+        var repositories = new List<IRepository> { repo1.Object, repo2.Object };
+        cacheDataManager.Setup(x => x.GetRepositories(search.Object)).ReturnsAsync(repositories);
+
+        var items = page.GetItems();
+        Assert.AreEqual(repositories.Count, items.Length);
+        Assert.AreEqual(repositories[0].FullName, items[0].Title);
+        Assert.AreEqual(repositories[1].FullName, items[1].Title);
     }
 
     [DataRow(SearchType.PullRequests)]

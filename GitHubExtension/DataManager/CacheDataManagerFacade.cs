@@ -87,6 +87,16 @@ public sealed class CacheDataManagerFacade : ICacheDataManager, IDisposable
         return res;
     }
 
+    public async Task<IEnumerable<IRepository>> GetRepositories(ISearch search)
+    {
+        await DownloadSearch(search);
+
+        var res = _dataRequester.GetRepositoriesForSearch(search.Name, search.SearchString);
+
+        _ = _cacheManager.RequestRefresh(search);
+        return res;
+    }
+
     private List<IIssue> MergeIssuesAndPullRequests(IEnumerable<Issue> issues, IEnumerable<PullRequest> pullRequests)
     {
         var res = new List<IIssue>();
