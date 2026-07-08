@@ -51,4 +51,28 @@ public static class GitHubRequestHelper
             Order = sortDirection,
         };
     }
+
+    public static SearchRepositoriesRequest GetSearchRepositoriesRequest(string term)
+    {
+        RepoSearchSort? sortField = null;
+        var sortDirection = SortDirection.Descending;
+        var result = SearchHelper.ParseRepoSortFromTerm(term);
+        if (result is (var sortFieldResult, var directionResult, var updatedTerm))
+        {
+            sortField = sortFieldResult;
+            sortDirection = directionResult;
+            term = updatedTerm;
+        }
+
+        // Strip the internal "type:" classification hint; it is not a valid repository qualifier.
+        term = SearchHelper.RemoveTypeQualifier(term);
+
+        return new SearchRepositoriesRequest(term)
+        {
+            PerPage = ExtensionConstants.PerPage,
+            Page = 1,
+            SortField = sortField,
+            Order = sortDirection,
+        };
+    }
 }

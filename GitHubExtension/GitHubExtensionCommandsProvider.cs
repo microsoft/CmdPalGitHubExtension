@@ -115,6 +115,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
                 new SearchCandidate($"is:open mentions:{login} archived:false sort:created-desc", _resources.GetResource("CommandsProvider_MentionsMeCommandName")),
                 new SearchCandidate($"is:open is:issue archived:false author:{login} sort:created-desc", _resources.GetResource("CommandsProvider_CreatedIssuesCommandName")),
                 new SearchCandidate($"is:open is:pr author:{login} archived:false sort:created-desc", _resources.GetResource("CommandsProvider_MyPullRequestsCommandName")),
+                new SearchCandidate($"user:{login} sort:updated-desc type:repository", _resources.GetResource("CommandsProvider_MyLatestRepositoriesCommandName")),
             };
 
             try

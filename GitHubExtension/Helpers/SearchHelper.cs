@@ -219,6 +219,59 @@ public static class SearchHelper
         return (sortField, order, updatedTerm);
     }
 
+    // Repository search does not support the internal "type:" hint we use to classify
+    // searches, so it must be stripped before the term is sent to the GitHub API.
+    public static string RemoveTypeQualifier(string term)
+    {
+        if (string.IsNullOrWhiteSpace(term))
+        {
+            return term;
+        }
+
+        var updatedTerm = Regex.Replace(term, @"\s*type:\w+\s*", " ", RegexOptions.IgnoreCase).Trim();
+        return Regex.Replace(updatedTerm, @"\s{2,}", " ");
+    }
+
+    public static (RepoSearchSort SortField, SortDirection Direction, string UpdatedTerm)? ParseRepoSortFromTerm(string term)
+    {
+        if (string.IsNullOrWhiteSpace(term))
+        {
+            return null;
+        }
+
+        var match = Regex.Match(term, @"sort:(\w+)-(asc|desc)", RegexOptions.IgnoreCase);
+        if (!match.Success)
+        {
+            return null;
+        }
+
+        var field = match.Groups[1].Value.ToLowerInvariant();
+        var direction = match.Groups[2].Value.ToLowerInvariant();
+
+        RepoSearchSort sortField;
+        switch (field)
+        {
+            case "stars":
+                sortField = RepoSearchSort.Stars;
+                break;
+            case "forks":
+                sortField = RepoSearchSort.Forks;
+                break;
+            case "updated":
+                sortField = RepoSearchSort.Updated;
+                break;
+            default:
+                return null;
+        }
+
+        var order = direction == "asc" ? SortDirection.Ascending : SortDirection.Descending;
+
+        var updatedTerm = Regex.Replace(term, @"\s*sort:\w+-\w+\s*", " ", RegexOptions.IgnoreCase).Trim();
+        updatedTerm = Regex.Replace(updatedTerm, @"\s{2,}", " ");
+
+        return (sortField, order, updatedTerm);
+    }
+
     private static readonly Dictionary<string, SearchType> SearchTypeMappings = new()
     {
         { "issue", SearchType.Issues },

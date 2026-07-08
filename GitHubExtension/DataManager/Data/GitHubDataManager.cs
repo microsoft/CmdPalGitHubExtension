@@ -162,7 +162,7 @@ public partial class GitHubDataManager : IGitHubDataManager, IPullRequestUpdater
         var searchString = search.SearchString;
 
         _log.Information($"Updating repositories for: {name}");
-        var searchRepoRequest = new Octokit.SearchRepositoriesRequest(searchString);
+        var searchRepoRequest = GitHubRequestHelper.GetSearchRepositoriesRequest(searchString);
         var reposResult = await _gitHubClientProvider.GetClient().Search.SearchRepo(searchRepoRequest);
 
         if (reposResult == null)
