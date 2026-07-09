@@ -897,4 +897,48 @@
     <value>Failed to disable auto-merge</value>
     <comment>Error toast shown when disabling auto-merge fails</comment>
   </data>
+  <data name="CommandsProvider_CloneRepositoryCommandName" xml:space="preserve">
+    <value>Clone Repository</value>
+    <comment>Top-level command name for cloning a repository locally</comment>
+  </data>
+  <data name="CommandsProvider_CloneRepositorySubtitle" xml:space="preserve">
+    <value>Clone a GitHub repository to your machine</value>
+    <comment>Subtitle for the Clone Repository top-level command</comment>
+  </data>
+  <data name="Commands_CloneRepository" xml:space="preserve">
+    <value>Clone Repository</value>
+    <comment>Context command to clone the selected repository</comment>
+  </data>
+  <data name="Forms_Clone_Title" xml:space="preserve">
+    <value>Clone Repository</value>
+    <comment>Title of the clone repository form</comment>
+  </data>
+  <data name="Forms_Clone_RepositoryLabel" xml:space="preserve">
+    <value>Repository</value>
+    <comment>Label for the repository field on the clone form</comment>
+  </data>
+  <data name="Forms_Clone_RepositoryPlaceholder" xml:space="preserve">
+    <value>owner/repo or a GitHub URL</value>
+    <comment>Placeholder for the repository field on the clone form</comment>
+  </data>
+  <data name="Forms_Clone_RepositoryError" xml:space="preserve">
+    <value>Repository is required</value>
+    <comment>Validation error for the repository field on the clone form</comment>
+  </data>
+  <data name="Forms_Clone_TargetDirectoryLabel" xml:space="preserve">
+    <value>Target directory (optional)</value>
+    <comment>Label for the target directory field on the clone form</comment>
+  </data>
+  <data name="Message_CloneRepository_Success" xml:space="preserve">
+    <value>Repository cloned successfully</value>
+    <comment>Success toast shown after a repository is cloned</comment>
+  </data>
+  <data name="Message_CloneRepository_Error" xml:space="preserve">
+    <value>Failed to clone repository</value>
+    <comment>Error toast shown when cloning a repository fails</comment>
+  </data>
+  <data name="Forms_Clone_Action" xml:space="preserve">
+    <value>Clone</value>
+    <comment>Submit button label on the clone repository form</comment>
+  </data>
 </root>

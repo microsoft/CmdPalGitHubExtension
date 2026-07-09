@@ -154,7 +154,11 @@ public class Program
         var createManager = new GitHubCreateManager(gitHubClientProvider);
         var mutationCommandsFactory = new MutationCommandsFactory(mutationManager, createManager, autoMergeManager, mutationMediator, resources);
 
-        var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository, resources, savedSearchesMediator, mutationCommandsFactory, mutationMediator);
+        var gitService = new GitService();
+        var cloneSettingsStore = new CloneSettingsStore();
+        var cloneManager = new RepositoryCloneManager(gitService, cloneSettingsStore);
+
+        var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository, resources, savedSearchesMediator, mutationCommandsFactory, mutationMediator, cloneManager);
 
         var addSearchForm = new SaveSearchForm(searchRepository, resources, savedSearchesMediator);
         var addSearchListItem = new AddSearchListItem(new SaveSearchPage(addSearchForm, new StatusMessage(), resources), resources);
@@ -168,7 +172,7 @@ public class Program
         using var signInForm = new SignInForm(authenticationMediator, resources, developerIdProvider, signInCommand);
         using var signInPage = new SignInPage(signInForm, resources, signInCommand, authenticationMediator);
 
-        using var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, notificationsPage, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator, authenticationMediator, notificationsMediator, createManager, workflowRunsPage, workflowRunsDataManager, myDiscussionsPage, searchDiscussionsPage, projectsPage);
+        using var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, notificationsPage, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator, authenticationMediator, notificationsMediator, createManager, workflowRunsPage, workflowRunsDataManager, myDiscussionsPage, searchDiscussionsPage, projectsPage, cloneManager, cloneSettingsStore);
         var extensionInstance = new GitHubExtension(extensionDisposedEvent, commandProvider);
 
         // We are instantiating an extension instance once above, and returning it every time the callback in RegisterExtension below is called.

@@ -184,6 +184,8 @@ public partial class TestHelpers
         var searchDiscussionsPage = new DiscussionsPage(mockDiscussionsDataManager.Object, mockResources, "Search discussions", string.Empty);
         var mockProjectsDataManager = new Mock<IProjectsDataManager>();
         var projectsPage = new ProjectsPage(mockProjectsDataManager.Object, mockResources);
-        return new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, notificationsPage, mockDeveloperIdProvider, persistentDataManager, mockResources, searchPageFactory, savedSearchesMediator, mockAuthenticationMediator, notificationsMediator, mockCreateManager, workflowRunsPage, mockWorkflowRunsDataManager.Object, myDiscussionsPage, searchDiscussionsPage, projectsPage);
+        var mockCloneManager = new Mock<IRepositoryCloneManager>().Object;
+        var mockCloneSettingsStore = new Mock<ICloneSettingsStore>().Object;
+        return new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, notificationsPage, mockDeveloperIdProvider, persistentDataManager, mockResources, searchPageFactory, savedSearchesMediator, mockAuthenticationMediator, notificationsMediator, mockCreateManager, workflowRunsPage, mockWorkflowRunsDataManager.Object, myDiscussionsPage, searchDiscussionsPage, projectsPage, mockCloneManager, mockCloneSettingsStore);
     }
 }

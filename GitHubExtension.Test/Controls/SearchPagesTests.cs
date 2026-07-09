@@ -54,7 +54,7 @@ public class SearchPagesTests
         Assert.IsNotNull(pullRequestsSearchPage);
 
         search.Setup(x => x.Type).Returns(SearchType.Repositories);
-        var repositoriesSearchPage = new RepositoriesSearchPage(search.Object, cacheDataManager.Object, resources.Object);
+        var repositoriesSearchPage = new RepositoriesSearchPage(search.Object, cacheDataManager.Object, resources.Object, new Mock<IRepositoryCloneManager>().Object);
         Assert.IsNotNull(repositoriesSearchPage);
     }
 
@@ -64,7 +64,7 @@ public class SearchPagesTests
     {
         var (cacheDataManager, resources, search) = CreateCommonMocks(SearchType.Repositories, "test search string type:repository");
 
-        var page = new RepositoriesSearchPage(search.Object, cacheDataManager.Object, resources.Object);
+        var page = new RepositoriesSearchPage(search.Object, cacheDataManager.Object, resources.Object, new Mock<IRepositoryCloneManager>().Object);
 
         var repo1 = new Mock<IRepository>();
         var repo2 = new Mock<IRepository>();
