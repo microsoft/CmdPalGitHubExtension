@@ -14,6 +14,10 @@ public static class TemplateHelper
         {
             "AuthTemplate" => "Controls\\Templates\\AuthTemplate.json",
             "SaveSearch" => "Controls\\Templates\\SaveSearchTemplate.json",
+            "CreateIssue" => "Controls\\Templates\\CreateIssueTemplate.json",
+            "CreatePullRequest" => "Controls\\Templates\\CreatePullRequestTemplate.json",
+            "CreateBranch" => "Controls\\Templates\\CreateBranchTemplate.json",
+            "AddComment" => "Controls\\Templates\\AddCommentTemplate.json",
             _ => throw new NotImplementedException($"Template for page '{page}' is not implemented."),
         };
     }

@@ -16,10 +16,11 @@ public class MutationCommandsFactoryTests
     private static (MutationCommandsFactory Factory, Mock<IGitHubMutationManager> Manager, MutationMediator Mediator) CreateFactory()
     {
         var manager = new Mock<IGitHubMutationManager>();
+        var createManager = new Mock<IGitHubCreateManager>();
         var mediator = new MutationMediator();
         var resources = new Mock<IResources>();
         resources.Setup(x => x.GetResource(It.IsAny<string>(), null)).Returns<string, object>((key, _) => key);
-        var factory = new MutationCommandsFactory(manager.Object, mediator, resources.Object);
+        var factory = new MutationCommandsFactory(manager.Object, createManager.Object, mediator, resources.Object);
         return (factory, manager, mediator);
     }
 
@@ -51,7 +52,7 @@ public class MutationCommandsFactoryTests
         var (factory, _, _) = CreateFactory();
         var commands = factory.GetIssueCommands(CreateIssue("Open").Object).ToList();
 
-        Assert.AreEqual(1, commands.Count);
+        Assert.AreEqual(2, commands.Count);
         Assert.AreEqual("Commands_CloseIssue", commands[0].Command!.Name);
         Assert.IsTrue(commands[0].IsCritical);
     }
@@ -63,7 +64,7 @@ public class MutationCommandsFactoryTests
         var (factory, _, _) = CreateFactory();
         var commands = factory.GetIssueCommands(CreateIssue("Closed").Object).ToList();
 
-        Assert.AreEqual(1, commands.Count);
+        Assert.AreEqual(2, commands.Count);
         Assert.AreEqual("Commands_ReopenIssue", commands[0].Command!.Name);
         Assert.IsFalse(commands[0].IsCritical);
     }
@@ -75,7 +76,7 @@ public class MutationCommandsFactoryTests
         var (factory, _, _) = CreateFactory();
         var commands = factory.GetPullRequestCommands(CreatePullRequest("Open").Object).ToList();
 
-        Assert.AreEqual(2, commands.Count);
+        Assert.AreEqual(3, commands.Count);
         Assert.AreEqual("Commands_MergePullRequest", commands[0].Command!.Name);
         Assert.AreEqual("Commands_ClosePullRequest", commands[1].Command!.Name);
         Assert.IsTrue(commands[0].IsCritical);
@@ -89,7 +90,7 @@ public class MutationCommandsFactoryTests
         var (factory, _, _) = CreateFactory();
         var commands = factory.GetPullRequestCommands(CreatePullRequest("Closed").Object).ToList();
 
-        Assert.AreEqual(1, commands.Count);
+        Assert.AreEqual(2, commands.Count);
         Assert.AreEqual("Commands_ReopenPullRequest", commands[0].Command!.Name);
         Assert.IsFalse(commands[0].IsCritical);
     }

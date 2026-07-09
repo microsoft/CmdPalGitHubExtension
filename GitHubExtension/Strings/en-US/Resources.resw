@@ -445,6 +445,186 @@
     <value>This will merge the pull request into its base branch.</value>
     <comment>Confirmation description before merging a pull request</comment>
   </data>
+  <data name="CommandsProvider_CreateIssueCommandName" xml:space="preserve">
+    <value>Create Issue</value>
+    <comment>Top-level command name for creating an issue</comment>
+  </data>
+  <data name="CommandsProvider_CreateIssueSubtitle" xml:space="preserve">
+    <value>Open a new issue on GitHub</value>
+    <comment>Subtitle for the Create Issue top-level command</comment>
+  </data>
+  <data name="CommandsProvider_CreatePullRequestCommandName" xml:space="preserve">
+    <value>Create Pull Request</value>
+    <comment>Top-level command name for creating a pull request</comment>
+  </data>
+  <data name="CommandsProvider_CreatePullRequestSubtitle" xml:space="preserve">
+    <value>Open a new pull request on GitHub</value>
+    <comment>Subtitle for the Create Pull Request top-level command</comment>
+  </data>
+  <data name="CommandsProvider_CreateBranchCommandName" xml:space="preserve">
+    <value>Create Branch</value>
+    <comment>Top-level command name for creating a branch</comment>
+  </data>
+  <data name="CommandsProvider_CreateBranchSubtitle" xml:space="preserve">
+    <value>Create a new branch on GitHub</value>
+    <comment>Subtitle for the Create Branch top-level command</comment>
+  </data>
+  <data name="Forms_Create_RepositoryLabel" xml:space="preserve">
+    <value>Repository</value>
+    <comment>Label for the repository input on create forms</comment>
+  </data>
+  <data name="Forms_Create_RepositoryPlaceholder" xml:space="preserve">
+    <value>owner/repo</value>
+    <comment>Placeholder for the repository input on create forms</comment>
+  </data>
+  <data name="Forms_Create_RepositoryError" xml:space="preserve">
+    <value>Enter a repository as owner/repo</value>
+    <comment>Validation error for the repository input on create forms</comment>
+  </data>
+  <data name="Forms_Create_TitleLabel" xml:space="preserve">
+    <value>Title</value>
+    <comment>Label for the title input on create forms</comment>
+  </data>
+  <data name="Forms_Create_TitlePlaceholder" xml:space="preserve">
+    <value>Enter a title</value>
+    <comment>Placeholder for the title input on create forms</comment>
+  </data>
+  <data name="Forms_Create_TitleError" xml:space="preserve">
+    <value>A title is required</value>
+    <comment>Validation error for the title input on create forms</comment>
+  </data>
+  <data name="Forms_Create_BodyLabel" xml:space="preserve">
+    <value>Description</value>
+    <comment>Label for the body input on create forms</comment>
+  </data>
+  <data name="Forms_Create_BodyPlaceholder" xml:space="preserve">
+    <value>Enter a description (optional)</value>
+    <comment>Placeholder for the body input on create forms</comment>
+  </data>
+  <data name="Forms_CreateIssue_Title" xml:space="preserve">
+    <value>Create Issue</value>
+    <comment>Title for the create issue form</comment>
+  </data>
+  <data name="Forms_CreateIssue_Action" xml:space="preserve">
+    <value>Create issue</value>
+    <comment>Submit action title for the create issue form</comment>
+  </data>
+  <data name="Forms_CreatePullRequest_Title" xml:space="preserve">
+    <value>Create Pull Request</value>
+    <comment>Title for the create pull request form</comment>
+  </data>
+  <data name="Forms_CreatePullRequest_Action" xml:space="preserve">
+    <value>Create pull request</value>
+    <comment>Submit action title for the create pull request form</comment>
+  </data>
+  <data name="Forms_CreatePullRequest_HeadLabel" xml:space="preserve">
+    <value>Head branch</value>
+    <comment>Label for the head branch input on the create pull request form</comment>
+  </data>
+  <data name="Forms_CreatePullRequest_HeadPlaceholder" xml:space="preserve">
+    <value>feature-branch</value>
+    <comment>Placeholder for the head branch input on the create pull request form</comment>
+  </data>
+  <data name="Forms_CreatePullRequest_HeadError" xml:space="preserve">
+    <value>A head branch is required</value>
+    <comment>Validation error for the head branch input on the create pull request form</comment>
+  </data>
+  <data name="Forms_CreatePullRequest_BaseLabel" xml:space="preserve">
+    <value>Base branch</value>
+    <comment>Label for the base branch input on the create pull request form</comment>
+  </data>
+  <data name="Forms_CreatePullRequest_BasePlaceholder" xml:space="preserve">
+    <value>main</value>
+    <comment>Placeholder for the base branch input on the create pull request form</comment>
+  </data>
+  <data name="Forms_CreatePullRequest_BaseError" xml:space="preserve">
+    <value>A base branch is required</value>
+    <comment>Validation error for the base branch input on the create pull request form</comment>
+  </data>
+  <data name="Forms_CreateBranch_Title" xml:space="preserve">
+    <value>Create Branch</value>
+    <comment>Title for the create branch form</comment>
+  </data>
+  <data name="Forms_CreateBranch_Action" xml:space="preserve">
+    <value>Create branch</value>
+    <comment>Submit action title for the create branch form</comment>
+  </data>
+  <data name="Forms_CreateBranch_NewBranchLabel" xml:space="preserve">
+    <value>New branch name</value>
+    <comment>Label for the new branch input on the create branch form</comment>
+  </data>
+  <data name="Forms_CreateBranch_NewBranchPlaceholder" xml:space="preserve">
+    <value>feature-branch</value>
+    <comment>Placeholder for the new branch input on the create branch form</comment>
+  </data>
+  <data name="Forms_CreateBranch_NewBranchError" xml:space="preserve">
+    <value>A branch name is required</value>
+    <comment>Validation error for the new branch input on the create branch form</comment>
+  </data>
+  <data name="Forms_CreateBranch_SourceBranchLabel" xml:space="preserve">
+    <value>Source branch</value>
+    <comment>Label for the source branch input on the create branch form</comment>
+  </data>
+  <data name="Forms_CreateBranch_SourceBranchPlaceholder" xml:space="preserve">
+    <value>main</value>
+    <comment>Placeholder for the source branch input on the create branch form</comment>
+  </data>
+  <data name="Forms_CreateBranch_SourceBranchError" xml:space="preserve">
+    <value>A source branch is required</value>
+    <comment>Validation error for the source branch input on the create branch form</comment>
+  </data>
+  <data name="Forms_AddComment_Title" xml:space="preserve">
+    <value>Add Comment</value>
+    <comment>Title for the add comment form</comment>
+  </data>
+  <data name="Forms_AddComment_Action" xml:space="preserve">
+    <value>Add comment</value>
+    <comment>Submit action title for the add comment form</comment>
+  </data>
+  <data name="Forms_AddComment_BodyLabel" xml:space="preserve">
+    <value>Comment</value>
+    <comment>Label for the comment input on the add comment form</comment>
+  </data>
+  <data name="Forms_AddComment_BodyPlaceholder" xml:space="preserve">
+    <value>Write a comment</value>
+    <comment>Placeholder for the comment input on the add comment form</comment>
+  </data>
+  <data name="Forms_AddComment_BodyError" xml:space="preserve">
+    <value>A comment is required</value>
+    <comment>Validation error for the comment input on the add comment form</comment>
+  </data>
+  <data name="Message_CreateIssue_Success" xml:space="preserve">
+    <value>Issue created</value>
+    <comment>Toast shown after an issue is created</comment>
+  </data>
+  <data name="Message_CreateIssue_Error" xml:space="preserve">
+    <value>Failed to create issue</value>
+    <comment>Toast shown when creating an issue fails</comment>
+  </data>
+  <data name="Message_CreatePullRequest_Success" xml:space="preserve">
+    <value>Pull request created</value>
+    <comment>Toast shown after a pull request is created</comment>
+  </data>
+  <data name="Message_CreatePullRequest_Error" xml:space="preserve">
+    <value>Failed to create pull request</value>
+    <comment>Toast shown when creating a pull request fails</comment>
+  </data>
+  <data name="Message_CreateBranch_Success" xml:space="preserve">
+    <value>Branch created</value>
+    <comment>Toast shown after a branch is created</comment>
+  </data>
+  <data name="Message_CreateBranch_Error" xml:space="preserve">
+    <value>Failed to create branch</value>
+    <comment>Toast shown when creating a branch fails</comment>
+  </data>
+  <data name="Message_AddComment_Success" xml:space="preserve">
+    <value>Comment added</value>
+    <comment>Toast shown after a comment is added</comment>
+  </data>
+  <data name="Message_AddComment_Error" xml:space="preserve">
+    <value>Failed to add comment</value>
+    <comment>Toast shown when adding a comment fails</comment>
+  </data>
   <data name="ExtensionTitle" xml:space="preserve">
     <value>GitHub Extension (Preview)</value>
     <comment>Title for the extension</comment>

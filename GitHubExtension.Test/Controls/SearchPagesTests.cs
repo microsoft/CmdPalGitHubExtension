@@ -20,8 +20,9 @@ public class SearchPagesTests
     private static (MutationCommandsFactory Factory, MutationMediator Mediator) CreateMutationDeps(Mock<IResources> resources)
     {
         var mutationManager = new Mock<IGitHubMutationManager>();
+        var createManager = new Mock<IGitHubCreateManager>();
         var mediator = new MutationMediator();
-        var factory = new MutationCommandsFactory(mutationManager.Object, mediator, resources.Object);
+        var factory = new MutationCommandsFactory(mutationManager.Object, createManager.Object, mediator, resources.Object);
         return (factory, mediator);
     }
 

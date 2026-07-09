@@ -138,7 +138,8 @@ public class Program
         var notificationsPage = new NotificationsPage(notificationsDataManager, notificationsMediator, resources);
 
         var mutationManager = new GitHubMutationManager(gitHubClientProvider);
-        var mutationCommandsFactory = new MutationCommandsFactory(mutationManager, mutationMediator, resources);
+        var createManager = new GitHubCreateManager(gitHubClientProvider);
+        var mutationCommandsFactory = new MutationCommandsFactory(mutationManager, createManager, mutationMediator, resources);
 
         var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository, resources, savedSearchesMediator, mutationCommandsFactory, mutationMediator);
 
@@ -154,7 +155,7 @@ public class Program
         using var signInForm = new SignInForm(authenticationMediator, resources, developerIdProvider, signInCommand);
         using var signInPage = new SignInPage(signInForm, resources, signInCommand, authenticationMediator);
 
-        using var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, notificationsPage, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator, authenticationMediator, notificationsMediator);
+        using var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, notificationsPage, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator, authenticationMediator, notificationsMediator, createManager);
         var extensionInstance = new GitHubExtension(extensionDisposedEvent, commandProvider);
 
         // We are instantiating an extension instance once above, and returning it every time the callback in RegisterExtension below is called.

@@ -1,0 +1,50 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "TextBlock",
+      "size": "Medium",
+      "weight": "Bolder",
+      "text": {{CreateIssueFormTitle}},
+      "horizontalAlignment": "Center",
+      "wrap": true,
+      "style": "heading"
+    },
+    {
+      "type": "Input.Text",
+      "id": "Repository",
+      "label": {{RepositoryLabel}},
+      "placeholder": {{RepositoryPlaceholder}},
+      "isRequired": true,
+      "errorMessage": {{RepositoryErrorMessage}},
+      "value": {{RepositoryValue}}
+    },
+    {
+      "type": "Input.Text",
+      "id": "Title",
+      "label": {{TitleLabel}},
+      "placeholder": {{TitlePlaceholder}},
+      "isRequired": true,
+      "errorMessage": {{TitleErrorMessage}}
+    },
+    {
+      "type": "Input.Text",
+      "id": "Body",
+      "label": {{BodyLabel}},
+      "placeholder": {{BodyPlaceholder}},
+      "isMultiline": true,
+      "isRequired": false
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": {{CreateIssueActionTitle}},
+      "data": {
+        "id": "CreateIssueAction"
+      }
+    }
+  ]
+}

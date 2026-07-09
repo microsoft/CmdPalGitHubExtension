@@ -1,0 +1,40 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "TextBlock",
+      "size": "Medium",
+      "weight": "Bolder",
+      "text": {{AddCommentFormTitle}},
+      "horizontalAlignment": "Center",
+      "wrap": true,
+      "style": "heading"
+    },
+    {
+      "type": "TextBlock",
+      "text": {{AddCommentSubtitle}},
+      "wrap": true,
+      "isSubtle": true
+    },
+    {
+      "type": "Input.Text",
+      "id": "Body",
+      "label": {{BodyLabel}},
+      "placeholder": {{BodyPlaceholder}},
+      "isMultiline": true,
+      "isRequired": true,
+      "errorMessage": {{BodyErrorMessage}}
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": {{AddCommentActionTitle}},
+      "data": {
+        "id": "AddCommentAction"
+      }
+    }
+  ]
+}
