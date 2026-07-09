@@ -35,6 +35,11 @@ public class SignInCommand : InvokableCommand, IDisposable
 
     public override CommandResult Invoke()
     {
+        return Invoke(string.Empty);
+    }
+
+    public CommandResult Invoke(string hostAddress)
+    {
         if (_invoked)
         {
             return CommandResult.KeepOpen();
@@ -46,7 +51,7 @@ public class SignInCommand : InvokableCommand, IDisposable
             _authenticationMediator.SetLoadingState(true);
             try
             {
-                var signInSucceeded = await _developerIdProvider.LoginNewDeveloperIdAsync();
+                var signInSucceeded = await _developerIdProvider.LoginNewDeveloperIdAsync(hostAddress ?? string.Empty);
                 _authenticationMediator.SetLoadingState(false);
                 _authenticationMediator.SignIn(new SignInStatusChangedEventArgs(true, null));
                 ToastHelper.ShowToast(_resources.GetResource("Message_Sign_In_Success"), MessageState.Success);

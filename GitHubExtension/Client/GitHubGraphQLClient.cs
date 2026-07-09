@@ -79,16 +79,6 @@ public sealed class GitHubGraphQLClient : IGitHubGraphQLClient
 
     internal static Uri ResolveGraphQLEndpoint(Uri baseAddress)
     {
-        var host = baseAddress.Host;
-
-        // github.com REST lives at api.github.com; GraphQL is api.github.com/graphql.
-        if (host.Equals("api.github.com", StringComparison.OrdinalIgnoreCase)
-            || host.Equals("github.com", StringComparison.OrdinalIgnoreCase))
-        {
-            return new Uri("https://api.github.com/graphql");
-        }
-
-        // GitHub Enterprise Server: https://HOST/api/graphql.
-        return new Uri($"{baseAddress.Scheme}://{baseAddress.Authority}/api/graphql");
+        return GitHubHostAddress.GetGraphQLUriFromApiBase(baseAddress);
     }
 }

@@ -23,6 +23,13 @@
           "size": "large"
         },
         {
+          "type": "Input.Text",
+          "id": "EnterpriseHost",
+          "label": {{EnterpriseHostLabel}},
+          "placeholder": {{EnterpriseHostPlaceholder}},
+          "isRequired": false
+        },
+        {
           "type": "ColumnSet",
           "columns": [
             {

@@ -77,13 +77,29 @@ public partial class SignInForm : FormContent, IDisposable
         { "{{AuthIcon}}", JsonSerializer.Serialize($"data:image/png;base64,{GitHubIcon.GetBase64Icon(GitHubIcon.LogoWithBackplatePath)}") },
         { "{{AuthButtonTooltip}}", JsonSerializer.Serialize(_resources.GetResource("Forms_Sign_In_Tooltip")) },
         { "{{ButtonIsEnabled}}", JsonSerializer.Serialize(_isButtonEnabled) },
+        { "{{EnterpriseHostLabel}}", JsonSerializer.Serialize(_resources.GetResource("Forms_Sign_In_EnterpriseHostLabel")) },
+        { "{{EnterpriseHostPlaceholder}}", JsonSerializer.Serialize(_resources.GetResource("Forms_Sign_In_EnterpriseHostPlaceholder")) },
     };
 
     public override string TemplateJson => TemplateHelper.LoadTemplateJsonFromTemplateName("AuthTemplate", TemplateSubstitutions);
 
     public override ICommandResult SubmitForm(string inputs, string data)
     {
-        return _signInCommand.Invoke();
+        var enterpriseHost = string.Empty;
+        if (!string.IsNullOrWhiteSpace(inputs))
+        {
+            try
+            {
+                var payload = System.Text.Json.Nodes.JsonNode.Parse(inputs);
+                enterpriseHost = payload?["EnterpriseHost"]?.ToString() ?? string.Empty;
+            }
+            catch (System.Text.Json.JsonException)
+            {
+                enterpriseHost = string.Empty;
+            }
+        }
+
+        return _signInCommand.Invoke(enterpriseHost);
     }
 
     // Disposing area

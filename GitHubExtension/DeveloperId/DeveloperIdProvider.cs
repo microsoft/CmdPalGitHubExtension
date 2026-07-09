@@ -66,9 +66,15 @@ public class DeveloperIdProvider : IDeveloperIdProvider
 
     public IAsyncOperation<IDeveloperId> LoginNewDeveloperIdAsync()
     {
+        return LoginNewDeveloperIdAsync(string.Empty);
+    }
+
+    public IAsyncOperation<IDeveloperId> LoginNewDeveloperIdAsync(string hostAddress)
+    {
         return Task.Run(() =>
         {
-            var oauthRequest = LoginNewDeveloperId();
+            var host = string.IsNullOrWhiteSpace(hostAddress) ? null : Client.GitHubHostAddress.ParseHostInput(hostAddress);
+            var oauthRequest = LoginNewDeveloperId(host);
             if (oauthRequest is null)
             {
                 _log.Error($"Invalid OAuthRequest");
@@ -86,9 +92,9 @@ public class DeveloperIdProvider : IDeveloperIdProvider
         }).AsAsyncOperation();
     }
 
-    private OAuthRequest? LoginNewDeveloperId()
+    private OAuthRequest? LoginNewDeveloperId(Uri? hostAddress = null)
     {
-        OAuthRequest oauthRequest = new();
+        OAuthRequest oauthRequest = new(hostAddress);
 
         lock (_oAuthRequestsLock)
         {

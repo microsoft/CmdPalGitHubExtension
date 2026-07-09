@@ -157,6 +157,14 @@
     <value>Sign in to GitHub</value>
     <comment>Shown in form's sign in button tooltip</comment>
   </data>
+  <data name="Forms_Sign_In_EnterpriseHostLabel" xml:space="preserve">
+    <value>GitHub Enterprise Server host (optional)</value>
+    <comment>Label for the optional enterprise host field on the sign in form</comment>
+  </data>
+  <data name="Forms_Sign_In_EnterpriseHostPlaceholder" xml:space="preserve">
+    <value>github.example.com (leave blank for github.com)</value>
+    <comment>Placeholder for the optional enterprise host field on the sign in form</comment>
+  </data>
   <data name="Forms_Sign_Out_Title" xml:space="preserve">
     <value>Are you sure you want to sign out?</value>
     <comment>Title for sign out form page</comment>
