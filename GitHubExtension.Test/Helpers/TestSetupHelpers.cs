@@ -8,6 +8,7 @@ using GitHubExtension.Controls;
 using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
 using GitHubExtension.Controls.Pages;
+using GitHubExtension.DataManager;
 using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.Enums;
 using GitHubExtension.DeveloperIds;
@@ -170,6 +171,10 @@ public partial class TestHelpers
         var mockSignInForm = new Mock<SignInForm>(mockAuthenticationMediator, mockResources, mockDeveloperIdProvider, mockSignInCommand).Object;
         var signOutPage = new SignOutPage(mockResources, mockSignOutForm, mockSignOutCommand, mockAuthenticationMediator);
         var signInPage = new SignInPage(mockSignInForm, mockResources, mockSignInCommand, mockAuthenticationMediator);
-        return new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, mockDeveloperIdProvider, persistentDataManager, mockResources, searchPageFactory, savedSearchesMediator, mockAuthenticationMediator);
+        var notificationsMediator = new NotificationsMediator();
+        var mockNotificationsDataManager = new Mock<INotificationsDataManager>();
+        mockNotificationsDataManager.Setup(x => x.GetUnreadCountAsync()).ReturnsAsync(0);
+        var notificationsPage = new NotificationsPage(mockNotificationsDataManager.Object, notificationsMediator, mockResources);
+        return new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, notificationsPage, mockDeveloperIdProvider, persistentDataManager, mockResources, searchPageFactory, savedSearchesMediator, mockAuthenticationMediator, notificationsMediator);
     }
 }
