@@ -141,9 +141,18 @@ public class Program
         var workflowRunsDataManager = new WorkflowRunsDataManager(gitHubClientProvider);
         var workflowRunsPage = new WorkflowRunsPage(workflowRunsDataManager, workflowRunsMediator, resources);
 
+        var graphQLClient = new GitHubGraphQLClient(gitHubClientProvider);
+        var discussionsDataManager = new DiscussionsDataManager(graphQLClient);
+        var projectsDataManager = new ProjectsDataManager(graphQLClient);
+        var autoMergeManager = new GitHubAutoMergeManager(graphQLClient);
+
+        var myDiscussionsPage = new DiscussionsPage(discussionsDataManager, resources, resources.GetResource("Pages_MyDiscussions"), "author:@me");
+        var searchDiscussionsPage = new DiscussionsPage(discussionsDataManager, resources, resources.GetResource("Pages_SearchDiscussions"), string.Empty);
+        var projectsPage = new ProjectsPage(projectsDataManager, resources);
+
         var mutationManager = new GitHubMutationManager(gitHubClientProvider);
         var createManager = new GitHubCreateManager(gitHubClientProvider);
-        var mutationCommandsFactory = new MutationCommandsFactory(mutationManager, createManager, mutationMediator, resources);
+        var mutationCommandsFactory = new MutationCommandsFactory(mutationManager, createManager, autoMergeManager, mutationMediator, resources);
 
         var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository, resources, savedSearchesMediator, mutationCommandsFactory, mutationMediator);
 
@@ -159,7 +168,7 @@ public class Program
         using var signInForm = new SignInForm(authenticationMediator, resources, developerIdProvider, signInCommand);
         using var signInPage = new SignInPage(signInForm, resources, signInCommand, authenticationMediator);
 
-        using var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, notificationsPage, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator, authenticationMediator, notificationsMediator, createManager, workflowRunsPage, workflowRunsDataManager);
+        using var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, notificationsPage, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator, authenticationMediator, notificationsMediator, createManager, workflowRunsPage, workflowRunsDataManager, myDiscussionsPage, searchDiscussionsPage, projectsPage);
         var extensionInstance = new GitHubExtension(extensionDisposedEvent, commandProvider);
 
         // We are instantiating an extension instance once above, and returning it every time the callback in RegisterExtension below is called.

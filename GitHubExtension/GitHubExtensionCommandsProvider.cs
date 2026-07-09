@@ -30,6 +30,9 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
     private readonly IGitHubCreateManager _createManager;
     private readonly WorkflowRunsPage _workflowRunsPage;
     private readonly IWorkflowRunsDataManager _workflowRunsDataManager;
+    private readonly DiscussionsPage _myDiscussionsPage;
+    private readonly DiscussionsPage _searchDiscussionsPage;
+    private readonly ProjectsPage _projectsPage;
 
     public GitHubExtensionCommandsProvider(
         SavedSearchesPage savedSearchesPage,
@@ -45,7 +48,10 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         NotificationsMediator notificationsMediator,
         IGitHubCreateManager createManager,
         WorkflowRunsPage workflowRunsPage,
-        IWorkflowRunsDataManager workflowRunsDataManager)
+        IWorkflowRunsDataManager workflowRunsDataManager,
+        DiscussionsPage myDiscussionsPage,
+        DiscussionsPage searchDiscussionsPage,
+        ProjectsPage projectsPage)
     {
         _savedSearchesPage = savedSearchesPage;
         _signOutPage = signOutPage;
@@ -61,6 +67,9 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         _createManager = createManager;
         _workflowRunsPage = workflowRunsPage;
         _workflowRunsDataManager = workflowRunsDataManager;
+        _myDiscussionsPage = myDiscussionsPage;
+        _searchDiscussionsPage = searchDiscussionsPage;
+        _projectsPage = projectsPage;
 
         DisplayName = _resources.GetResource("ExtensionTitle");
 
@@ -122,6 +131,9 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
             BuildCreateBranchCommandItem(),
             BuildWorkflowRunsCommandItem(),
             BuildTriggerWorkflowCommandItem(),
+            BuildMyDiscussionsCommandItem(),
+            BuildSearchDiscussionsCommandItem(),
+            BuildProjectsCommandItem(),
             new(_savedSearchesPage),
             new(_signOutPage),
         };
@@ -204,6 +216,33 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         {
             Title = _resources.GetResource("CommandsProvider_TriggerWorkflowCommandName"),
             Subtitle = _resources.GetResource("CommandsProvider_TriggerWorkflowSubtitle"),
+        };
+    }
+
+    private CommandItem BuildMyDiscussionsCommandItem()
+    {
+        return new CommandItem(_myDiscussionsPage)
+        {
+            Title = _resources.GetResource("CommandsProvider_MyDiscussionsCommandName"),
+            Subtitle = _resources.GetResource("CommandsProvider_MyDiscussionsSubtitle"),
+        };
+    }
+
+    private CommandItem BuildSearchDiscussionsCommandItem()
+    {
+        return new CommandItem(_searchDiscussionsPage)
+        {
+            Title = _resources.GetResource("CommandsProvider_SearchDiscussionsCommandName"),
+            Subtitle = _resources.GetResource("CommandsProvider_SearchDiscussionsSubtitle"),
+        };
+    }
+
+    private CommandItem BuildProjectsCommandItem()
+    {
+        return new CommandItem(_projectsPage)
+        {
+            Title = _resources.GetResource("CommandsProvider_ProjectsCommandName"),
+            Subtitle = _resources.GetResource("CommandsProvider_ProjectsSubtitle"),
         };
     }
 

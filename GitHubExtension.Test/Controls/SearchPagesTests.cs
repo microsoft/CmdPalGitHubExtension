@@ -21,8 +21,9 @@ public class SearchPagesTests
     {
         var mutationManager = new Mock<IGitHubMutationManager>();
         var createManager = new Mock<IGitHubCreateManager>();
+        var autoMergeManager = new Mock<IGitHubAutoMergeManager>();
         var mediator = new MutationMediator();
-        var factory = new MutationCommandsFactory(mutationManager.Object, createManager.Object, mediator, resources.Object);
+        var factory = new MutationCommandsFactory(mutationManager.Object, createManager.Object, autoMergeManager.Object, mediator, resources.Object);
         return (factory, mediator);
     }
 

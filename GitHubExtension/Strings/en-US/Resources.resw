@@ -813,4 +813,88 @@
     <value>Trigger workflow</value>
     <comment>Submit button title for the Trigger Workflow form</comment>
   </data>
+  <data name="CommandsProvider_MyDiscussionsCommandName" xml:space="preserve">
+    <value>My discussions</value>
+    <comment>Name of the top-level My Discussions command</comment>
+  </data>
+  <data name="CommandsProvider_MyDiscussionsSubtitle" xml:space="preserve">
+    <value>Discussions you started</value>
+    <comment>Subtitle of the top-level My Discussions command</comment>
+  </data>
+  <data name="CommandsProvider_SearchDiscussionsCommandName" xml:space="preserve">
+    <value>Search discussions</value>
+    <comment>Name of the top-level Search Discussions command</comment>
+  </data>
+  <data name="CommandsProvider_SearchDiscussionsSubtitle" xml:space="preserve">
+    <value>Search GitHub discussions</value>
+    <comment>Subtitle of the top-level Search Discussions command</comment>
+  </data>
+  <data name="CommandsProvider_ProjectsCommandName" xml:space="preserve">
+    <value>My projects</value>
+    <comment>Name of the top-level My Projects command</comment>
+  </data>
+  <data name="CommandsProvider_ProjectsSubtitle" xml:space="preserve">
+    <value>Your GitHub Projects</value>
+    <comment>Subtitle of the top-level My Projects command</comment>
+  </data>
+  <data name="Pages_MyDiscussions" xml:space="preserve">
+    <value>My discussions</value>
+    <comment>Title of the My Discussions page</comment>
+  </data>
+  <data name="Pages_SearchDiscussions" xml:space="preserve">
+    <value>Search discussions</value>
+    <comment>Title of the Search Discussions page</comment>
+  </data>
+  <data name="Pages_Discussions_Placeholder" xml:space="preserve">
+    <value>Search discussions</value>
+    <comment>Placeholder text in the Discussions search box</comment>
+  </data>
+  <data name="Pages_Discussions_Prompt" xml:space="preserve">
+    <value>Type to search discussions</value>
+    <comment>Prompt shown on the Discussions page before a search is entered</comment>
+  </data>
+  <data name="Pages_Discussions_None" xml:space="preserve">
+    <value>No discussions found</value>
+    <comment>Message shown when no discussions match the search</comment>
+  </data>
+  <data name="Pages_Projects" xml:space="preserve">
+    <value>My projects</value>
+    <comment>Title of the Projects page</comment>
+  </data>
+  <data name="Pages_Projects_None" xml:space="preserve">
+    <value>No projects found</value>
+    <comment>Message shown when the user has no projects</comment>
+  </data>
+  <data name="Pages_Projects_Open" xml:space="preserve">
+    <value>Open</value>
+    <comment>Subtitle shown for an open project</comment>
+  </data>
+  <data name="Pages_Projects_Closed" xml:space="preserve">
+    <value>Closed</value>
+    <comment>Subtitle shown for a closed project</comment>
+  </data>
+  <data name="Commands_EnableAutoMerge" xml:space="preserve">
+    <value>Enable auto-merge</value>
+    <comment>Command name for enabling auto-merge on a pull request</comment>
+  </data>
+  <data name="Commands_DisableAutoMerge" xml:space="preserve">
+    <value>Disable auto-merge</value>
+    <comment>Command name for disabling auto-merge on a pull request</comment>
+  </data>
+  <data name="Message_EnableAutoMerge_Success" xml:space="preserve">
+    <value>Auto-merge enabled</value>
+    <comment>Success toast shown after enabling auto-merge</comment>
+  </data>
+  <data name="Message_EnableAutoMerge_Error" xml:space="preserve">
+    <value>Failed to enable auto-merge</value>
+    <comment>Error toast shown when enabling auto-merge fails</comment>
+  </data>
+  <data name="Message_DisableAutoMerge_Success" xml:space="preserve">
+    <value>Auto-merge disabled</value>
+    <comment>Success toast shown after disabling auto-merge</comment>
+  </data>
+  <data name="Message_DisableAutoMerge_Error" xml:space="preserve">
+    <value>Failed to disable auto-merge</value>
+    <comment>Error toast shown when disabling auto-merge fails</comment>
+  </data>
 </root>
