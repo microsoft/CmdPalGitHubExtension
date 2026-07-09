@@ -14,5 +14,7 @@ public interface IIssue
 
     string Body { get; }
 
+    string State { get; }
+
     IEnumerable<ILabel> Labels { get; }
 }

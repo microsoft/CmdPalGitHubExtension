@@ -132,11 +132,15 @@ public class Program
 
         var savedSearchesMediator = new SavedSearchesMediator();
         var notificationsMediator = new NotificationsMediator();
+        var mutationMediator = new MutationMediator();
 
         var notificationsDataManager = new NotificationsDataManager(gitHubClientProvider);
         var notificationsPage = new NotificationsPage(notificationsDataManager, notificationsMediator, resources);
 
-        var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository, resources, savedSearchesMediator);
+        var mutationManager = new GitHubMutationManager(gitHubClientProvider);
+        var mutationCommandsFactory = new MutationCommandsFactory(mutationManager, mutationMediator, resources);
+
+        var searchPageFactory = new SearchPageFactory(cacheDataManager, searchRepository, resources, savedSearchesMediator, mutationCommandsFactory, mutationMediator);
 
         var addSearchForm = new SaveSearchForm(searchRepository, resources, savedSearchesMediator);
         var addSearchListItem = new AddSearchListItem(new SaveSearchPage(addSearchForm, new StatusMessage(), resources), resources);

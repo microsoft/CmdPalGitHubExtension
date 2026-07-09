@@ -4,7 +4,9 @@
 
 using System.Net;
 using GitHubExtension.Controls;
+using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Pages;
+using GitHubExtension.DataManager;
 using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Helpers;
 using Moq;
@@ -15,6 +17,14 @@ namespace GitHubExtension.Test.Controls;
 [TestClass]
 public class SearchPagesTests
 {
+    private static (MutationCommandsFactory Factory, MutationMediator Mediator) CreateMutationDeps(Mock<IResources> resources)
+    {
+        var mutationManager = new Mock<IGitHubMutationManager>();
+        var mediator = new MutationMediator();
+        var factory = new MutationCommandsFactory(mutationManager.Object, mediator, resources.Object);
+        return (factory, mediator);
+    }
+
     private (Mock<ICacheDataManager> CacheDataManager, Mock<IResources> Resources, Mock<ISearch> Search) CreateCommonMocks(SearchType type, string searchString = "test search string")
     {
         var cacheDataManager = new Mock<ICacheDataManager>();
@@ -33,11 +43,12 @@ public class SearchPagesTests
     public void SearchPagesCreate_CreatesPagesForBothTypes()
     {
         var (cacheDataManager, resources, search) = CreateCommonMocks(SearchType.Issues, "test search string is:pr");
-        var issuesSearchPage = new IssuesSearchPage(search.Object, cacheDataManager.Object, resources.Object);
+        var (mutationFactory, mutationMediator) = CreateMutationDeps(resources);
+        var issuesSearchPage = new IssuesSearchPage(search.Object, cacheDataManager.Object, resources.Object, mutationFactory, mutationMediator);
         Assert.IsNotNull(issuesSearchPage);
 
         search.Setup(x => x.Type).Returns(SearchType.PullRequests);
-        var pullRequestsSearchPage = new PullRequestsSearchPage(search.Object, cacheDataManager.Object, resources.Object);
+        var pullRequestsSearchPage = new PullRequestsSearchPage(search.Object, cacheDataManager.Object, resources.Object, mutationFactory, mutationMediator);
         Assert.IsNotNull(pullRequestsSearchPage);
 
         search.Setup(x => x.Type).Returns(SearchType.Repositories);
@@ -82,7 +93,8 @@ public class SearchPagesTests
 
         if (type == SearchType.PullRequests)
         {
-            var page = new PullRequestsSearchPage(search.Object, cacheDataManager.Object, resources.Object);
+            var (mutationFactory, mutationMediator) = CreateMutationDeps(resources);
+            var page = new PullRequestsSearchPage(search.Object, cacheDataManager.Object, resources.Object, mutationFactory, mutationMediator);
             var pull1 = new Mock<IPullRequest>();
             var pull2 = new Mock<IPullRequest>();
             pull1.Setup(x => x.Title).Returns("Title1");
@@ -103,7 +115,8 @@ public class SearchPagesTests
         }
         else
         {
-            var page = new IssuesSearchPage(search.Object, cacheDataManager.Object, resources.Object);
+            var (mutationFactory, mutationMediator) = CreateMutationDeps(resources);
+            var page = new IssuesSearchPage(search.Object, cacheDataManager.Object, resources.Object, mutationFactory, mutationMediator);
             var issue1 = new Mock<IIssue>();
             var issue2 = new Mock<IIssue>();
             issue1.Setup(x => x.Title).Returns("Title1");
@@ -129,7 +142,8 @@ public class SearchPagesTests
         var (cacheDataManager, resources, search) = CreateCommonMocks(SearchType.PullRequests, "test search string is:pr");
         resources.Setup(x => x.GetResource("Pages_Error_Title", null)).Returns("Error fetching items");
 
-        var pullRequestsSearchPage = new PullRequestsSearchPage(search.Object, cacheDataManager.Object, resources.Object);
+        var (mutationFactory, mutationMediator) = CreateMutationDeps(resources);
+        var pullRequestsSearchPage = new PullRequestsSearchPage(search.Object, cacheDataManager.Object, resources.Object, mutationFactory, mutationMediator);
 
         var mockResponse = new Mock<IResponse>();
         mockResponse.SetupGet(r => r.StatusCode).Returns(HttpStatusCode.Forbidden);

@@ -3,8 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using GitHubExtension.Controls;
+using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
 using GitHubExtension.Controls.Pages;
+using GitHubExtension.DataManager;
 using GitHubExtension.DataModel;
 using GitHubExtension.Helpers;
 using GitHubExtension.PersistentData;
@@ -110,7 +112,10 @@ public class TopLevelSearchesTest
         {
             var mockDeveloperIdProvider = TestHelpers.CreateMockDeveloperIdProvider();
             var mockCacheDataManager = new Mock<ICacheDataManager>().Object;
-            var searchPageFactory = new SearchPageFactory(mockCacheDataManager, persistentDataManager, resources, mediator);
+            var mutationManager = new Mock<IGitHubMutationManager>().Object;
+            var mutationMediator = new MutationMediator();
+            var mutationCommandsFactory = new MutationCommandsFactory(mutationManager, mutationMediator, resources);
+            var searchPageFactory = new SearchPageFactory(mockCacheDataManager, persistentDataManager, resources, mediator, mutationCommandsFactory, mutationMediator);
 
             var addSearchForm = new SaveSearchForm(persistentDataManager, resources, mediator);
 
