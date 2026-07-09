@@ -33,8 +33,15 @@ internal sealed class OAuthRequest : IDisposable
     }
 
     internal OAuthRequest()
+        : this(null)
     {
-        _gitHubClient = new(new ProductHeaderValue(Constants.CMDPAL_APPLICATION_NAME));
+    }
+
+    internal OAuthRequest(Uri? hostAddress)
+    {
+        _gitHubClient = hostAddress == null || Client.GitHubHostAddress.IsGitHubDotComHost(hostAddress.Host)
+            ? new(new ProductHeaderValue(Constants.CMDPAL_APPLICATION_NAME))
+            : new(new ProductHeaderValue(Constants.CMDPAL_APPLICATION_NAME), Client.GitHubHostAddress.GetApiBaseUri(hostAddress));
         _oAuthCompleted = new(0);
         State = string.Empty;
     }
