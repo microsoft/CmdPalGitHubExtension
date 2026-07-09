@@ -2,6 +2,8 @@
 // The Microsoft Corporation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using GitHubExtension.Controls.Forms;
+using GitHubExtension.Controls.Pages;
 using GitHubExtension.DataManager;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -13,6 +15,7 @@ namespace GitHubExtension.Controls.Commands;
 public sealed class MutationCommandsFactory
 {
     private readonly IGitHubMutationManager _mutationManager;
+    private readonly IGitHubCreateManager _createManager;
     private readonly MutationMediator _mediator;
     private readonly IResources _resources;
 
@@ -20,14 +23,28 @@ public sealed class MutationCommandsFactory
     private static readonly IconInfo ReopenIcon = new("\uE72C");
     private static readonly IconInfo MergeIcon = new("\uE8FB");
 
-    public MutationCommandsFactory(IGitHubMutationManager mutationManager, MutationMediator mediator, IResources resources)
+    public MutationCommandsFactory(IGitHubMutationManager mutationManager, IGitHubCreateManager createManager, MutationMediator mediator, IResources resources)
     {
         _mutationManager = mutationManager;
+        _createManager = createManager;
         _mediator = mediator;
         _resources = resources;
     }
 
     private static bool IsOpen(IIssue issue) => string.Equals(issue.State, "Open", StringComparison.OrdinalIgnoreCase);
+
+    private CommandContextItem BuildAddCommentCommand(IIssue issue)
+    {
+        var page = new GitHubFormPage(
+            new AddCommentForm(issue, _createManager, _resources),
+            _resources,
+            "Forms_AddComment_Title",
+            "\uE90A",
+            "Message_AddComment_Success",
+            "Message_AddComment_Error");
+
+        return new CommandContextItem(page);
+    }
 
     public IEnumerable<CommandContextItem> GetIssueCommands(IIssue issue)
     {
@@ -64,6 +81,8 @@ public sealed class MutationCommandsFactory
 
             items.Add(new CommandContextItem(reopen));
         }
+
+        items.Add(BuildAddCommentCommand(issue));
 
         return items;
     }
@@ -120,6 +139,8 @@ public sealed class MutationCommandsFactory
 
             items.Add(new CommandContextItem(reopen));
         }
+
+        items.Add(BuildAddCommentCommand(pullRequest));
 
         return items;
     }

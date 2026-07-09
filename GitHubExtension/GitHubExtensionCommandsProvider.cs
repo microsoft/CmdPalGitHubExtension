@@ -4,7 +4,9 @@
 
 using System.Diagnostics;
 using GitHubExtension.Controls;
+using GitHubExtension.Controls.Forms;
 using GitHubExtension.Controls.Pages;
+using GitHubExtension.DataManager;
 using GitHubExtension.DeveloperIds;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
@@ -25,6 +27,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
     private readonly SavedSearchesMediator _savedSearchesMediator;
     private readonly AuthenticationMediator _authenticationMediator;
     private readonly NotificationsMediator _notificationsMediator;
+    private readonly IGitHubCreateManager _createManager;
 
     public GitHubExtensionCommandsProvider(
         SavedSearchesPage savedSearchesPage,
@@ -37,7 +40,8 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         ISearchPageFactory searchPageFactory,
         SavedSearchesMediator savedSearchesMediator,
         AuthenticationMediator authenticationMediator,
-        NotificationsMediator notificationsMediator)
+        NotificationsMediator notificationsMediator,
+        IGitHubCreateManager createManager)
     {
         _savedSearchesPage = savedSearchesPage;
         _signOutPage = signOutPage;
@@ -50,6 +54,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         _savedSearchesMediator = savedSearchesMediator;
         _authenticationMediator = authenticationMediator;
         _notificationsMediator = notificationsMediator;
+        _createManager = createManager;
 
         DisplayName = _resources.GetResource("ExtensionTitle");
 
@@ -106,12 +111,66 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         var defaultCommands = new List<CommandItem>
         {
             BuildNotificationsCommandItem(),
+            BuildCreateIssueCommandItem(),
+            BuildCreatePullRequestCommandItem(),
+            BuildCreateBranchCommandItem(),
             new(_savedSearchesPage),
             new(_signOutPage),
         };
 
         commands.AddRange(defaultCommands);
         return commands.ToArray();
+    }
+
+    private CommandItem BuildCreateIssueCommandItem()
+    {
+        var page = new GitHubFormPage(
+            new CreateIssueForm(_createManager, _resources),
+            _resources,
+            "Forms_CreateIssue_Title",
+            "\uE710",
+            "Message_CreateIssue_Success",
+            "Message_CreateIssue_Error");
+
+        return new CommandItem(page)
+        {
+            Title = _resources.GetResource("CommandsProvider_CreateIssueCommandName"),
+            Subtitle = _resources.GetResource("CommandsProvider_CreateIssueSubtitle"),
+        };
+    }
+
+    private CommandItem BuildCreatePullRequestCommandItem()
+    {
+        var page = new GitHubFormPage(
+            new CreatePullRequestForm(_createManager, _resources),
+            _resources,
+            "Forms_CreatePullRequest_Title",
+            "\uE710",
+            "Message_CreatePullRequest_Success",
+            "Message_CreatePullRequest_Error");
+
+        return new CommandItem(page)
+        {
+            Title = _resources.GetResource("CommandsProvider_CreatePullRequestCommandName"),
+            Subtitle = _resources.GetResource("CommandsProvider_CreatePullRequestSubtitle"),
+        };
+    }
+
+    private CommandItem BuildCreateBranchCommandItem()
+    {
+        var page = new GitHubFormPage(
+            new CreateBranchForm(_createManager, _resources),
+            _resources,
+            "Forms_CreateBranch_Title",
+            "\uE710",
+            "Message_CreateBranch_Success",
+            "Message_CreateBranch_Error");
+
+        return new CommandItem(page)
+        {
+            Title = _resources.GetResource("CommandsProvider_CreateBranchCommandName"),
+            Subtitle = _resources.GetResource("CommandsProvider_CreateBranchSubtitle"),
+        };
     }
 
     private CommandItem BuildNotificationsCommandItem()

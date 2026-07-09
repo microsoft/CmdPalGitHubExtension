@@ -113,8 +113,9 @@ public class TopLevelSearchesTest
             var mockDeveloperIdProvider = TestHelpers.CreateMockDeveloperIdProvider();
             var mockCacheDataManager = new Mock<ICacheDataManager>().Object;
             var mutationManager = new Mock<IGitHubMutationManager>().Object;
+            var createManager = new Mock<IGitHubCreateManager>().Object;
             var mutationMediator = new MutationMediator();
-            var mutationCommandsFactory = new MutationCommandsFactory(mutationManager, mutationMediator, resources);
+            var mutationCommandsFactory = new MutationCommandsFactory(mutationManager, createManager, mutationMediator, resources);
             var searchPageFactory = new SearchPageFactory(mockCacheDataManager, persistentDataManager, resources, mediator, mutationCommandsFactory, mutationMediator);
 
             var addSearchForm = new SaveSearchForm(persistentDataManager, resources, mediator);

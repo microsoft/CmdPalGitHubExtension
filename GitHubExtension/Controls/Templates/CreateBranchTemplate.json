@@ -1,0 +1,51 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "TextBlock",
+      "size": "Medium",
+      "weight": "Bolder",
+      "text": {{CreateBranchFormTitle}},
+      "horizontalAlignment": "Center",
+      "wrap": true,
+      "style": "heading"
+    },
+    {
+      "type": "Input.Text",
+      "id": "Repository",
+      "label": {{RepositoryLabel}},
+      "placeholder": {{RepositoryPlaceholder}},
+      "isRequired": true,
+      "errorMessage": {{RepositoryErrorMessage}},
+      "value": {{RepositoryValue}}
+    },
+    {
+      "type": "Input.Text",
+      "id": "NewBranch",
+      "label": {{NewBranchLabel}},
+      "placeholder": {{NewBranchPlaceholder}},
+      "isRequired": true,
+      "errorMessage": {{NewBranchErrorMessage}}
+    },
+    {
+      "type": "Input.Text",
+      "id": "SourceBranch",
+      "label": {{SourceBranchLabel}},
+      "placeholder": {{SourceBranchPlaceholder}},
+      "isRequired": true,
+      "errorMessage": {{SourceBranchErrorMessage}},
+      "value": {{SourceBranchValue}}
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": {{CreateBranchActionTitle}},
+      "data": {
+        "id": "CreateBranchAction"
+      }
+    }
+  ]
+}
