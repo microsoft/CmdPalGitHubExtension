@@ -18,6 +18,7 @@ public static class TemplateHelper
             "CreatePullRequest" => "Controls\\Templates\\CreatePullRequestTemplate.json",
             "CreateBranch" => "Controls\\Templates\\CreateBranchTemplate.json",
             "AddComment" => "Controls\\Templates\\AddCommentTemplate.json",
+            "TriggerWorkflow" => "Controls\\Templates\\TriggerWorkflowTemplate.json",
             _ => throw new NotImplementedException($"Template for page '{page}' is not implemented."),
         };
     }

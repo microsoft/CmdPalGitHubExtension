@@ -26,6 +26,7 @@ public static class GitHubIcon
                 { "Repositories", new IconInfo("\uE8F1") },
                 { "notification", new IconInfo("\uEA8F") },
                 { "Notifications", new IconInfo("\uEA8F") },
+                { "Workflows", new IconInfo("\uE9F5") },
             };
     }
 

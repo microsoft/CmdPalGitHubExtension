@@ -176,6 +176,9 @@ public partial class TestHelpers
         mockNotificationsDataManager.Setup(x => x.GetUnreadCountAsync()).ReturnsAsync(0);
         var notificationsPage = new NotificationsPage(mockNotificationsDataManager.Object, notificationsMediator, mockResources);
         var mockCreateManager = new Mock<IGitHubCreateManager>().Object;
-        return new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, notificationsPage, mockDeveloperIdProvider, persistentDataManager, mockResources, searchPageFactory, savedSearchesMediator, mockAuthenticationMediator, notificationsMediator, mockCreateManager);
+        var workflowRunsMediator = new WorkflowRunsMediator();
+        var mockWorkflowRunsDataManager = new Mock<IWorkflowRunsDataManager>();
+        var workflowRunsPage = new WorkflowRunsPage(mockWorkflowRunsDataManager.Object, workflowRunsMediator, mockResources);
+        return new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, notificationsPage, mockDeveloperIdProvider, persistentDataManager, mockResources, searchPageFactory, savedSearchesMediator, mockAuthenticationMediator, notificationsMediator, mockCreateManager, workflowRunsPage, mockWorkflowRunsDataManager.Object);
     }
 }

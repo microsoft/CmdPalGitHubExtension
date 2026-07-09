@@ -133,9 +133,13 @@ public class Program
         var savedSearchesMediator = new SavedSearchesMediator();
         var notificationsMediator = new NotificationsMediator();
         var mutationMediator = new MutationMediator();
+        var workflowRunsMediator = new WorkflowRunsMediator();
 
         var notificationsDataManager = new NotificationsDataManager(gitHubClientProvider);
         var notificationsPage = new NotificationsPage(notificationsDataManager, notificationsMediator, resources);
+
+        var workflowRunsDataManager = new WorkflowRunsDataManager(gitHubClientProvider);
+        var workflowRunsPage = new WorkflowRunsPage(workflowRunsDataManager, workflowRunsMediator, resources);
 
         var mutationManager = new GitHubMutationManager(gitHubClientProvider);
         var createManager = new GitHubCreateManager(gitHubClientProvider);
@@ -155,7 +159,7 @@ public class Program
         using var signInForm = new SignInForm(authenticationMediator, resources, developerIdProvider, signInCommand);
         using var signInPage = new SignInPage(signInForm, resources, signInCommand, authenticationMediator);
 
-        using var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, notificationsPage, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator, authenticationMediator, notificationsMediator, createManager);
+        using var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, notificationsPage, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator, authenticationMediator, notificationsMediator, createManager, workflowRunsPage, workflowRunsDataManager);
         var extensionInstance = new GitHubExtension(extensionDisposedEvent, commandProvider);
 
         // We are instantiating an extension instance once above, and returning it every time the callback in RegisterExtension below is called.
