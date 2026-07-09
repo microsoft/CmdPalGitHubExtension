@@ -33,6 +33,8 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
     private readonly DiscussionsPage _myDiscussionsPage;
     private readonly DiscussionsPage _searchDiscussionsPage;
     private readonly ProjectsPage _projectsPage;
+    private readonly IRepositoryCloneManager _cloneManager;
+    private readonly ICloneSettingsStore _cloneSettingsStore;
 
     public GitHubExtensionCommandsProvider(
         SavedSearchesPage savedSearchesPage,
@@ -51,7 +53,9 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         IWorkflowRunsDataManager workflowRunsDataManager,
         DiscussionsPage myDiscussionsPage,
         DiscussionsPage searchDiscussionsPage,
-        ProjectsPage projectsPage)
+        ProjectsPage projectsPage,
+        IRepositoryCloneManager cloneManager,
+        ICloneSettingsStore cloneSettingsStore)
     {
         _savedSearchesPage = savedSearchesPage;
         _signOutPage = signOutPage;
@@ -70,6 +74,8 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         _myDiscussionsPage = myDiscussionsPage;
         _searchDiscussionsPage = searchDiscussionsPage;
         _projectsPage = projectsPage;
+        _cloneManager = cloneManager;
+        _cloneSettingsStore = cloneSettingsStore;
 
         DisplayName = _resources.GetResource("ExtensionTitle");
 
@@ -134,6 +140,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
             BuildMyDiscussionsCommandItem(),
             BuildSearchDiscussionsCommandItem(),
             BuildProjectsCommandItem(),
+            BuildCloneRepositoryCommandItem(),
             new(_savedSearchesPage),
             new(_signOutPage),
         };
@@ -243,6 +250,23 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         {
             Title = _resources.GetResource("CommandsProvider_ProjectsCommandName"),
             Subtitle = _resources.GetResource("CommandsProvider_ProjectsSubtitle"),
+        };
+    }
+
+    private CommandItem BuildCloneRepositoryCommandItem()
+    {
+        var page = new GitHubFormPage(
+            new CloneRepositoryForm(_cloneManager, _cloneSettingsStore, _resources),
+            _resources,
+            "Forms_Clone_Title",
+            "\uE896",
+            "Message_CloneRepository_Success",
+            "Message_CloneRepository_Error");
+
+        return new CommandItem(page)
+        {
+            Title = _resources.GetResource("CommandsProvider_CloneRepositoryCommandName"),
+            Subtitle = _resources.GetResource("CommandsProvider_CloneRepositorySubtitle"),
         };
     }
 

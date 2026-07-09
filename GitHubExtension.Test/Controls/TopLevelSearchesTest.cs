@@ -117,7 +117,7 @@ public class TopLevelSearchesTest
             var autoMergeManager = new Mock<IGitHubAutoMergeManager>().Object;
             var mutationMediator = new MutationMediator();
             var mutationCommandsFactory = new MutationCommandsFactory(mutationManager, createManager, autoMergeManager, mutationMediator, resources);
-            var searchPageFactory = new SearchPageFactory(mockCacheDataManager, persistentDataManager, resources, mediator, mutationCommandsFactory, mutationMediator);
+            var searchPageFactory = new SearchPageFactory(mockCacheDataManager, persistentDataManager, resources, mediator, mutationCommandsFactory, mutationMediator, new Mock<IRepositoryCloneManager>().Object);
 
             var addSearchForm = new SaveSearchForm(persistentDataManager, resources, mediator);
 

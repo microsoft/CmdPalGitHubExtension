@@ -4,6 +4,7 @@
 
 using GitHubExtension.Controls.Commands;
 using GitHubExtension.Controls.Forms;
+using GitHubExtension.DataManager;
 using GitHubExtension.DataModel.Enums;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
@@ -19,8 +20,9 @@ public class SearchPageFactory : ISearchPageFactory
     private readonly SavedSearchesMediator _savedSearchesMediator;
     private readonly MutationCommandsFactory _mutationCommandsFactory;
     private readonly MutationMediator _mutationMediator;
+    private readonly IRepositoryCloneManager _cloneManager;
 
-    public SearchPageFactory(ICacheDataManager cacheDataManager, ISearchRepository searchRepository, IResources resources, SavedSearchesMediator savedSearchesMediator, MutationCommandsFactory mutationCommandsFactory, MutationMediator mutationMediator)
+    public SearchPageFactory(ICacheDataManager cacheDataManager, ISearchRepository searchRepository, IResources resources, SavedSearchesMediator savedSearchesMediator, MutationCommandsFactory mutationCommandsFactory, MutationMediator mutationMediator, IRepositoryCloneManager cloneManager)
     {
         _cacheDataManager = cacheDataManager;
         _searchRepository = searchRepository;
@@ -28,6 +30,7 @@ public class SearchPageFactory : ISearchPageFactory
         _savedSearchesMediator = savedSearchesMediator;
         _mutationCommandsFactory = mutationCommandsFactory;
         _mutationMediator = mutationMediator;
+        _cloneManager = cloneManager;
     }
 
     private ListPage CreatePageForSearch(ISearch search)
@@ -36,7 +39,7 @@ public class SearchPageFactory : ISearchPageFactory
         {
             SearchType.PullRequests => new PullRequestsSearchPage(search, _cacheDataManager, _resources, _mutationCommandsFactory, _mutationMediator),
             SearchType.Issues => new IssuesSearchPage(search, _cacheDataManager, _resources, _mutationCommandsFactory, _mutationMediator),
-            SearchType.Repositories => new RepositoriesSearchPage(search, _cacheDataManager, _resources),
+            SearchType.Repositories => new RepositoriesSearchPage(search, _cacheDataManager, _resources, _cloneManager),
             _ => new CombinedSearchPage(search, _cacheDataManager, _resources, _mutationCommandsFactory, _mutationMediator),
         };
     }
