@@ -33,6 +33,13 @@ internal sealed partial class LinkCommand : InvokableCommand
         Icon = new IconInfo("\uE8A7");
     }
 
+    internal LinkCommand(INotification notification, IResources resources)
+    {
+        _htmlUrl = notification.HtmlUrl;
+        Name = resources.GetResource("Commands_Open_Link");
+        Icon = new IconInfo("\uE8A7");
+    }
+
     public override CommandResult Invoke()
     {
         Process.Start(new ProcessStartInfo(_htmlUrl) { UseShellExecute = true });

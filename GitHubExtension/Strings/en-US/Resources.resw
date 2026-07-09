@@ -329,6 +329,38 @@
     <value>My latest repositories</value>
     <comment>Title for search "user:{login} sort:updated-desc type:repository"</comment>
   </data>
+  <data name="CommandsProvider_NotificationsCommandName" xml:space="preserve">
+    <value>Notifications</value>
+    <comment>Title for the top-level Notifications command</comment>
+  </data>
+  <data name="CommandsProvider_Notifications_UnreadCount" xml:space="preserve">
+    <value>{0} unread</value>
+    <comment>Subtitle for the Notifications command showing the unread count. {0} is the number of unread notifications</comment>
+  </data>
+  <data name="CommandsProvider_Notifications_NoUnread" xml:space="preserve">
+    <value>No unread notifications</value>
+    <comment>Subtitle for the Notifications command when there are no unread notifications</comment>
+  </data>
+  <data name="Pages_Notifications" xml:space="preserve">
+    <value>Notifications</value>
+    <comment>Title of the notifications list page</comment>
+  </data>
+  <data name="Pages_Notifications_None" xml:space="preserve">
+    <value>No unread notifications</value>
+    <comment>Shown when there are no unread notifications</comment>
+  </data>
+  <data name="Commands_MarkNotificationRead" xml:space="preserve">
+    <value>Mark as read</value>
+    <comment>Command name for marking a notification as read</comment>
+  </data>
+  <data name="Message_MarkNotificationRead_Success" xml:space="preserve">
+    <value>Notification marked as read</value>
+    <comment>Toast shown after a notification is marked as read</comment>
+  </data>
+  <data name="Message_MarkNotificationRead_Error" xml:space="preserve">
+    <value>Failed to mark notification as read</value>
+    <comment>Toast shown when marking a notification as read fails</comment>
+  </data>
   <data name="ExtensionTitle" xml:space="preserve">
     <value>GitHub Extension (Preview)</value>
     <comment>Title for the extension</comment>

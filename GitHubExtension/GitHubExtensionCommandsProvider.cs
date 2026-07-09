@@ -17,33 +17,39 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
     private readonly SavedSearchesPage _savedSearchesPage;
     private readonly SignOutPage _signOutPage;
     private readonly SignInPage _signInPage;
+    private readonly NotificationsPage _notificationsPage;
     private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly ISearchRepository _persistentDataManager;
     private readonly ISearchPageFactory _searchPageFactory;
     private readonly IResources _resources;
     private readonly SavedSearchesMediator _savedSearchesMediator;
     private readonly AuthenticationMediator _authenticationMediator;
+    private readonly NotificationsMediator _notificationsMediator;
 
     public GitHubExtensionCommandsProvider(
         SavedSearchesPage savedSearchesPage,
         SignOutPage signOutPage,
         SignInPage signInPage,
+        NotificationsPage notificationsPage,
         IDeveloperIdProvider developerIdProvider,
         ISearchRepository persistentDataManager,
         IResources resources,
         ISearchPageFactory searchPageFactory,
         SavedSearchesMediator savedSearchesMediator,
-        AuthenticationMediator authenticationMediator)
+        AuthenticationMediator authenticationMediator,
+        NotificationsMediator notificationsMediator)
     {
         _savedSearchesPage = savedSearchesPage;
         _signOutPage = signOutPage;
         _signInPage = signInPage;
+        _notificationsPage = notificationsPage;
         _developerIdProvider = developerIdProvider;
         _persistentDataManager = persistentDataManager;
         _resources = resources;
         _searchPageFactory = searchPageFactory;
         _savedSearchesMediator = savedSearchesMediator;
         _authenticationMediator = authenticationMediator;
+        _notificationsMediator = notificationsMediator;
 
         DisplayName = _resources.GetResource("ExtensionTitle");
 
@@ -51,10 +57,17 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         _authenticationMediator.SignOutAction += OnSignInStatusChanged;
         _savedSearchesMediator.SearchSaved += OnSearchSaved;
         _savedSearchesMediator.SearchRemoved += OnSearchRemoved;
+        _notificationsMediator.NotificationsChanged += OnNotificationsChanged;
 
         // This async method raises the RaiseItemsChanged event to update the top-level commands
         // So it is safe if we let it run asynchronously as "fire and forget"
         _ = UpdateSignInStatus(_developerIdProvider.IsSignedIn());
+    }
+
+    private void OnNotificationsChanged(object? sender, object? args)
+    {
+        // Refreshes the top-level command subtitle when the unread count changes.
+        RaiseItemsChanged(0);
     }
 
     private void OnSearchRemoved(object? sender, SavedSearchRemovedEventArgs args)
@@ -92,12 +105,26 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         var commands = GetTopLevelSearchCommands().GetAwaiter().GetResult().ToList();
         var defaultCommands = new List<CommandItem>
         {
+            BuildNotificationsCommandItem(),
             new(_savedSearchesPage),
             new(_signOutPage),
         };
 
         commands.AddRange(defaultCommands);
         return commands.ToArray();
+    }
+
+    private CommandItem BuildNotificationsCommandItem()
+    {
+        var subtitle = _notificationsPage.UnreadCount > 0
+            ? string.Format(System.Globalization.CultureInfo.CurrentCulture, _resources.GetResource("CommandsProvider_Notifications_UnreadCount"), _notificationsPage.UnreadCount)
+            : _resources.GetResource("CommandsProvider_Notifications_NoUnread");
+
+        return new CommandItem(_notificationsPage)
+        {
+            Title = _resources.GetResource("CommandsProvider_NotificationsCommandName"),
+            Subtitle = subtitle,
+        };
     }
 
     public async Task UpdateSignInStatus(bool isSignedIn)
@@ -143,6 +170,14 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         }
 
         UpdateTopLevelCommands();
+
+        if (_isSignedIn)
+        {
+            // Populate the unread count for the top-level Notifications subtitle
+            // without requiring the user to open the page. This refreshes on
+            // sign-in (event-driven), not on a polling loop.
+            _ = _notificationsPage.RefreshUnreadCountAsync();
+        }
     }
 
     private void OnSignInStatusChanged(object? sender, SignInStatusChangedEventArgs e)
@@ -180,6 +215,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
                 _authenticationMediator.SignOutAction -= OnSignInStatusChanged;
                 _savedSearchesMediator.SearchSaved -= OnSearchSaved;
                 _savedSearchesMediator.SearchRemoved -= OnSearchRemoved;
+                _notificationsMediator.NotificationsChanged -= OnNotificationsChanged;
             }
 
             _disposed = true;
