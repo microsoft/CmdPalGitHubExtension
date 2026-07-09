@@ -17,23 +17,27 @@ public class SearchPageFactory : ISearchPageFactory
     private readonly ISearchRepository _searchRepository;
     private readonly IResources _resources;
     private readonly SavedSearchesMediator _savedSearchesMediator;
+    private readonly MutationCommandsFactory _mutationCommandsFactory;
+    private readonly MutationMediator _mutationMediator;
 
-    public SearchPageFactory(ICacheDataManager cacheDataManager, ISearchRepository searchRepository, IResources resources, SavedSearchesMediator savedSearchesMediator)
+    public SearchPageFactory(ICacheDataManager cacheDataManager, ISearchRepository searchRepository, IResources resources, SavedSearchesMediator savedSearchesMediator, MutationCommandsFactory mutationCommandsFactory, MutationMediator mutationMediator)
     {
         _cacheDataManager = cacheDataManager;
         _searchRepository = searchRepository;
         _resources = resources;
         _savedSearchesMediator = savedSearchesMediator;
+        _mutationCommandsFactory = mutationCommandsFactory;
+        _mutationMediator = mutationMediator;
     }
 
     private ListPage CreatePageForSearch(ISearch search)
     {
         return search.Type switch
         {
-            SearchType.PullRequests => new PullRequestsSearchPage(search, _cacheDataManager, _resources),
-            SearchType.Issues => new IssuesSearchPage(search, _cacheDataManager, _resources),
+            SearchType.PullRequests => new PullRequestsSearchPage(search, _cacheDataManager, _resources, _mutationCommandsFactory, _mutationMediator),
+            SearchType.Issues => new IssuesSearchPage(search, _cacheDataManager, _resources, _mutationCommandsFactory, _mutationMediator),
             SearchType.Repositories => new RepositoriesSearchPage(search, _cacheDataManager, _resources),
-            _ => new CombinedSearchPage(search, _cacheDataManager, _resources),
+            _ => new CombinedSearchPage(search, _cacheDataManager, _resources, _mutationCommandsFactory, _mutationMediator),
         };
     }
 

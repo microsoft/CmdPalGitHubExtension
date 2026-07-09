@@ -361,6 +361,90 @@
     <value>Failed to mark notification as read</value>
     <comment>Toast shown when marking a notification as read fails</comment>
   </data>
+  <data name="Commands_CloseIssue" xml:space="preserve">
+    <value>Close issue</value>
+    <comment>Command name for closing an issue</comment>
+  </data>
+  <data name="Commands_ReopenIssue" xml:space="preserve">
+    <value>Reopen issue</value>
+    <comment>Command name for reopening an issue</comment>
+  </data>
+  <data name="Commands_ClosePullRequest" xml:space="preserve">
+    <value>Close pull request</value>
+    <comment>Command name for closing a pull request</comment>
+  </data>
+  <data name="Commands_ReopenPullRequest" xml:space="preserve">
+    <value>Reopen pull request</value>
+    <comment>Command name for reopening a pull request</comment>
+  </data>
+  <data name="Commands_MergePullRequest" xml:space="preserve">
+    <value>Merge pull request</value>
+    <comment>Command name for merging a pull request</comment>
+  </data>
+  <data name="Message_CloseIssue_Success" xml:space="preserve">
+    <value>Issue closed</value>
+    <comment>Toast shown after an issue is closed</comment>
+  </data>
+  <data name="Message_CloseIssue_Error" xml:space="preserve">
+    <value>Failed to close issue</value>
+    <comment>Toast shown when closing an issue fails</comment>
+  </data>
+  <data name="Message_ReopenIssue_Success" xml:space="preserve">
+    <value>Issue reopened</value>
+    <comment>Toast shown after an issue is reopened</comment>
+  </data>
+  <data name="Message_ReopenIssue_Error" xml:space="preserve">
+    <value>Failed to reopen issue</value>
+    <comment>Toast shown when reopening an issue fails</comment>
+  </data>
+  <data name="Message_ClosePullRequest_Success" xml:space="preserve">
+    <value>Pull request closed</value>
+    <comment>Toast shown after a pull request is closed</comment>
+  </data>
+  <data name="Message_ClosePullRequest_Error" xml:space="preserve">
+    <value>Failed to close pull request</value>
+    <comment>Toast shown when closing a pull request fails</comment>
+  </data>
+  <data name="Message_ReopenPullRequest_Success" xml:space="preserve">
+    <value>Pull request reopened</value>
+    <comment>Toast shown after a pull request is reopened</comment>
+  </data>
+  <data name="Message_ReopenPullRequest_Error" xml:space="preserve">
+    <value>Failed to reopen pull request</value>
+    <comment>Toast shown when reopening a pull request fails</comment>
+  </data>
+  <data name="Message_MergePullRequest_Success" xml:space="preserve">
+    <value>Pull request merged</value>
+    <comment>Toast shown after a pull request is merged</comment>
+  </data>
+  <data name="Message_MergePullRequest_Error" xml:space="preserve">
+    <value>Failed to merge pull request</value>
+    <comment>Toast shown when merging a pull request fails</comment>
+  </data>
+  <data name="Confirm_CloseIssue_Title" xml:space="preserve">
+    <value>Close this issue?</value>
+    <comment>Confirmation title before closing an issue</comment>
+  </data>
+  <data name="Confirm_CloseIssue_Description" xml:space="preserve">
+    <value>This will close the issue on GitHub.</value>
+    <comment>Confirmation description before closing an issue</comment>
+  </data>
+  <data name="Confirm_ClosePullRequest_Title" xml:space="preserve">
+    <value>Close this pull request?</value>
+    <comment>Confirmation title before closing a pull request</comment>
+  </data>
+  <data name="Confirm_ClosePullRequest_Description" xml:space="preserve">
+    <value>This will close the pull request on GitHub without merging.</value>
+    <comment>Confirmation description before closing a pull request</comment>
+  </data>
+  <data name="Confirm_MergePullRequest_Title" xml:space="preserve">
+    <value>Merge this pull request?</value>
+    <comment>Confirmation title before merging a pull request</comment>
+  </data>
+  <data name="Confirm_MergePullRequest_Description" xml:space="preserve">
+    <value>This will merge the pull request into its base branch.</value>
+    <comment>Confirmation description before merging a pull request</comment>
+  </data>
   <data name="ExtensionTitle" xml:space="preserve">
     <value>GitHub Extension (Preview)</value>
     <comment>Title for the extension</comment>

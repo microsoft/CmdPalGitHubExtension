@@ -42,6 +42,8 @@ public sealed class PullRequestSourceBranchDecorator : IPullRequest
 
     public string Body => _source.Body;
 
+    public string State => _source.State;
+
     public string HtmlUrl => _source.HtmlUrl;
 
     public IEnumerable<ILabel> Labels => _source.Labels;

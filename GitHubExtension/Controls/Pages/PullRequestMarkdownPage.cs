@@ -15,22 +15,27 @@ internal sealed partial class PullRequestContentPage : ContentPage
     private readonly IPullRequest _pullRequest;
     private readonly IResources _resources;
 
-    public PullRequestContentPage(IPullRequest pullRequest, IResources resources)
+    public PullRequestContentPage(IPullRequest pullRequest, IResources resources, MutationCommandsFactory? mutationCommandsFactory = null)
     {
         _resources = resources;
 
         Icon = GitHubIcon.IconDictionary["pr"];
         Name = _resources.GetResource("Pages_Markdown_PullRequest");
         _pullRequest = pullRequest;
-#pragma warning disable IDE0300 // Simplify collection initialization
-        Commands = new CommandContextItem[]
+        var commands = new List<CommandContextItem>
         {
             new(new LinkCommand(pullRequest, resources)),
             new(new CopyCommand(pullRequest.HtmlUrl, _resources.GetResource("Commands_CopyURL"), _resources)),
             new(new CopyCommand(pullRequest.Title, _resources.GetResource("Commands_CopyPullRequestTitle"), _resources)),
             new(new CopyCommand(pullRequest.Number.ToString(CultureInfo.InvariantCulture), _resources.GetResource("Commands_CopyPullRequestNumber"), _resources)),
         };
-#pragma warning restore IDE0300 // Simplify collection initialization
+
+        if (mutationCommandsFactory != null)
+        {
+            commands.AddRange(mutationCommandsFactory.GetPullRequestCommands(pullRequest));
+        }
+
+        Commands = commands.ToArray();
     }
 
     public override IContent[] GetContent()
