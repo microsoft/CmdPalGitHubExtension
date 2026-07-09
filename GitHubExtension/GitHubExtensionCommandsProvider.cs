@@ -28,6 +28,8 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
     private readonly AuthenticationMediator _authenticationMediator;
     private readonly NotificationsMediator _notificationsMediator;
     private readonly IGitHubCreateManager _createManager;
+    private readonly WorkflowRunsPage _workflowRunsPage;
+    private readonly IWorkflowRunsDataManager _workflowRunsDataManager;
 
     public GitHubExtensionCommandsProvider(
         SavedSearchesPage savedSearchesPage,
@@ -41,7 +43,9 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         SavedSearchesMediator savedSearchesMediator,
         AuthenticationMediator authenticationMediator,
         NotificationsMediator notificationsMediator,
-        IGitHubCreateManager createManager)
+        IGitHubCreateManager createManager,
+        WorkflowRunsPage workflowRunsPage,
+        IWorkflowRunsDataManager workflowRunsDataManager)
     {
         _savedSearchesPage = savedSearchesPage;
         _signOutPage = signOutPage;
@@ -55,6 +59,8 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         _authenticationMediator = authenticationMediator;
         _notificationsMediator = notificationsMediator;
         _createManager = createManager;
+        _workflowRunsPage = workflowRunsPage;
+        _workflowRunsDataManager = workflowRunsDataManager;
 
         DisplayName = _resources.GetResource("ExtensionTitle");
 
@@ -114,6 +120,8 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
             BuildCreateIssueCommandItem(),
             BuildCreatePullRequestCommandItem(),
             BuildCreateBranchCommandItem(),
+            BuildWorkflowRunsCommandItem(),
+            BuildTriggerWorkflowCommandItem(),
             new(_savedSearchesPage),
             new(_signOutPage),
         };
@@ -170,6 +178,32 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         {
             Title = _resources.GetResource("CommandsProvider_CreateBranchCommandName"),
             Subtitle = _resources.GetResource("CommandsProvider_CreateBranchSubtitle"),
+        };
+    }
+
+    private CommandItem BuildWorkflowRunsCommandItem()
+    {
+        return new CommandItem(_workflowRunsPage)
+        {
+            Title = _resources.GetResource("CommandsProvider_WorkflowRunsCommandName"),
+            Subtitle = _resources.GetResource("CommandsProvider_WorkflowRunsSubtitle"),
+        };
+    }
+
+    private CommandItem BuildTriggerWorkflowCommandItem()
+    {
+        var page = new GitHubFormPage(
+            new TriggerWorkflowForm(_workflowRunsDataManager, _resources),
+            _resources,
+            "Forms_TriggerWorkflow_Title",
+            "\uE724",
+            "Message_TriggerWorkflow_Success",
+            "Message_TriggerWorkflow_Error");
+
+        return new CommandItem(page)
+        {
+            Title = _resources.GetResource("CommandsProvider_TriggerWorkflowCommandName"),
+            Subtitle = _resources.GetResource("CommandsProvider_TriggerWorkflowSubtitle"),
         };
     }
 

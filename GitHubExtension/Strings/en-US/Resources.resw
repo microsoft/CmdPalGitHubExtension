@@ -705,4 +705,112 @@
     <value>Sign in to the GitHub Extension (Preview)</value>
     <comment>The title for the SignInPage</comment>
   </data>
+  <data name="CommandsProvider_WorkflowRunsCommandName" xml:space="preserve">
+    <value>Workflow runs</value>
+    <comment>Name of the top-level Workflow Runs command</comment>
+  </data>
+  <data name="CommandsProvider_WorkflowRunsSubtitle" xml:space="preserve">
+    <value>View GitHub Actions workflow runs for a repository</value>
+    <comment>Subtitle of the top-level Workflow Runs command</comment>
+  </data>
+  <data name="CommandsProvider_TriggerWorkflowCommandName" xml:space="preserve">
+    <value>Trigger workflow</value>
+    <comment>Name of the top-level Trigger Workflow command</comment>
+  </data>
+  <data name="CommandsProvider_TriggerWorkflowSubtitle" xml:space="preserve">
+    <value>Run a workflow_dispatch event for a repository</value>
+    <comment>Subtitle of the top-level Trigger Workflow command</comment>
+  </data>
+  <data name="Pages_WorkflowRuns" xml:space="preserve">
+    <value>Workflow runs</value>
+    <comment>Title of the Workflow Runs page</comment>
+  </data>
+  <data name="Pages_WorkflowRuns_Placeholder" xml:space="preserve">
+    <value>Type a repository as owner/repo</value>
+    <comment>Placeholder text shown in the Workflow Runs search box</comment>
+  </data>
+  <data name="Pages_WorkflowRuns_Prompt" xml:space="preserve">
+    <value>Type a repository as owner/repo to view its workflow runs</value>
+    <comment>Prompt shown on the Workflow Runs page before a repository is entered</comment>
+  </data>
+  <data name="Pages_WorkflowRuns_None" xml:space="preserve">
+    <value>No workflow runs found</value>
+    <comment>Message shown when a repository has no workflow runs</comment>
+  </data>
+  <data name="Pages_WorkflowRuns_UnnamedRun" xml:space="preserve">
+    <value>Workflow run</value>
+    <comment>Fallback title for a workflow run with no name</comment>
+  </data>
+  <data name="Commands_RerunWorkflow" xml:space="preserve">
+    <value>Re-run workflow</value>
+    <comment>Command name for re-running a workflow run</comment>
+  </data>
+  <data name="Commands_CancelWorkflow" xml:space="preserve">
+    <value>Cancel workflow</value>
+    <comment>Command name for cancelling a workflow run</comment>
+  </data>
+  <data name="Confirm_CancelWorkflow_Title" xml:space="preserve">
+    <value>Cancel workflow run?</value>
+    <comment>Confirmation dialog title for cancelling a workflow run</comment>
+  </data>
+  <data name="Confirm_CancelWorkflow_Description" xml:space="preserve">
+    <value>This will stop the in-progress workflow run.</value>
+    <comment>Confirmation dialog description for cancelling a workflow run</comment>
+  </data>
+  <data name="Message_RerunWorkflow_Success" xml:space="preserve">
+    <value>Workflow run restarted</value>
+    <comment>Success toast shown after re-running a workflow run</comment>
+  </data>
+  <data name="Message_RerunWorkflow_Error" xml:space="preserve">
+    <value>Failed to re-run the workflow</value>
+    <comment>Error toast shown when re-running a workflow run fails</comment>
+  </data>
+  <data name="Message_CancelWorkflow_Success" xml:space="preserve">
+    <value>Workflow run cancelled</value>
+    <comment>Success toast shown after cancelling a workflow run</comment>
+  </data>
+  <data name="Message_CancelWorkflow_Error" xml:space="preserve">
+    <value>Failed to cancel the workflow</value>
+    <comment>Error toast shown when cancelling a workflow run fails</comment>
+  </data>
+  <data name="Message_TriggerWorkflow_Success" xml:space="preserve">
+    <value>Workflow triggered</value>
+    <comment>Success toast shown after triggering a workflow</comment>
+  </data>
+  <data name="Message_TriggerWorkflow_Error" xml:space="preserve">
+    <value>Failed to trigger the workflow</value>
+    <comment>Error toast shown when triggering a workflow fails</comment>
+  </data>
+  <data name="Forms_TriggerWorkflow_Title" xml:space="preserve">
+    <value>Trigger workflow</value>
+    <comment>Title of the Trigger Workflow form</comment>
+  </data>
+  <data name="Forms_TriggerWorkflow_WorkflowFileLabel" xml:space="preserve">
+    <value>Workflow file</value>
+    <comment>Label for the workflow file input</comment>
+  </data>
+  <data name="Forms_TriggerWorkflow_WorkflowFilePlaceholder" xml:space="preserve">
+    <value>e.g. build.yml</value>
+    <comment>Placeholder for the workflow file input</comment>
+  </data>
+  <data name="Forms_TriggerWorkflow_WorkflowFileError" xml:space="preserve">
+    <value>Workflow file is required</value>
+    <comment>Validation error for the workflow file input</comment>
+  </data>
+  <data name="Forms_TriggerWorkflow_RefLabel" xml:space="preserve">
+    <value>Branch or tag</value>
+    <comment>Label for the git ref input</comment>
+  </data>
+  <data name="Forms_TriggerWorkflow_RefPlaceholder" xml:space="preserve">
+    <value>e.g. main</value>
+    <comment>Placeholder for the git ref input</comment>
+  </data>
+  <data name="Forms_TriggerWorkflow_RefError" xml:space="preserve">
+    <value>A branch or tag is required</value>
+    <comment>Validation error for the git ref input</comment>
+  </data>
+  <data name="Forms_TriggerWorkflow_Action" xml:space="preserve">
+    <value>Trigger workflow</value>
+    <comment>Submit button title for the Trigger Workflow form</comment>
+  </data>
 </root>
