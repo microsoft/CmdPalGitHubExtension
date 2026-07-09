@@ -179,6 +179,11 @@ public partial class TestHelpers
         var workflowRunsMediator = new WorkflowRunsMediator();
         var mockWorkflowRunsDataManager = new Mock<IWorkflowRunsDataManager>();
         var workflowRunsPage = new WorkflowRunsPage(mockWorkflowRunsDataManager.Object, workflowRunsMediator, mockResources);
-        return new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, notificationsPage, mockDeveloperIdProvider, persistentDataManager, mockResources, searchPageFactory, savedSearchesMediator, mockAuthenticationMediator, notificationsMediator, mockCreateManager, workflowRunsPage, mockWorkflowRunsDataManager.Object);
+        var mockDiscussionsDataManager = new Mock<IDiscussionsDataManager>();
+        var myDiscussionsPage = new DiscussionsPage(mockDiscussionsDataManager.Object, mockResources, "My discussions", "author:@me");
+        var searchDiscussionsPage = new DiscussionsPage(mockDiscussionsDataManager.Object, mockResources, "Search discussions", string.Empty);
+        var mockProjectsDataManager = new Mock<IProjectsDataManager>();
+        var projectsPage = new ProjectsPage(mockProjectsDataManager.Object, mockResources);
+        return new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, notificationsPage, mockDeveloperIdProvider, persistentDataManager, mockResources, searchPageFactory, savedSearchesMediator, mockAuthenticationMediator, notificationsMediator, mockCreateManager, workflowRunsPage, mockWorkflowRunsDataManager.Object, myDiscussionsPage, searchDiscussionsPage, projectsPage);
     }
 }

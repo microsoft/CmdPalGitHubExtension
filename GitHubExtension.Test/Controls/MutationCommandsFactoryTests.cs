@@ -17,10 +17,11 @@ public class MutationCommandsFactoryTests
     {
         var manager = new Mock<IGitHubMutationManager>();
         var createManager = new Mock<IGitHubCreateManager>();
+        var autoMergeManager = new Mock<IGitHubAutoMergeManager>();
         var mediator = new MutationMediator();
         var resources = new Mock<IResources>();
         resources.Setup(x => x.GetResource(It.IsAny<string>(), null)).Returns<string, object>((key, _) => key);
-        var factory = new MutationCommandsFactory(manager.Object, createManager.Object, mediator, resources.Object);
+        var factory = new MutationCommandsFactory(manager.Object, createManager.Object, autoMergeManager.Object, mediator, resources.Object);
         return (factory, manager, mediator);
     }
 
@@ -76,11 +77,15 @@ public class MutationCommandsFactoryTests
         var (factory, _, _) = CreateFactory();
         var commands = factory.GetPullRequestCommands(CreatePullRequest("Open").Object).ToList();
 
-        Assert.AreEqual(3, commands.Count);
+        Assert.AreEqual(5, commands.Count);
         Assert.AreEqual("Commands_MergePullRequest", commands[0].Command!.Name);
         Assert.AreEqual("Commands_ClosePullRequest", commands[1].Command!.Name);
+        Assert.AreEqual("Commands_EnableAutoMerge", commands[2].Command!.Name);
+        Assert.AreEqual("Commands_DisableAutoMerge", commands[3].Command!.Name);
         Assert.IsTrue(commands[0].IsCritical);
         Assert.IsTrue(commands[1].IsCritical);
+        Assert.IsFalse(commands[2].IsCritical);
+        Assert.IsFalse(commands[3].IsCritical);
     }
 
     [TestMethod]

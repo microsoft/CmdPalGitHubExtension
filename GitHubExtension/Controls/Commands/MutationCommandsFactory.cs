@@ -16,17 +16,20 @@ public sealed class MutationCommandsFactory
 {
     private readonly IGitHubMutationManager _mutationManager;
     private readonly IGitHubCreateManager _createManager;
+    private readonly IGitHubAutoMergeManager _autoMergeManager;
     private readonly MutationMediator _mediator;
     private readonly IResources _resources;
 
     private static readonly IconInfo CloseIcon = new("\uE711");
     private static readonly IconInfo ReopenIcon = new("\uE72C");
     private static readonly IconInfo MergeIcon = new("\uE8FB");
+    private static readonly IconInfo AutoMergeIcon = new("\uE945");
 
-    public MutationCommandsFactory(IGitHubMutationManager mutationManager, IGitHubCreateManager createManager, MutationMediator mediator, IResources resources)
+    public MutationCommandsFactory(IGitHubMutationManager mutationManager, IGitHubCreateManager createManager, IGitHubAutoMergeManager autoMergeManager, MutationMediator mediator, IResources resources)
     {
         _mutationManager = mutationManager;
         _createManager = createManager;
+        _autoMergeManager = autoMergeManager;
         _mediator = mediator;
         _resources = resources;
     }
@@ -126,6 +129,26 @@ public sealed class MutationCommandsFactory
                 _resources.GetResource("Confirm_ClosePullRequest_Description"));
 
             items.Add(new CommandContextItem(confirmedClose) { IsCritical = true });
+
+            var enableAutoMerge = new GitHubMutationCommand(
+                _resources.GetResource("Commands_EnableAutoMerge"),
+                AutoMergeIcon,
+                () => _autoMergeManager.EnableAutoMergeAsync(pullRequest),
+                _resources.GetResource("Message_EnableAutoMerge_Success"),
+                _resources.GetResource("Message_EnableAutoMerge_Error"),
+                _mediator);
+
+            items.Add(new CommandContextItem(enableAutoMerge));
+
+            var disableAutoMerge = new GitHubMutationCommand(
+                _resources.GetResource("Commands_DisableAutoMerge"),
+                AutoMergeIcon,
+                () => _autoMergeManager.DisableAutoMergeAsync(pullRequest),
+                _resources.GetResource("Message_DisableAutoMerge_Success"),
+                _resources.GetResource("Message_DisableAutoMerge_Error"),
+                _mediator);
+
+            items.Add(new CommandContextItem(disableAutoMerge));
         }
         else
         {
