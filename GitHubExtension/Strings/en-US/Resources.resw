@@ -410,9 +410,6 @@
   <data name="Commands_Open_VS_Code" xml:space="preserve">
     <value>Open in Visual Studio Code</value>
   </data>
-  <data name="Commands_Open_VS_Code1" xml:space="preserve">
-    <value>Open in Visual Studio Code</value>
-  </data>
   <data name="Commands_Open_VS_Code_Insiders" xml:space="preserve">
     <value>Open in Visual Studio Code Insiders</value>
   </data>
