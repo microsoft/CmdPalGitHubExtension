@@ -28,22 +28,23 @@ public sealed class CodespacesPage : ListPage
 
     public override IListItem[] GetItems()
     {
-        CodespacesCollection codespaces = _gitHubClientProvider.GetClientForLoggedInDeveloper().Result.Codespaces.GetAll().Result;
         List<IListItem> result = [];
         try
         {
+            CodespacesCollection codespaces = _gitHubClientProvider.GetClientForLoggedInDeveloper().Result.Codespaces.GetAll().Result;
+
             foreach (Codespace c in codespaces.Codespaces)
             {
                 List<IContextItem> moreCommands = [];
 
                 if (IsExecutableInPath("code-insiders"))
                 {
-                    moreCommands.Add(new CommandContextItem(new OpenUrlCommand("vscode-insiders://github.codespaces/connect?name=" + c.Name + "&windowId=_blank") { Name = _resources.GetResource("Commands_Open_VS_Code_Insiders"), Icon = IconHelpers.FromRelativePath("Assets\\vscode-insiders.svg") }));
+                    moreCommands.Add(new CommandContextItem(new OpenUrlCommand("vscode-insiders://github.codespaces/connect?name=" + Uri.EscapeDataString(c.Name) + "&windowId=_blank") { Name = _resources.GetResource("Commands_Open_VS_Code_Insiders"), Icon = IconHelpers.FromRelativePath("Assets\\vscode-insiders.svg") }));
                 }
 
                 if (IsExecutableInPath("code"))
                 {
-                    moreCommands.Add(new CommandContextItem(new OpenUrlCommand("vscode://github.codespaces/connect?name=" + c.Name + "&windowId=_blank") { Name = _resources.GetResource("Commands_Open_VS_Code"), Icon = IconHelpers.FromRelativePath("Assets\\vscode.svg") }));
+                    moreCommands.Add(new CommandContextItem(new OpenUrlCommand("vscode://github.codespaces/connect?name=" + Uri.EscapeDataString(c.Name) + "&windowId=_blank") { Name = _resources.GetResource("Commands_Open_VS_Code"), Icon = IconHelpers.FromRelativePath("Assets\\vscode.svg") }));
                 }
 
                 result.Add(new ListItem(new OpenUrlCommand(c.WebUrl))
