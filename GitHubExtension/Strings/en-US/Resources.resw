@@ -401,4 +401,25 @@
     <value>Sign in to the GitHub Extension (Preview)</value>
     <comment>The title for the SignInPage</comment>
   </data>
+  <data name="Pages_Codespaces" xml:space="preserve">
+    <value>Your Codespaces</value>
+  </data>
+  <data name="Pages_Codespaces_Placeholder" xml:space="preserve">
+    <value>Search Codespaces</value>
+  </data>
+  <data name="Commands_Open_VS_Code" xml:space="preserve">
+    <value>Open in Visual Studio Code</value>
+  </data>
+  <data name="Commands_Open_VS_Code1" xml:space="preserve">
+    <value>Open in Visual Studio Code</value>
+  </data>
+  <data name="Commands_Open_VS_Code_Insiders" xml:space="preserve">
+    <value>Open in Visual Studio Code Insiders</value>
+  </data>
+  <data name="Message_Codespaces_LoadFail" xml:space="preserve">
+    <value>There was an error loading your codespaces</value>
+  </data>
+  <data name="Message_Codespaces_LoadFail_Description" xml:space="preserve">
+    <value>You may need to log out and log in again to get the necessary permissions</value>
+  </data>
 </root>

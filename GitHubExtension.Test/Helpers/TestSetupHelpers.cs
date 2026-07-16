@@ -170,6 +170,7 @@ public partial class TestHelpers
         var mockSignInForm = new Mock<SignInForm>(mockAuthenticationMediator, mockResources, mockDeveloperIdProvider, mockSignInCommand).Object;
         var signOutPage = new SignOutPage(mockResources, mockSignOutForm, mockSignOutCommand, mockAuthenticationMediator);
         var signInPage = new SignInPage(mockSignInForm, mockResources, mockSignInCommand, mockAuthenticationMediator);
-        return new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, mockDeveloperIdProvider, persistentDataManager, mockResources, searchPageFactory, savedSearchesMediator, mockAuthenticationMediator);
+        var codespacesPage = new CodespacesPage(mockResources, new Client.GitHubClientProvider(mockDeveloperIdProvider));
+        return new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, mockDeveloperIdProvider, persistentDataManager, mockResources, searchPageFactory, savedSearchesMediator, mockAuthenticationMediator, codespacesPage);
     }
 }
