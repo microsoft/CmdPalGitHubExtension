@@ -34,6 +34,7 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ matrix.dotnet-version }}
+        global-json-file: global.json
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
       with:
