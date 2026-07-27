@@ -6,6 +6,7 @@ using GitHubExtension.Client;
 using GitHubExtension.Helpers;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
+using Microsoft.UI.Xaml.Controls;
 using Octokit;
 
 namespace GitHubExtension.Controls.Pages;
@@ -31,7 +32,8 @@ public sealed class CodespacesPage : ListPage
         List<IListItem> result = [];
         try
         {
-            CodespacesCollection codespaces = _gitHubClientProvider.GetClientForLoggedInDeveloper().Result.Codespaces.GetAll().Result;
+            IGitHubClient gitHubClient = _gitHubClientProvider.GetClientForLoggedInDeveloper().Result;
+            CodespacesCollection codespaces = gitHubClient.Codespaces.GetAll().Result;
 
             foreach (Codespace c in codespaces.Codespaces)
             {
@@ -46,6 +48,11 @@ public sealed class CodespacesPage : ListPage
                 {
                     moreCommands.Add(new CommandContextItem(new OpenUrlCommand("vscode://github.codespaces/connect?name=" + Uri.EscapeDataString(c.Name) + "&windowId=_blank") { Name = _resources.GetResource("Commands_Open_VS_Code"), Icon = IconHelpers.FromRelativePath("Assets\\vscode.svg") }));
                 }
+
+                moreCommands.Add(new CommandContextItem(new CopyTextCommand(c.WebUrl) { Name = _resources.GetResource("Commands_Copy_Codespace_URL"), Icon = new IconInfo("\uE8C8") }));
+
+                moreCommands.Add(new CommandContextItem(new AnonymousCommand(() => { gitHubClient.Codespaces.Start(c.Name); }) { Name = _resources.GetResource("Commands_Start_Codespace"), Icon = new IconInfo("\uE768") }));
+                moreCommands.Add(new CommandContextItem(new AnonymousCommand(() => { gitHubClient.Codespaces.Stop(c.Name); }) { Name = _resources.GetResource("Commands_Stop_Codespace"), Icon = new IconInfo("\uE71A") }));
 
                 result.Add(new ListItem(new OpenUrlCommand(c.WebUrl))
                 {

@@ -419,4 +419,13 @@
   <data name="Message_Codespaces_LoadFail_Description" xml:space="preserve">
     <value>You may need to log out and log in again to get the necessary permissions</value>
   </data>
+  <data name="Commands_Start_Codespace" xml:space="preserve">
+    <value>Start Codespace</value>
+  </data>
+  <data name="Commands_Stop_Codespace" xml:space="preserve">
+    <value>Stop Codespace</value>
+  </data>
+  <data name="Commands_Copy_Codespace_URL" xml:space="preserve">
+    <value>Copy Codespace URL</value>
+  </data>
 </root>
