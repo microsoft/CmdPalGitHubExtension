@@ -14,25 +14,27 @@ permissions:
 jobs:
   build-and-test:
     strategy:
+      fail-fast: false
       matrix:
-        configuration: [Release]
-        platform: [x64, arm64]
-        dotnet-version: ['8.0.x']
-    runs-on: windows-latest
+        include:
+          - platform: x64
+            os: windows-latest
+            configuration: Release
+          - platform: arm64
+            os: windows-11-vs2026-arm
+            configuration: Release
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
       with:
         clean: true
 
-    - name: Setup .NET SDK ${{ matrix.dotnet-version }}
+    - name: Setup .NET SDK (from global.json)
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: ${{ matrix.dotnet-version }}
         global-json-file: global.json
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
-      with:
-        vs-version: '17.5'
 
     - name: Download nuget
       run: |
@@ -53,7 +55,6 @@ jobs:
       run: cmd /c "$env:VSDevCmd" "&" msbuild /p:Configuration=${{ matrix.configuration }},Platform=${{ matrix.platform }} /restore GitHubExtension.sln
 
     - name: Find vstest.console.exe
-      if: ${{ matrix.platform != 'arm64' }}
       run: |
         $VSDevTestCmd = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere" -latest -prerelease -products * -find **\TestPlatform\vstest.console.exe
         if (!$VSDevTestCmd) { exit 1 }
@@ -61,5 +62,4 @@ jobs:
         Add-Content $env:GITHUB_ENV "VSDevTestCmd=$VSDevTestCmd"
 
     - name: UnitTests
-      if: ${{ matrix.platform != 'arm64' }}
       run: cmd /c "$env:VSDevTestCmd" /Platform:${{ matrix.platform }} /TestCaseFilter:"TestCategory!=LiveData" BuildOutput\\${{ matrix.configuration }}\\${{ matrix.platform }}\\GitHubExtension.Test\\GitHubExtension.Test.dll
