@@ -132,9 +132,6 @@ extends:
                     filePath: './build/scripts/SetupBuildInfo.ps1'
                     arguments: -Version $(MSIXVersion) -IsAzurePipelineBuild
 
-                - task: NuGetAuthenticate@1
-                  displayName: Authenticate NuGet feeds
-
                 - task: PowerShell@2
                   displayName: Use internal NuGet feed
                   inputs:
@@ -142,6 +139,9 @@ extends:
                     script: >-
                       Copy-Item (Join-Path $(Build.SourcesDirectory) "build\nuget.config.internal") -Destination (Join-Path $(Build.SourcesDirectory) "nuget.config") -Force
                     pwsh: true
+
+                - task: NuGetAuthenticate@1
+                  displayName: Authenticate NuGet feeds
 
                 - task: PowerShell@2
                   displayName: Building MSIX
