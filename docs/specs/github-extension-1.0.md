@@ -27,10 +27,6 @@ The extension supports GitHub.com and GitHub Enterprise Cloud with data residenc
 
 ## Design principles
 
-### Use Command Palette as Command Palette
-
-The Figma mockup defines the information architecture, not a custom shell. The extension uses native Command Palette lists, details, forms, filters, settings, and commands. It does not try to recreate the GitHub website or take over the Command Palette window.
-
 ### Keep common work close
 
 The extension should complete small, frequent tasks without opening a browser. If a task needs a full editor, a code diff, repository administration, or a destructive action, the extension opens the right GitHub page instead.
@@ -70,7 +66,6 @@ Users can continue to pin saved queries to the top level.
 * Repositories
 * Copilot Agents (Preview)
 * Codespaces
-* Settings
 
 The hub opens Notifications by default.
 
@@ -79,9 +74,8 @@ The hub opens Notifications by default.
 Opening a repository provides these destinations:
 
 * Issues
-* Pull requests
+* Pull Requests
 * Actions
-* Releases
 * Discussions
 
 Repository file browsing is not part of 1.0.
@@ -91,6 +85,8 @@ Repository file browsing is not part of 1.0.
 ### Notifications
 
 The Notifications page shows notifications for the active account, including the repository, subject, reason, unread state, and last update time.
+
+![Example notifications tab](https://github.com/user-attachments/assets/ca85fa69-8a74-44cb-b933-59038de87b69)
 
 Users can:
 
@@ -113,6 +109,8 @@ The default list contains:
 * Recently opened repositories.
 * Recently pushed repositories already known to the local cache.
 
+![Repositories tab example](https://github.com/user-attachments/assets/1243f996-354d-42fe-b581-24132c35e781)
+
 Search runs remotely across repositories available to the active account. Private repositories appear when the account and GitHub application have access.
 
 Users can:
@@ -125,6 +123,8 @@ Users can:
 ### Issues
 
 The Issues page supports repository issues and saved issue searches.
+
+![Example issues tab](https://github.com/user-attachments/assets/f293c217-8ca0-49e0-9ab8-d768f2eb847b)
 
 Users can:
 
@@ -143,6 +143,8 @@ Simple Markdown templates and templates that map cleanly to Command Palette form
 
 The Pull Requests page focuses on status and coordination, not code review.
 
+![Example pull request tab](https://github.com/user-attachments/assets/289d47c5-0303-4b8b-afec-298822d6fccc)
+
 Users can:
 
 * Search, filter, and open pull requests.
@@ -157,6 +159,8 @@ The extension does not render code diffs, submit reviews, approve, request chang
 
 The Actions page is scoped to a repository.
 
+![Example Actions tab](https://github.com/user-attachments/assets/99db7d88-deef-413b-84b0-cae3ba04f7b3)
+
 Users can:
 
 * List workflows and recent runs.
@@ -167,9 +171,27 @@ Users can:
 
 Workflow dispatch, run cancellation, deployment approval, workflow editing, and permission management stay on GitHub.
 
-### Copilot Agents (Preview)
+### Discussions
+
+Discussions are scoped to a repository.
+
+![Example discussions tab](https://github.com/user-attachments/assets/49807774-9bbf-4d0e-9a26-ff91b83857f4)
+
+Users can:
+
+* List and filter discussions.
+* Read a discussion and its comments.
+* Create a discussion in a selected category.
+* Add a comment.
+* Open the discussion on GitHub.
+
+Answer marking, pinning, locking, editing, deletion, and moderation stay on GitHub.
+
+### Agents (Preview)
 
 The Agent Tasks API is in public preview. The extension labels this entire surface Preview and keeps it behind capability detection and a versioned API adapter.
+
+![Example Agents tab](https://github.com/user-attachments/assets/cc5ff526-3d12-4cd6-8c87-204af1b3359c)
 
 Users can:
 
@@ -189,6 +211,8 @@ If an agent needs input that the API cannot represent, the extension opens the t
 
 The Codespaces page shows Codespaces for the active account.
 
+![Example Codespaces tab](https://github.com/user-attachments/assets/442e2568-567a-4041-803c-329415c952a9)
+
 Users can:
 
 * List and filter Codespaces.
@@ -199,36 +223,11 @@ Users can:
 
 Deletion, rebuilds, machine changes, retention changes, and secret management stay on GitHub.
 
-### Releases
-
-Releases are scoped to a repository in 1.0.
-
-Users can:
-
-* List releases and prereleases.
-* View release notes and metadata.
-* Open a release on GitHub.
-* Download a release asset.
-
-The extension does not provide a global release feed or support creating, editing, publishing, or deleting releases.
-
-### Discussions
-
-Discussions are scoped to a repository.
-
-Users can:
-
-* List and filter discussions.
-* Read a discussion and its comments.
-* Create a discussion in a selected category.
-* Add a comment.
-* Open the discussion on GitHub.
-
-Answer marking, pinning, locking, editing, deletion, and moderation stay on GitHub.
-
 ### Saved queries
 
 Saved queries remain a power user feature. 1.0 fixes their reliability before adding more query features.
+
+![Example saved queries tab](https://github.com/user-attachments/assets/4628a1e9-5efc-4f41-91ef-3fe8fd437283)
 
 The extension:
 
@@ -434,7 +433,7 @@ These are user experience budgets, not an excuse to hide failed work. Slow or fa
 
 ## Telemetry and diagnostics
 
-Telemetry is off by default and requires explicit consent.
+Telemetry is on by default and requires explicit opt-out.
 
 If enabled, telemetry can record:
 
@@ -454,8 +453,6 @@ Telemetry never records:
 * Agent prompts.
 * Issue, pull request, discussion, release, or comment content.
 * URLs, branches, file names, tokens, or authorization codes.
-
-If PowerToys telemetry is disabled by policy or host settings, the extension sends nothing even when its local consent setting is on.
 
 Local logs contain enough context to diagnose failures without containing tokens, authorization codes, PKCE verifiers, prompts, query text, or GitHub content. Error pages include an Open logs command.
 
@@ -511,9 +508,9 @@ The extension follows these rules:
 * Targets .NET 10.
 * Ships x64 and ARM64 packages.
 * Uses the PowerToys dependency feed.
-* Requires the first stable Command Palette host version that implements the authentication contract.
+* Requires the first stable Command Palette host version that implements the authentication and tabs contracts.
 * Removes Preview from the extension display name.
-* Labels only Copilot Agents as Preview.
+* Labels only Agents as Preview.
 * Uses the approved official logo and store assets.
 * Keeps development packages visually and technically distinct from release packages.
 
