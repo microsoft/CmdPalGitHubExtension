@@ -18,6 +18,7 @@
     <PackageTags>GITServices</PackageTags>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisMode>Recommended</AnalysisMode>
+    <NuGetAuditMode>direct</NuGetAuditMode>
     <PlatformTarget>$(Platform)</PlatformTarget>
     <SelfContained>false</SelfContained>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>

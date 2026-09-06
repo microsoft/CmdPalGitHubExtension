@@ -9,7 +9,7 @@ using Microsoft.CommandPalette.Extensions.Toolkit;
 
 namespace GitHubExtension.Controls.Commands;
 
-public class SignOutCommand : InvokableCommand, IDisposable
+public partial class SignOutCommand : InvokableCommand, IDisposable
 {
     private readonly IResources _resources;
     private readonly IDeveloperIdProvider _developerIdProvider;
