@@ -14,30 +14,27 @@ permissions:
 jobs:
   build-and-test:
     strategy:
+      fail-fast: false
       matrix:
-        configuration: [Release]
-        platform: [x64, arm64]
-        os: [windows-latest, windows-11-arm]
-        dotnet-version: ['8.0.x']
-        exclude:
-        - os: windows-latest
-          platform: arm64
-        - os: windows-11-arm
-          platform: x64
+        include:
+          - platform: x64
+            os: windows-latest
+            configuration: Release
+          - platform: arm64
+            os: windows-11-vs2026-arm
+            configuration: Release
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         clean: true
 
-    - name: Setup .NET SDK ${{ matrix.dotnet-version }}
-      uses: actions/setup-dotnet@v4
+    - name: Setup .NET SDK (from global.json)
+      uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
       with:
-        dotnet-version: ${{ matrix.dotnet-version }}
+        global-json-file: global.json
     - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v2
-      with:
-        vs-version: '17.5'
+      uses: microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57 # v3.0.0
 
     - name: Download nuget
       run: |

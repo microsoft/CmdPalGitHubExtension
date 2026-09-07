@@ -51,7 +51,7 @@ extends:
         break: false
     pool:
       name: Azure-Pipelines-1ESPT-ExDShared
-      image: windows-2022
+      image: windows-2025
       os: windows
 
     stages:
