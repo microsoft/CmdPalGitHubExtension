@@ -11,7 +11,7 @@ using Octokit;
 
 namespace GitHubExtension.Controls.Pages;
 
-public sealed class CodespacesPage : ListPage
+public sealed partial class CodespacesPage : ListPage
 {
     private readonly GitHubClientProvider _gitHubClientProvider;
     private readonly IResources _resources;
