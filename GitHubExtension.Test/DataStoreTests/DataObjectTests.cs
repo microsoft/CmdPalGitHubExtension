@@ -7,11 +7,25 @@ using GitHubExtension.DataModel;
 using GitHubExtension.DataModel.DataObjects;
 using GitHubExtension.Helpers;
 using GitHubExtension.Test.Helpers;
+using Microsoft.Data.Sqlite;
 
 namespace GitHubExtension.Test.DataStoreTests;
 
 public partial class DataStoreTests
 {
+    [TestMethod]
+    [TestCategory("Unit")]
+    public void NativeSqliteVersionMeetsMinimum()
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT sqlite_version()";
+        var version = Convert.ToString(command.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture);
+        Assert.IsTrue(Version.TryParse(version, out var nativeVersion), $"Invalid SQLite version: {version}");
+        Assert.IsTrue(nativeVersion >= new Version(3, 50, 2), $"SQLite 3.50.2 or newer is required; loaded {version}.");
+    }
+
     [TestMethod]
     [TestCategory("Unit")]
     public void DateTimeExtension()
