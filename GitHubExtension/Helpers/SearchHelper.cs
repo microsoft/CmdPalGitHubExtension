@@ -119,6 +119,12 @@ public static class SearchHelper
                         searchBuilder.Add("is:open");
                     }
 
+                    // Add author if present (4th path segment)
+                    if (pathSegments.Length >= 4 && !string.IsNullOrWhiteSpace(pathSegments[3]))
+                    {
+                        searchBuilder.Add($"author:{pathSegments[3]}");
+                    }
+
                     // Add sort if present
                     var sortParam = queryParams["sort"];
                     var orderParam = queryParams["order"];
