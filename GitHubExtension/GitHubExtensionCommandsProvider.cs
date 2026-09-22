@@ -17,6 +17,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
     private readonly SavedSearchesPage _savedSearchesPage;
     private readonly SignOutPage _signOutPage;
     private readonly SignInPage _signInPage;
+    private readonly CodespacesPage _codespacesPage;
     private readonly IDeveloperIdProvider _developerIdProvider;
     private readonly ISearchRepository _persistentDataManager;
     private readonly ISearchPageFactory _searchPageFactory;
@@ -33,7 +34,8 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         IResources resources,
         ISearchPageFactory searchPageFactory,
         SavedSearchesMediator savedSearchesMediator,
-        AuthenticationMediator authenticationMediator)
+        AuthenticationMediator authenticationMediator,
+        CodespacesPage codespacesPage)
     {
         _savedSearchesPage = savedSearchesPage;
         _signOutPage = signOutPage;
@@ -44,6 +46,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         _searchPageFactory = searchPageFactory;
         _savedSearchesMediator = savedSearchesMediator;
         _authenticationMediator = authenticationMediator;
+        _codespacesPage = codespacesPage;
 
         DisplayName = _resources.GetResource("ExtensionTitle");
 
@@ -94,6 +97,7 @@ public partial class GitHubExtensionCommandsProvider : CommandProvider, IDisposa
         {
             new(_savedSearchesPage),
             new(_signOutPage),
+            new(_codespacesPage),
         };
 
         commands.AddRange(defaultCommands);

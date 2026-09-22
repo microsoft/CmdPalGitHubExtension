@@ -146,7 +146,9 @@ public class Program
         using var signInForm = new SignInForm(authenticationMediator, resources, developerIdProvider, signInCommand);
         using var signInPage = new SignInPage(signInForm, resources, signInCommand, authenticationMediator);
 
-        using var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator, authenticationMediator);
+        var codespacesPage = new CodespacesPage(resources, gitHubClientProvider);
+
+        using var commandProvider = new GitHubExtensionCommandsProvider(savedSearchesPage, signOutPage, signInPage, developerIdProvider, searchRepository, resources, searchPageFactory, savedSearchesMediator, authenticationMediator, codespacesPage);
         var extensionInstance = new GitHubExtension(extensionDisposedEvent, commandProvider);
 
         // We are instantiating an extension instance once above, and returning it every time the callback in RegisterExtension below is called.
