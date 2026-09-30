@@ -49,10 +49,10 @@ jobs:
         Add-Content $env:GITHUB_ENV "VSDevCmd=$VSDevCmd"
 
     - name: Restore dependencies
-      run: dotnet restore GitHubExtension.sln -p:PublishReadyToRun=true
+      run: dotnet restore GitHubExtension.slnx -p:PublishReadyToRun=true
 
     - name: Build_CmdPalGitHubExtension
-      run: cmd /c "$env:VSDevCmd" "&" msbuild /p:Configuration=${{ matrix.configuration }},Platform=${{ matrix.platform }} /restore GitHubExtension.sln
+      run: cmd /c "$env:VSDevCmd" "&" msbuild /p:Configuration=${{ matrix.configuration }},Platform=${{ matrix.platform }} /restore GitHubExtension.slnx
 
     - name: Find vstest.console.exe
       run: |

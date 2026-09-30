@@ -71,7 +71,7 @@ If you would like to ask a question that you feel doesn't warrant an issue (yet)
 
 * Clone the repository
 * Uninstall the Command Palette GitHub Extension (Command Palette has a hard time choosing which extension to use if two versions exist)
-* Open `GitHubExtension.sln` in Visual Studio 2022 or later and build from the IDE, or run `build\scripts\Build.ps1` from a Visual Studio command prompt.
+* Open `GitHubExtension.slnx` in Visual Studio 2022 or later and build from the IDE, or run `build\scripts\Build.ps1` from a Visual Studio command prompt.
 
 ### OAuth App
 Since secrets cannot be checked in to the repository, developers must create their own test OAuth app for local tests.

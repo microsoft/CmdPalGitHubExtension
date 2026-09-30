@@ -25,7 +25,7 @@ parameters:
 
 variables:
   MSIXVersion: '0.103'
-  solution: '**/GitHubExtension.sln'
+  solution: '**/GitHubExtension.slnx'
   appxPackageDir: 'AppxPackages'
   testOutputArtifactDir: 'TestResults'
 
