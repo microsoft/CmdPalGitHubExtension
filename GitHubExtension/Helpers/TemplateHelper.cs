@@ -13,6 +13,8 @@ public static class TemplateHelper
         return page switch
         {
             "AuthTemplate" => "Controls\\Templates\\AuthTemplate.json",
+            "SignInTemplate" => "Controls\\Templates\\SignInTemplate.json",
+            "EnterpriseSignInTemplate" => "Controls\\Templates\\EnterpriseSignInTemplate.json",
             "SaveSearch" => "Controls\\Templates\\SaveSearchTemplate.json",
             "CreateIssue" => "Controls\\Templates\\CreateIssueTemplate.json",
             "CreatePullRequest" => "Controls\\Templates\\CreatePullRequestTemplate.json",

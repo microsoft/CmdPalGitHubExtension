@@ -1,0 +1,105 @@
+{
+  "type": "AdaptiveCard",
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.6",
+  "body": [
+    {
+      "type": "Container",
+      "spacing": "none",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": {{EnterpriseTitle}},
+          "wrap": true,
+          "horizontalAlignment": "center",
+          "height": "stretch",
+          "size": "medium",
+          "weight": "bolder"
+        },
+        {
+          "type": "Image",
+          "url": {{AuthIcon}},
+          "horizontalAlignment": "center",
+          "size": "large"
+        },
+        {
+          "type": "Input.Text",
+          "id": "EnterpriseHost",
+          "label": {{EnterpriseHostLabel}},
+          "placeholder": {{EnterpriseHostPlaceholder}},
+          "isRequired": true,
+          "errorMessage": {{EnterpriseHostErrorMessage}}
+        },
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch"
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "ActionSet",
+                  "actions": [
+                    {
+                      "title": {{AuthButtonTitle}},
+                      "tooltip": {{EnterpriseButtonTooltip}},
+                      "type": "Action.Submit",
+                      "style": "positive",
+                      "isEnabled": {{ButtonIsEnabled}},
+                      "data": {
+                        "action": "signIn"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch"
+            }
+          ]
+        },
+        {
+          "type": "ColumnSet",
+          "spacing": "small",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch"
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "ActionSet",
+                  "actions": [
+                    {
+                      "title": {{BackLinkTitle}},
+                      "tooltip": {{BackLinkTooltip}},
+                      "type": "Action.Submit",
+                      "associatedInputs": "none",
+                      "isEnabled": {{ButtonIsEnabled}},
+                      "data": {
+                        "action": "showGitHubDotCom"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

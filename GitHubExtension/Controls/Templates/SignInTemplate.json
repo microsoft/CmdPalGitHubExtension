@@ -40,7 +40,45 @@
                       "title": {{AuthButtonTitle}},
                       "tooltip": {{AuthButtonTooltip}},
                       "type": "Action.Submit",
-                      "isEnabled": {{ButtonIsEnabled}}
+                      "style": "positive",
+                      "isEnabled": {{ButtonIsEnabled}},
+                      "data": {
+                        "action": "signIn"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch"
+            }
+          ]
+        },
+        {
+          "type": "ColumnSet",
+          "spacing": "small",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch"
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "ActionSet",
+                  "actions": [
+                    {
+                      "title": {{EnterpriseLinkTitle}},
+                      "tooltip": {{EnterpriseLinkTooltip}},
+                      "type": "Action.Submit",
+                      "isEnabled": {{ButtonIsEnabled}},
+                      "data": {
+                        "action": "showEnterprise"
+                      }
                     }
                   ]
                 }

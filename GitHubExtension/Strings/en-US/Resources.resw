@@ -158,12 +158,40 @@
     <comment>Shown in form's sign in button tooltip</comment>
   </data>
   <data name="Forms_Sign_In_EnterpriseHostLabel" xml:space="preserve">
-    <value>GitHub Enterprise Server host (optional)</value>
-    <comment>Label for the optional enterprise host field on the sign in form</comment>
+    <value>GitHub Enterprise Server host</value>
+    <comment>Label for the host field on the enterprise sign in form</comment>
   </data>
   <data name="Forms_Sign_In_EnterpriseHostPlaceholder" xml:space="preserve">
-    <value>github.example.com (leave blank for github.com)</value>
-    <comment>Placeholder for the optional enterprise host field on the sign in form</comment>
+    <value>github.example.com</value>
+    <comment>Placeholder for the host field on the enterprise sign in form</comment>
+  </data>
+  <data name="Forms_Sign_In_EnterpriseHostError" xml:space="preserve">
+    <value>Enter the host for your GitHub Enterprise Server instance.</value>
+    <comment>Validation message shown when the enterprise host field is empty</comment>
+  </data>
+  <data name="Forms_Sign_In_Enterprise_Link" xml:space="preserve">
+    <value>Use GitHub Enterprise Server</value>
+    <comment>Shown under the sign in button to open the enterprise sign in form</comment>
+  </data>
+  <data name="Forms_Sign_In_Enterprise_Link_Tooltip" xml:space="preserve">
+    <value>Sign in to a GitHub Enterprise Server instance instead</value>
+    <comment>Tooltip for the enterprise sign in link</comment>
+  </data>
+  <data name="Forms_Sign_In_Enterprise_Title" xml:space="preserve">
+    <value>Sign in to GitHub Enterprise Server</value>
+    <comment>Title of the enterprise sign in form</comment>
+  </data>
+  <data name="Forms_Sign_In_Enterprise_Tooltip" xml:space="preserve">
+    <value>Sign in to your GitHub Enterprise Server instance</value>
+    <comment>Tooltip for the enterprise sign in button</comment>
+  </data>
+  <data name="Forms_Sign_In_Back" xml:space="preserve">
+    <value>Back</value>
+    <comment>Shown on the enterprise sign in form to return to the GitHub.com sign in form</comment>
+  </data>
+  <data name="Forms_Sign_In_Back_Tooltip" xml:space="preserve">
+    <value>Return to signing in with GitHub.com</value>
+    <comment>Tooltip for the back link on the enterprise sign in form</comment>
   </data>
   <data name="Forms_Sign_Out_Title" xml:space="preserve">
     <value>Are you sure you want to sign out?</value>

@@ -19,6 +19,7 @@ public partial class SignInForm : FormContent, IDisposable
     private readonly SignInCommand _signInCommand;
 
     private bool _isButtonEnabled = true;
+    private bool _showEnterpriseHost;
 
     public SignInForm(AuthenticationMediator authenticationMediator, IResources resources, IDeveloperIdProvider developerIdProvider, SignInCommand signInCommand)
     {
@@ -66,9 +67,16 @@ public partial class SignInForm : FormContent, IDisposable
     private void SetButtonEnabled(bool isEnabled)
     {
         _isButtonEnabled = isEnabled;
-        TemplateJson = TemplateHelper.LoadTemplateJsonFromTemplateName("AuthTemplate", TemplateSubstitutions);
+        RefreshTemplate();
+    }
+
+    private void RefreshTemplate()
+    {
+        TemplateJson = TemplateHelper.LoadTemplateJsonFromTemplateName(CurrentTemplateName, TemplateSubstitutions);
         OnPropertyChanged(nameof(TemplateJson));
     }
+
+    private string CurrentTemplateName => _showEnterpriseHost ? "EnterpriseSignInTemplate" : "SignInTemplate";
 
     public Dictionary<string, string> TemplateSubstitutions => new()
     {
@@ -77,29 +85,57 @@ public partial class SignInForm : FormContent, IDisposable
         { "{{AuthIcon}}", JsonSerializer.Serialize($"data:image/png;base64,{GitHubIcon.GetBase64Icon(GitHubIcon.LogoWithBackplatePath)}") },
         { "{{AuthButtonTooltip}}", JsonSerializer.Serialize(_resources.GetResource("Forms_Sign_In_Tooltip")) },
         { "{{ButtonIsEnabled}}", JsonSerializer.Serialize(_isButtonEnabled) },
+        { "{{EnterpriseLinkTitle}}", JsonSerializer.Serialize(_resources.GetResource("Forms_Sign_In_Enterprise_Link")) },
+        { "{{EnterpriseLinkTooltip}}", JsonSerializer.Serialize(_resources.GetResource("Forms_Sign_In_Enterprise_Link_Tooltip")) },
+        { "{{EnterpriseTitle}}", JsonSerializer.Serialize(_resources.GetResource("Forms_Sign_In_Enterprise_Title")) },
+        { "{{EnterpriseButtonTooltip}}", JsonSerializer.Serialize(_resources.GetResource("Forms_Sign_In_Enterprise_Tooltip")) },
         { "{{EnterpriseHostLabel}}", JsonSerializer.Serialize(_resources.GetResource("Forms_Sign_In_EnterpriseHostLabel")) },
         { "{{EnterpriseHostPlaceholder}}", JsonSerializer.Serialize(_resources.GetResource("Forms_Sign_In_EnterpriseHostPlaceholder")) },
+        { "{{EnterpriseHostErrorMessage}}", JsonSerializer.Serialize(_resources.GetResource("Forms_Sign_In_EnterpriseHostError")) },
+        { "{{BackLinkTitle}}", JsonSerializer.Serialize(_resources.GetResource("Forms_Sign_In_Back")) },
+        { "{{BackLinkTooltip}}", JsonSerializer.Serialize(_resources.GetResource("Forms_Sign_In_Back_Tooltip")) },
     };
 
-    public override string TemplateJson => TemplateHelper.LoadTemplateJsonFromTemplateName("AuthTemplate", TemplateSubstitutions);
+    public override string TemplateJson => TemplateHelper.LoadTemplateJsonFromTemplateName(CurrentTemplateName, TemplateSubstitutions);
 
     public override ICommandResult SubmitForm(string inputs, string data)
     {
-        var enterpriseHost = string.Empty;
-        if (!string.IsNullOrWhiteSpace(inputs))
+        var action = ReadStringProperty(data, "action");
+
+        switch (action)
         {
-            try
-            {
-                var payload = System.Text.Json.Nodes.JsonNode.Parse(inputs);
-                enterpriseHost = payload?["EnterpriseHost"]?.ToString() ?? string.Empty;
-            }
-            catch (System.Text.Json.JsonException)
-            {
-                enterpriseHost = string.Empty;
-            }
+            case "showEnterprise":
+                _showEnterpriseHost = true;
+                RefreshTemplate();
+                return CommandResult.KeepOpen();
+
+            case "showGitHubDotCom":
+                _showEnterpriseHost = false;
+                RefreshTemplate();
+                return CommandResult.KeepOpen();
         }
 
+        var enterpriseHost = _showEnterpriseHost ? ReadStringProperty(inputs, "EnterpriseHost") : string.Empty;
+
         return _signInCommand.Invoke(enterpriseHost);
+    }
+
+    private static string ReadStringProperty(string json, string propertyName)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            var payload = System.Text.Json.Nodes.JsonNode.Parse(json);
+            return payload?[propertyName]?.ToString() ?? string.Empty;
+        }
+        catch (JsonException)
+        {
+            return string.Empty;
+        }
     }
 
     // Disposing area
